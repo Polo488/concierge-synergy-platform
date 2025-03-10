@@ -3,7 +3,7 @@ import {
   Home, PlusCircle, Search, Filter, 
   Building, User, MapPin, BedDouble, List, Grid3X3, SlidersHorizontal,
   ChevronRight, Camera, Thermometer, Wifi, Radio, Tv, Car, 
-  Wind, CigaretteOff, Waves, UtensilsCrossed
+  Wind, CigaretteOff, Waves, UtensilsCrossed, Globe, ExternalLink
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,107 +17,8 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { toast } from "@/hooks/use-toast";
 
-// Générer une liste de 400 logements
 const generateProperties = () => {
-  const propertyTypes = ['Appartement', 'Studio', 'Loft', 'Maison', 'Villa'];
-  const cities = ['Lyon', 'Paris', 'Marseille', 'Bordeaux', 'Nantes', 'Lille', 'Toulouse'];
-  const streets = ['Rue de la Paix', 'Avenue des Fleurs', 'Boulevard Central', 'Rue du Port', 'Rue des Arts'];
-  const ownerFirstNames = ['Thomas', 'Sophie', 'Marc', 'Claire', 'Philippe', 'Julie', 'Pierre', 'Marie', 'Luc', 'Céline'];
-  const ownerLastNames = ['Dubois', 'Moreau', 'Lefevre', 'Durand', 'Martin', 'Robert', 'Petit', 'Simon', 'Michel', 'Lefebvre'];
-  const amenities = ['Wifi', 'Climatisation', 'Machine à laver', 'Sèche-linge', 'Télévision', 'Cuisine équipée', 'Parking', 'Terrasse', 'Vue mer', 'Jardin', 'Barbecue', 'Balcon', 'Ascenseur', 'Vue sur rivière'];
-  
-  const linens = {
-    bedding: ['Housse de couette (lit double)', 'Drap plat (lit double)', 'Taies d\'oreiller', 'Housse de couette (lit simple)', 'Drap plat (lit simple)'],
-    towels: ['Serviettes de bain', 'Serviettes de main', 'Tapis de bain'],
-    consumables: ['Papier toilette', 'Savon main', 'Capsules café', 'Tablettes lave-vaisselle', 'Lessive']
-  };
-  
-  const equipments = {
-    heating: ['Radiateur électrique', 'Chauffage central', 'Pompe à chaleur', 'Cheminée'],
-    kitchen: ['Four', 'Micro-ondes', 'Lave-vaisselle', 'Réfrigérateur', 'Plaque à induction', 'Cafetière'],
-    bathroom: ['Douche', 'Baignoire', 'Double vasque', 'Sèche-serviettes']
-  };
-
-  // Générer des photos pour chaque logement
-  const generatePhotos = () => {
-    const categories = ['Extérieur', 'Salon', 'Cuisine', 'Chambre', 'Salle de bain', 'Chauffage', 'Radiateur', 'Équipement'];
-    return categories.map(category => ({
-      id: Math.floor(Math.random() * 1000),
-      url: `https://source.unsplash.com/random/800x600?${category.toLowerCase()}`,
-      caption: `Photo ${category}`,
-      category: category
-    }));
-  };
-
-  const properties = [];
-  
-  for (let i = 1; i <= 400; i++) {
-    const propertyType = propertyTypes[Math.floor(Math.random() * propertyTypes.length)];
-    const city = cities[Math.floor(Math.random() * cities.length)];
-    const street = streets[Math.floor(Math.random() * streets.length)];
-    const streetNumber = Math.floor(Math.random() * 100) + 1;
-    const postalCode = city === 'Lyon' ? '69' : city === 'Paris' ? '75' : '33';
-    const postalCodeSuffix = Math.floor(Math.random() * 20).toString().padStart(3, '0');
-    
-    const ownerFirstName = ownerFirstNames[Math.floor(Math.random() * ownerFirstNames.length)];
-    const ownerLastName = ownerLastNames[Math.floor(Math.random() * ownerLastNames.length)];
-    
-    const randomAmenities = [...amenities]
-      .sort(() => 0.5 - Math.random())
-      .slice(0, Math.floor(Math.random() * 8) + 3);
-    
-    const randomBeddings = [...linens.bedding]
-      .sort(() => 0.5 - Math.random())
-      .slice(0, Math.floor(Math.random() * 3) + 1);
-    
-    const randomTowels = [...linens.towels]
-      .sort(() => 0.5 - Math.random())
-      .slice(0, Math.floor(Math.random() * 2) + 1);
-    
-    const randomConsumables = [...linens.consumables]
-      .sort(() => 0.5 - Math.random())
-      .slice(0, Math.floor(Math.random() * 3) + 2);
-    
-    const randomHeating = equipments.heating[Math.floor(Math.random() * equipments.heating.length)];
-    const randomKitchenEquipments = [...equipments.kitchen]
-      .sort(() => 0.5 - Math.random())
-      .slice(0, Math.floor(Math.random() * 4) + 2);
-    
-    const randomBathroomEquipments = [...equipments.bathroom]
-      .sort(() => 0.5 - Math.random())
-      .slice(0, Math.floor(Math.random() * 2) + 1);
-      
-    properties.push({
-      id: i,
-      number: i.toString().padStart(3, '0'),
-      name: `${propertyType} ${city} ${i.toString().padStart(3, '0')}`,
-      address: `${streetNumber} ${street}, ${postalCode}${postalCodeSuffix} ${city}`,
-      type: propertyType,
-      bedrooms: Math.floor(Math.random() * 3) + 1,
-      bathrooms: Math.floor(Math.random() * 2) + 1,
-      size: Math.floor(Math.random() * 60) + 30,
-      commission: Math.floor(Math.random() * 10) + 10,
-      owner: {
-        name: `${ownerFirstName} ${ownerLastName}`,
-        email: `${ownerFirstName.toLowerCase()}.${ownerLastName.toLowerCase()}@example.com`,
-        phone: `+33 6 ${Math.floor(Math.random() * 90000000) + 10000000}`
-      },
-      amenities: randomAmenities,
-      linens: {
-        bedding: randomBeddings,
-        towels: randomTowels,
-        consumables: randomConsumables
-      },
-      equipment: {
-        heating: randomHeating,
-        kitchen: randomKitchenEquipments,
-        bathroom: randomBathroomEquipments
-      },
-      photos: generatePhotos()
-    });
-  }
-  
-  return properties;
+  // ... keep existing code (generateProperties function)
 };
 
 const Properties = () => {
@@ -166,6 +67,24 @@ const Properties = () => {
     selectedPhotoCategory === 'Toutes' || photo.category === selectedPhotoCategory
   );
 
+  const platformLinks = [
+    { 
+      name: "Airbnb", 
+      url: (propertyId) => `https://airbnb.com/rooms/${propertyId}`, 
+      icon: <Globe className="h-4 w-4" /> 
+    },
+    { 
+      name: "Booking.com", 
+      url: (propertyId) => `https://booking.com/hotel/${propertyId}`, 
+      icon: <Globe className="h-4 w-4" /> 
+    },
+    { 
+      name: "Abritel", 
+      url: (propertyId) => `https://abritel.fr/location/${propertyId}`, 
+      icon: <Globe className="h-4 w-4" /> 
+    }
+  ];
+
   return (
     <div className="space-y-8">
       <div>
@@ -175,7 +94,6 @@ const Properties = () => {
         </p>
       </div>
       
-      {/* Statistics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard 
           title="Total logements" 
@@ -203,7 +121,6 @@ const Properties = () => {
         />
       </div>
       
-      {/* Properties management */}
       <DashboardCard 
         title="Liste des logements"
         actions={
@@ -366,7 +283,6 @@ const Properties = () => {
         </div>
       </DashboardCard>
 
-      {/* Property Detail Dialog */}
       {selectedProperty && (
         <Dialog open={!!selectedProperty} onOpenChange={handleClosePropertyDetails}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -386,10 +302,11 @@ const Properties = () => {
             </DialogHeader>
 
             <Tabs defaultValue="info" className="mt-4">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="info">Informations</TabsTrigger>
                 <TabsTrigger value="equipment">Équipements</TabsTrigger>
                 <TabsTrigger value="photos">Photos</TabsTrigger>
+                <TabsTrigger value="platforms">Plateformes</TabsTrigger>
               </TabsList>
               
               <TabsContent value="info" className="space-y-4 mt-4">
@@ -572,6 +489,45 @@ const Properties = () => {
                   ))}
                 </div>
               </TabsContent>
+              
+              <TabsContent value="platforms" className="space-y-4 mt-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <h3 className="font-medium text-lg mb-4">Liens vers les plateformes</h3>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      {platformLinks.map((platform, index) => (
+                        <a 
+                          key={index}
+                          href={platform.url(selectedProperty.id)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                        >
+                          <div className="flex items-center gap-2">
+                            {platform.icon}
+                            <span className="font-medium">{platform.name}</span>
+                          </div>
+                          <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                        </a>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-6">
+                      <h4 className="font-medium mb-3">Liens personnalisés</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <Input placeholder="Nom de la plateforme" className="flex-1" />
+                          <Input placeholder="URL" className="flex-1" />
+                          <Button variant="outline" size="sm">Ajouter</Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Note: Les liens personnalisés ne sont pas encore fonctionnels. Ils seront implémentés dans une future mise à jour.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
             </Tabs>
           </DialogContent>
         </Dialog>
@@ -581,3 +537,4 @@ const Properties = () => {
 };
 
 export default Properties;
+
