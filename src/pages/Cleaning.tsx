@@ -1,8 +1,9 @@
+
 import { useEffect, useState } from 'react';
 import { 
   Sparkles, CheckCircle, Clock, Calendar as CalendarIcon, 
   Search, Download, Filter, User, ChevronLeft, ChevronRight,
-  Printer, Tag, Tags, QrCode
+  Printer, Tag, Tags, QrCode, ChevronDown, ChevronUp, Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,12 +14,13 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format, addDays, isSameDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const cleaningAgents = [
   'Marie Lambert',
@@ -403,22 +405,18 @@ const Cleaning = () => {
 
   const CleaningTask = ({ task }: { task: any }) => {
     const isTaskSelected = selectedTasks.some(t => t.id === task.id);
+    const [isExpanded, setIsExpanded] = useState(false);
     
     return (
-      <Card className={`p-5 mb-4 animate-slide-up card-hover border border-border/40 ${labelsDialogOpen && isTaskSelected ? 'ring-2 ring-primary' : ''}`}>
-        <div className="flex justify-between items-start">
-          <div className={labelsDialogOpen ? "flex-1 cursor-pointer" : "flex-1"} onClick={labelsDialogOpen ? () => handleSelectTask(task) : undefined}>
-            <div className="flex items-center gap-2 mb-1">
+      <Card className={`p-3 mb-2 animate-slide-up card-hover border border-border/40 ${labelsDialogOpen && isTaskSelected ? 'ring-2 ring-primary' : ''}`}>
+        <div className="flex justify-between items-center">
+          <div 
+            className={`flex-1 ${labelsDialogOpen ? "cursor-pointer" : ""}`} 
+            onClick={labelsDialogOpen ? () => handleSelectTask(task) : undefined}
+          >
+            <div className="flex items-center gap-2">
               {getStatusBadge(task.status)}
-              {task.date ? (
-                <span className="text-sm text-muted-foreground">
-                  {task.date} · {task.startTime} - {task.endTime}
-                </span>
-              ) : (
-                <span className="text-sm text-muted-foreground">
-                  Check-out: {task.checkoutTime} · Check-in: {task.checkinTime}
-                </span>
-              )}
+              <h3 className="font-semibold">{task.property}</h3>
               {labelsDialogOpen && (
                 <div className="ml-auto">
                   <input 
@@ -430,92 +428,123 @@ const Cleaning = () => {
                 </div>
               )}
             </div>
-            <h3 className="font-semibold text-lg">{task.property}</h3>
-            
-            {task.cleaningAgent && (
-              <div className="flex items-center gap-2 mt-2 mb-3">
-                <Avatar className="h-6 w-6">
-                  <AvatarFallback>{task.cleaningAgent.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
-                </Avatar>
-                <span className="text-sm">Agent: {task.cleaningAgent}</span>
-              </div>
-            )}
-            
-            <div className="mt-3 space-y-2">
-              {task.items?.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium mb-1">Linge à prévoir:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {task.items.map((item: string, i: number) => (
-                      <Badge key={i} variant="outline" className="rounded-full">
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {task.bedding?.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium mb-1">Housses et taies:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {task.bedding.map((item: string, i: number) => (
-                      <Badge key={i} variant="outline" className="rounded-full bg-blue-50">
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {task.consumables?.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium mb-1">Consommables:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {task.consumables.map((item: string, i: number) => (
-                      <Badge key={i} variant="outline" className="rounded-full bg-green-50">
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+            <div className="text-xs text-muted-foreground mt-1">
+              {task.date ? (
+                <span>{task.date} · {task.startTime} - {task.endTime}</span>
+              ) : (
+                <span>Check-out: {task.checkoutTime} · Check-in: {task.checkinTime}</span>
               )}
             </div>
           </div>
           
           {!labelsDialogOpen && (
-            <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
               {task.status === 'todo' && (
                 <>
-                  <Button size="sm" className="w-full" onClick={() => handleStartCleaning(task)}>
+                  <Button size="sm" variant="ghost" className="px-2" onClick={() => openDetailsDialog(task)}>
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button size="sm" className="py-1 px-2 h-8" onClick={() => handleStartCleaning(task)}>
                     Commencer
                   </Button>
-                  {!task.cleaningAgent ? (
-                    <Button size="sm" variant="outline" className="w-full" onClick={() => openAssignDialog(task)}>
-                      Assigner
-                    </Button>
-                  ) : (
-                    <Button size="sm" variant="outline" className="w-full" onClick={() => openAssignDialog(task)}>
-                      Changer
-                    </Button>
-                  )}
                 </>
               )}
               {task.status === 'inProgress' && (
                 <>
-                  <Button size="sm" className="w-full" onClick={() => handleCompleteCleaning(task)}>
-                    Terminer
+                  <Button size="sm" variant="ghost" className="px-2" onClick={() => openDetailsDialog(task)}>
+                    <Eye className="h-4 w-4" />
                   </Button>
-                  <Button size="sm" variant="outline" className="w-full" onClick={() => openProblemDialog(task)}>
-                    Problème
+                  <Button size="sm" className="py-1 px-2 h-8" onClick={() => handleCompleteCleaning(task)}>
+                    Terminer
                   </Button>
                 </>
               )}
               {(task.status === 'completed' || task.status === 'scheduled') && (
-                <Button size="sm" variant="outline" className="w-full" onClick={() => openDetailsDialog(task)}>
-                  Détails
+                <Button size="sm" variant="ghost" className="px-2" onClick={() => openDetailsDialog(task)}>
+                  <Eye className="h-4 w-4" />
                 </Button>
               )}
+              <Collapsible>
+                <CollapsibleTrigger asChild>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="px-2"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                  >
+                    {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-3 pt-3 border-t">
+                  {task.cleaningAgent && (
+                    <div className="flex items-center gap-2 mb-3">
+                      <Avatar className="h-6 w-6">
+                        <AvatarFallback>{task.cleaningAgent.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm">Agent: {task.cleaningAgent}</span>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-2">
+                    {task.items?.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium mb-1">Linge à prévoir:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {task.items.map((item: string, i: number) => (
+                            <Badge key={i} variant="outline" className="rounded-full">
+                              {item}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {task.bedding?.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium mb-1">Housses et taies:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {task.bedding.map((item: string, i: number) => (
+                            <Badge key={i} variant="outline" className="rounded-full bg-blue-50">
+                              {item}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {task.consumables?.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium mb-1">Consommables:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {task.consumables.map((item: string, i: number) => (
+                            <Badge key={i} variant="outline" className="rounded-full bg-green-50">
+                              {item}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex gap-2 mt-4">
+                    {task.status === 'todo' && !task.cleaningAgent && (
+                      <Button size="sm" variant="outline" className="py-1 px-2 h-8" onClick={() => openAssignDialog(task)}>
+                        Assigner
+                      </Button>
+                    )}
+                    {task.status === 'todo' && task.cleaningAgent && (
+                      <Button size="sm" variant="outline" className="py-1 px-2 h-8" onClick={() => openAssignDialog(task)}>
+                        Changer
+                      </Button>
+                    )}
+                    {task.status === 'inProgress' && (
+                      <Button size="sm" variant="outline" className="py-1 px-2 h-8" onClick={() => openProblemDialog(task)}>
+                        Problème
+                      </Button>
+                    )}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           )}
         </div>
@@ -625,7 +654,7 @@ const Cleaning = () => {
             </TabsList>
             
             <TabsContent value="today" className="animate-slide-up">
-              <div className="space-y-4 mt-4">
+              <div className="space-y-2 mt-4">
                 {todayCleaningTasks.map((task) => (
                   <CleaningTask key={task.id} task={task} />
                 ))}
@@ -633,7 +662,7 @@ const Cleaning = () => {
             </TabsContent>
             
             <TabsContent value="tomorrow" className="animate-slide-up">
-              <div className="space-y-4 mt-4">
+              <div className="space-y-2 mt-4">
                 {tomorrowCleaningTasks.map((task) => (
                   <CleaningTask key={task.id} task={task} />
                 ))}
@@ -641,7 +670,7 @@ const Cleaning = () => {
             </TabsContent>
             
             <TabsContent value="completed" className="animate-slide-up">
-              <div className="space-y-4 mt-4">
+              <div className="space-y-2 mt-4">
                 {completedCleaningTasks.map((task) => (
                   <CleaningTask key={task.id} task={task} />
                 ))}
@@ -655,6 +684,7 @@ const Cleaning = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Assigner un agent de ménage</DialogTitle>
+            <DialogDescription>Sélectionnez un agent pour effectuer ce ménage</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Select value={selectedAgent} onValueChange={setSelectedAgent}>
@@ -679,6 +709,7 @@ const Cleaning = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Détails du ménage</DialogTitle>
+            <DialogDescription>Informations complètes sur cette tâche de ménage</DialogDescription>
           </DialogHeader>
           {currentTask && (
             <div className="py-4 space-y-4">
@@ -769,6 +800,7 @@ const Cleaning = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Signaler un problème</DialogTitle>
+            <DialogDescription>Décrivez le problème rencontré lors du ménage</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <textarea 
@@ -795,6 +827,7 @@ const Cleaning = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Calendrier des ménages</DialogTitle>
+            <DialogDescription>Sélectionnez une date pour voir les ménages programmés</DialogDescription>
           </DialogHeader>
           <div className="py-4 flex justify-center">
             <Calendar
@@ -815,6 +848,7 @@ const Cleaning = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Générer des étiquettes</DialogTitle>
+            <DialogDescription>Sélectionnez les ménages et le type d'étiquette à imprimer</DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div>
