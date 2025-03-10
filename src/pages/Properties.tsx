@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   Home, PlusCircle, Search, Filter, 
@@ -16,6 +15,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { toast } from "@/hooks/use-toast";
 
 // Générer une liste de 400 logements
 const generateProperties = () => {
@@ -242,7 +242,7 @@ const Properties = () => {
                   <SelectValue placeholder="Type de bien" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tous les types</SelectItem>
+                  <SelectItem value="all">Tous les types</SelectItem>
                   <SelectItem value="Appartement">Appartement</SelectItem>
                   <SelectItem value="Studio">Studio</SelectItem>
                   <SelectItem value="Loft">Loft</SelectItem>
