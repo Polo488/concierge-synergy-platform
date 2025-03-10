@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
 import Maintenance from "./pages/Maintenance";
 import Cleaning from "./pages/Cleaning";
+import Calendar from "./pages/Calendar";
 import Properties from "./pages/Properties";
 import Billing from "./pages/Billing";
 import NotFound from "./pages/NotFound";
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/maintenance" element={<Maintenance />} />
             <Route path="/cleaning" element={<Cleaning />} />
+            <Route path="/calendar" element={<Calendar />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="/billing" element={<Billing />} />
             <Route path="*" element={<NotFound />} />
