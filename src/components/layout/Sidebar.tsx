@@ -6,7 +6,7 @@ import {
   LayoutDashboard,
   Package,
   Wrench,
-  Spray,
+  Sparkles,
   Home,
   Receipt,
   Menu,
@@ -25,7 +25,7 @@ const navItems: NavItem[] = [
   { name: 'Tableau de bord', path: '/', icon: LayoutDashboard },
   { name: 'Entrepôt', path: '/inventory', icon: Package },
   { name: 'Maintenance', path: '/maintenance', icon: Wrench },
-  { name: 'Ménage', path: '/cleaning', icon: Spray },
+  { name: 'Ménage', path: '/cleaning', icon: Sparkles },
   { name: 'Logements', path: '/properties', icon: Home },
   { name: 'Facturation', path: '/billing', icon: Receipt },
 ];

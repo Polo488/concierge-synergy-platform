@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { 
-  Spray, CheckCircle, Clock, Calendar, 
+  Sparkles, CheckCircle, Clock, Calendar, 
   Search, Download, Filter, User
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -195,7 +195,7 @@ const Cleaning = () => {
         <StatCard 
           title="En cours" 
           value="1" 
-          icon={<Spray className="h-5 w-5" />}
+          icon={<Sparkles className="h-5 w-5" />}
           className="stagger-2"
         />
         <StatCard 

@@ -1,7 +1,6 @@
-
 import { useEffect } from 'react';
 import { 
-  LayoutDashboard, Package, Wrench, Spray, 
+  LayoutDashboard, Package, Wrench, Sparkles, 
   Home, Receipt, BarChart3, Clock
 } from 'lucide-react';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
@@ -66,7 +65,7 @@ const Dashboard = () => {
         <StatCard 
           title="Ménages planifiés" 
           value="12" 
-          icon={<Spray className="h-5 w-5" />}
+          icon={<Sparkles className="h-5 w-5" />}
           className="stagger-3"
         />
         <StatCard 
