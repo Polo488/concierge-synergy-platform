@@ -1,7 +1,8 @@
+
 import { useEffect, useState } from 'react';
 import { 
-  Sparkles, CheckCircle, Clock, Calendar, 
-  Search, Download, Filter, User
+  Sparkles, CheckCircle, Clock, Calendar as CalendarIcon, 
+  Search, Download, Filter, User, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format, addDays, isSameDay } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const cleaningAgents = [
   'Marie Lambert',
@@ -101,9 +106,12 @@ const Cleaning = () => {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [problemDialogOpen, setProblemDialogOpen] = useState(false);
+  const [calendarDialogOpen, setCalendarDialogOpen] = useState(false);
   const [currentTask, setCurrentTask] = useState<any>(null);
   const [selectedAgent, setSelectedAgent] = useState<string>("");
   const [problemDescription, setProblemDescription] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [activeTab, setActiveTab] = useState("today");
 
   useEffect(() => {
     document.title = 'Ménage - GESTION BNB LYON';
@@ -228,6 +236,32 @@ const Cleaning = () => {
     });
   };
 
+  const openCalendarDialog = () => {
+    setCalendarDialogOpen(true);
+  };
+
+  const handleDateChange = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDate(date);
+      
+      // Simuler un changement d'onglet basé sur la date sélectionnée
+      if (isSameDay(date, new Date())) {
+        setActiveTab("today");
+      } else if (isSameDay(date, addDays(new Date(), 1))) {
+        setActiveTab("tomorrow");
+      } else {
+        // Pour d'autres dates, on pourrait charger des données spécifiques
+        // Ici on reste sur l'onglet actuel pour simplicité
+        toast({
+          title: "Date sélectionnée",
+          description: `Vous avez sélectionné le ${format(date, 'dd MMMM yyyy', { locale: fr })}`
+        });
+      }
+      
+      setCalendarDialogOpen(false);
+    }
+  };
+
   const CleaningTask = ({ task }: { task: any }) => {
     return (
       <Card className="p-5 mb-4 animate-slide-up card-hover border border-border/40">
@@ -333,7 +367,7 @@ const Cleaning = () => {
         <StatCard 
           title="Demain" 
           value={tomorrowCleaningTasks.length.toString()} 
-          icon={<Calendar className="h-5 w-5" />}
+          icon={<CalendarIcon className="h-5 w-5" />}
           className="stagger-3"
         />
         <StatCard 
@@ -354,24 +388,39 @@ const Cleaning = () => {
               Exporter
             </Button>
             <Button size="sm" className="gap-1" onClick={handleSync}>
-              <Calendar className="h-4 w-4" />
+              <CalendarIcon className="h-4 w-4" />
               Synchroniser
             </Button>
           </div>
         }
       >
         <div className="space-y-4">
-          <div className="flex flex-wrap gap-3 items-center">
+          <div className="flex flex-wrap gap-3 items-center justify-between">
             <div className="flex items-center gap-2 max-w-sm flex-1">
               <Search className="h-4 w-4 text-muted-foreground" />
               <Input placeholder="Rechercher un logement..." className="h-9" />
             </div>
             
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="gap-1">
-                <Calendar className="h-4 w-4" />
-                Date
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1">
+                    <CalendarIcon className="h-4 w-4" />
+                    {format(selectedDate, 'dd MMM yyyy', { locale: fr })}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={handleDateChange}
+                    initialFocus
+                    locale={fr}
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+              
               <Button variant="outline" size="sm" className="gap-1">
                 <User className="h-4 w-4" />
                 Agent
@@ -383,7 +432,7 @@ const Cleaning = () => {
             </div>
           </div>
           
-          <Tabs defaultValue="today">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="w-full max-w-md grid grid-cols-3">
               <TabsTrigger value="today">Aujourd'hui</TabsTrigger>
               <TabsTrigger value="tomorrow">Demain</TabsTrigger>
@@ -527,6 +576,26 @@ const Cleaning = () => {
             >
               Signaler
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={calendarDialogOpen} onOpenChange={setCalendarDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Calendrier des ménages</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 flex justify-center">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleDateChange}
+              className="rounded-md border pointer-events-auto"
+              locale={fr}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCalendarDialogOpen(false)}>Fermer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
