@@ -204,7 +204,7 @@ const Dashboard = () => {
                 <p className="font-medium">Planification aujourd'hui</p>
                 <p className="text-sm text-muted-foreground">12 ménages planifiés</p>
               </div>
-              <Spray className="h-5 w-5 text-muted-foreground" />
+              <Sparkles className="h-5 w-5 text-muted-foreground" />
             </div>
             
             <div className="space-y-2">
