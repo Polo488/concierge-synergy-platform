@@ -1,8 +1,8 @@
-
 import { useEffect, useState } from 'react';
 import { 
   Sparkles, CheckCircle, Clock, Calendar as CalendarIcon, 
-  Search, Download, Filter, User, ChevronLeft, ChevronRight
+  Search, Download, Filter, User, ChevronLeft, ChevronRight,
+  Printer, Tag, Tags, QrCode
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -107,11 +107,14 @@ const Cleaning = () => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [problemDialogOpen, setProblemDialogOpen] = useState(false);
   const [calendarDialogOpen, setCalendarDialogOpen] = useState(false);
+  const [labelsDialogOpen, setLabelsDialogOpen] = useState(false);
   const [currentTask, setCurrentTask] = useState<any>(null);
   const [selectedAgent, setSelectedAgent] = useState<string>("");
   const [problemDescription, setProblemDescription] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [activeTab, setActiveTab] = useState("today");
+  const [selectedTasks, setSelectedTasks] = useState<Array<any>>([]);
+  const [labelType, setLabelType] = useState<"standard" | "detailed" | "qrcode">("standard");
 
   useEffect(() => {
     document.title = 'Ménage - GESTION BNB LYON';
@@ -244,14 +247,11 @@ const Cleaning = () => {
     if (date) {
       setSelectedDate(date);
       
-      // Simuler un changement d'onglet basé sur la date sélectionnée
       if (isSameDay(date, new Date())) {
         setActiveTab("today");
       } else if (isSameDay(date, addDays(new Date(), 1))) {
         setActiveTab("tomorrow");
       } else {
-        // Pour d'autres dates, on pourrait charger des données spécifiques
-        // Ici on reste sur l'onglet actuel pour simplicité
         toast({
           title: "Date sélectionnée",
           description: `Vous avez sélectionné le ${format(date, 'dd MMMM yyyy', { locale: fr })}`
@@ -262,11 +262,121 @@ const Cleaning = () => {
     }
   };
 
+  const openLabelsDialog = () => {
+    setSelectedTasks([]);
+    setLabelType("standard");
+    setLabelsDialogOpen(true);
+  };
+
+  const handleSelectTask = (task: any) => {
+    setSelectedTasks(prev => {
+      const taskIndex = prev.findIndex(t => t.id === task.id);
+      if (taskIndex === -1) {
+        return [...prev, task];
+      } else {
+        return prev.filter(t => t.id !== task.id);
+      }
+    });
+  };
+
+  const handlePrintLabels = () => {
+    if (selectedTasks.length === 0) {
+      toast({
+        title: "Sélection requise",
+        description: "Veuillez sélectionner au moins un ménage pour générer des étiquettes.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Étiquettes Ménage - GESTION BNB LYON</title>
+            <style>
+              body { font-family: Arial, sans-serif; }
+              .container { padding: 20px; }
+              .label { 
+                border: 1px solid #ccc; 
+                padding: 15px; 
+                margin-bottom: 20px; 
+                page-break-inside: avoid;
+                max-width: 400px;
+              }
+              .property { font-weight: bold; font-size: 16px; margin-bottom: 8px; }
+              .details { font-size: 14px; margin-bottom: 8px; }
+              .items { margin-top: 10px; }
+              .item { margin-bottom: 4px; font-size: 12px; }
+              .qrcode { 
+                border: 1px solid #000; 
+                width: 100px; 
+                height: 100px; 
+                margin-top: 10px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 12px;
+              }
+              @media print {
+                @page { margin: 0.5cm; }
+                .label { page-break-after: always; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              ${selectedTasks.map(task => `
+                <div class="label">
+                  <div class="property">${task.property}</div>
+                  ${labelType !== "standard" ? `
+                    <div class="details">
+                      ${task.date ? 
+                        `Date: ${task.date}` : 
+                        `Check-out: ${task.checkoutTime} · Check-in: ${task.checkinTime}`
+                      }
+                    </div>
+                    ${task.cleaningAgent ? `<div class="details">Agent: ${task.cleaningAgent}</div>` : ''}
+                  ` : ''}
+                  ${labelType !== "standard" ? `
+                    <div class="items">
+                      <strong>Linge à prévoir:</strong>
+                      ${task.items.map((item: string) => `
+                        <div class="item">- ${item}</div>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+                  ${labelType === "qrcode" ? `
+                    <div class="qrcode">QR Code: ${task.id}</div>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+            <script>
+              window.onload = function() { window.print(); }
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    toast({
+      title: "Étiquettes générées",
+      description: `${selectedTasks.length} étiquette(s) prête(s) à imprimer.`
+    });
+    
+    setLabelsDialogOpen(false);
+  };
+
   const CleaningTask = ({ task }: { task: any }) => {
+    const isTaskSelected = selectedTasks.some(t => t.id === task.id);
+    
     return (
-      <Card className="p-5 mb-4 animate-slide-up card-hover border border-border/40">
+      <Card className={`p-5 mb-4 animate-slide-up card-hover border border-border/40 ${labelsDialogOpen && isTaskSelected ? 'ring-2 ring-primary' : ''}`}>
         <div className="flex justify-between items-start">
-          <div>
+          <div className={labelsDialogOpen ? "flex-1 cursor-pointer" : "flex-1"} onClick={labelsDialogOpen ? () => handleSelectTask(task) : undefined}>
             <div className="flex items-center gap-2 mb-1">
               {getStatusBadge(task.status)}
               {task.date ? (
@@ -277,6 +387,16 @@ const Cleaning = () => {
                 <span className="text-sm text-muted-foreground">
                   Check-out: {task.checkoutTime} · Check-in: {task.checkinTime}
                 </span>
+              )}
+              {labelsDialogOpen && (
+                <div className="ml-auto">
+                  <input 
+                    type="checkbox" 
+                    checked={isTaskSelected}
+                    onChange={() => handleSelectTask(task)}
+                    className="h-4 w-4"
+                  />
+                </div>
               )}
             </div>
             <h3 className="font-semibold text-lg">{task.property}</h3>
@@ -304,39 +424,41 @@ const Cleaning = () => {
             )}
           </div>
           
-          <div className="flex flex-col gap-2">
-            {task.status === 'todo' && (
-              <>
-                <Button size="sm" className="w-full" onClick={() => handleStartCleaning(task)}>
-                  Commencer
-                </Button>
-                {!task.cleaningAgent ? (
-                  <Button size="sm" variant="outline" className="w-full" onClick={() => openAssignDialog(task)}>
-                    Assigner
+          {!labelsDialogOpen && (
+            <div className="flex flex-col gap-2">
+              {task.status === 'todo' && (
+                <>
+                  <Button size="sm" className="w-full" onClick={() => handleStartCleaning(task)}>
+                    Commencer
                   </Button>
-                ) : (
-                  <Button size="sm" variant="outline" className="w-full" onClick={() => openAssignDialog(task)}>
-                    Changer
+                  {!task.cleaningAgent ? (
+                    <Button size="sm" variant="outline" className="w-full" onClick={() => openAssignDialog(task)}>
+                      Assigner
+                    </Button>
+                  ) : (
+                    <Button size="sm" variant="outline" className="w-full" onClick={() => openAssignDialog(task)}>
+                      Changer
+                    </Button>
+                  )}
+                </>
+              )}
+              {task.status === 'inProgress' && (
+                <>
+                  <Button size="sm" className="w-full" onClick={() => handleCompleteCleaning(task)}>
+                    Terminer
                   </Button>
-                )}
-              </>
-            )}
-            {task.status === 'inProgress' && (
-              <>
-                <Button size="sm" className="w-full" onClick={() => handleCompleteCleaning(task)}>
-                  Terminer
+                  <Button size="sm" variant="outline" className="w-full" onClick={() => openProblemDialog(task)}>
+                    Problème
+                  </Button>
+                </>
+              )}
+              {(task.status === 'completed' || task.status === 'scheduled') && (
+                <Button size="sm" variant="outline" className="w-full" onClick={() => openDetailsDialog(task)}>
+                  Détails
                 </Button>
-                <Button size="sm" variant="outline" className="w-full" onClick={() => openProblemDialog(task)}>
-                  Problème
-                </Button>
-              </>
-            )}
-            {(task.status === 'completed' || task.status === 'scheduled') && (
-              <Button size="sm" variant="outline" className="w-full" onClick={() => openDetailsDialog(task)}>
-                Détails
-              </Button>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </Card>
     );
@@ -383,6 +505,10 @@ const Cleaning = () => {
         title="Planification des ménages"
         actions={
           <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="gap-1" onClick={openLabelsDialog}>
+              <Tag className="h-4 w-4" />
+              Étiquettes
+            </Button>
             <Button size="sm" variant="outline" className="gap-1" onClick={handleExport}>
               <Download className="h-4 w-4" />
               Exporter
@@ -596,6 +722,81 @@ const Cleaning = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCalendarDialogOpen(false)}>Fermer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={labelsDialogOpen} onOpenChange={setLabelsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Générer des étiquettes</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div>
+              <p className="text-sm mb-2">Type d'étiquette :</p>
+              <div className="flex gap-2">
+                <Button 
+                  variant={labelType === "standard" ? "default" : "outline"} 
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => setLabelType("standard")}
+                >
+                  <Tag className="mr-2 h-4 w-4" />
+                  Standard
+                </Button>
+                <Button 
+                  variant={labelType === "detailed" ? "default" : "outline"} 
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => setLabelType("detailed")}
+                >
+                  <Tags className="mr-2 h-4 w-4" />
+                  Détaillée
+                </Button>
+                <Button 
+                  variant={labelType === "qrcode" ? "default" : "outline"} 
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => setLabelType("qrcode")}
+                >
+                  <QrCode className="mr-2 h-4 w-4" />
+                  QR Code
+                </Button>
+              </div>
+            </div>
+            
+            <div>
+              <p className="text-sm mb-2">Sélectionnez les ménages :</p>
+              <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2">
+                {[...todayCleaningTasks, ...tomorrowCleaningTasks].map((task) => (
+                  <CleaningTask key={task.id} task={task} />
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex justify-between items-center pt-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setSelectedTasks([...todayCleaningTasks, ...tomorrowCleaningTasks])}
+              >
+                Tout sélectionner
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {selectedTasks.length} ménage(s) sélectionné(s)
+              </span>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLabelsDialogOpen(false)}>Annuler</Button>
+            <Button 
+              onClick={handlePrintLabels}
+              className="gap-2"
+              disabled={selectedTasks.length === 0}
+            >
+              <Printer className="h-4 w-4" />
+              Imprimer ({selectedTasks.length})
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
