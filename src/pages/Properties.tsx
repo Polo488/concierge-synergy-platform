@@ -18,7 +18,111 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { toast } from "@/hooks/use-toast";
 
 const generateProperties = () => {
-  // ... keep existing code (generateProperties function)
+  const propertyTypes = ['Appartement', 'Studio', 'Loft', 'Maison', 'Villa'];
+  const ownerNames = [
+    'Thomas Dubois', 'Marie Lefevre', 'Jean Martin', 'Sophie Bernard', 'Pierre Durand',
+    'Isabelle Moreau', 'Michel Lambert', 'Anne Rousseau', 'Philippe Girard', 'Julie Leroy'
+  ];
+  
+  return Array.from({ length: 400 }, (_, i) => {
+    const id = (i + 1).toString();
+    const number = id.padStart(2, '0');
+    const type = propertyTypes[Math.floor(Math.random() * propertyTypes.length)];
+    const ownerName = ownerNames[Math.floor(Math.random() * ownerNames.length)];
+    const commission = Math.floor(Math.random() * 10) + 10;
+    const bedrooms = Math.floor(Math.random() * 5) + 1;
+    const bathrooms = Math.floor(Math.random() * 3) + 1;
+    const size = Math.floor(Math.random() * 100) + 30;
+    
+    const possibleAmenities = [
+      'Wifi', 'Climatisation', 'Parking', 'Télévision', 'Vue mer', 
+      'Cuisine équipée', 'Piscine', 'Jardin', 'Balcon', 'Terrasse', 
+      'Salle de sport', 'Non-fumeur', 'Animaux acceptés'
+    ];
+    
+    const amenities = [];
+    const amenitiesCount = Math.floor(Math.random() * 6) + 3;
+    for (let j = 0; j < amenitiesCount; j++) {
+      const randomIndex = Math.floor(Math.random() * possibleAmenities.length);
+      if (!amenities.includes(possibleAmenities[randomIndex])) {
+        amenities.push(possibleAmenities[randomIndex]);
+      }
+    }
+    
+    const streetNames = [
+      'Rue de la République', 'Avenue des Champs-Élysées', 'Boulevard Saint-Michel',
+      'Rue de Rivoli', 'Avenue Montaigne', 'Place de la Concorde', 'Rue du Faubourg Saint-Honoré'
+    ];
+    const cities = ['Lyon', 'Paris', 'Marseille', 'Bordeaux', 'Nice', 'Toulouse', 'Strasbourg'];
+    const streetName = streetNames[Math.floor(Math.random() * streetNames.length)];
+    const streetNumber = Math.floor(Math.random() * 100) + 1;
+    const city = cities[Math.floor(Math.random() * cities.length)];
+    const address = `${streetNumber} ${streetName}, ${city}`;
+    
+    const equipmentItems = {
+      heating: ["Chauffage central", "Radiateurs électriques", "Chauffage au sol", "Pompe à chaleur"][Math.floor(Math.random() * 4)],
+      kitchen: [
+        "Four", "Micro-ondes", "Lave-vaisselle", "Réfrigérateur", "Plaques de cuisson", 
+        "Cafetière", "Grille-pain", "Bouilloire"
+      ].slice(0, Math.floor(Math.random() * 5) + 3),
+      bathroom: [
+        "Douche", "Baignoire", "Sèche-cheveux", "Machine à laver", "Sèche-linge"
+      ].slice(0, Math.floor(Math.random() * 3) + 2)
+    };
+    
+    const linens = {
+      bedding: [
+        `${bedrooms} jeux de draps`, 
+        `${bedrooms * 2} taies d'oreiller`, 
+        `${bedrooms} couettes`
+      ],
+      towels: [
+        `${bedrooms * 2} grandes serviettes`, 
+        `${bedrooms * 2} petites serviettes`, 
+        `${bathrooms} tapis de bain`
+      ],
+      consumables: [
+        "Papier toilette (4 rouleaux)", 
+        "Savon liquide", 
+        "Shampoing", 
+        "Gel douche"
+      ]
+    };
+    
+    const photoCategories = ["Extérieur", "Salon", "Cuisine", "Chambre", "Salle de bain", "Chauffage", "Radiateur", "Équipement"];
+    
+    const photosCount = Math.floor(Math.random() * 5) + 8;
+    const photos = Array.from({ length: photosCount }, (_, photoIndex) => {
+      const category = photoCategories[Math.floor(Math.random() * photoCategories.length)];
+      return {
+        id: `${id}-photo-${photoIndex + 1}`,
+        url: `https://placehold.co/600x400/008000/FFFFFF/png?text=Photo+${photoIndex + 1}`,
+        caption: `${category} ${number}`,
+        category: category
+      };
+    });
+    
+    return {
+      id,
+      number,
+      name: `Logement ${number}`,
+      type,
+      address,
+      size,
+      bedrooms,
+      bathrooms,
+      amenities,
+      commission,
+      photos,
+      equipment: equipmentItems,
+      linens,
+      owner: {
+        name: ownerName,
+        email: `${ownerName.toLowerCase().replace(' ', '.')}@example.com`,
+        phone: `+33 ${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)} ${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)} ${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)} ${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)} ${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}`
+      }
+    };
+  });
 };
 
 const Properties = () => {
