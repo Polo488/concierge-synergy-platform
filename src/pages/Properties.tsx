@@ -97,7 +97,7 @@ const properties = [
 
 const Properties = () => {
   useEffect(() => {
-    document.title = 'Logements - Concierge Synergy Platform';
+    document.title = 'Logements - GESTION BNB LYON';
   }, []);
 
   return (

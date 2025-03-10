@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { 
   LayoutDashboard, Package, Wrench, Sparkles, 
@@ -34,7 +35,7 @@ const propertiesData = [
 
 const Dashboard = () => {
   useEffect(() => {
-    document.title = 'Tableau de bord - Concierge Synergy Platform';
+    document.title = 'Tableau de bord - GESTION BNB LYON';
   }, []);
 
   return (

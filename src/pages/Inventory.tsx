@@ -43,7 +43,7 @@ const maintenance = [
 
 const Inventory = () => {
   useEffect(() => {
-    document.title = 'Entrepôt - Concierge Synergy Platform';
+    document.title = 'Entrepôt - GESTION BNB LYON';
   }, []);
 
   const renderStockStatus = (stock: number, min: number) => {

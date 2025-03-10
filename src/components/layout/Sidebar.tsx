@@ -92,7 +92,7 @@ export function Sidebar() {
             "font-semibold text-primary text-xl tracking-tight",
             !isOpen && "md:hidden"
           )}>
-            Concierge
+            GESTION BNB LYON
           </span>
           {!isOpen && (
             <span className="hidden md:block text-primary">
