@@ -1,5 +1,4 @@
-
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   Sparkles, CheckCircle, Clock, Calendar, 
   Search, Download, Filter, User
@@ -12,86 +11,102 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Mock data
-const todayCleaning = [
-  {
-    id: 1,
-    property: 'Appartement 12 Rue du Port',
-    checkoutTime: '11:00',
-    checkinTime: '15:00',
-    status: 'todo',
-    cleaningAgent: null,
-    items: ['Draps king size x1', 'Serviettes bain x2', 'Serviettes main x2']
-  },
-  {
-    id: 2,
-    property: 'Studio 8 Avenue des Fleurs',
-    checkoutTime: '10:00',
-    checkinTime: '16:00',
-    status: 'inProgress',
-    cleaningAgent: 'Marie Lambert',
-    startTime: '10:30',
-    items: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1']
-  },
-  {
-    id: 3,
-    property: 'Loft 72 Rue des Arts',
-    checkoutTime: '12:00',
-    checkinTime: '17:00',
-    status: 'todo',
-    cleaningAgent: 'Lucas Martin',
-    items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2', 'Peignoirs x2']
-  }
-];
-
-const tomorrowCleaning = [
-  {
-    id: 4,
-    property: 'Maison 23 Rue de la Paix',
-    checkoutTime: '10:00',
-    checkinTime: '15:00',
-    status: 'scheduled',
-    cleaningAgent: null,
-    items: ['Draps king size x2', 'Serviettes bain x4', 'Serviettes main x4', 'Peignoirs x2']
-  },
-  {
-    id: 5,
-    property: 'Appartement 45 Boulevard Central',
-    checkoutTime: '11:00',
-    checkinTime: '14:00',
-    status: 'scheduled',
-    cleaningAgent: 'Marie Lambert',
-    items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2']
-  }
-];
-
-const completedCleaning = [
-  {
-    id: 6,
-    property: 'Studio 15 Rue des Lilas',
-    date: '2023-11-21',
-    status: 'completed',
-    cleaningAgent: 'Lucas Martin',
-    startTime: '10:30',
-    endTime: '11:45',
-    items: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1']
-  },
-  {
-    id: 7,
-    property: 'Appartement 28 Avenue Victor Hugo',
-    date: '2023-11-21',
-    status: 'completed',
-    cleaningAgent: 'Marie Lambert',
-    startTime: '13:00',
-    endTime: '14:30',
-    items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2']
-  }
+const cleaningAgents = [
+  'Marie Lambert',
+  'Lucas Martin',
+  'Sophie Berger',
+  'Thomas Laurent'
 ];
 
 const Cleaning = () => {
+  const [todayCleaningTasks, setTodayCleaningTasks] = useState([
+    {
+      id: 1,
+      property: 'Appartement 12 Rue du Port',
+      checkoutTime: '11:00',
+      checkinTime: '15:00',
+      status: 'todo',
+      cleaningAgent: null,
+      items: ['Draps king size x1', 'Serviettes bain x2', 'Serviettes main x2']
+    },
+    {
+      id: 2,
+      property: 'Studio 8 Avenue des Fleurs',
+      checkoutTime: '10:00',
+      checkinTime: '16:00',
+      status: 'inProgress',
+      cleaningAgent: 'Marie Lambert',
+      startTime: '10:30',
+      items: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1']
+    },
+    {
+      id: 3,
+      property: 'Loft 72 Rue des Arts',
+      checkoutTime: '12:00',
+      checkinTime: '17:00',
+      status: 'todo',
+      cleaningAgent: 'Lucas Martin',
+      items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2', 'Peignoirs x2']
+    }
+  ]);
+
+  const [tomorrowCleaningTasks, setTomorrowCleaningTasks] = useState([
+    {
+      id: 4,
+      property: 'Maison 23 Rue de la Paix',
+      checkoutTime: '10:00',
+      checkinTime: '15:00',
+      status: 'scheduled',
+      cleaningAgent: null,
+      items: ['Draps king size x2', 'Serviettes bain x4', 'Serviettes main x4', 'Peignoirs x2']
+    },
+    {
+      id: 5,
+      property: 'Appartement 45 Boulevard Central',
+      checkoutTime: '11:00',
+      checkinTime: '14:00',
+      status: 'scheduled',
+      cleaningAgent: 'Marie Lambert',
+      items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2']
+    }
+  ]);
+
+  const [completedCleaningTasks, setCompletedCleaningTasks] = useState([
+    {
+      id: 6,
+      property: 'Studio 15 Rue des Lilas',
+      date: '2023-11-21',
+      status: 'completed',
+      cleaningAgent: 'Lucas Martin',
+      startTime: '10:30',
+      endTime: '11:45',
+      items: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1']
+    },
+    {
+      id: 7,
+      property: 'Appartement 28 Avenue Victor Hugo',
+      date: '2023-11-21',
+      status: 'completed',
+      cleaningAgent: 'Marie Lambert',
+      startTime: '13:00',
+      endTime: '14:30',
+      items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2']
+    }
+  ]);
+
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [problemDialogOpen, setProblemDialogOpen] = useState(false);
+  const [currentTask, setCurrentTask] = useState<any>(null);
+  const [selectedAgent, setSelectedAgent] = useState<string>("");
+  const [problemDescription, setProblemDescription] = useState<string>("");
+
   useEffect(() => {
-    document.title = 'Ménage - Concierge Synergy Platform';
+    document.title = 'Ménage - GESTION BNB LYON';
   }, []);
 
   const getStatusBadge = (status: string) => {
@@ -107,6 +122,110 @@ const Cleaning = () => {
       default:
         return null;
     }
+  };
+
+  const handleStartCleaning = (task: any) => {
+    const updatedTasks = todayCleaningTasks.map(t => {
+      if (t.id === task.id) {
+        return {
+          ...t,
+          status: 'inProgress',
+          startTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+        };
+      }
+      return t;
+    });
+    
+    setTodayCleaningTasks(updatedTasks);
+    
+    toast({
+      title: "Ménage commencé",
+      description: `Le ménage pour ${task.property} a débuté.`
+    });
+  };
+
+  const handleCompleteCleaning = (task: any) => {
+    const updatedTodayTasks = todayCleaningTasks.filter(t => t.id !== task.id);
+    setTodayCleaningTasks(updatedTodayTasks);
+    
+    const now = new Date();
+    const completedTask = {
+      ...task,
+      status: 'completed',
+      date: now.toISOString().split('T')[0],
+      endTime: now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    };
+    
+    setCompletedCleaningTasks([completedTask, ...completedCleaningTasks]);
+    
+    toast({
+      title: "Ménage terminé",
+      description: `Le ménage pour ${task.property} a été complété avec succès.`
+    });
+  };
+
+  const openAssignDialog = (task: any) => {
+    setCurrentTask(task);
+    setSelectedAgent(task.cleaningAgent || "");
+    setAssignDialogOpen(true);
+  };
+
+  const handleAssignAgent = () => {
+    const updateTask = (tasks: any[], taskId: number) => {
+      return tasks.map(t => {
+        if (t.id === taskId) {
+          return { ...t, cleaningAgent: selectedAgent };
+        }
+        return t;
+      });
+    };
+
+    if (currentTask.status === 'todo' || currentTask.status === 'inProgress') {
+      setTodayCleaningTasks(updateTask(todayCleaningTasks, currentTask.id));
+    } else if (currentTask.status === 'scheduled') {
+      setTomorrowCleaningTasks(updateTask(tomorrowCleaningTasks, currentTask.id));
+    }
+
+    setAssignDialogOpen(false);
+    
+    toast({
+      title: "Agent assigné",
+      description: `${selectedAgent} a été assigné au ménage pour ${currentTask.property}.`
+    });
+  };
+
+  const openDetailsDialog = (task: any) => {
+    setCurrentTask(task);
+    setDetailsDialogOpen(true);
+  };
+
+  const openProblemDialog = (task: any) => {
+    setCurrentTask(task);
+    setProblemDialogOpen(true);
+    setProblemDescription("");
+  };
+
+  const handleReportProblem = () => {
+    toast({
+      title: "Problème signalé",
+      description: `Un problème a été signalé pour ${currentTask.property}. L'équipe de support a été notifiée.`,
+      variant: "destructive"
+    });
+    setProblemDialogOpen(false);
+  };
+
+  const handleExport = () => {
+    toast({
+      title: "Exportation réussie",
+      description: "Les données de ménage ont été exportées avec succès."
+    });
+  };
+
+  const handleSync = () => {
+    toast({
+      title: "Synchronisation réussie",
+      description: "Les données de ménage ont été synchronisées avec succès."
+    });
   };
 
   const CleaningTask = ({ task }: { task: any }) => {
@@ -154,20 +273,34 @@ const Cleaning = () => {
           <div className="flex flex-col gap-2">
             {task.status === 'todo' && (
               <>
-                <Button size="sm" className="w-full">Commencer</Button>
-                {!task.cleaningAgent && (
-                  <Button size="sm" variant="outline" className="w-full">Assigner</Button>
+                <Button size="sm" className="w-full" onClick={() => handleStartCleaning(task)}>
+                  Commencer
+                </Button>
+                {!task.cleaningAgent ? (
+                  <Button size="sm" variant="outline" className="w-full" onClick={() => openAssignDialog(task)}>
+                    Assigner
+                  </Button>
+                ) : (
+                  <Button size="sm" variant="outline" className="w-full" onClick={() => openAssignDialog(task)}>
+                    Changer
+                  </Button>
                 )}
               </>
             )}
             {task.status === 'inProgress' && (
               <>
-                <Button size="sm" className="w-full">Terminer</Button>
-                <Button size="sm" variant="outline" className="w-full">Problème</Button>
+                <Button size="sm" className="w-full" onClick={() => handleCompleteCleaning(task)}>
+                  Terminer
+                </Button>
+                <Button size="sm" variant="outline" className="w-full" onClick={() => openProblemDialog(task)}>
+                  Problème
+                </Button>
               </>
             )}
             {(task.status === 'completed' || task.status === 'scheduled') && (
-              <Button size="sm" variant="outline" className="w-full">Détails</Button>
+              <Button size="sm" variant="outline" className="w-full" onClick={() => openDetailsDialog(task)}>
+                Détails
+              </Button>
             )}
           </div>
         </div>
@@ -184,45 +317,43 @@ const Cleaning = () => {
         </p>
       </div>
       
-      {/* Statistics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard 
           title="Aujourd'hui" 
-          value="3" 
+          value={todayCleaningTasks.length.toString()} 
           icon={<Clock className="h-5 w-5" />}
           className="stagger-1"
         />
         <StatCard 
           title="En cours" 
-          value="1" 
+          value={todayCleaningTasks.filter(t => t.status === 'inProgress').length.toString()} 
           icon={<Sparkles className="h-5 w-5" />}
           className="stagger-2"
         />
         <StatCard 
           title="Demain" 
-          value="5" 
+          value={tomorrowCleaningTasks.length.toString()} 
           icon={<Calendar className="h-5 w-5" />}
           className="stagger-3"
         />
         <StatCard 
           title="Terminés (semaine)" 
-          value="12" 
+          value={completedCleaningTasks.length.toString()} 
           icon={<CheckCircle className="h-5 w-5" />}
           change={{ value: 2, type: 'increase' }}
           className="stagger-4"
         />
       </div>
       
-      {/* Cleaning management */}
       <DashboardCard 
         title="Planification des ménages"
         actions={
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="gap-1">
+            <Button size="sm" variant="outline" className="gap-1" onClick={handleExport}>
               <Download className="h-4 w-4" />
               Exporter
             </Button>
-            <Button size="sm" className="gap-1">
+            <Button size="sm" className="gap-1" onClick={handleSync}>
               <Calendar className="h-4 w-4" />
               Synchroniser
             </Button>
@@ -261,7 +392,7 @@ const Cleaning = () => {
             
             <TabsContent value="today" className="animate-slide-up">
               <div className="space-y-4 mt-4">
-                {todayCleaning.map((task) => (
+                {todayCleaningTasks.map((task) => (
                   <CleaningTask key={task.id} task={task} />
                 ))}
               </div>
@@ -269,7 +400,7 @@ const Cleaning = () => {
             
             <TabsContent value="tomorrow" className="animate-slide-up">
               <div className="space-y-4 mt-4">
-                {tomorrowCleaning.map((task) => (
+                {tomorrowCleaningTasks.map((task) => (
                   <CleaningTask key={task.id} task={task} />
                 ))}
               </div>
@@ -277,7 +408,7 @@ const Cleaning = () => {
             
             <TabsContent value="completed" className="animate-slide-up">
               <div className="space-y-4 mt-4">
-                {completedCleaning.map((task) => (
+                {completedCleaningTasks.map((task) => (
                   <CleaningTask key={task.id} task={task} />
                 ))}
               </div>
@@ -285,6 +416,120 @@ const Cleaning = () => {
           </Tabs>
         </div>
       </DashboardCard>
+
+      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assigner un agent de ménage</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Choisir un agent" />
+              </SelectTrigger>
+              <SelectContent>
+                {cleaningAgents.map(agent => (
+                  <SelectItem key={agent} value={agent}>{agent}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>Annuler</Button>
+            <Button onClick={handleAssignAgent} disabled={!selectedAgent}>Assigner</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Détails du ménage</DialogTitle>
+          </DialogHeader>
+          {currentTask && (
+            <div className="py-4 space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg">{currentTask.property}</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {currentTask.date ? (
+                    <>Date: {currentTask.date}</>
+                  ) : (
+                    <>Check-out: {currentTask.checkoutTime} · Check-in: {currentTask.checkinTime}</>
+                  )}
+                </p>
+              </div>
+              
+              <div>
+                <p className="font-medium text-sm">Statut:</p>
+                <div className="mt-1">{getStatusBadge(currentTask.status)}</div>
+              </div>
+              
+              {currentTask.cleaningAgent && (
+                <div>
+                  <p className="font-medium text-sm">Agent assigné:</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Avatar className="h-6 w-6">
+                      <AvatarFallback>{currentTask.cleaningAgent.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <span>{currentTask.cleaningAgent}</span>
+                  </div>
+                </div>
+              )}
+              
+              {currentTask.items?.length > 0 && (
+                <div>
+                  <p className="font-medium text-sm">Linge à prévoir:</p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {currentTask.items.map((item: string, i: number) => (
+                      <Badge key={i} variant="outline" className="rounded-full">
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {currentTask.status === 'completed' && (
+                <div>
+                  <p className="font-medium text-sm">Horaires:</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Début: {currentTask.startTime} · Fin: {currentTask.endTime}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setDetailsDialogOpen(false)}>Fermer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={problemDialogOpen} onOpenChange={setProblemDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Signaler un problème</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <textarea 
+              className="w-full min-h-[100px] p-2 border rounded-md"
+              placeholder="Décrivez le problème rencontré..."
+              value={problemDescription}
+              onChange={(e) => setProblemDescription(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setProblemDialogOpen(false)}>Annuler</Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleReportProblem}
+              disabled={problemDescription.trim().length === 0}
+            >
+              Signaler
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
