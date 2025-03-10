@@ -11,7 +11,8 @@ import {
   Receipt,
   Menu,
   X,
-  ChevronRight
+  ChevronRight,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -26,6 +27,7 @@ const navItems: NavItem[] = [
   { name: 'Entrepôt', path: '/inventory', icon: Package },
   { name: 'Maintenance', path: '/maintenance', icon: Wrench },
   { name: 'Ménage', path: '/cleaning', icon: Sparkles },
+  { name: 'Calendrier', path: '/calendar', icon: CalendarIcon },
   { name: 'Logements', path: '/properties', icon: Home },
   { name: 'Facturation', path: '/billing', icon: Receipt },
 ];
