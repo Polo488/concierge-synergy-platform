@@ -36,7 +36,9 @@ const Cleaning = () => {
       checkinTime: '15:00',
       status: 'todo',
       cleaningAgent: null,
-      items: ['Draps king size x1', 'Serviettes bain x2', 'Serviettes main x2']
+      items: ['Draps king size x1', 'Serviettes bain x2', 'Serviettes main x2'],
+      consumables: ['Capsules café x4', 'Sachets thé x2', 'Gel douche x1', 'Shampoing x1'],
+      bedding: ['Housse de couette king size x1', 'Taies d\'oreiller x2']
     },
     {
       id: 2,
@@ -46,7 +48,9 @@ const Cleaning = () => {
       status: 'inProgress',
       cleaningAgent: 'Marie Lambert',
       startTime: '10:30',
-      items: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1']
+      items: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1'],
+      consumables: ['Capsules café x2', 'Sachets thé x2', 'Gel douche x1'],
+      bedding: ['Housse de couette simple x1', 'Taie d\'oreiller x1']
     },
     {
       id: 3,
@@ -55,7 +59,9 @@ const Cleaning = () => {
       checkinTime: '17:00',
       status: 'todo',
       cleaningAgent: 'Lucas Martin',
-      items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2', 'Peignoirs x2']
+      items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2', 'Peignoirs x2'],
+      consumables: ['Capsules café x4', 'Sachets thé x4', 'Gel douche x2', 'Shampoing x2'],
+      bedding: ['Housse de couette queen x1', 'Taies d\'oreiller x2']
     }
   ]);
 
@@ -67,7 +73,9 @@ const Cleaning = () => {
       checkinTime: '15:00',
       status: 'scheduled',
       cleaningAgent: null,
-      items: ['Draps king size x2', 'Serviettes bain x4', 'Serviettes main x4', 'Peignoirs x2']
+      items: ['Draps king size x2', 'Serviettes bain x4', 'Serviettes main x4', 'Peignoirs x2'],
+      consumables: ['Capsules café x6', 'Sachets thé x4', 'Gel douche x2', 'Shampoing x2'],
+      bedding: ['Housse de couette king size x2', 'Taies d\'oreiller x4']
     },
     {
       id: 5,
@@ -76,7 +84,9 @@ const Cleaning = () => {
       checkinTime: '14:00',
       status: 'scheduled',
       cleaningAgent: 'Marie Lambert',
-      items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2']
+      items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2'],
+      consumables: ['Capsules café x4', 'Sachets thé x2', 'Gel douche x1', 'Shampoing x1'],
+      bedding: ['Housse de couette queen x1', 'Taies d\'oreiller x2']
     }
   ]);
 
@@ -89,7 +99,9 @@ const Cleaning = () => {
       cleaningAgent: 'Lucas Martin',
       startTime: '10:30',
       endTime: '11:45',
-      items: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1']
+      items: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1'],
+      consumables: ['Capsules café x2', 'Sachets thé x2', 'Gel douche x1'],
+      bedding: ['Housse de couette simple x1', 'Taie d\'oreiller x1']
     },
     {
       id: 7,
@@ -99,7 +111,9 @@ const Cleaning = () => {
       cleaningAgent: 'Marie Lambert',
       startTime: '13:00',
       endTime: '14:30',
-      items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2']
+      items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2'],
+      consumables: ['Capsules café x4', 'Sachets thé x2', 'Gel douche x1', 'Shampoing x1'],
+      bedding: ['Housse de couette queen x1', 'Taies d\'oreiller x2']
     }
   ]);
 
@@ -303,11 +317,12 @@ const Cleaning = () => {
                 padding: 15px; 
                 margin-bottom: 20px; 
                 page-break-inside: avoid;
-                max-width: 400px;
+                max-width: 500px;
               }
               .property { font-weight: bold; font-size: 16px; margin-bottom: 8px; }
               .details { font-size: 14px; margin-bottom: 8px; }
               .items { margin-top: 10px; }
+              .section-title { font-weight: bold; margin-top: 10px; margin-bottom: 5px; font-size: 14px; }
               .item { margin-bottom: 4px; font-size: 12px; }
               .qrcode { 
                 border: 1px solid #000; 
@@ -339,14 +354,30 @@ const Cleaning = () => {
                     </div>
                     ${task.cleaningAgent ? `<div class="details">Agent: ${task.cleaningAgent}</div>` : ''}
                   ` : ''}
+
                   ${labelType !== "standard" ? `
                     <div class="items">
-                      <strong>Linge à prévoir:</strong>
-                      ${task.items.map((item: string) => `
+                      <div class="section-title">Linge à prévoir:</div>
+                      ${task.items ? task.items.map((item) => `
                         <div class="item">- ${item}</div>
-                      `).join('')}
+                      `).join('') : ''}
+                      
+                      ${task.bedding ? `
+                        <div class="section-title">Housses et taies:</div>
+                        ${task.bedding.map((item) => `
+                          <div class="item">- ${item}</div>
+                        `).join('')}
+                      ` : ''}
+                      
+                      ${task.consumables ? `
+                        <div class="section-title">Consommables:</div>
+                        ${task.consumables.map((item) => `
+                          <div class="item">- ${item}</div>
+                        `).join('')}
+                      ` : ''}
                     </div>
                   ` : ''}
+                  
                   ${labelType === "qrcode" ? `
                     <div class="qrcode">QR Code: ${task.id}</div>
                   ` : ''}
@@ -410,18 +441,46 @@ const Cleaning = () => {
               </div>
             )}
             
-            {task.items?.length > 0 && (
-              <div className="mt-3">
-                <p className="text-sm font-medium mb-1">Linge à prévoir:</p>
-                <div className="flex flex-wrap gap-2">
-                  {task.items.map((item: string, i: number) => (
-                    <Badge key={i} variant="outline" className="rounded-full">
-                      {item}
-                    </Badge>
-                  ))}
+            <div className="mt-3 space-y-2">
+              {task.items?.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium mb-1">Linge à prévoir:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {task.items.map((item: string, i: number) => (
+                      <Badge key={i} variant="outline" className="rounded-full">
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+              
+              {task.bedding?.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium mb-1">Housses et taies:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {task.bedding.map((item: string, i: number) => (
+                      <Badge key={i} variant="outline" className="rounded-full bg-blue-50">
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {task.consumables?.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium mb-1">Consommables:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {task.consumables.map((item: string, i: number) => (
+                      <Badge key={i} variant="outline" className="rounded-full bg-green-50">
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           
           {!labelsDialogOpen && (
@@ -657,6 +716,32 @@ const Cleaning = () => {
                   <div className="flex flex-wrap gap-2 mt-1">
                     {currentTask.items.map((item: string, i: number) => (
                       <Badge key={i} variant="outline" className="rounded-full">
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {currentTask.bedding?.length > 0 && (
+                <div>
+                  <p className="font-medium text-sm">Housses et taies:</p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {currentTask.bedding.map((item: string, i: number) => (
+                      <Badge key={i} variant="outline" className="rounded-full bg-blue-50">
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {currentTask.consumables?.length > 0 && (
+                <div>
+                  <p className="font-medium text-sm">Consommables:</p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {currentTask.consumables.map((item: string, i: number) => (
+                      <Badge key={i} variant="outline" className="rounded-full bg-green-50">
                         {item}
                       </Badge>
                     ))}
