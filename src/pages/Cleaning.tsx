@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { 
   Sparkles, CheckCircle, Clock, Calendar as CalendarIcon, 
   Search, Download, Filter, User, ChevronLeft, ChevronRight,
-  Printer, Tag, Tags, QrCode, ChevronDown, ChevronUp, Eye
+  Printer, Tag, Tags, QrCode, ChevronDown, ChevronUp, Eye,
+  Plus, Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format, addDays, isSameDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const cleaningAgents = [
   'Marie Lambert',
@@ -119,11 +121,16 @@ const Cleaning = () => {
     }
   ]);
 
+  // État pour les dialogues
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [problemDialogOpen, setProblemDialogOpen] = useState(false);
   const [calendarDialogOpen, setCalendarDialogOpen] = useState(false);
   const [labelsDialogOpen, setLabelsDialogOpen] = useState(false);
+  const [addTaskDialogOpen, setAddTaskDialogOpen] = useState(false);
+  const [deleteConfirmDialogOpen, setDeleteConfirmDialogOpen] = useState(false);
+  
+  // État pour les tâches et données sélectionnées
   const [currentTask, setCurrentTask] = useState<any>(null);
   const [selectedAgent, setSelectedAgent] = useState<string>("");
   const [problemDescription, setProblemDescription] = useState<string>("");
@@ -131,6 +138,25 @@ const Cleaning = () => {
   const [activeTab, setActiveTab] = useState("today");
   const [selectedTasks, setSelectedTasks] = useState<Array<any>>([]);
   const [labelType, setLabelType] = useState<"standard" | "detailed" | "qrcode">("standard");
+  
+  // État pour la nouvelle tâche à ajouter
+  const [newTask, setNewTask] = useState({
+    property: '',
+    checkoutTime: '11:00',
+    checkinTime: '15:00',
+    status: 'todo',
+    cleaningAgent: '',
+    date: format(new Date(), 'yyyy-MM-dd'),
+    items: ['Serviettes bain x2', 'Serviettes main x2'],
+    consumables: ['Capsules café x4', 'Sachets thé x2'],
+    bedding: ['Housse de couette queen x1', 'Taies d\'oreiller x2']
+  });
+
+  // Générer prochain ID disponible
+  const getNextId = () => {
+    const allTasks = [...todayCleaningTasks, ...tomorrowCleaningTasks, ...completedCleaningTasks];
+    return Math.max(...allTasks.map(t => t.id), 0) + 1;
+  };
 
   useEffect(() => {
     document.title = 'Ménage - GESTION BNB LYON';
@@ -295,6 +321,83 @@ const Cleaning = () => {
     });
   };
 
+  // Nouvelle fonction pour ajouter une tâche
+  const handleAddTask = () => {
+    const id = getNextId();
+    const taskToAdd = {
+      ...newTask,
+      id,
+      cleaningAgent: newTask.cleaningAgent === '' ? null : newTask.cleaningAgent
+    };
+    
+    // Déterminer dans quelle liste ajouter la tâche selon la date et le statut
+    const taskDate = new Date(newTask.date);
+    const today = new Date();
+    const tomorrow = addDays(today, 1);
+    
+    if (isSameDay(taskDate, today)) {
+      if (newTask.status === 'completed') {
+        setCompletedCleaningTasks([taskToAdd, ...completedCleaningTasks]);
+      } else {
+        setTodayCleaningTasks([...todayCleaningTasks, taskToAdd]);
+      }
+      setActiveTab("today");
+    } else if (isSameDay(taskDate, tomorrow)) {
+      setTomorrowCleaningTasks([...tomorrowCleaningTasks, taskToAdd]);
+      setActiveTab("tomorrow");
+    } else {
+      // Pour les dates futures, ajouter à "demain" avec statut planifié
+      const scheduledTask = { ...taskToAdd, status: 'scheduled' };
+      setTomorrowCleaningTasks([...tomorrowCleaningTasks, scheduledTask]);
+      setActiveTab("tomorrow");
+    }
+    
+    // Réinitialiser le formulaire
+    setNewTask({
+      property: '',
+      checkoutTime: '11:00',
+      checkinTime: '15:00',
+      status: 'todo',
+      cleaningAgent: '',
+      date: format(new Date(), 'yyyy-MM-dd'),
+      items: ['Serviettes bain x2', 'Serviettes main x2'],
+      consumables: ['Capsules café x4', 'Sachets thé x2'],
+      bedding: ['Housse de couette queen x1', 'Taies d\'oreiller x2']
+    });
+    
+    setAddTaskDialogOpen(false);
+    
+    toast({
+      title: "Ménage ajouté",
+      description: `Un nouveau ménage pour ${taskToAdd.property} a été ajouté.`
+    });
+  };
+
+  // Supprimer une tâche
+  const openDeleteDialog = (task: any) => {
+    setCurrentTask(task);
+    setDeleteConfirmDialogOpen(true);
+  };
+
+  const handleDeleteTask = () => {
+    // Trouver dans quelle liste est la tâche
+    if (currentTask.status === 'completed') {
+      setCompletedCleaningTasks(completedCleaningTasks.filter(t => t.id !== currentTask.id));
+    } else if (currentTask.status === 'scheduled') {
+      setTomorrowCleaningTasks(tomorrowCleaningTasks.filter(t => t.id !== currentTask.id));
+    } else {
+      setTodayCleaningTasks(todayCleaningTasks.filter(t => t.id !== currentTask.id));
+    }
+    
+    setDeleteConfirmDialogOpen(false);
+    
+    toast({
+      title: "Ménage supprimé",
+      description: `Le ménage pour ${currentTask.property} a été supprimé.`,
+      variant: "destructive"
+    });
+  };
+
   const handlePrintLabels = () => {
     if (selectedTasks.length === 0) {
       toast({
@@ -411,7 +514,7 @@ const Cleaning = () => {
             <div class="container">
               ${selectedTasks.map(task => {
                 // Extract property number and name
-                const propertyMatch = task.property.match(/^([^a-zA-Z]+)\s*(.*)$/);
+                const propertyMatch = task.property.match(/^([^a-zA-Z]+)\\s*(.*)$/);
                 const propertyNum = propertyMatch ? propertyMatch[1].trim() : '';
                 const propertyName = propertyMatch ? propertyMatch[2].trim() : task.property;
                 
@@ -425,16 +528,16 @@ const Cleaning = () => {
                   <div class="items-container">
                     <div class="left-column">
                       ${task.bedding?.map(item => {
-                        const qtyMatch = item.match(/x(\d+)$/);
+                        const qtyMatch = item.match(/x(\\d+)$/);
                         const qty = qtyMatch ? qtyMatch[1] : '1';
-                        const itemName = item.replace(/x\d+$/, '').trim();
+                        const itemName = item.replace(/x\\d+$/, '').trim();
                         return `<div class="item-row"><span class="item-qty">${qty} x</span> <span class="item-name">${itemName}</span></div>`;
                       }).join('') || ''}
                       
                       ${task.items?.map(item => {
-                        const qtyMatch = item.match(/x(\d+)$/);
+                        const qtyMatch = item.match(/x(\\d+)$/);
                         const qty = qtyMatch ? qtyMatch[1] : '1';
-                        const itemName = item.replace(/x\d+$/, '').trim();
+                        const itemName = item.replace(/x\\d+$/, '').trim();
                         // Filter out only items related to towels, bath mats, etc.
                         if (itemName.toLowerCase().includes('serviette') || 
                             itemName.toLowerCase().includes('tapis')) {
@@ -623,6 +726,16 @@ const Cleaning = () => {
                         Problème
                       </Button>
                     )}
+                    {/* Bouton de suppression pour toutes les tâches */}
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="py-1 px-2 h-8 text-destructive hover:bg-destructive/10" 
+                      onClick={() => openDeleteDialog(task)}
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Supprimer
+                    </Button>
                   </div>
                 </CollapsibleContent>
               </Collapsible>
@@ -635,11 +748,17 @@ const Cleaning = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Ménage</h1>
-        <p className="text-muted-foreground mt-1">
-          Planification et suivi des ménages
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Ménage</h1>
+          <p className="text-muted-foreground mt-1">
+            Planification et suivi des ménages
+          </p>
+        </div>
+        <Button onClick={() => setAddTaskDialogOpen(true)} className="gap-1">
+          <Plus className="h-4 w-4" />
+          Ajouter un ménage
+        </Button>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -736,31 +855,50 @@ const Cleaning = () => {
             
             <TabsContent value="today" className="animate-slide-up">
               <div className="space-y-2 mt-4">
-                {todayCleaningTasks.map((task) => (
-                  <CleaningTask key={task.id} task={task} />
-                ))}
+                {todayCleaningTasks.length > 0 ? (
+                  todayCleaningTasks.map((task) => (
+                    <CleaningTask key={task.id} task={task} />
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Aucun ménage prévu pour aujourd'hui
+                  </div>
+                )}
               </div>
             </TabsContent>
             
             <TabsContent value="tomorrow" className="animate-slide-up">
               <div className="space-y-2 mt-4">
-                {tomorrowCleaningTasks.map((task) => (
-                  <CleaningTask key={task.id} task={task} />
-                ))}
+                {tomorrowCleaningTasks.length > 0 ? (
+                  tomorrowCleaningTasks.map((task) => (
+                    <CleaningTask key={task.id} task={task} />
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Aucun ménage prévu pour demain
+                  </div>
+                )}
               </div>
             </TabsContent>
             
             <TabsContent value="completed" className="animate-slide-up">
               <div className="space-y-2 mt-4">
-                {completedCleaningTasks.map((task) => (
-                  <CleaningTask key={task.id} task={task} />
-                ))}
+                {completedCleaningTasks.length > 0 ? (
+                  completedCleaningTasks.map((task) => (
+                    <CleaningTask key={task.id} task={task} />
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Aucun ménage terminé
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>
         </div>
       </DashboardCard>
 
+      {/* Dialog pour assigner un agent */}
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -786,6 +924,7 @@ const Cleaning = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Dialog pour voir les détails */}
       <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -864,10 +1003,23 @@ const Cleaning = () => {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setDetailsDialogOpen(false)}>Fermer</Button>
+            {currentTask && (
+              <Button 
+                variant="destructive" 
+                onClick={() => {
+                  setDetailsDialogOpen(false);
+                  openDeleteDialog(currentTask);
+                }}
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Supprimer
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Dialog pour signaler un problème */}
       <Dialog open={problemDialogOpen} onOpenChange={setProblemDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -897,6 +1049,7 @@ const Cleaning = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Dialog pour générer des étiquettes */}
       <Dialog open={labelsDialogOpen} onOpenChange={setLabelsDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -947,6 +1100,133 @@ const Cleaning = () => {
             >
               <Printer className="h-4 w-4" />
               Imprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog pour ajouter un ménage */}
+      <Dialog open={addTaskDialogOpen} onOpenChange={setAddTaskDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Ajouter un nouveau ménage</DialogTitle>
+            <DialogDescription>Remplissez les informations pour créer une nouvelle tâche de ménage</DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Logement</label>
+              <Input 
+                placeholder="Nom du logement (ex: Appartement 15 Rue Victor Hugo)" 
+                value={newTask.property}
+                onChange={(e) => setNewTask({...newTask, property: e.target.value})}
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Date</label>
+                <Input 
+                  type="date" 
+                  value={newTask.date}
+                  onChange={(e) => setNewTask({...newTask, date: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Statut</label>
+                <Select value={newTask.status} onValueChange={(value) => setNewTask({...newTask, status: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todo">À faire</SelectItem>
+                    <SelectItem value="scheduled">Planifié</SelectItem>
+                    <SelectItem value="inProgress">En cours</SelectItem>
+                    <SelectItem value="completed">Terminé</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Check-out</label>
+                <Input 
+                  type="time" 
+                  value={newTask.checkoutTime}
+                  onChange={(e) => setNewTask({...newTask, checkoutTime: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Check-in</label>
+                <Input 
+                  type="time" 
+                  value={newTask.checkinTime}
+                  onChange={(e) => setNewTask({...newTask, checkinTime: e.target.value})}
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Agent (optionnel)</label>
+              <Select 
+                value={newTask.cleaningAgent} 
+                onValueChange={(value) => setNewTask({...newTask, cleaningAgent: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choisir un agent (optionnel)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Non assigné</SelectItem>
+                  {cleaningAgents.map(agent => (
+                    <SelectItem key={agent} value={agent}>{agent}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddTaskDialogOpen(false)}>Annuler</Button>
+            <Button 
+              onClick={handleAddTask}
+              disabled={!newTask.property || !newTask.date}
+            >
+              Ajouter
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de confirmation de suppression */}
+      <Dialog open={deleteConfirmDialogOpen} onOpenChange={setDeleteConfirmDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirmer la suppression</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer cette tâche de ménage ? Cette action est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          {currentTask && (
+            <div className="py-4">
+              <div className="mb-4 flex items-center gap-2">
+                {getStatusBadge(currentTask.status)}
+                <span className="font-medium">{currentTask.property}</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {currentTask.date ? (
+                  `Date: ${currentTask.date}`
+                ) : (
+                  `Check-out: ${currentTask.checkoutTime} · Check-in: ${currentTask.checkinTime}`
+                )}
+              </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmDialogOpen(false)}>Annuler</Button>
+            <Button 
+              onClick={handleDeleteTask} 
+              variant="destructive"
+            >
+              Supprimer
             </Button>
           </DialogFooter>
         </DialogContent>
