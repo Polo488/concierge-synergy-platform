@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Plus, Edit2, Trash2, Euro, CalendarDays, User, TrendingUp, Database, Activity, ChartBar, ListCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -120,6 +121,93 @@ const mockBookings: Booking[] = [
     status: "upcoming"
   }
 ];
+
+// Define the BookingCard props interface
+interface BookingCardProps {
+  booking: Booking;
+  formatter: {
+    date: (date: string) => string;
+    currency: (amount: number) => string;
+  };
+  statusInfo: {
+    getColor: (status: string) => string;
+    getLabel: (status: string) => string;
+  };
+  commissionSplitInfo: {
+    label: string;
+    color: string;
+  };
+  onEdit: () => void;
+  onDelete: () => void;
+  onViewDetails: () => void;
+}
+
+// BookingCard component
+const BookingCard = ({ booking, formatter, statusInfo, commissionSplitInfo, onEdit, onDelete, onViewDetails }: BookingCardProps) => {
+  return (
+    <Card className="animate-fade-in cursor-pointer hover:shadow-card transition-shadow" onClick={onViewDetails}>
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle>{booking.property}</CardTitle>
+            <CardDescription>Locataire: {booking.tenant}</CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.getColor(booking.status)}`}>
+              {statusInfo.getLabel(booking.status)}
+            </div>
+            <div className={`px-2 py-1 rounded-full text-xs font-medium ${commissionSplitInfo.color}`}>
+              {commissionSplitInfo.label}
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-horizontal">
+                    <circle cx="12" cy="12" r="1" />
+                    <circle cx="19" cy="12" r="1" />
+                    <circle cx="5" cy="12" r="1" />
+                  </svg>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }} className="cursor-pointer">
+                  <Edit2 className="mr-2 h-4 w-4" />
+                  Modifier
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }} className="cursor-pointer text-destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Supprimer
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div>
+            <p className="text-muted-foreground">Période</p>
+            <p>{formatter.date(booking.startDate)} - {formatter.date(booking.endDate)}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Montant</p>
+            <p className="font-medium">{formatter.currency(booking.amount)}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Commission</p>
+            <p className="font-medium">{formatter.currency(booking.commission.total)}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const MoyenneDuree = () => {
   useEffect(() => {
@@ -832,3 +920,198 @@ const MoyenneDuree = () => {
           <TabsTrigger value="upcoming">À venir</TabsTrigger>
           <TabsTrigger value="active">En cours</TabsTrigger>
           <TabsTrigger value="completed">Terminées</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all" className="space-y-4 mt-4">
+          {bookings.map((booking) => (
+            <BookingCard 
+              key={booking.id} 
+              booking={booking} 
+              formatter={{ date: formatDate, currency: formatCurrency }} 
+              statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
+              commissionSplitInfo={getCommissionSplitType(booking)}
+              onEdit={() => openEditDialog(booking)}
+              onDelete={() => handleDeleteBooking(booking.id)}
+              onViewDetails={() => openDetailsDialog(booking)}
+            />
+          ))}
+        </TabsContent>
+
+        <TabsContent value="upcoming" className="space-y-4 mt-4">
+          {bookings
+            .filter((booking) => booking.status === "upcoming")
+            .map((booking) => (
+              <BookingCard 
+                key={booking.id} 
+                booking={booking} 
+                formatter={{ date: formatDate, currency: formatCurrency }} 
+                statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
+                commissionSplitInfo={getCommissionSplitType(booking)}
+                onEdit={() => openEditDialog(booking)}
+                onDelete={() => handleDeleteBooking(booking.id)}
+                onViewDetails={() => openDetailsDialog(booking)}
+              />
+            ))}
+        </TabsContent>
+
+        <TabsContent value="active" className="space-y-4 mt-4">
+          {bookings
+            .filter((booking) => booking.status === "active")
+            .map((booking) => (
+              <BookingCard 
+                key={booking.id} 
+                booking={booking} 
+                formatter={{ date: formatDate, currency: formatCurrency }} 
+                statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
+                commissionSplitInfo={getCommissionSplitType(booking)}
+                onEdit={() => openEditDialog(booking)}
+                onDelete={() => handleDeleteBooking(booking.id)}
+                onViewDetails={() => openDetailsDialog(booking)}
+              />
+            ))}
+        </TabsContent>
+
+        <TabsContent value="completed" className="space-y-4 mt-4">
+          {bookings
+            .filter((booking) => booking.status === "completed")
+            .map((booking) => (
+              <BookingCard 
+                key={booking.id} 
+                booking={booking} 
+                formatter={{ date: formatDate, currency: formatCurrency }} 
+                statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
+                commissionSplitInfo={getCommissionSplitType(booking)}
+                onEdit={() => openEditDialog(booking)}
+                onDelete={() => handleDeleteBooking(booking.id)}
+                onViewDetails={() => openDetailsDialog(booking)}
+              />
+            ))}
+        </TabsContent>
+      </Tabs>
+
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="sm:max-w-[700px]">
+          {selectedBooking && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl">Détails de la réservation</DialogTitle>
+                <DialogDescription className="pt-2 flex flex-col sm:flex-row gap-2 sm:gap-6">
+                  <span className="flex items-center gap-1.5">
+                    <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                    ID: <span className="font-medium">{selectedBooking.id}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    Locataire: <span className="font-medium">{selectedBooking.tenant}</span>
+                  </span>
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="py-4">
+                <h3 className="font-semibold text-lg mb-3">{selectedBooking.property}</h3>
+                
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead colSpan={2}>Récapitulatif de la réservation</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">Statut</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedBooking.status)}`}>
+                          {getStatusLabel(selectedBooking.status)}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Période</TableCell>
+                      <TableCell>{formatDate(selectedBooking.startDate)} au {formatDate(selectedBooking.endDate)}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Durée</TableCell>
+                      <TableCell>{calculateRentalDays(selectedBooking.startDate, selectedBooking.endDate)} jours</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+                
+                <div className="mt-4">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead colSpan={2}>Détail financier</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">Montant total de la location</TableCell>
+                        <TableCell className="text-right">{formatCurrency(selectedBooking.amount)}</TableCell>
+                      </TableRow>
+                      <TableRow className="border-b-2">
+                        <TableCell className="font-medium">Frais de ménage</TableCell>
+                        <TableCell className="text-right">- {formatCurrency(selectedBooking.cleaningFee)}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Base de calcul commission</TableCell>
+                        <TableCell className="text-right">{formatCurrency(selectedBooking.amount - selectedBooking.cleaningFee)}</TableCell>
+                      </TableRow>
+                      <TableRow className="bg-muted/30">
+                        <TableCell className="font-medium">Commission totale ({selectedBooking.commissionRate}%)</TableCell>
+                        <TableCell className="text-right">{formatCurrency(selectedBooking.commission.total)}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+                
+                <div className="mt-4">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead colSpan={2}>Répartition de la commission</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">Part BNB LYON ({selectedBooking.commissionSplit.bnbLyon}%)</TableCell>
+                        <TableCell className="text-right">{formatCurrency(selectedBooking.commission.bnbLyon)}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Part HAMAC ({selectedBooking.commissionSplit.hamac}%)</TableCell>
+                        <TableCell className="text-right">{formatCurrency(selectedBooking.commission.hamac)}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+                
+                <div className="mt-6 p-4 bg-muted/30 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-lg">Revenu net propriétaire</span>
+                    <span className="font-bold text-lg">{formatCurrency(selectedBooking.amount - selectedBooking.commission.total)}</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action supprimera définitivement la réservation. Cette action ne peut pas être annulée.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setBookingToDelete(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Supprimer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
+
+export default MoyenneDuree;
