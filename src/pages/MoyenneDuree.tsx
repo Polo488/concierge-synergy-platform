@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +18,7 @@ interface Booking {
   startDate: string;
   endDate: string;
   amount: number;
+  cleaningFee: number; // Ajout des frais de ménage
   commission: {
     total: number;
     bnbLyon: number;
@@ -27,7 +27,7 @@ interface Booking {
   status: "upcoming" | "active" | "completed";
 }
 
-// Mock data for demonstration
+// Update mock data to include cleaningFee
 const mockBookings: Booking[] = [
   {
     id: "MD-2023-001",
@@ -36,10 +36,11 @@ const mockBookings: Booking[] = [
     startDate: "2023-10-15",
     endDate: "2023-12-15",
     amount: 3000,
+    cleaningFee: 150,
     commission: {
-      total: 600,
-      bnbLyon: 300,
-      hamac: 300
+      total: 570, // (3000 - 150) * 0.2
+      bnbLyon: 285,
+      hamac: 285
     },
     status: "active"
   },
@@ -50,10 +51,11 @@ const mockBookings: Booking[] = [
     startDate: "2023-11-01",
     endDate: "2024-01-31",
     amount: 2400,
+    cleaningFee: 120,
     commission: {
-      total: 480,
-      bnbLyon: 240,
-      hamac: 240
+      total: 456, // (2400 - 120) * 0.2
+      bnbLyon: 228,
+      hamac: 228
     },
     status: "active"
   },
@@ -64,10 +66,11 @@ const mockBookings: Booking[] = [
     startDate: "2023-09-01",
     endDate: "2023-11-30",
     amount: 3600,
+    cleaningFee: 180,
     commission: {
-      total: 720,
-      bnbLyon: 360,
-      hamac: 360
+      total: 684, // (3600 - 180) * 0.2
+      bnbLyon: 342,
+      hamac: 342
     },
     status: "completed"
   },
@@ -78,10 +81,11 @@ const mockBookings: Booking[] = [
     startDate: "2024-01-01",
     endDate: "2024-03-31",
     amount: 3200,
+    cleaningFee: 160,
     commission: {
-      total: 640,
-      bnbLyon: 320,
-      hamac: 320
+      total: 608, // (3200 - 160) * 0.2
+      bnbLyon: 304,
+      hamac: 304
     },
     status: "upcoming"
   }
@@ -99,15 +103,16 @@ const MoyenneDuree = () => {
     tenant: "",
     startDate: "",
     endDate: "",
-    amount: ""
+    amount: "",
+    cleaningFee: "", // Ajout des frais de ménage dans le formulaire
   });
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
 
-  const calculateCommission = (amount: number) => {
-    const totalCommission = amount * 0.2;
+  const calculateCommission = (amount: number, cleaningFee: number) => {
+    const totalCommission = (amount - cleaningFee) * 0.2;
     return {
       total: totalCommission,
       bnbLyon: totalCommission / 2,
@@ -127,7 +132,8 @@ const MoyenneDuree = () => {
       tenant: "",
       startDate: "",
       endDate: "",
-      amount: ""
+      amount: "",
+      cleaningFee: "",
     });
     setIsEditing(false);
   };
@@ -139,7 +145,8 @@ const MoyenneDuree = () => {
       tenant: booking.tenant,
       startDate: booking.startDate,
       endDate: booking.endDate,
-      amount: booking.amount.toString()
+      amount: booking.amount.toString(),
+      cleaningFee: booking.cleaningFee.toString(),
     });
     setIsEditing(true);
     setOpenDialog(true);
@@ -148,14 +155,19 @@ const MoyenneDuree = () => {
   const handleAddOrUpdateBooking = () => {
     // Validate form
     if (!bookingForm.property || !bookingForm.tenant || !bookingForm.startDate || 
-        !bookingForm.endDate || !bookingForm.amount) {
+        !bookingForm.endDate || !bookingForm.amount || !bookingForm.cleaningFee) {
       toast.error("Veuillez remplir tous les champs");
       return;
     }
 
     const amount = parseFloat(bookingForm.amount);
+    const cleaningFee = parseFloat(bookingForm.cleaningFee);
     if (isNaN(amount) || amount <= 0) {
       toast.error("Le montant doit être un nombre positif");
+      return;
+    }
+    if (isNaN(cleaningFee) || cleaningFee < 0) {
+      toast.error("Les frais de ménage doivent être un nombre positif");
       return;
     }
 
@@ -171,7 +183,7 @@ const MoyenneDuree = () => {
       status = "active";
     }
 
-    const commission = calculateCommission(amount);
+    const commission = calculateCommission(amount, cleaningFee);
     
     if (isEditing) {
       // Update existing booking
@@ -183,6 +195,7 @@ const MoyenneDuree = () => {
           startDate: bookingForm.startDate,
           endDate: bookingForm.endDate,
           amount: amount,
+          cleaningFee: cleaningFee,
           commission: commission,
           status: status
         } : booking
@@ -200,6 +213,7 @@ const MoyenneDuree = () => {
         startDate: bookingForm.startDate,
         endDate: bookingForm.endDate,
         amount: amount,
+        cleaningFee: cleaningFee,
         commission: commission,
         status: status
       };
@@ -351,6 +365,19 @@ const MoyenneDuree = () => {
                   name="amount"
                   type="number"
                   value={bookingForm.amount}
+                  onChange={handleInputChange}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="cleaningFee" className="text-right">
+                  Frais ménage (€)
+                </Label>
+                <Input
+                  id="cleaningFee"
+                  name="cleaningFee"
+                  type="number"
+                  value={bookingForm.cleaningFee}
                   onChange={handleInputChange}
                   className="col-span-3"
                 />
@@ -542,4 +569,3 @@ const BookingCard = ({ booking, formatter, statusInfo, onEdit, onDelete }: Booki
 };
 
 export default MoyenneDuree;
-
