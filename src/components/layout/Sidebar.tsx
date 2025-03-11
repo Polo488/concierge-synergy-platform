@@ -90,15 +90,19 @@ export function Sidebar() {
             !isOpen && "md:justify-center md:px-0"
           )}
         >
-          <span className={cn(
-            "font-semibold text-primary text-xl tracking-tight",
-            !isOpen && "md:hidden"
-          )}>
-            GESTION BNB LYON
-          </span>
-          {!isOpen && (
+          {isOpen ? (
+            <img 
+              src="/lovable-uploads/31f51bb4-a339-43a4-a602-8d4fbfb3380d.png" 
+              alt="La Conciergerie Lyonnaise" 
+              className="h-8"
+            />
+          ) : (
             <span className="hidden md:block text-primary">
-              <LayoutDashboard size={24} />
+              <img 
+                src="/lovable-uploads/31f51bb4-a339-43a4-a602-8d4fbfb3380d.png" 
+                alt="La Conciergerie Lyonnaise" 
+                className="h-6 w-auto"
+              />
             </span>
           )}
         </div>

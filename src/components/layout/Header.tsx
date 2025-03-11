@@ -21,12 +21,22 @@ export function Header() {
       scrolled ? "glass shadow-sm border-b border-border/30" : "bg-transparent"
     )}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-2 w-full max-w-md">
-          <Search className="text-muted-foreground h-4 w-4" />
-          <Input 
-            placeholder="Rechercher..." 
-            className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm"
-          />
+        <div className="flex items-center gap-2">
+          <div className="mr-4">
+            <img 
+              src="/lovable-uploads/31f51bb4-a339-43a4-a602-8d4fbfb3380d.png" 
+              alt="La Conciergerie Lyonnaise" 
+              className="h-10"
+            />
+          </div>
+          
+          <div className="flex items-center gap-2 w-full max-w-md">
+            <Search className="text-muted-foreground h-4 w-4" />
+            <Input 
+              placeholder="Rechercher..." 
+              className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm"
+            />
+          </div>
         </div>
         
         <div className="flex items-center gap-3">
