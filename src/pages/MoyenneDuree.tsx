@@ -1,7 +1,8 @@
+
 import { useEffect, useState } from "react";
 import { Plus, Edit2, Trash2, Euro, CalendarDays, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -868,4 +869,21 @@ const BookingCard = ({ booking, formatter, statusInfo, commissionSplitInfo, onEd
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
-            <p className="text-muted-foreground">P
+            <p className="text-muted-foreground">Période</p>
+            <p>{formatter.date(booking.startDate)} - {formatter.date(booking.endDate)}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Montant</p>
+            <p>{formatter.currency(booking.amount)}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Commission</p>
+            <p>{formatter.currency(booking.commission.total)}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default MoyenneDuree;
