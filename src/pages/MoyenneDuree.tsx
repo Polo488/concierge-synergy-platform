@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Plus, Edit2, Trash2, Euro, CalendarDays, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Define the interface for a booking
 interface Booking {
@@ -19,7 +21,8 @@ interface Booking {
   startDate: string;
   endDate: string;
   amount: number;
-  cleaningFee: number; // Ajout des frais de ménage
+  cleaningFee: number;
+  commissionRate: number; // Added commission rate as a percentage
   commission: {
     total: number;
     bnbLyon: number;
@@ -28,7 +31,7 @@ interface Booking {
   status: "upcoming" | "active" | "completed";
 }
 
-// Update mock data to include cleaningFee
+// Update mock data to include commissionRate
 const mockBookings: Booking[] = [
   {
     id: "MD-2023-001",
@@ -38,6 +41,7 @@ const mockBookings: Booking[] = [
     endDate: "2023-12-15",
     amount: 3000,
     cleaningFee: 150,
+    commissionRate: 20, // 20%
     commission: {
       total: 570, // (3000 - 150) * 0.2
       bnbLyon: 285,
@@ -53,6 +57,7 @@ const mockBookings: Booking[] = [
     endDate: "2024-01-31",
     amount: 2400,
     cleaningFee: 120,
+    commissionRate: 20, // 20%
     commission: {
       total: 456, // (2400 - 120) * 0.2
       bnbLyon: 228,
@@ -68,6 +73,7 @@ const mockBookings: Booking[] = [
     endDate: "2023-11-30",
     amount: 3600,
     cleaningFee: 180,
+    commissionRate: 20, // 20%
     commission: {
       total: 684, // (3600 - 180) * 0.2
       bnbLyon: 342,
@@ -83,6 +89,7 @@ const mockBookings: Booking[] = [
     endDate: "2024-03-31",
     amount: 3200,
     cleaningFee: 160,
+    commissionRate: 20, // 20%
     commission: {
       total: 608, // (3200 - 160) * 0.2
       bnbLyon: 304,
@@ -105,7 +112,8 @@ const MoyenneDuree = () => {
     startDate: "",
     endDate: "",
     amount: "",
-    cleaningFee: "", // Ajout des frais de ménage dans le formulaire
+    cleaningFee: "",
+    commissionRate: "20", // Default commission rate of 20%
   });
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -114,8 +122,16 @@ const MoyenneDuree = () => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
-  const calculateCommission = (amount: number, cleaningFee: number) => {
-    const totalCommission = (amount - cleaningFee) * 0.2;
+  // Available commission rates
+  const commissionRates = [
+    { value: "15", label: "15%" },
+    { value: "20", label: "20%" },
+    { value: "25", label: "25%" },
+    { value: "30", label: "30%" },
+  ];
+
+  const calculateCommission = (amount: number, cleaningFee: number, commissionRate: number) => {
+    const totalCommission = (amount - cleaningFee) * (commissionRate / 100);
     return {
       total: totalCommission,
       bnbLyon: totalCommission / 2,
@@ -128,6 +144,10 @@ const MoyenneDuree = () => {
     setBookingForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleSelectChange = (name: string, value: string) => {
+    setBookingForm(prev => ({ ...prev, [name]: value }));
+  };
+
   const resetForm = () => {
     setBookingForm({
       id: "",
@@ -137,6 +157,7 @@ const MoyenneDuree = () => {
       endDate: "",
       amount: "",
       cleaningFee: "",
+      commissionRate: "20",
     });
     setIsEditing(false);
   };
@@ -150,6 +171,7 @@ const MoyenneDuree = () => {
       endDate: booking.endDate,
       amount: booking.amount.toString(),
       cleaningFee: booking.cleaningFee.toString(),
+      commissionRate: booking.commissionRate.toString(),
     });
     setIsEditing(true);
     setOpenDialog(true);
@@ -158,19 +180,25 @@ const MoyenneDuree = () => {
   const handleAddOrUpdateBooking = () => {
     // Validate form
     if (!bookingForm.property || !bookingForm.tenant || !bookingForm.startDate || 
-        !bookingForm.endDate || !bookingForm.amount || !bookingForm.cleaningFee) {
+        !bookingForm.endDate || !bookingForm.amount || !bookingForm.cleaningFee || !bookingForm.commissionRate) {
       toast.error("Veuillez remplir tous les champs");
       return;
     }
 
     const amount = parseFloat(bookingForm.amount);
     const cleaningFee = parseFloat(bookingForm.cleaningFee);
+    const commissionRate = parseFloat(bookingForm.commissionRate);
+    
     if (isNaN(amount) || amount <= 0) {
       toast.error("Le montant doit être un nombre positif");
       return;
     }
     if (isNaN(cleaningFee) || cleaningFee < 0) {
       toast.error("Les frais de ménage doivent être un nombre positif");
+      return;
+    }
+    if (isNaN(commissionRate) || commissionRate <= 0 || commissionRate > 100) {
+      toast.error("Le taux de commission doit être compris entre 1 et 100");
       return;
     }
 
@@ -186,7 +214,7 @@ const MoyenneDuree = () => {
       status = "active";
     }
 
-    const commission = calculateCommission(amount, cleaningFee);
+    const commission = calculateCommission(amount, cleaningFee, commissionRate);
     
     if (isEditing) {
       // Update existing booking
@@ -199,6 +227,7 @@ const MoyenneDuree = () => {
           endDate: bookingForm.endDate,
           amount: amount,
           cleaningFee: cleaningFee,
+          commissionRate: commissionRate,
           commission: commission,
           status: status
         } : booking
@@ -217,6 +246,7 @@ const MoyenneDuree = () => {
         endDate: bookingForm.endDate,
         amount: amount,
         cleaningFee: cleaningFee,
+        commissionRate: commissionRate,
         commission: commission,
         status: status
       };
@@ -316,8 +346,8 @@ const MoyenneDuree = () => {
               <DialogTitle>{isEditing ? "Modifier la location" : "Nouvelle location moyenne durée"}</DialogTitle>
               <DialogDescription>
                 {isEditing 
-                  ? "Modifiez les détails de la location. Les commissions (20%) seront recalculées automatiquement."
-                  : "Entrez les détails de la nouvelle location directe. Les commissions (20%) seront calculées automatiquement."}
+                  ? "Modifiez les détails de la location. Les commissions seront recalculées automatiquement."
+                  : "Entrez les détails de la nouvelle location directe. Les commissions seront calculées automatiquement."}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -396,6 +426,26 @@ const MoyenneDuree = () => {
                   onChange={handleInputChange}
                   className="col-span-3"
                 />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="commissionRate" className="text-right">
+                  Commission (%)
+                </Label>
+                <Select 
+                  value={bookingForm.commissionRate} 
+                  onValueChange={(value) => handleSelectChange("commissionRate", value)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Sélectionner un taux" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {commissionRates.map((rate) => (
+                      <SelectItem key={rate.value} value={rate.value}>
+                        {rate.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <DialogFooter>
@@ -546,7 +596,7 @@ const MoyenneDuree = () => {
                         <TableCell className="text-right">{formatCurrency(selectedBooking.amount - selectedBooking.cleaningFee)}</TableCell>
                       </TableRow>
                       <TableRow className="bg-muted/30">
-                        <TableCell className="font-medium">Commission totale (20%)</TableCell>
+                        <TableCell className="font-medium">Commission totale ({selectedBooking.commissionRate}%)</TableCell>
                         <TableCell className="text-right">{formatCurrency(selectedBooking.commission.total)}</TableCell>
                       </TableRow>
                     </TableBody>
@@ -680,10 +730,10 @@ const BookingCard = ({ booking, formatter, statusInfo, onEdit, onDelete, onViewD
         </div>
 
         <div className="mt-4 pt-4 border-t">
-          <p className="text-sm font-medium mb-2">Détails des commissions</p>
+          <p className="text-sm font-medium mb-2">Détails des commissions ({booking.commissionRate}%)</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <p className="text-muted-foreground">Commission totale (20%)</p>
+              <p className="text-muted-foreground">Commission totale</p>
               <p className="font-medium">{formatter.currency(booking.commission.total)}</p>
             </div>
             <div>
