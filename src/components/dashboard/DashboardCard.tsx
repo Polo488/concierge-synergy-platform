@@ -7,9 +7,10 @@ interface DashboardCardProps {
   children: ReactNode;
   className?: string;
   actions?: ReactNode;
+  footer?: ReactNode;
 }
 
-export function DashboardCard({ title, children, className, actions }: DashboardCardProps) {
+export function DashboardCard({ title, children, className, actions, footer }: DashboardCardProps) {
   return (
     <div className={cn(
       "glass rounded-xl border border-border/40 overflow-hidden shadow-soft animate-slide-up card-hover",
@@ -20,6 +21,11 @@ export function DashboardCard({ title, children, className, actions }: Dashboard
         {actions && <div className="flex items-center space-x-2">{actions}</div>}
       </div>
       <div className="p-5">{children}</div>
+      {footer && (
+        <div className="px-5 py-3 bg-muted/30 border-t border-border/30">
+          {footer}
+        </div>
+      )}
     </div>
   );
 }

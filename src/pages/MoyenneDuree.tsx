@@ -1,6 +1,5 @@
-
 import { useEffect, useState } from "react";
-import { Plus, Edit2, Trash2, Euro, CalendarDays, User } from "lucide-react";
+import { Plus, Edit2, Trash2, Euro, CalendarDays, User, TrendingUp, Database, Activity, ChartBar, ListCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -12,6 +11,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { StatCard } from "@/components/dashboard/StatCard";
+import { DashboardCard } from "@/components/dashboard/DashboardCard";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 // Define the interface for a booking
 interface Booking {
@@ -425,6 +427,80 @@ const MoyenneDuree = () => {
     }
   };
 
+  // Calcul des statistiques
+  const calculateStats = () => {
+    // Valeurs totales
+    const totalBookings = bookings.length;
+    const activeBookings = bookings.filter(b => b.status === "active").length;
+    const upcomingBookings = bookings.filter(b => b.status === "upcoming").length;
+    
+    // Statistiques financières
+    const totalAmount = bookings.reduce((acc, b) => acc + b.amount, 0);
+    const totalCommission = bookings.reduce((acc, b) => acc + b.commission.total, 0);
+    const bnbLyonCommission = bookings.reduce((acc, b) => acc + b.commission.bnbLyon, 0);
+    const hamacCommission = bookings.reduce((acc, b) => acc + b.commission.hamac, 0);
+    
+    // Statistiques temporelles
+    const avgDurationDays = bookings.length 
+      ? bookings.reduce((acc, b) => {
+          const start = new Date(b.startDate);
+          const end = new Date(b.endDate);
+          const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+          return acc + days;
+        }, 0) / bookings.length
+      : 0;
+      
+    // Calcul du taux d'occupation (nombre de jours réservés / nombre total de jours sur la période)
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const daysSinceStartOfYear = Math.ceil((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
+    
+    const totalPropertyDays = daysSinceStartOfYear * 4; // 4 propriétés
+    const occupiedDays = bookings
+      .filter(b => b.status === "active" || b.status === "completed")
+      .reduce((acc, b) => {
+        const start = new Date(Math.max(new Date(b.startDate).getTime(), startOfYear.getTime()));
+        const end = new Date(Math.min(new Date(b.endDate).getTime(), now.getTime()));
+        const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+        return acc + days;
+      }, 0);
+    
+    const occupancyRate = totalPropertyDays > 0 ? (occupiedDays / totalPropertyDays) * 100 : 0;
+    
+    // Moyenne des revenus mensuels
+    const monthsElapsed = now.getMonth() + 1;
+    const avgMonthlyRevenue = monthsElapsed > 0 ? totalAmount / monthsElapsed : 0;
+    const avgMonthlyCommission = monthsElapsed > 0 ? totalCommission / monthsElapsed : 0;
+
+    // Répartition des statuts
+    const statusDistribution = {
+      active: (activeBookings / totalBookings) * 100 || 0,
+      upcoming: (upcomingBookings / totalBookings) * 100 || 0,
+      completed: ((totalBookings - activeBookings - upcomingBookings) / totalBookings) * 100 || 0
+    };
+
+    return {
+      totalBookings,
+      activeBookings,
+      upcomingBookings,
+      completedBookings: totalBookings - activeBookings - upcomingBookings,
+      totalAmount,
+      totalCommission,
+      bnbLyonCommission,
+      hamacCommission,
+      avgDurationDays: Math.round(avgDurationDays),
+      occupancyRate: Math.round(occupancyRate),
+      statusDistribution,
+      avgMonthlyRevenue,
+      avgMonthlyCommission
+    };
+  };
+
+  const stats = calculateStats();
+
+  // État pour contrôler l'affichage des statistiques
+  const [showStats, setShowStats] = useState(true);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -601,289 +677,158 @@ const MoyenneDuree = () => {
         </Dialog>
       </div>
 
+      {/* Section Statistiques */}
+      <Collapsible open={showStats} onOpenChange={setShowStats} className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Tableau de bord</h2>
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" size="sm">
+              {showStats ? "Masquer les statistiques" : "Afficher les statistiques"}
+            </Button>
+          </CollapsibleTrigger>
+        </div>
+        
+        <CollapsibleContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              title="Locataires actifs"
+              value={stats.activeBookings}
+              icon={<Activity className="h-5 w-5" />}
+              change={stats.activeBookings > 0 ? {
+                value: Math.round((stats.activeBookings / stats.totalBookings) * 100),
+                type: 'increase',
+                label: 'du total'
+              } : undefined}
+              helpText={`Sur un total de ${stats.totalBookings} locations`}
+            />
+            
+            <StatCard
+              title="Locations à venir"
+              value={stats.upcomingBookings}
+              icon={<CalendarDays className="h-5 w-5" />}
+              helpText="Locations confirmées mais pas encore débutées"
+            />
+            
+            <StatCard
+              title="Taux d'occupation"
+              value={`${stats.occupancyRate}%`}
+              icon={<Database className="h-5 w-5" />}
+              helpText="Basé sur les jours occupés depuis le début de l'année"
+            />
+            
+            <StatCard
+              title="Durée moyenne"
+              value={`${stats.avgDurationDays} jours`}
+              icon={<TrendingUp className="h-5 w-5" />}
+              helpText="Durée moyenne des locations"
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <DashboardCard title="Chiffres financiers">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Revenus totaux</p>
+                  <p className="text-xl font-medium">{formatCurrency(stats.totalAmount)}</p>
+                </div>
+                
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Commissions totales</p>
+                  <p className="text-xl font-medium">{formatCurrency(stats.totalCommission)}</p>
+                </div>
+                
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Revenu mensuel moyen</p>
+                  <p className="text-xl font-medium">{formatCurrency(stats.avgMonthlyRevenue)}</p>
+                </div>
+                
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Commission mensuelle</p>
+                  <p className="text-xl font-medium">{formatCurrency(stats.avgMonthlyCommission)}</p>
+                </div>
+              </div>
+            </DashboardCard>
+            
+            <DashboardCard title="Répartition des commissions">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm">BNB LYON</p>
+                    <p className="text-sm font-medium">{formatCurrency(stats.bnbLyonCommission)}</p>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2.5">
+                    <div 
+                      className="bg-purple-500 h-2.5 rounded-full" 
+                      style={{ width: `${(stats.bnbLyonCommission / stats.totalCommission) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm">HAMAC</p>
+                    <p className="text-sm font-medium">{formatCurrency(stats.hamacCommission)}</p>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2.5">
+                    <div 
+                      className="bg-indigo-500 h-2.5 rounded-full" 
+                      style={{ width: `${(stats.hamacCommission / stats.totalCommission) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <div className="pt-2 border-t border-border/30 mt-2">
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm font-medium">Total commissions</p>
+                    <p className="text-sm font-medium">{formatCurrency(stats.totalCommission)}</p>
+                  </div>
+                </div>
+              </div>
+            </DashboardCard>
+            
+            <DashboardCard 
+              title="Statut des locations" 
+              className="md:col-span-2"
+              footer={
+                <div className="flex justify-between text-sm">
+                  <span>Total: {stats.totalBookings} locations</span>
+                  <span className="text-primary">Voir toutes les locations</span>
+                </div>
+              }
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="flex flex-col items-center p-4 bg-muted/30 rounded-lg">
+                  <div className="rounded-full bg-green-100 p-3 mb-2">
+                    <Activity className="h-5 w-5 text-green-600" />
+                  </div>
+                  <p className="font-medium text-lg">{stats.activeBookings}</p>
+                  <p className="text-sm text-muted-foreground">En cours</p>
+                </div>
+                
+                <div className="flex flex-col items-center p-4 bg-muted/30 rounded-lg">
+                  <div className="rounded-full bg-blue-100 p-3 mb-2">
+                    <CalendarDays className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <p className="font-medium text-lg">{stats.upcomingBookings}</p>
+                  <p className="text-sm text-muted-foreground">À venir</p>
+                </div>
+                
+                <div className="flex flex-col items-center p-4 bg-muted/30 rounded-lg">
+                  <div className="rounded-full bg-gray-100 p-3 mb-2">
+                    <ListCheck className="h-5 w-5 text-gray-600" />
+                  </div>
+                  <p className="font-medium text-lg">{stats.completedBookings}</p>
+                  <p className="text-sm text-muted-foreground">Terminées</p>
+                </div>
+              </div>
+            </DashboardCard>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
       <Tabs defaultValue="all" className="w-full">
         <TabsList>
           <TabsTrigger value="all">Toutes</TabsTrigger>
           <TabsTrigger value="upcoming">À venir</TabsTrigger>
           <TabsTrigger value="active">En cours</TabsTrigger>
           <TabsTrigger value="completed">Terminées</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="all" className="space-y-4 mt-4">
-          {bookings.map((booking) => (
-            <BookingCard 
-              key={booking.id} 
-              booking={booking} 
-              formatter={{ date: formatDate, currency: formatCurrency }} 
-              statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
-              commissionSplitInfo={getCommissionSplitType(booking)}
-              onEdit={() => openEditDialog(booking)}
-              onDelete={() => handleDeleteBooking(booking.id)}
-              onViewDetails={() => openDetailsDialog(booking)}
-            />
-          ))}
-        </TabsContent>
-
-        <TabsContent value="upcoming" className="space-y-4 mt-4">
-          {bookings
-            .filter((booking) => booking.status === "upcoming")
-            .map((booking) => (
-              <BookingCard 
-                key={booking.id} 
-                booking={booking} 
-                formatter={{ date: formatDate, currency: formatCurrency }} 
-                statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
-                commissionSplitInfo={getCommissionSplitType(booking)}
-                onEdit={() => openEditDialog(booking)}
-                onDelete={() => handleDeleteBooking(booking.id)}
-                onViewDetails={() => openDetailsDialog(booking)}
-              />
-            ))}
-        </TabsContent>
-
-        <TabsContent value="active" className="space-y-4 mt-4">
-          {bookings
-            .filter((booking) => booking.status === "active")
-            .map((booking) => (
-              <BookingCard 
-                key={booking.id} 
-                booking={booking} 
-                formatter={{ date: formatDate, currency: formatCurrency }} 
-                statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
-                commissionSplitInfo={getCommissionSplitType(booking)}
-                onEdit={() => openEditDialog(booking)}
-                onDelete={() => handleDeleteBooking(booking.id)}
-                onViewDetails={() => openDetailsDialog(booking)}
-              />
-            ))}
-        </TabsContent>
-
-        <TabsContent value="completed" className="space-y-4 mt-4">
-          {bookings
-            .filter((booking) => booking.status === "completed")
-            .map((booking) => (
-              <BookingCard 
-                key={booking.id} 
-                booking={booking} 
-                formatter={{ date: formatDate, currency: formatCurrency }} 
-                statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
-                commissionSplitInfo={getCommissionSplitType(booking)}
-                onEdit={() => openEditDialog(booking)}
-                onDelete={() => handleDeleteBooking(booking.id)}
-                onViewDetails={() => openDetailsDialog(booking)}
-              />
-            ))}
-        </TabsContent>
-      </Tabs>
-
-      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
-        <DialogContent className="sm:max-w-[700px]">
-          {selectedBooking && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-xl">Détails de la réservation</DialogTitle>
-                <DialogDescription className="pt-2 flex flex-col sm:flex-row gap-2 sm:gap-6">
-                  <span className="flex items-center gap-1.5">
-                    <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                    ID: <span className="font-medium">{selectedBooking.id}</span>
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    Locataire: <span className="font-medium">{selectedBooking.tenant}</span>
-                  </span>
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="py-4">
-                <h3 className="font-semibold text-lg mb-3">{selectedBooking.property}</h3>
-                
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead colSpan={2}>Récapitulatif de la réservation</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium">Statut</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedBooking.status)}`}>
-                          {getStatusLabel(selectedBooking.status)}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Période</TableCell>
-                      <TableCell>{formatDate(selectedBooking.startDate)} au {formatDate(selectedBooking.endDate)}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Durée</TableCell>
-                      <TableCell>{calculateRentalDays(selectedBooking.startDate, selectedBooking.endDate)} jours</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-                
-                <div className="mt-4">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead colSpan={2}>Détail financier</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell className="font-medium">Montant total de la location</TableCell>
-                        <TableCell className="text-right">{formatCurrency(selectedBooking.amount)}</TableCell>
-                      </TableRow>
-                      <TableRow className="border-b-2">
-                        <TableCell className="font-medium">Frais de ménage</TableCell>
-                        <TableCell className="text-right">- {formatCurrency(selectedBooking.cleaningFee)}</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">Base de calcul commission</TableCell>
-                        <TableCell className="text-right">{formatCurrency(selectedBooking.amount - selectedBooking.cleaningFee)}</TableCell>
-                      </TableRow>
-                      <TableRow className="bg-muted/30">
-                        <TableCell className="font-medium">Commission totale ({selectedBooking.commissionRate}%)</TableCell>
-                        <TableCell className="text-right">{formatCurrency(selectedBooking.commission.total)}</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-                
-                <div className="mt-4">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead colSpan={2}>Répartition de la commission</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell className="font-medium">Part BNB LYON ({selectedBooking.commissionSplit.bnbLyon}%)</TableCell>
-                        <TableCell className="text-right">{formatCurrency(selectedBooking.commission.bnbLyon)}</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">Part HAMAC ({selectedBooking.commissionSplit.hamac}%)</TableCell>
-                        <TableCell className="text-right">{formatCurrency(selectedBooking.commission.hamac)}</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-                
-                <div className="mt-6 p-4 bg-muted/30 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium text-lg">Revenu net propriétaire</span>
-                    <span className="font-bold text-lg">{formatCurrency(selectedBooking.amount - selectedBooking.commission.total)}</span>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette action supprimera définitivement la réservation. Cette action ne peut pas être annulée.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setBookingToDelete(null)}>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>Supprimer</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
-};
-
-interface BookingCardProps {
-  booking: Booking;
-  formatter: {
-    date: (date: string) => string;
-    currency: (amount: number) => string;
-  };
-  statusInfo: {
-    getColor: (status: string) => string;
-    getLabel: (status: string) => string;
-  };
-  commissionSplitInfo: {
-    label: string;
-    color: string;
-  };
-  onEdit: () => void;
-  onDelete: () => void;
-  onViewDetails: () => void;
-}
-
-const BookingCard = ({ booking, formatter, statusInfo, commissionSplitInfo, onEdit, onDelete, onViewDetails }: BookingCardProps) => {
-  return (
-    <Card className="animate-fade-in cursor-pointer hover:shadow-card transition-shadow" onClick={onViewDetails}>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle>{booking.property}</CardTitle>
-            <CardDescription>Locataire: {booking.tenant}</CardDescription>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.getColor(booking.status)}`}>
-              {statusInfo.getLabel(booking.status)}
-            </div>
-            <div className={`px-2 py-1 rounded-full text-xs font-medium ${commissionSplitInfo.color}`}>
-              {commissionSplitInfo.label}
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-horizontal">
-                    <circle cx="12" cy="12" r="1" />
-                    <circle cx="19" cy="12" r="1" />
-                    <circle cx="5" cy="12" r="1" />
-                  </svg>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit();
-                }} className="cursor-pointer">
-                  <Edit2 className="mr-2 h-4 w-4" />
-                  Modifier
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }} className="cursor-pointer text-destructive">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Supprimer
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-          <div>
-            <p className="text-muted-foreground">Période</p>
-            <p>{formatter.date(booking.startDate)} - {formatter.date(booking.endDate)}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Montant</p>
-            <p>{formatter.currency(booking.amount)}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Commission</p>
-            <p>{formatter.currency(booking.commission.total)}</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-export default MoyenneDuree;
