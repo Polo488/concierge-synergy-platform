@@ -1178,7 +1178,7 @@ const Cleaning = () => {
                     <SelectValue placeholder="Sélectionner un agent" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Aucun</SelectItem>
+                    <SelectItem value="none">Aucun</SelectItem>
                     {cleaningAgents.map(agent => (
                       <SelectItem key={agent} value={agent}>{agent}</SelectItem>
                     ))}
