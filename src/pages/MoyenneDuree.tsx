@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 // Define the interface for a booking
 interface Booking {
@@ -91,7 +93,8 @@ const MoyenneDuree = () => {
   }, []);
 
   const [bookings, setBookings] = useState<Booking[]>(mockBookings);
-  const [newBooking, setNewBooking] = useState({
+  const [bookingForm, setBookingForm] = useState({
+    id: "",
     property: "",
     tenant: "",
     startDate: "",
@@ -99,6 +102,9 @@ const MoyenneDuree = () => {
     amount: ""
   });
   const [openDialog, setOpenDialog] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
 
   const calculateCommission = (amount: number) => {
     const totalCommission = amount * 0.2;
@@ -111,18 +117,43 @@ const MoyenneDuree = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewBooking(prev => ({ ...prev, [name]: value }));
+    setBookingForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAddBooking = () => {
+  const resetForm = () => {
+    setBookingForm({
+      id: "",
+      property: "",
+      tenant: "",
+      startDate: "",
+      endDate: "",
+      amount: ""
+    });
+    setIsEditing(false);
+  };
+
+  const openEditDialog = (booking: Booking) => {
+    setBookingForm({
+      id: booking.id,
+      property: booking.property,
+      tenant: booking.tenant,
+      startDate: booking.startDate,
+      endDate: booking.endDate,
+      amount: booking.amount.toString()
+    });
+    setIsEditing(true);
+    setOpenDialog(true);
+  };
+
+  const handleAddOrUpdateBooking = () => {
     // Validate form
-    if (!newBooking.property || !newBooking.tenant || !newBooking.startDate || 
-        !newBooking.endDate || !newBooking.amount) {
+    if (!bookingForm.property || !bookingForm.tenant || !bookingForm.startDate || 
+        !bookingForm.endDate || !bookingForm.amount) {
       toast.error("Veuillez remplir tous les champs");
       return;
     }
 
-    const amount = parseFloat(newBooking.amount);
+    const amount = parseFloat(bookingForm.amount);
     if (isNaN(amount) || amount <= 0) {
       toast.error("Le montant doit être un nombre positif");
       return;
@@ -130,8 +161,8 @@ const MoyenneDuree = () => {
 
     // Determine status based on dates
     const now = new Date();
-    const startDate = new Date(newBooking.startDate);
-    const endDate = new Date(newBooking.endDate);
+    const startDate = new Date(bookingForm.startDate);
+    const endDate = new Date(bookingForm.endDate);
     
     let status: "upcoming" | "active" | "completed" = "upcoming";
     if (now > endDate) {
@@ -140,31 +171,60 @@ const MoyenneDuree = () => {
       status = "active";
     }
 
-    // Create new booking
-    const newId = `MD-${new Date().getFullYear()}-${(bookings.length + 1).toString().padStart(3, '0')}`;
     const commission = calculateCommission(amount);
     
-    const booking: Booking = {
-      id: newId,
-      property: newBooking.property,
-      tenant: newBooking.tenant,
-      startDate: newBooking.startDate,
-      endDate: newBooking.endDate,
-      amount: amount,
-      commission: commission,
-      status: status
-    };
+    if (isEditing) {
+      // Update existing booking
+      const updatedBookings = bookings.map(booking => 
+        booking.id === bookingForm.id ? {
+          ...booking,
+          property: bookingForm.property,
+          tenant: bookingForm.tenant,
+          startDate: bookingForm.startDate,
+          endDate: bookingForm.endDate,
+          amount: amount,
+          commission: commission,
+          status: status
+        } : booking
+      );
+      setBookings(updatedBookings);
+      toast.success("Réservation mise à jour avec succès");
+    } else {
+      // Create new booking
+      const newId = `MD-${new Date().getFullYear()}-${(bookings.length + 1).toString().padStart(3, '0')}`;
+      
+      const booking: Booking = {
+        id: newId,
+        property: bookingForm.property,
+        tenant: bookingForm.tenant,
+        startDate: bookingForm.startDate,
+        endDate: bookingForm.endDate,
+        amount: amount,
+        commission: commission,
+        status: status
+      };
 
-    setBookings([booking, ...bookings]);
-    setNewBooking({
-      property: "",
-      tenant: "",
-      startDate: "",
-      endDate: "",
-      amount: ""
-    });
+      setBookings([booking, ...bookings]);
+      toast.success("Réservation ajoutée avec succès");
+    }
+
+    resetForm();
     setOpenDialog(false);
-    toast.success("Réservation ajoutée avec succès");
+  };
+
+  const handleDeleteBooking = (id: string) => {
+    setBookingToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (bookingToDelete) {
+      const updatedBookings = bookings.filter(booking => booking.id !== bookingToDelete);
+      setBookings(updatedBookings);
+      toast.success("Réservation supprimée avec succès");
+      setDeleteConfirmOpen(false);
+      setBookingToDelete(null);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -212,7 +272,10 @@ const MoyenneDuree = () => {
           </p>
         </div>
 
-        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <Dialog open={openDialog} onOpenChange={(open) => {
+          setOpenDialog(open);
+          if (!open) resetForm();
+        }}>
           <DialogTrigger asChild>
             <Button className="gap-1">
               <Plus className="h-4 w-4" />
@@ -221,9 +284,11 @@ const MoyenneDuree = () => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Nouvelle location moyenne durée</DialogTitle>
+              <DialogTitle>{isEditing ? "Modifier la location" : "Nouvelle location moyenne durée"}</DialogTitle>
               <DialogDescription>
-                Entrez les détails de la nouvelle location directe. Les commissions (20%) seront calculées automatiquement.
+                {isEditing 
+                  ? "Modifiez les détails de la location. Les commissions (20%) seront recalculées automatiquement."
+                  : "Entrez les détails de la nouvelle location directe. Les commissions (20%) seront calculées automatiquement."}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -234,7 +299,7 @@ const MoyenneDuree = () => {
                 <Input
                   id="property"
                   name="property"
-                  value={newBooking.property}
+                  value={bookingForm.property}
                   onChange={handleInputChange}
                   className="col-span-3"
                 />
@@ -246,7 +311,7 @@ const MoyenneDuree = () => {
                 <Input
                   id="tenant"
                   name="tenant"
-                  value={newBooking.tenant}
+                  value={bookingForm.tenant}
                   onChange={handleInputChange}
                   className="col-span-3"
                 />
@@ -259,7 +324,7 @@ const MoyenneDuree = () => {
                   id="startDate"
                   name="startDate"
                   type="date"
-                  value={newBooking.startDate}
+                  value={bookingForm.startDate}
                   onChange={handleInputChange}
                   className="col-span-3"
                 />
@@ -272,7 +337,7 @@ const MoyenneDuree = () => {
                   id="endDate"
                   name="endDate"
                   type="date"
-                  value={newBooking.endDate}
+                  value={bookingForm.endDate}
                   onChange={handleInputChange}
                   className="col-span-3"
                 />
@@ -285,14 +350,16 @@ const MoyenneDuree = () => {
                   id="amount"
                   name="amount"
                   type="number"
-                  value={newBooking.amount}
+                  value={bookingForm.amount}
                   onChange={handleInputChange}
                   className="col-span-3"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit" onClick={handleAddBooking}>Ajouter</Button>
+              <Button type="submit" onClick={handleAddOrUpdateBooking}>
+                {isEditing ? "Mettre à jour" : "Ajouter"}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -308,7 +375,14 @@ const MoyenneDuree = () => {
 
         <TabsContent value="all" className="space-y-4 mt-4">
           {bookings.map((booking) => (
-            <BookingCard key={booking.id} booking={booking} formatter={{ date: formatDate, currency: formatCurrency }} statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }} />
+            <BookingCard 
+              key={booking.id} 
+              booking={booking} 
+              formatter={{ date: formatDate, currency: formatCurrency }} 
+              statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
+              onEdit={() => openEditDialog(booking)}
+              onDelete={() => handleDeleteBooking(booking.id)}
+            />
           ))}
         </TabsContent>
 
@@ -316,7 +390,14 @@ const MoyenneDuree = () => {
           {bookings
             .filter((booking) => booking.status === "upcoming")
             .map((booking) => (
-              <BookingCard key={booking.id} booking={booking} formatter={{ date: formatDate, currency: formatCurrency }} statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }} />
+              <BookingCard 
+                key={booking.id} 
+                booking={booking} 
+                formatter={{ date: formatDate, currency: formatCurrency }} 
+                statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
+                onEdit={() => openEditDialog(booking)}
+                onDelete={() => handleDeleteBooking(booking.id)}
+              />
             ))}
         </TabsContent>
 
@@ -324,7 +405,14 @@ const MoyenneDuree = () => {
           {bookings
             .filter((booking) => booking.status === "active")
             .map((booking) => (
-              <BookingCard key={booking.id} booking={booking} formatter={{ date: formatDate, currency: formatCurrency }} statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }} />
+              <BookingCard 
+                key={booking.id} 
+                booking={booking} 
+                formatter={{ date: formatDate, currency: formatCurrency }} 
+                statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
+                onEdit={() => openEditDialog(booking)}
+                onDelete={() => handleDeleteBooking(booking.id)}
+              />
             ))}
         </TabsContent>
 
@@ -332,10 +420,32 @@ const MoyenneDuree = () => {
           {bookings
             .filter((booking) => booking.status === "completed")
             .map((booking) => (
-              <BookingCard key={booking.id} booking={booking} formatter={{ date: formatDate, currency: formatCurrency }} statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }} />
+              <BookingCard 
+                key={booking.id} 
+                booking={booking} 
+                formatter={{ date: formatDate, currency: formatCurrency }} 
+                statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
+                onEdit={() => openEditDialog(booking)}
+                onDelete={() => handleDeleteBooking(booking.id)}
+              />
             ))}
         </TabsContent>
       </Tabs>
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action supprimera définitivement la réservation. Cette action ne peut pas être annulée.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setBookingToDelete(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Supprimer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
@@ -350,9 +460,11 @@ interface BookingCardProps {
     getColor: (status: string) => string;
     getLabel: (status: string) => string;
   };
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
-const BookingCard = ({ booking, formatter, statusInfo }: BookingCardProps) => {
+const BookingCard = ({ booking, formatter, statusInfo, onEdit, onDelete }: BookingCardProps) => {
   return (
     <Card className="animate-fade-in">
       <CardHeader className="pb-2">
@@ -361,8 +473,31 @@ const BookingCard = ({ booking, formatter, statusInfo }: BookingCardProps) => {
             <CardTitle>{booking.property}</CardTitle>
             <CardDescription>Locataire: {booking.tenant}</CardDescription>
           </div>
-          <div className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.getColor(booking.status)}`}>
-            {statusInfo.getLabel(booking.status)}
+          <div className="flex items-center gap-2">
+            <div className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.getColor(booking.status)}`}>
+              {statusInfo.getLabel(booking.status)}
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-horizontal">
+                    <circle cx="12" cy="12" r="1" />
+                    <circle cx="19" cy="12" r="1" />
+                    <circle cx="5" cy="12" r="1" />
+                  </svg>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
+                  <Edit2 className="mr-2 h-4 w-4" />
+                  Modifier
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onDelete} className="cursor-pointer text-destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Supprimer
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardHeader>
@@ -407,3 +542,4 @@ const BookingCard = ({ booking, formatter, statusInfo }: BookingCardProps) => {
 };
 
 export default MoyenneDuree;
+
