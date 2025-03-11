@@ -22,7 +22,11 @@ interface Booking {
   endDate: string;
   amount: number;
   cleaningFee: number;
-  commissionRate: number; // Added commission rate as a percentage
+  commissionRate: number; // Total commission rate as a percentage
+  commissionSplit: {
+    bnbLyon: number; // BNB Lyon's percentage of the total commission (0-100)
+    hamac: number;   // Hamac's percentage of the total commission (0-100)
+  };
   commission: {
     total: number;
     bnbLyon: number;
@@ -31,7 +35,7 @@ interface Booking {
   status: "upcoming" | "active" | "completed";
 }
 
-// Update mock data to include commissionRate
+// Update mock data to include commissionSplit
 const mockBookings: Booking[] = [
   {
     id: "MD-2023-001",
@@ -41,9 +45,13 @@ const mockBookings: Booking[] = [
     endDate: "2023-12-15",
     amount: 3000,
     cleaningFee: 150,
-    commissionRate: 20, // 20%
+    commissionRate: 20,
+    commissionSplit: {
+      bnbLyon: 50,
+      hamac: 50
+    },
     commission: {
-      total: 570, // (3000 - 150) * 0.2
+      total: 570,
       bnbLyon: 285,
       hamac: 285
     },
@@ -57,9 +65,13 @@ const mockBookings: Booking[] = [
     endDate: "2024-01-31",
     amount: 2400,
     cleaningFee: 120,
-    commissionRate: 20, // 20%
+    commissionRate: 20,
+    commissionSplit: {
+      bnbLyon: 50,
+      hamac: 50
+    },
     commission: {
-      total: 456, // (2400 - 120) * 0.2
+      total: 456,
       bnbLyon: 228,
       hamac: 228
     },
@@ -73,9 +85,13 @@ const mockBookings: Booking[] = [
     endDate: "2023-11-30",
     amount: 3600,
     cleaningFee: 180,
-    commissionRate: 20, // 20%
+    commissionRate: 20,
+    commissionSplit: {
+      bnbLyon: 50,
+      hamac: 50
+    },
     commission: {
-      total: 684, // (3600 - 180) * 0.2
+      total: 684,
       bnbLyon: 342,
       hamac: 342
     },
@@ -89,9 +105,13 @@ const mockBookings: Booking[] = [
     endDate: "2024-03-31",
     amount: 3200,
     cleaningFee: 160,
-    commissionRate: 20, // 20%
+    commissionRate: 20,
+    commissionSplit: {
+      bnbLyon: 50,
+      hamac: 50
+    },
     commission: {
-      total: 608, // (3200 - 160) * 0.2
+      total: 608,
       bnbLyon: 304,
       hamac: 304
     },
@@ -113,7 +133,9 @@ const MoyenneDuree = () => {
     endDate: "",
     amount: "",
     cleaningFee: "",
-    commissionRate: "20", // Default commission rate of 20%
+    commissionRate: "20",
+    bnbLyonSplit: "50",
+    hamacSplit: "50",
   });
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -130,13 +152,49 @@ const MoyenneDuree = () => {
     { value: "30", label: "30%" },
   ];
 
-  const calculateCommission = (amount: number, cleaningFee: number, commissionRate: number) => {
+  // Available commission splits
+  const commissionSplits = [
+    { value: "0", label: "0%" },
+    { value: "10", label: "10%" },
+    { value: "20", label: "20%" },
+    { value: "30", label: "30%" },
+    { value: "40", label: "40%" },
+    { value: "50", label: "50%" },
+    { value: "60", label: "60%" },
+    { value: "70", label: "70%" },
+    { value: "80", label: "80%" },
+    { value: "90", label: "90%" },
+    { value: "100", label: "100%" },
+  ];
+
+  // Calculate commission based on amount, cleaning fee, commission rate, and the split between entities
+  const calculateCommission = (
+    amount: number, 
+    cleaningFee: number, 
+    commissionRate: number,
+    bnbLyonSplit: number
+  ) => {
     const totalCommission = (amount - cleaningFee) * (commissionRate / 100);
+    const bnbLyonCommission = totalCommission * (bnbLyonSplit / 100);
+    const hamacCommission = totalCommission - bnbLyonCommission;
+    
     return {
       total: totalCommission,
-      bnbLyon: totalCommission / 2,
-      hamac: totalCommission / 2
+      bnbLyon: bnbLyonCommission,
+      hamac: hamacCommission
     };
+  };
+
+  // Update hamac split when bnbLyon split changes
+  const updateHamacSplit = (bnbLyonSplit: string) => {
+    const hamacSplit = (100 - parseInt(bnbLyonSplit)).toString();
+    setBookingForm(prev => ({ ...prev, hamacSplit }));
+  };
+
+  // Update bnbLyon split when hamac split changes
+  const updateBnbLyonSplit = (hamacSplit: string) => {
+    const bnbLyonSplit = (100 - parseInt(hamacSplit)).toString();
+    setBookingForm(prev => ({ ...prev, bnbLyonSplit }));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -146,6 +204,13 @@ const MoyenneDuree = () => {
 
   const handleSelectChange = (name: string, value: string) => {
     setBookingForm(prev => ({ ...prev, [name]: value }));
+    
+    // Update the other split value when one changes
+    if (name === "bnbLyonSplit") {
+      updateHamacSplit(value);
+    } else if (name === "hamacSplit") {
+      updateBnbLyonSplit(value);
+    }
   };
 
   const resetForm = () => {
@@ -158,6 +223,8 @@ const MoyenneDuree = () => {
       amount: "",
       cleaningFee: "",
       commissionRate: "20",
+      bnbLyonSplit: "50",
+      hamacSplit: "50",
     });
     setIsEditing(false);
   };
@@ -172,6 +239,8 @@ const MoyenneDuree = () => {
       amount: booking.amount.toString(),
       cleaningFee: booking.cleaningFee.toString(),
       commissionRate: booking.commissionRate.toString(),
+      bnbLyonSplit: booking.commissionSplit.bnbLyon.toString(),
+      hamacSplit: booking.commissionSplit.hamac.toString(),
     });
     setIsEditing(true);
     setOpenDialog(true);
@@ -180,7 +249,8 @@ const MoyenneDuree = () => {
   const handleAddOrUpdateBooking = () => {
     // Validate form
     if (!bookingForm.property || !bookingForm.tenant || !bookingForm.startDate || 
-        !bookingForm.endDate || !bookingForm.amount || !bookingForm.cleaningFee || !bookingForm.commissionRate) {
+        !bookingForm.endDate || !bookingForm.amount || !bookingForm.cleaningFee || 
+        !bookingForm.commissionRate || !bookingForm.bnbLyonSplit || !bookingForm.hamacSplit) {
       toast.error("Veuillez remplir tous les champs");
       return;
     }
@@ -188,6 +258,8 @@ const MoyenneDuree = () => {
     const amount = parseFloat(bookingForm.amount);
     const cleaningFee = parseFloat(bookingForm.cleaningFee);
     const commissionRate = parseFloat(bookingForm.commissionRate);
+    const bnbLyonSplit = parseFloat(bookingForm.bnbLyonSplit);
+    const hamacSplit = parseFloat(bookingForm.hamacSplit);
     
     if (isNaN(amount) || amount <= 0) {
       toast.error("Le montant doit être un nombre positif");
@@ -199,6 +271,10 @@ const MoyenneDuree = () => {
     }
     if (isNaN(commissionRate) || commissionRate <= 0 || commissionRate > 100) {
       toast.error("Le taux de commission doit être compris entre 1 et 100");
+      return;
+    }
+    if (bnbLyonSplit + hamacSplit !== 100) {
+      toast.error("La répartition des commissions doit totaliser 100%");
       return;
     }
 
@@ -214,7 +290,7 @@ const MoyenneDuree = () => {
       status = "active";
     }
 
-    const commission = calculateCommission(amount, cleaningFee, commissionRate);
+    const commission = calculateCommission(amount, cleaningFee, commissionRate, bnbLyonSplit);
     
     if (isEditing) {
       // Update existing booking
@@ -228,6 +304,10 @@ const MoyenneDuree = () => {
           amount: amount,
           cleaningFee: cleaningFee,
           commissionRate: commissionRate,
+          commissionSplit: {
+            bnbLyon: bnbLyonSplit,
+            hamac: hamacSplit
+          },
           commission: commission,
           status: status
         } : booking
@@ -247,6 +327,10 @@ const MoyenneDuree = () => {
         amount: amount,
         cleaningFee: cleaningFee,
         commissionRate: commissionRate,
+        commissionSplit: {
+          bnbLyon: bnbLyonSplit,
+          hamac: hamacSplit
+        },
         commission: commission,
         status: status
       };
@@ -447,6 +531,46 @@ const MoyenneDuree = () => {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="bnbLyonSplit" className="text-right">
+                  Part BNB LYON (%)
+                </Label>
+                <Select 
+                  value={bookingForm.bnbLyonSplit} 
+                  onValueChange={(value) => handleSelectChange("bnbLyonSplit", value)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Part BNB LYON" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {commissionSplits.map((split) => (
+                      <SelectItem key={split.value} value={split.value}>
+                        {split.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="hamacSplit" className="text-right">
+                  Part HAMAC (%)
+                </Label>
+                <Select 
+                  value={bookingForm.hamacSplit} 
+                  onValueChange={(value) => handleSelectChange("hamacSplit", value)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Part HAMAC" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {commissionSplits.map((split) => (
+                      <SelectItem key={split.value} value={split.value}>
+                        {split.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <DialogFooter>
               <Button type="submit" onClick={handleAddOrUpdateBooking}>
@@ -612,11 +736,11 @@ const MoyenneDuree = () => {
                     </TableHeader>
                     <TableBody>
                       <TableRow>
-                        <TableCell className="font-medium">Part BNB LYON (50%)</TableCell>
+                        <TableCell className="font-medium">Part BNB LYON ({selectedBooking.commissionSplit.bnbLyon}%)</TableCell>
                         <TableCell className="text-right">{formatCurrency(selectedBooking.commission.bnbLyon)}</TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="font-medium">Part HAMAC (50%)</TableCell>
+                        <TableCell className="font-medium">Part HAMAC ({selectedBooking.commissionSplit.hamac}%)</TableCell>
                         <TableCell className="text-right">{formatCurrency(selectedBooking.commission.hamac)}</TableCell>
                       </TableRow>
                     </TableBody>
