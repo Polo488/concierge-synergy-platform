@@ -40,6 +40,8 @@ const Cleaning = () => {
       checkinTime: '15:00',
       status: 'todo',
       cleaningAgent: null,
+      startTime: '',
+      endTime: '',
       items: ['Draps king size x1', 'Serviettes bain x2', 'Serviettes main x2'],
       consumables: ['Capsules café x4', 'Sachets thé x2', 'Gel douche x1', 'Shampoing x1'],
       bedding: ['Housse de couette king size x1', 'Taies d\'oreiller x2']
@@ -52,6 +54,7 @@ const Cleaning = () => {
       status: 'inProgress',
       cleaningAgent: 'Marie Lambert',
       startTime: '10:30',
+      endTime: '',
       items: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1'],
       consumables: ['Capsules café x2', 'Sachets thé x2', 'Gel douche x1'],
       bedding: ['Housse de couette simple x1', 'Taie d\'oreiller x1']
@@ -63,6 +66,8 @@ const Cleaning = () => {
       checkinTime: '17:00',
       status: 'todo',
       cleaningAgent: 'Lucas Martin',
+      startTime: '',
+      endTime: '',
       items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2', 'Peignoirs x2'],
       consumables: ['Capsules café x4', 'Sachets thé x4', 'Gel douche x2', 'Shampoing x2'],
       bedding: ['Housse de couette queen x1', 'Taies d\'oreiller x2']
@@ -77,6 +82,8 @@ const Cleaning = () => {
       checkinTime: '15:00',
       status: 'scheduled',
       cleaningAgent: null,
+      startTime: '',
+      endTime: '',
       items: ['Draps king size x2', 'Serviettes bain x4', 'Serviettes main x4', 'Peignoirs x2'],
       consumables: ['Capsules café x6', 'Sachets thé x4', 'Gel douche x2', 'Shampoing x2'],
       bedding: ['Housse de couette king size x2', 'Taies d\'oreiller x4']
@@ -88,6 +95,8 @@ const Cleaning = () => {
       checkinTime: '14:00',
       status: 'scheduled',
       cleaningAgent: 'Marie Lambert',
+      startTime: '',
+      endTime: '',
       items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2'],
       consumables: ['Capsules café x4', 'Sachets thé x2', 'Gel douche x1', 'Shampoing x1'],
       bedding: ['Housse de couette queen x1', 'Taies d\'oreiller x2']
@@ -331,7 +340,7 @@ const Cleaning = () => {
       ...newTask,
       id,
       cleaningAgent: newTask.cleaningAgent === '' ? null : newTask.cleaningAgent,
-      // Add startTime and endTime properties for all tasks to fix type error
+      // Add startTime and endTime properties for all tasks
       startTime: currentTime,
       endTime: currentTime
     };
