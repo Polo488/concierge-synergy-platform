@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { 
   Sparkles, CheckCircle, Clock, Calendar as CalendarIcon, 
@@ -826,4 +827,132 @@ const Cleaning = () => {
                   <p className="font-medium text-sm">Linge à prévoir:</p>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {currentTask.items.map((item: string, i: number) => (
-                      <Badge key={i} variant="outline" className="rounded
+                      <Badge key={i} variant="outline" className="rounded-full">
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {currentTask.bedding?.length > 0 && (
+                <div>
+                  <p className="font-medium text-sm">Housses et taies:</p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {currentTask.bedding.map((item: string, i: number) => (
+                      <Badge key={i} variant="outline" className="rounded-full bg-blue-50">
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {currentTask.consumables?.length > 0 && (
+                <div>
+                  <p className="font-medium text-sm">Consommables:</p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {currentTask.consumables.map((item: string, i: number) => (
+                      <Badge key={i} variant="outline" className="rounded-full bg-green-50">
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDetailsDialogOpen(false)}>Fermer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={problemDialogOpen} onOpenChange={setProblemDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Signaler un problème</DialogTitle>
+            <DialogDescription>Décrivez le problème rencontré lors du ménage</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <label className="block text-sm font-medium mb-1">Description du problème</label>
+            <textarea 
+              className="w-full border rounded-md p-2" 
+              rows={4}
+              value={problemDescription}
+              onChange={(e) => setProblemDescription(e.target.value)}
+              placeholder="Décrivez le problème ici..."
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setProblemDialogOpen(false)}>Annuler</Button>
+            <Button 
+              onClick={handleReportProblem} 
+              variant="destructive"
+              disabled={!problemDescription.trim()}
+            >
+              Signaler
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={labelsDialogOpen} onOpenChange={setLabelsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Générer des étiquettes</DialogTitle>
+            <DialogDescription>Sélectionnez les ménages pour lesquels vous souhaitez générer des étiquettes</DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Type d'étiquette</label>
+              <Select value={labelType} onValueChange={(value: "standard" | "detailed" | "qrcode") => setLabelType(value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choisir un format" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="standard">Standard</SelectItem>
+                  <SelectItem value="detailed">Détaillée</SelectItem>
+                  <SelectItem value="qrcode">Avec QR Code</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Sélectionnez les ménages:</p>
+              <div className="max-h-60 overflow-y-auto pr-2 space-y-2">
+                {[...todayCleaningTasks, ...tomorrowCleaningTasks].map((task) => (
+                  <CleaningTask key={task.id} task={task} />
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex justify-between text-sm">
+              <span>{selectedTasks.length} ménage(s) sélectionné(s)</span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setSelectedTasks([...todayCleaningTasks, ...tomorrowCleaningTasks])}
+              >
+                Tout sélectionner
+              </Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLabelsDialogOpen(false)}>Annuler</Button>
+            <Button 
+              onClick={handlePrintLabels}
+              disabled={selectedTasks.length === 0}
+              className="gap-1"
+            >
+              <Printer className="h-4 w-4" />
+              Imprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default Cleaning;
