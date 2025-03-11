@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { 
   Sparkles, CheckCircle, Clock, Calendar as CalendarIcon, 
@@ -312,79 +311,160 @@ const Cleaning = () => {
           <head>
             <title>Étiquettes Ménage - GESTION BNB LYON</title>
             <style>
-              body { font-family: Arial, sans-serif; }
-              .container { padding: 20px; }
-              .label { 
-                border: 1px solid #ccc; 
-                padding: 15px; 
-                margin-bottom: 20px; 
-                page-break-inside: avoid;
-                max-width: 500px;
+              @media print {
+                @page { 
+                  margin: 0.5cm;
+                  size: auto;
+                }
               }
-              .property { font-weight: bold; font-size: 16px; margin-bottom: 8px; }
-              .details { font-size: 14px; margin-bottom: 8px; }
-              .items { margin-top: 10px; }
-              .section-title { font-weight: bold; margin-top: 10px; margin-bottom: 5px; font-size: 14px; }
-              .item { margin-bottom: 4px; font-size: 12px; }
-              .qrcode { 
-                border: 1px solid #000; 
-                width: 100px; 
-                height: 100px; 
-                margin-top: 10px;
+              body { 
+                font-family: Arial, sans-serif; 
+                margin: 0;
+                padding: 15px;
+              }
+              .container { 
                 display: flex;
-                justify-content: center;
+                flex-direction: column;
+                gap: 30px;
+              }
+              .label { 
+                page-break-inside: avoid;
+                page-break-after: always;
+                width: 100%;
+                max-width: 800px;
+              }
+              .property-header {
+                border: 3px solid #000;
+                border-radius: 15px;
+                padding: 10px 15px;
+                font-weight: bold;
+                font-size: 24px;
+                display: inline-block;
+                margin-bottom: 15px;
+              }
+              .arrival-status {
+                font-size: 24px;
+                font-weight: bold;
+                float: right;
+                margin-top: 10px;
+              }
+              .items-container {
+                display: flex;
+                justify-content: space-between;
+              }
+              .left-column {
+                flex: 3;
+                font-size: 18px;
+              }
+              .right-column {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                font-size: 24px;
+                font-weight: bold;
+              }
+              .item-row {
+                margin-bottom: 10px;
+                font-size: 22px;
+              }
+              .item-qty {
+                font-weight: bold;
+                font-size: 24px;
+              }
+              .item-name {
+                font-style: italic;
+              }
+              .consumable-row {
+                display: flex;
                 align-items: center;
+                gap: 10px;
+                margin-bottom: 10px;
+              }
+              .consumable-icon {
+                border: 1px solid #000;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 font-size: 12px;
               }
-              @media print {
-                @page { margin: 0.5cm; }
-                .label { page-break-after: always; }
+              .consumable-text {
+                font-size: 24px;
+                font-weight: bold;
+              }
+              .box-icon {
+                border: 1px solid #000;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                font-size: 12px;
               }
             </style>
           </head>
           <body>
             <div class="container">
-              ${selectedTasks.map(task => `
+              ${selectedTasks.map(task => {
+                // Extract property number and name
+                const propertyMatch = task.property.match(/^([^a-zA-Z]+)\s*(.*)$/);
+                const propertyNum = propertyMatch ? propertyMatch[1].trim() : '';
+                const propertyName = propertyMatch ? propertyMatch[2].trim() : task.property;
+                
+                return `
                 <div class="label">
-                  <div class="property">${task.property}</div>
-                  ${labelType !== "standard" ? `
-                    <div class="details">
-                      ${task.date ? 
-                        `Date: ${task.date}` : 
-                        `Check-out: ${task.checkoutTime} · Check-in: ${task.checkinTime}`
-                      }
-                    </div>
-                    ${task.cleaningAgent ? `<div class="details">Agent: ${task.cleaningAgent}</div>` : ''}
-                  ` : ''}
-
-                  ${labelType !== "standard" ? `
-                    <div class="items">
-                      <div class="section-title">Linge à prévoir:</div>
-                      ${task.items ? task.items.map((item) => `
-                        <div class="item">- ${item}</div>
-                      `).join('') : ''}
-                      
-                      ${task.bedding ? `
-                        <div class="section-title">Housses et taies:</div>
-                        ${task.bedding.map((item) => `
-                          <div class="item">- ${item}</div>
-                        `).join('')}
-                      ` : ''}
-                      
-                      ${task.consumables ? `
-                        <div class="section-title">Consommables:</div>
-                        ${task.consumables.map((item) => `
-                          <div class="item">- ${item}</div>
-                        `).join('')}
-                      ` : ''}
-                    </div>
-                  ` : ''}
+                  <div class="header-row">
+                    <span class="property-header">${propertyNum} : ${propertyName}</span>
+                    <span class="arrival-status">ARRIVÉE AUJD : ${task.status === 'scheduled' ? 'NON' : 'OUI'}</span>
+                  </div>
                   
-                  ${labelType === "qrcode" ? `
-                    <div class="qrcode">QR Code: ${task.id}</div>
-                  ` : ''}
+                  <div class="items-container">
+                    <div class="left-column">
+                      ${task.bedding?.map(item => {
+                        const qtyMatch = item.match(/x(\d+)$/);
+                        const qty = qtyMatch ? qtyMatch[1] : '1';
+                        const itemName = item.replace(/x\d+$/, '').trim();
+                        return `<div class="item-row"><span class="item-qty">${qty} x</span> <span class="item-name">${itemName}</span></div>`;
+                      }).join('') || ''}
+                      
+                      ${task.items?.map(item => {
+                        const qtyMatch = item.match(/x(\d+)$/);
+                        const qty = qtyMatch ? qtyMatch[1] : '1';
+                        const itemName = item.replace(/x\d+$/, '').trim();
+                        // Filter out only items related to towels, bath mats, etc.
+                        if (itemName.toLowerCase().includes('serviette') || 
+                            itemName.toLowerCase().includes('tapis')) {
+                          return `<div class="item-row"><span class="item-qty">${qty} x</span> <span class="item-name">${itemName}</span></div>`;
+                        }
+                        return '';
+                      }).join('') || ''}
+                    </div>
+                    
+                    <div class="right-column">
+                      <div class="consumable-row">
+                        <div class="box-icon">☕</div>
+                        <span class="consumable-text">x 4</span>
+                      </div>
+                      <div class="consumable-row">
+                        <div class="box-icon">🍵</div>
+                        <span class="consumable-text">x 4</span>
+                      </div>
+                      <div class="consumable-row">
+                        <div class="box-icon">CUISINE</div>
+                        <span class="consumable-text">x 1</span>
+                      </div>
+                      <div class="consumable-row">
+                        <div class="box-icon">SDB</div>
+                        <span class="consumable-text">x 2</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              `).join('')}
+              `;
+              }).join('')}
             </div>
             <script>
               window.onload = function() { window.print(); }
@@ -746,181 +826,4 @@ const Cleaning = () => {
                   <p className="font-medium text-sm">Linge à prévoir:</p>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {currentTask.items.map((item: string, i: number) => (
-                      <Badge key={i} variant="outline" className="rounded-full">
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {currentTask.bedding?.length > 0 && (
-                <div>
-                  <p className="font-medium text-sm">Housses et taies:</p>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {currentTask.bedding.map((item: string, i: number) => (
-                      <Badge key={i} variant="outline" className="rounded-full bg-blue-50">
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {currentTask.consumables?.length > 0 && (
-                <div>
-                  <p className="font-medium text-sm">Consommables:</p>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {currentTask.consumables.map((item: string, i: number) => (
-                      <Badge key={i} variant="outline" className="rounded-full bg-green-50">
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {currentTask.status === 'completed' && (
-                <div>
-                  <p className="font-medium text-sm">Horaires:</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Début: {currentTask.startTime} · Fin: {currentTask.endTime}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-          <DialogFooter>
-            <Button onClick={() => setDetailsDialogOpen(false)}>Fermer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={problemDialogOpen} onOpenChange={setProblemDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Signaler un problème</DialogTitle>
-            <DialogDescription>Décrivez le problème rencontré lors du ménage</DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <textarea 
-              className="w-full min-h-[100px] p-2 border rounded-md"
-              placeholder="Décrivez le problème rencontré..."
-              value={problemDescription}
-              onChange={(e) => setProblemDescription(e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setProblemDialogOpen(false)}>Annuler</Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleReportProblem}
-              disabled={problemDescription.trim().length === 0}
-            >
-              Signaler
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={calendarDialogOpen} onOpenChange={setCalendarDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Calendrier des ménages</DialogTitle>
-            <DialogDescription>Sélectionnez une date pour voir les ménages programmés</DialogDescription>
-          </DialogHeader>
-          <div className="py-4 flex justify-center">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={handleDateChange}
-              className="rounded-md border pointer-events-auto"
-              locale={fr}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCalendarDialogOpen(false)}>Fermer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={labelsDialogOpen} onOpenChange={setLabelsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Générer des étiquettes</DialogTitle>
-            <DialogDescription>Sélectionnez les ménages et le type d'étiquette à imprimer</DialogDescription>
-          </DialogHeader>
-          <div className="py-4 space-y-4">
-            <div>
-              <p className="text-sm mb-2">Type d'étiquette :</p>
-              <div className="flex gap-2">
-                <Button 
-                  variant={labelType === "standard" ? "default" : "outline"} 
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => setLabelType("standard")}
-                >
-                  <Tag className="mr-2 h-4 w-4" />
-                  Standard
-                </Button>
-                <Button 
-                  variant={labelType === "detailed" ? "default" : "outline"} 
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => setLabelType("detailed")}
-                >
-                  <Tags className="mr-2 h-4 w-4" />
-                  Détaillée
-                </Button>
-                <Button 
-                  variant={labelType === "qrcode" ? "default" : "outline"} 
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => setLabelType("qrcode")}
-                >
-                  <QrCode className="mr-2 h-4 w-4" />
-                  QR Code
-                </Button>
-              </div>
-            </div>
-            
-            <div>
-              <p className="text-sm mb-2">Sélectionnez les ménages :</p>
-              <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2">
-                {[...todayCleaningTasks, ...tomorrowCleaningTasks].map((task) => (
-                  <CleaningTask key={task.id} task={task} />
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center pt-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setSelectedTasks([...todayCleaningTasks, ...tomorrowCleaningTasks])}
-              >
-                Tout sélectionner
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                {selectedTasks.length} ménage(s) sélectionné(s)
-              </span>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setLabelsDialogOpen(false)}>Annuler</Button>
-            <Button 
-              onClick={handlePrintLabels}
-              className="gap-2"
-              disabled={selectedTasks.length === 0}
-            >
-              <Printer className="h-4 w-4" />
-              Imprimer ({selectedTasks.length})
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
-
-export default Cleaning;
+                      <Badge key={i} variant="outline" className="rounded
