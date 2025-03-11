@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -12,7 +11,8 @@ import {
   Menu,
   X,
   ChevronRight,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  Clock
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -29,6 +29,7 @@ const navItems: NavItem[] = [
   { name: 'Ménage', path: '/cleaning', icon: Sparkles },
   { name: 'Calendrier', path: '/calendar', icon: CalendarIcon },
   { name: 'Logements', path: '/properties', icon: Home },
+  { name: 'Moyenne Durée', path: '/moyenne-duree', icon: Clock },
   { name: 'Facturation', path: '/billing', icon: Receipt },
 ];
 
