@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Edit2, Trash2 } from "lucide-react";
+import { Plus, Edit2, Trash2, Euro, CalendarDays, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Define the interface for a booking
 interface Booking {
@@ -110,6 +111,8 @@ const MoyenneDuree = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   const calculateCommission = (amount: number, cleaningFee: number) => {
     const totalCommission = (amount - cleaningFee) * 0.2;
@@ -276,6 +279,18 @@ const MoyenneDuree = () => {
     return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
+  const openDetailsDialog = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setDetailsDialogOpen(true);
+  };
+
+  const calculateRentalDays = (startDate: string, endDate: string) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -409,6 +424,7 @@ const MoyenneDuree = () => {
               statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
               onEdit={() => openEditDialog(booking)}
               onDelete={() => handleDeleteBooking(booking.id)}
+              onViewDetails={() => openDetailsDialog(booking)}
             />
           ))}
         </TabsContent>
@@ -424,6 +440,7 @@ const MoyenneDuree = () => {
                 statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
                 onEdit={() => openEditDialog(booking)}
                 onDelete={() => handleDeleteBooking(booking.id)}
+                onViewDetails={() => openDetailsDialog(booking)}
               />
             ))}
         </TabsContent>
@@ -439,6 +456,7 @@ const MoyenneDuree = () => {
                 statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
                 onEdit={() => openEditDialog(booking)}
                 onDelete={() => handleDeleteBooking(booking.id)}
+                onViewDetails={() => openDetailsDialog(booking)}
               />
             ))}
         </TabsContent>
@@ -454,10 +472,118 @@ const MoyenneDuree = () => {
                 statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
                 onEdit={() => openEditDialog(booking)}
                 onDelete={() => handleDeleteBooking(booking.id)}
+                onViewDetails={() => openDetailsDialog(booking)}
               />
             ))}
         </TabsContent>
       </Tabs>
+
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="sm:max-w-[700px]">
+          {selectedBooking && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl">Détails de la réservation</DialogTitle>
+                <DialogDescription className="pt-2 flex flex-col sm:flex-row gap-2 sm:gap-6">
+                  <span className="flex items-center gap-1.5">
+                    <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                    ID: <span className="font-medium">{selectedBooking.id}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    Locataire: <span className="font-medium">{selectedBooking.tenant}</span>
+                  </span>
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="py-4">
+                <h3 className="font-semibold text-lg mb-3">{selectedBooking.property}</h3>
+                
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead colSpan={2}>Récapitulatif de la réservation</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">Statut</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedBooking.status)}`}>
+                          {getStatusLabel(selectedBooking.status)}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Période</TableCell>
+                      <TableCell>{formatDate(selectedBooking.startDate)} au {formatDate(selectedBooking.endDate)}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Durée</TableCell>
+                      <TableCell>{calculateRentalDays(selectedBooking.startDate, selectedBooking.endDate)} jours</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+                
+                <div className="mt-4">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead colSpan={2}>Détail financier</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">Montant total de la location</TableCell>
+                        <TableCell className="text-right">{formatCurrency(selectedBooking.amount)}</TableCell>
+                      </TableRow>
+                      <TableRow className="border-b-2">
+                        <TableCell className="font-medium">Frais de ménage</TableCell>
+                        <TableCell className="text-right">- {formatCurrency(selectedBooking.cleaningFee)}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Base de calcul commission</TableCell>
+                        <TableCell className="text-right">{formatCurrency(selectedBooking.amount - selectedBooking.cleaningFee)}</TableCell>
+                      </TableRow>
+                      <TableRow className="bg-muted/30">
+                        <TableCell className="font-medium">Commission totale (20%)</TableCell>
+                        <TableCell className="text-right">{formatCurrency(selectedBooking.commission.total)}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+                
+                <div className="mt-4">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead colSpan={2}>Répartition de la commission</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">Part BNB LYON (50%)</TableCell>
+                        <TableCell className="text-right">{formatCurrency(selectedBooking.commission.bnbLyon)}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Part HAMAC (50%)</TableCell>
+                        <TableCell className="text-right">{formatCurrency(selectedBooking.commission.hamac)}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+                
+                <div className="mt-6 p-4 bg-muted/30 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-lg">Revenu net propriétaire</span>
+                    <span className="font-bold text-lg">{formatCurrency(selectedBooking.amount - selectedBooking.commission.total)}</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
@@ -489,11 +615,12 @@ interface BookingCardProps {
   };
   onEdit: () => void;
   onDelete: () => void;
+  onViewDetails: () => void;
 }
 
-const BookingCard = ({ booking, formatter, statusInfo, onEdit, onDelete }: BookingCardProps) => {
+const BookingCard = ({ booking, formatter, statusInfo, onEdit, onDelete, onViewDetails }: BookingCardProps) => {
   return (
-    <Card className="animate-fade-in">
+    <Card className="animate-fade-in cursor-pointer hover:shadow-card transition-shadow" onClick={onViewDetails}>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
@@ -505,7 +632,7 @@ const BookingCard = ({ booking, formatter, statusInfo, onEdit, onDelete }: Booki
               {statusInfo.getLabel(booking.status)}
             </div>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-horizontal">
                     <circle cx="12" cy="12" r="1" />
@@ -515,11 +642,17 @@ const BookingCard = ({ booking, formatter, statusInfo, onEdit, onDelete }: Booki
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
+                <DropdownMenuItem onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }} className="cursor-pointer">
                   <Edit2 className="mr-2 h-4 w-4" />
                   Modifier
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={onDelete} className="cursor-pointer text-destructive">
+                <DropdownMenuItem onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }} className="cursor-pointer text-destructive">
                   <Trash2 className="mr-2 h-4 w-4" />
                   Supprimer
                 </DropdownMenuItem>
