@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Plus, Edit2, Trash2, Euro, CalendarDays, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -405,6 +404,26 @@ const MoyenneDuree = () => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
+  // Fonction pour déterminer le type de partage de commission
+  const getCommissionSplitType = (booking: Booking) => {
+    if (booking.commissionSplit.bnbLyon === 100) {
+      return {
+        label: "BNB LYON exclusif",
+        color: "bg-purple-100 text-purple-800"
+      };
+    } else if (booking.commissionSplit.hamac === 100) {
+      return {
+        label: "HAMAC exclusif",
+        color: "bg-indigo-100 text-indigo-800"
+      };
+    } else {
+      return {
+        label: "Commission partagée",
+        color: "bg-blue-100 text-blue-800"
+      };
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -596,6 +615,7 @@ const MoyenneDuree = () => {
               booking={booking} 
               formatter={{ date: formatDate, currency: formatCurrency }} 
               statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
+              commissionSplitInfo={getCommissionSplitType(booking)}
               onEdit={() => openEditDialog(booking)}
               onDelete={() => handleDeleteBooking(booking.id)}
               onViewDetails={() => openDetailsDialog(booking)}
@@ -612,6 +632,7 @@ const MoyenneDuree = () => {
                 booking={booking} 
                 formatter={{ date: formatDate, currency: formatCurrency }} 
                 statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
+                commissionSplitInfo={getCommissionSplitType(booking)}
                 onEdit={() => openEditDialog(booking)}
                 onDelete={() => handleDeleteBooking(booking.id)}
                 onViewDetails={() => openDetailsDialog(booking)}
@@ -628,6 +649,7 @@ const MoyenneDuree = () => {
                 booking={booking} 
                 formatter={{ date: formatDate, currency: formatCurrency }} 
                 statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
+                commissionSplitInfo={getCommissionSplitType(booking)}
                 onEdit={() => openEditDialog(booking)}
                 onDelete={() => handleDeleteBooking(booking.id)}
                 onViewDetails={() => openDetailsDialog(booking)}
@@ -644,6 +666,7 @@ const MoyenneDuree = () => {
                 booking={booking} 
                 formatter={{ date: formatDate, currency: formatCurrency }} 
                 statusInfo={{ getColor: getStatusColor, getLabel: getStatusLabel }}
+                commissionSplitInfo={getCommissionSplitType(booking)}
                 onEdit={() => openEditDialog(booking)}
                 onDelete={() => handleDeleteBooking(booking.id)}
                 onViewDetails={() => openDetailsDialog(booking)}
@@ -787,12 +810,16 @@ interface BookingCardProps {
     getColor: (status: string) => string;
     getLabel: (status: string) => string;
   };
+  commissionSplitInfo: {
+    label: string;
+    color: string;
+  };
   onEdit: () => void;
   onDelete: () => void;
   onViewDetails: () => void;
 }
 
-const BookingCard = ({ booking, formatter, statusInfo, onEdit, onDelete, onViewDetails }: BookingCardProps) => {
+const BookingCard = ({ booking, formatter, statusInfo, commissionSplitInfo, onEdit, onDelete, onViewDetails }: BookingCardProps) => {
   return (
     <Card className="animate-fade-in cursor-pointer hover:shadow-card transition-shadow" onClick={onViewDetails}>
       <CardHeader className="pb-2">
@@ -804,6 +831,9 @@ const BookingCard = ({ booking, formatter, statusInfo, onEdit, onDelete, onViewD
           <div className="flex items-center gap-2">
             <div className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.getColor(booking.status)}`}>
               {statusInfo.getLabel(booking.status)}
+            </div>
+            <div className={`px-2 py-1 rounded-full text-xs font-medium ${commissionSplitInfo.color}`}>
+              {commissionSplitInfo.label}
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -838,41 +868,4 @@ const BookingCard = ({ booking, formatter, statusInfo, onEdit, onDelete, onViewD
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
-            <p className="text-muted-foreground">Période</p>
-            <p className="font-medium">
-              {formatter.date(booking.startDate)} - {formatter.date(booking.endDate)}
-            </p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Montant total</p>
-            <p className="font-medium">{formatter.currency(booking.amount)}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">ID Réservation</p>
-            <p className="font-medium">{booking.id}</p>
-          </div>
-        </div>
-
-        <div className="mt-4 pt-4 border-t">
-          <p className="text-sm font-medium mb-2">Détails des commissions ({booking.commissionRate}%)</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div>
-              <p className="text-muted-foreground">Commission totale</p>
-              <p className="font-medium">{formatter.currency(booking.commission.total)}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Part BNB LYON</p>
-              <p className="font-medium">{formatter.currency(booking.commission.bnbLyon)}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Part HAMAC</p>
-              <p className="font-medium">{formatter.currency(booking.commission.hamac)}</p>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-export default MoyenneDuree;
+            <p className="text-muted-foreground">P
