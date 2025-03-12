@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { 
   Receipt, Download, Filter, PlusCircle, 
@@ -27,7 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 
 // Mock data
-const invoices = [
+const invoicesData = [
   {
     id: 'INV-001',
     owner: 'Thomas Dubois',
@@ -172,15 +171,18 @@ interface InvoiceLine {
 
 interface Invoice {
   id: string;
-  bookingId: string;
+  bookingId?: string;
   property: string;
-  client: string;
+  client?: string;
+  owner?: string;  // Add owner property to match invoicesData
   date: string;
   dueDate: string;
-  lines: InvoiceLine[];
-  total: number;
-  status: 'draft' | 'locked' | 'validated' | 'sent' | 'paid';
-  relatedBAs: string[]; // IDs of related BAs
+  lines?: InvoiceLine[];
+  items?: Array<{ description: string, amount: number }>;  // Add items property to match invoicesData
+  total?: number;
+  amount?: number;  // Add amount property to match invoicesData
+  status: 'draft' | 'locked' | 'validated' | 'sent' | 'paid' | 'pending' | 'overdue';
+  relatedBAs?: string[]; // IDs of related BAs
 }
 
 // Mock data for SMILY imports
@@ -293,13 +295,14 @@ const mockBAs: BA[] = [
   }
 ];
 
-// Mock data for invoices
+// Update mockInvoices to match the Invoice interface
 const mockInvoices: Invoice[] = [
   {
     id: "INV-2023-001",
     bookingId: "BNB-2023-001",
     property: "Appartement Bellecour",
     client: "Marie Dupont",
+    owner: "Thomas Dubois",  // Add owner
     date: "2023-11-09",
     dueDate: "2023-11-23",
     lines: [
@@ -307,6 +310,7 @@ const mockInvoices: Invoice[] = [
       { description: "Ménage de fin de séjour", amount: 75.00, type: "cleaning" }
     ],
     total: 228.00,
+    amount: 228.00,  // Add amount matching total
     status: "paid",
     relatedBAs: ["BA-2023-001"]
   },
@@ -315,6 +319,7 @@ const mockInvoices: Invoice[] = [
     bookingId: "BNB-2023-002",
     property: "Studio Part-Dieu",
     client: "Lucas Martin",
+    owner: "Sophie Moreau",  // Add owner
     date: "2023-11-16",
     dueDate: "2023-11-30",
     lines: [
@@ -322,6 +327,7 @@ const mockInvoices: Invoice[] = [
       { description: "Ménage de fin de séjour", amount: 60.00, type: "cleaning" }
     ],
     total: 130.20,
+    amount: 130.20,  // Add amount matching total
     status: "validated",
     relatedBAs: ["BA-2023-002"]
   }
@@ -465,13 +471,13 @@ const Billing = () => {
 
   // Calculate statistics for dashboard
   const calculateStats = () => {
-    const totalInvoiceAmount = invoices.reduce((sum, inv) => sum + inv.total, 0);
+    const totalInvoiceAmount = invoices.reduce((sum, inv) => sum + (inv.total || 0), 0);
     const pendingAmount = invoices
       .filter(inv => ['draft', 'validated', 'sent'].includes(inv.status))
-      .reduce((sum, inv) => sum + inv.total, 0);
+      .reduce((sum, inv) => sum + (inv.total || 0), 0);
     const paidAmount = invoices
       .filter(inv => inv.status === 'paid')
-      .reduce((sum, inv) => sum + inv.total, 0);
+      .reduce((sum, inv) => sum + (inv.total || 0), 0);
     
     const totalBAAmount = bas.reduce((sum, ba) => sum + ba.amount, 0);
     const pendingBAAmount = bas
@@ -588,11 +594,11 @@ const Billing = () => {
                     <Card key={i} className="p-4 bg-background/50 border border-border/30 animate-slide-up">
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="font-medium">{invoice.client}</p>
+                          <p className="font-medium">{invoice.client || invoice.owner}</p>
                           <p className="text-sm text-muted-foreground">{invoice.property}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold">{invoice.total.toFixed(2)} €</p>
+                          <p className="font-semibold">{(invoice.total || invoice.amount)?.toFixed(2)} €</p>
                           <p className="text-sm text-muted-foreground">{invoice.date}</p>
                         </div>
                       </div>
@@ -668,7 +674,7 @@ const Billing = () => {
                             <div className="text-xs text-muted-foreground">Échéance: {invoice.dueDate}</div>
                           </div>
                         </TableCell>
-                        <TableCell className="font-medium">{invoice.amount.toFixed(2)} €</TableCell>
+                        <TableCell className="font-medium">{(invoice.amount || invoice.total)?.toFixed(2)} €</TableCell>
                         <TableCell>{getStatusBadge(invoice.status)}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
@@ -789,255 +795,4 @@ const Billing = () => {
                   <TableCell>01/11/2023 - 30/11/2023</TableCell>
                   <TableCell>5</TableCell>
                   <TableCell>
-                    <Badge className="bg-green-100 text-green-800 rounded-full">Succès</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="sm">Détails</Button>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </DashboardCard>
-        </TabsContent>
-        
-        <TabsContent value="control" className="space-y-6">
-          <DashboardCard title="Contrôle des imports">
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Affiche la liste des mouvements issus des plateformes qui n'ont pas pu être affectés automatiquement.
-              </p>
-            </div>
-          </DashboardCard>
-        </TabsContent>
-
-        {/* Add other TabsContent sections for remaining tabs */}
-        <TabsContent value="coherence" className="space-y-6">
-          <DashboardCard title="Cohérence des données">
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Permet de comparer le nombre de ménage effectués avec le nombre de réservations existantes sur la période.
-              </p>
-            </div>
-          </DashboardCard>
-        </TabsContent>
-
-        <TabsContent value="ba" className="space-y-6">
-          <DashboardCard title="Bordereaux d'Achat">
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Gestion des Bordereaux d'Achat (BA) générés automatiquement lors de l'import des fichiers.
-              </p>
-            </div>
-          </DashboardCard>
-        </TabsContent>
-
-        <TabsContent value="invoices" className="space-y-6">
-          <DashboardCard title="Factures">
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Gestion complète des factures générées à partir des imports ou manuellement.
-              </p>
-            </div>
-          </DashboardCard>
-        </TabsContent>
-
-        <TabsContent value="movements" className="space-y-6">
-          <DashboardCard title="Mouvements">
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Conversion des mouvements issus de la génération de facture en fichier SEPA à déposer sur banque.
-              </p>
-            </div>
-          </DashboardCard>
-        </TabsContent>
-
-        <TabsContent value="emails" className="space-y-6">
-          <DashboardCard title="Emails">
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Envoi en masse des factures et BA jamais envoyées au client. Permet également de relancer les factures non réglées.
-              </p>
-            </div>
-          </DashboardCard>
-        </TabsContent>
-
-        <TabsContent value="touristtax" className="space-y-6">
-          <DashboardCard title="Taxe de séjour">
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Génération du fichier pour la déclaration de la taxe de séjour.
-              </p>
-            </div>
-          </DashboardCard>
-        </TabsContent>
-
-        <TabsContent value="billingcalls" className="space-y-6">
-          <DashboardCard title="Appels à facturation">
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Récapitulatif sur période des ménages effectués par les différents prestataires.
-              </p>
-            </div>
-          </DashboardCard>
-        </TabsContent>
-      </Tabs>
-
-      {/* SMILY Import Dialog */}
-      <Dialog open={smilyImportOpen} onOpenChange={setSmilyImportOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Import depuis SMILY</DialogTitle>
-            <DialogDescription>
-              Sélectionnez la période pour laquelle vous souhaitez importer les réservations.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="startDate">Date de début</Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  value={smilyParams.startDate}
-                  onChange={(e) => setSmilyParams({...smilyParams, startDate: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="endDate">Date de fin</Label>
-                <Input
-                  id="endDate"
-                  type="date"
-                  value={smilyParams.endDate}
-                  onChange={(e) => setSmilyParams({...smilyParams, endDate: e.target.value})}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="smily-api-key">Clé API (optionnel)</Label>
-              <Input
-                id="smily-api-key"
-                placeholder="Saisir clé API SMILY"
-                value={smilyParams.apiKey || ''}
-                onChange={(e) => setSmilyParams({...smilyParams, apiKey: e.target.value})}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setSmilyImportOpen(false)}
-            >
-              Annuler
-            </Button>
-            <Button 
-              onClick={handleSmilyImport}
-              disabled={isImporting}
-            >
-              {isImporting ? (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  Importation...
-                </>
-              ) : (
-                'Importer'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Platform Import Dialog */}
-      <Dialog open={platformImportOpen} onOpenChange={setPlatformImportOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Import depuis {platformParams.platform}</DialogTitle>
-            <DialogDescription>
-              Sélectionnez la période et la plateforme pour laquelle vous souhaitez importer les données.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="platform">Plateforme</Label>
-              <Select
-                value={platformParams.platform}
-                onValueChange={(value: 'airbnb' | 'booking' | 'stripe') => 
-                  setPlatformParams({...platformParams, platform: value})
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner une plateforme" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="airbnb">Airbnb</SelectItem>
-                  <SelectItem value="booking">Booking.com</SelectItem>
-                  <SelectItem value="stripe">Stripe</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="platformStartDate">Date de début</Label>
-                <Input
-                  id="platformStartDate"
-                  type="date"
-                  value={platformParams.startDate}
-                  onChange={(e) => setPlatformParams({...platformParams, startDate: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="platformEndDate">Date de fin</Label>
-                <Input
-                  id="platformEndDate"
-                  type="date"
-                  value={platformParams.endDate}
-                  onChange={(e) => setPlatformParams({...platformParams, endDate: e.target.value})}
-                />
-              </div>
-            </div>
-            {platformParams.platform !== 'stripe' && (
-              <div className="space-y-2">
-                <Label htmlFor="csvFile">Fichier CSV (optionnel)</Label>
-                <Input
-                  id="csvFile"
-                  type="file"
-                  accept=".csv"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      setPlatformParams({...platformParams, file: e.target.files[0]});
-                    }
-                  }}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Vous pouvez importer un fichier CSV exporté depuis la plateforme pour plus de précision.
-                </p>
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setPlatformImportOpen(false)}
-            >
-              Annuler
-            </Button>
-            <Button 
-              onClick={handlePlatformImport}
-              disabled={isImporting}
-            >
-              {isImporting ? (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  Importation...
-                </>
-              ) : (
-                'Importer'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
-
-export default Billing;
+                    <Badge className="bg-green-100 text-green-800
