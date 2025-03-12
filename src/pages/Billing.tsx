@@ -524,6 +524,7 @@ const Billing = () => {
           <TabsTrigger value="billingcalls">Appels à facturation</TabsTrigger>
         </TabsList>
         
+        {/* Dashboard Tab Content */}
         <TabsContent value="dashboard" className="space-y-6">
           {/* Statistics */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -695,6 +696,7 @@ const Billing = () => {
           </DashboardCard>
         </TabsContent>
         
+        {/* Import Tab Content */}
         <TabsContent value="import" className="space-y-6">
           <div className="grid md:grid-cols-3 gap-6">
             {/* SMILY Import Card */}
@@ -795,4 +797,4 @@ const Billing = () => {
                   <TableCell>01/11/2023 - 30/11/2023</TableCell>
                   <TableCell>5</TableCell>
                   <TableCell>
-                    <Badge className="bg-green-100 text-green-800
+                    <Badge
