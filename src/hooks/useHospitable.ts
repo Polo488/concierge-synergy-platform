@@ -53,7 +53,6 @@ export function useHospitable() {
     queryKey: ['hospitable', 'import', importParams],
     queryFn: () => hospitable.importAll(importParams),
     enabled: false, // Ne s'exécute pas automatiquement
-    // Move the callbacks into the meta object
     meta: {
       onSuccess: (data: HospitableImportResult) => {
         toast({
