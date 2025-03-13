@@ -7,6 +7,7 @@ import { ActiveWebhooks } from '@/components/webhooks/ActiveWebhooks';
 import { LegacyWebhooks } from '@/components/webhooks/LegacyWebhooks';
 import { Button } from '@/components/ui/button';
 import { WebhookFormDialog } from '@/components/webhooks/WebhookFormDialog';
+import { WebhookUrlDisplay } from '@/components/webhooks/WebhookUrlDisplay';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 
@@ -26,6 +27,9 @@ export default function Webhooks() {
           <Plus className="mr-2 h-4 w-4" /> Ajouter un webhook
         </Button>
       </div>
+
+      {/* Ajout du composant WebhookUrlDisplay ici */}
+      <WebhookUrlDisplay />
 
       <Card>
         <CardContent className="p-6">
