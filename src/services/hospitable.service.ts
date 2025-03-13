@@ -1,3 +1,4 @@
+
 import { 
   HospitableCredentials,
   HospitableProperty,
@@ -61,18 +62,18 @@ class HospitableService {
     headers.set('Accept', 'application/json');
 
     // Construire l'URL complète
-    let url = new URL(`${API_BASE_URL}${endpoint}`);
+    let url = `${API_BASE_URL}${endpoint}`;
     
     // Ajouter l'account ID comme paramètre de requête si nécessaire
     if (credentials.accountId && !endpoint.includes('account')) {
-      url.searchParams.append('account_id', credentials.accountId);
+      url += url.includes('?') ? '&' : '?';
+      url += `account_id=${credentials.accountId}`;
     }
 
-    console.log(`Hospitable API request: ${url.toString()}`);
-    console.log('Request headers:', Object.fromEntries(headers.entries()));
+    console.log(`Hospitable API request: ${url}`);
     
     try {
-      const response = await fetch(url.toString(), {
+      const response = await fetch(url, {
         ...options,
         headers
       });
@@ -109,20 +110,10 @@ class HospitableService {
       return false;
     }
 
-    // Simulation pour le développement
-    if (import.meta.env.DEV && import.meta.env.VITE_MOCK_HOSPITABLE === 'true') {
-      console.log('DEV: Simulating Hospitable credentials verification');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return true;
-    }
-
     try {
-      // GET /me pour vérifier l'authentification
+      // Selon la documentation, on utilise /me pour vérifier l'authentification
       console.log('Verifying Hospitable credentials using /me endpoint');
-      
-      // Selon la documentation, on peut utiliser /me pour vérifier l'authentification
       const response = await this.fetchWithAuth('/me');
-      
       const userData = await response.json();
       console.log('Hospitable authentication successful:', userData);
       return true;
@@ -134,7 +125,6 @@ class HospitableService {
 
   // Récupérer les propriétés selon la documentation
   async fetchProperties(): Promise<HospitableProperty[]> {
-    // Pour la simulation, retourner des données fictives
     if (import.meta.env.DEV) {
       console.log('DEV: Simulating properties fetch');
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -175,13 +165,13 @@ class HospitableService {
       ];
     }
 
-    // Code pour l'implémentation réelle
     // Endpoint selon la doc: GET /properties
     const response = await this.fetchWithAuth('/properties');
-    const data = await response.json() as HospitablePaginatedResponse<any>;
+    const data = await response.json();
     
     console.log('Properties data:', data);
     
+    // Adapter la réponse au format de notre application
     return data.data.map((property: any) => ({
       id: property.id,
       name: property.name || property.title,
@@ -202,7 +192,6 @@ class HospitableService {
 
   // Récupérer les réservations selon la documentation
   async fetchReservations(params?: { startDate?: Date; endDate?: Date }): Promise<HospitableReservation[]> {
-    // Pour la simulation, retourner des données fictives
     if (import.meta.env.DEV) {
       console.log('DEV: Simulating reservations fetch');
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -245,17 +234,19 @@ class HospitableService {
     // Endpoint selon la doc: GET /reservations
     let endpoint = '/reservations';
     if (params) {
-      const queryParams = new URLSearchParams();
+      const queryParams = [];
+      
       // Utiliser le format de date YYYY-MM-DD pour les paramètres selon la doc
-      if (params.startDate) queryParams.append('start_date', params.startDate.toISOString().split('T')[0]);
-      if (params.endDate) queryParams.append('end_date', params.endDate.toISOString().split('T')[0]);
-      if (queryParams.toString()) {
-        endpoint += `?${queryParams.toString()}`;
+      if (params.startDate) queryParams.push(`start_date=${params.startDate.toISOString().split('T')[0]}`);
+      if (params.endDate) queryParams.push(`end_date=${params.endDate.toISOString().split('T')[0]}`);
+      
+      if (queryParams.length > 0) {
+        endpoint += `?${queryParams.join('&')}`;
       }
     }
     
     const response = await this.fetchWithAuth(endpoint);
-    const data = await response.json() as HospitablePaginatedResponse<any>;
+    const data = await response.json();
     
     console.log('Reservations data:', data);
     
@@ -272,15 +263,14 @@ class HospitableService {
       updated_at: reservation.updated_at,
       channel: reservation.channel,
       channel_id: reservation.channel_id,
-      adults: reservation.guests_adults || reservation.adults,
-      children: reservation.guests_children || reservation.children,
-      infants: reservation.guests_infants || reservation.infants
+      adults: reservation.guests_adults || reservation.adults || 0,
+      children: reservation.guests_children || reservation.children || 0,
+      infants: reservation.guests_infants || reservation.infants || 0
     }));
   }
 
   // Récupérer les invités selon la documentation
   async fetchGuests(): Promise<HospitableGuest[]> {
-    // Pour la simulation, retourner des données fictives
     if (import.meta.env.DEV) {
       console.log('DEV: Simulating guests fetch');
       await new Promise(resolve => setTimeout(resolve, 700));
@@ -310,10 +300,9 @@ class HospitableService {
       ];
     }
 
-    // Code pour l'implémentation réelle
     // Endpoint selon la doc: GET /guests
     const response = await this.fetchWithAuth('/guests');
-    const data = await response.json() as HospitablePaginatedResponse<any>;
+    const data = await response.json();
     
     console.log('Guests data:', data);
     
@@ -332,7 +321,6 @@ class HospitableService {
 
   // Récupérer les transactions selon la documentation
   async fetchTransactions(): Promise<HospitableTransaction[]> {
-    // Pour la simulation, retourner des données fictives
     if (import.meta.env.DEV) {
       console.log('DEV: Simulating transactions fetch');
       await new Promise(resolve => setTimeout(resolve, 900));
@@ -365,11 +353,10 @@ class HospitableService {
       ];
     }
 
-    // Code pour l'implémentation réelle
     // Endpoint selon la doc: GET /payments
     const endpoint = '/payments';
     const response = await this.fetchWithAuth(endpoint);
-    const data = await response.json() as HospitablePaginatedResponse<any>;
+    const data = await response.json();
     
     console.log('Transactions data:', data);
     
