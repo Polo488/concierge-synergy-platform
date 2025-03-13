@@ -809,3 +809,4 @@ const Billing = () => {
               <HospitableImportedDataSummary data={importQuery.data} />
             </DashboardCard>
           )}
+        </TabsContent
