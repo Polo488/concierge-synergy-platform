@@ -1,9 +1,9 @@
-
 import { useEffect, useState } from 'react';
 import { 
   Receipt, Download, Filter, PlusCircle, 
   Search, CreditCard, ArrowUpDown, BarChart, ArrowUp,
-  FileText, RefreshCw, CheckCircle, AlertTriangle, FileSpreadsheet
+  FileText, RefreshCw, CheckCircle, AlertTriangle, FileSpreadsheet,
+  Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { SmilyImportDialog } from '@/components/billing/SmilyImportDialog';
+import { HospitableConfigDialog } from '@/components/billing/HospitableConfigDialog';
+import { useHospitable } from '@/hooks/useHospitable';
 
 // Mock data
 const invoicesData = [
@@ -339,6 +342,17 @@ const Billing = () => {
     document.title = 'Facturation - Concierge Synergy Platform';
   }, []);
 
+  // Hospitable integration
+  const { 
+    isConfiguring, 
+    setIsConfiguring, 
+    configMutation, 
+    isAuthenticated,
+    credentials,
+    startImport,
+    importQuery
+  } = useHospitable();
+  
   // State for managing imports and data
   const [activeTab, setActiveTab] = useState('dashboard');
   const [bookings, setBookings] = useState<Booking[]>(mockBookings);
@@ -717,6 +731,49 @@ const Billing = () => {
               </div>
             </DashboardCard>
             
+            {/* Hospitable Import Card */}
+            <DashboardCard
+              title="Import Hospitable"
+              className="md:col-span-1"
+            >
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Importe les données de réservations depuis Hospitable. Configuration requise avant l'import.
+                </p>
+                
+                <div className="flex flex-col gap-2">
+                  <Button 
+                    className="w-full" 
+                    onClick={() => setIsConfiguring(true)}
+                    variant={isAuthenticated ? "outline" : "default"}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    {isAuthenticated ? "Reconfigurer Hospitable" : "Configurer Hospitable"}
+                  </Button>
+                  
+                  {isAuthenticated && (
+                    <Button 
+                      className="w-full" 
+                      onClick={() => startImport()}
+                      disabled={importQuery.isFetching}
+                    >
+                      {importQuery.isFetching ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Import en cours...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Importer depuis Hospitable
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </DashboardCard>
+            
             {/* Platform Import Card */}
             <DashboardCard 
               title="Import Plateforme" 
@@ -730,26 +787,6 @@ const Billing = () => {
                 <Button className="w-full" onClick={() => setPlatformImportOpen(true)}>
                   <FileText className="h-4 w-4 mr-2" />
                   Importer depuis les plateformes
-                </Button>
-              </div>
-            </DashboardCard>
-            
-            {/* Stripe Import Card */}
-            <DashboardCard 
-              title="Import Stripe" 
-              className="md:col-span-1"
-            >
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Importe les paiements depuis Stripe. Les fonds ne sont débloqués qu'après la fin de la réservation.
-                </p>
-                
-                <Button className="w-full" onClick={() => {
-                  setPlatformParams({...platformParams, platform: 'stripe'});
-                  setPlatformImportOpen(true);
-                }}>
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Importer depuis Stripe
                 </Button>
               </div>
             </DashboardCard>
@@ -988,6 +1025,15 @@ const Billing = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Dialog for Hospitable Configuration */}
+      <HospitableConfigDialog
+        open={isConfiguring}
+        onOpenChange={setIsConfiguring}
+        onSubmit={(credentials) => configMutation.mutate(credentials)}
+        initialData={credentials}
+        isLoading={configMutation.isPending}
+      />
     </div>
   );
 };
