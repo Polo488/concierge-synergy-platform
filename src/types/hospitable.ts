@@ -1,3 +1,4 @@
+
 export interface HospitableCredentials {
   accessToken: string;
   accountId?: string; // ID de compte facultatif
@@ -135,4 +136,23 @@ export interface HospitablePaginatedResponse<T> {
     next?: string;
     last?: string;
   };
+}
+
+// Nouveaux types pour les webhooks
+export interface HospitableWebhook {
+  id: string;
+  label: string;
+  url: string;
+  types: WebhookType[];
+  created_at: string;
+  updated_at: string;
+  status: 'active' | 'inactive';
+}
+
+export type WebhookType = 'properties' | 'reservations';
+
+export interface CreateWebhookRequest {
+  label: string;
+  url: string;
+  types: WebhookType[];
 }
