@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { HospitableCredentials } from '@/types/hospitable';
 
 const formSchema = z.object({
-  apiKey: z.string().min(1, "La clé API est requise"),
+  accessToken: z.string().min(1, "Le token d'accès est requis"),
   accountId: z.string().optional(), // Rendu facultatif
 });
 
@@ -46,7 +46,7 @@ export function HospitableConfigDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      apiKey: initialData?.apiKey || '',
+      accessToken: initialData?.accessToken || '',
       accountId: initialData?.accountId || '',
     },
   });
@@ -54,7 +54,7 @@ export function HospitableConfigDialog({
   function handleSubmit(values: z.infer<typeof formSchema>) {
     // Créer un objet avec les identifiants Hospitable
     const credentials: HospitableCredentials = {
-      apiKey: values.apiKey,
+      accessToken: values.accessToken,
     };
     
     // Ajouter l'ID de compte seulement s'il est fourni
@@ -71,19 +71,19 @@ export function HospitableConfigDialog({
         <DialogHeader>
           <DialogTitle>Configuration de Hospitable</DialogTitle>
           <DialogDescription>
-            Entrez votre clé API Hospitable pour connecter à votre compte. L'ID du compte est facultatif.
+            Entrez votre Personal Access Token (PAT) Hospitable pour connecter à votre compte. L'ID du compte est facultatif.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
             <FormField
               control={form.control}
-              name="apiKey"
+              name="accessToken"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Clé API</FormLabel>
+                  <FormLabel>Personal Access Token</FormLabel>
                   <FormControl>
-                    <Input placeholder="Votre clé API Hospitable" {...field} />
+                    <Input placeholder="Votre Personal Access Token Hospitable" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

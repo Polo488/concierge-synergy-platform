@@ -25,7 +25,7 @@ class HospitableService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.credentials?.apiKey;
+    return !!this.credentials?.accessToken;
   }
 
   private async fetchWithAuth(endpoint: string, options: RequestInit = {}): Promise<Response> {
@@ -34,7 +34,8 @@ class HospitableService {
     }
 
     const headers = new Headers(options.headers);
-    headers.set('Authorization', `Bearer ${this.credentials?.apiKey}`);
+    // Utiliser le Personal Access Token dans l'en-tête Authorization
+    headers.set('Authorization', `Bearer ${this.credentials?.accessToken}`);
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
@@ -60,8 +61,8 @@ class HospitableService {
     }
 
     try {
-      // Selon la doc: GET /accounts/{account_id} pour vérifier l'accès
-      const response = await this.fetchWithAuth(`/accounts/${this.credentials?.accountId}`);
+      // Selon la doc: GET /me pour vérifier l'accès avec PAT
+      const response = await this.fetchWithAuth(`/me`);
       return response.ok;
     } catch (error) {
       console.error('Error verifying Hospitable credentials:', error);
