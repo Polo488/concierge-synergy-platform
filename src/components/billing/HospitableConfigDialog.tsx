@@ -23,7 +23,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { HospitableCredentials } from '@/types/hospitable';
-import { InfoIcon, ExternalLink, KeyRound } from 'lucide-react';
+import { InfoIcon, ExternalLink, KeyRound, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Validation simplifiée - juste vérifier que le token n'est pas vide
@@ -33,12 +33,15 @@ const formSchema = z.object({
   accountId: z.string().optional(), // Facultatif
 });
 
+const DEFAULT_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5YTYyNGRmMC0xMmYxLTQ0OGUtYjg4NC00MzY3ODBhNWQzY2QiLCJqdGkiOiIyZWM2MDdjM2RhYWIxODNhYzgyOTM2ODljYzdkYjRjMjU3NzIyZDg1OTY2OGRiNjc5Y2VhNDFkYzc4MjFmYzkzNTZjYmJhMWI2NWI1OTFkMSIsImlhdCI6MTc0MTg1NzIwNi43MDI4MDgsIm5iZiI6MTc0MTg1NzIwNi43MDI4MTIsImV4cCI6MTc3MzM5MzIwNi42OTU1ODUsInN1YiI6IjE4NzcxMiIsInNjb3BlcyI6WyJwYXQ6cmVhZCIsInBhdDp3cml0ZSJdfQ.WvniAvtezL8bM3K9Gi5vSGH5evSIfm9grK2UEjE0sna3bOQC-Mkz39eLsqPz3RzY6uATux-Wp8x8nLLZg59eGopkXboZVAqe1B6j51uRlm_UqTL9XppHlLel9i3KVjh71XVjyxinvRT00jZDvBK_OskTqhyuDrY2ykPQvss4d86XojS1BCM-6JNuDBQ627Pn-1TCtXTEncmlKlEWzJAAH3_mbwHNu_0vUrPJtAaFH41eu1mb_sWFIEpBiGytsZQcDNPdWwFkFGrmvmL8n_JwGZFMGWUzPdxObzQIQhyGVquDIbYELEtOSi-ogEPKdbv5t14uO0myood_5t-rD0-3-zgwfN6pBshSxC7lyuS5gkrsnNBGlrtiOoz9ea1oDcoKiIKr9pfF30EW7dvw47nOThIwNLqJ6bNohHKoRflqUgcXIgR8M-P8KUelmg820ZInJSkTYvfObLJTujICdwvoeVaCnEa8ZkQUGOHnQR0c1VjOovfFb9zRuG8we6AHqbqG-Lc71MDXgz5YlUIramCwJzGvkvu1YG6XzJLR9vHSMh8ua-sn_k3I1zcM44WAwbToIoezIoU6L_cJaJQOX8bOERM9RFcKzuvXuqpUsgi0T2cHhbg2tiW9oyAzaRy_FwfxDY77BKheEfvkZjwaCfOrbpRSjffctzsZi280_tuRX0A";
+
 export interface HospitableConfigDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: HospitableCredentials) => void;
   initialData?: HospitableCredentials;
   isLoading?: boolean;
+  error?: string;
 }
 
 export function HospitableConfigDialog({
@@ -47,11 +50,12 @@ export function HospitableConfigDialog({
   onSubmit,
   initialData,
   isLoading = false,
+  error,
 }: HospitableConfigDialogProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      accessToken: initialData?.accessToken || '',
+      accessToken: initialData?.accessToken || DEFAULT_TOKEN,
       accountId: initialData?.accountId || '',
     },
   });
@@ -80,12 +84,19 @@ export function HospitableConfigDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Alert className="mb-4 bg-muted">
-          <KeyRound className="h-4 w-4" />
-          <AlertDescription>
-            Un token d'accès est déjà configuré par défaut. Vous pouvez le modifier si nécessaire.
+        <Alert className="mb-4 bg-green-50 border-green-200">
+          <CheckCircle className="h-4 w-4 text-green-500" />
+          <AlertDescription className="text-green-700">
+            Un token d'accès par défaut est déjà configuré. Vous pouvez cliquer directement sur "Configurer" ou modifier si nécessaire.
           </AlertDescription>
         </Alert>
+
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
