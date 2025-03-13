@@ -23,10 +23,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { HospitableCredentials } from '@/types/hospitable';
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon, ExternalLink } from 'lucide-react';
 
+// Validate PAT format according to documentation: must start with 'pat_'
 const formSchema = z.object({
-  accessToken: z.string().min(1, "Le token d'accès est requis"),
+  accessToken: z.string()
+    .min(1, "Le token d'accès est requis")
+    .refine(val => val.startsWith('pat_'), {
+      message: "Le token doit commencer par 'pat_'"
+    }),
   accountId: z.string().optional(), // Rendu facultatif
 });
 
@@ -86,12 +91,23 @@ export function HospitableConfigDialog({
                   <FormLabel>Personal Access Token (PAT)</FormLabel>
                   <FormDescription className="flex items-center gap-1 text-sm">
                     <InfoIcon className="h-4 w-4" />
-                    Vous pouvez créer un PAT dans votre compte Hospitable, section API.
+                    Le token doit commencer par 'pat_' comme indiqué dans la documentation Hospitable.
                   </FormDescription>
                   <FormControl>
                     <Input placeholder="pat_xxxxxxxxxxxxxxxx" {...field} />
                   </FormControl>
                   <FormMessage />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    <a 
+                      href="https://developer.hospitable.com/docs/public-api-docs/xpyjv51qyelmp-authentication#personal-access-tokens" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-primary hover:underline"
+                    >
+                      Consulter la documentation 
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </p>
                 </FormItem>
               )}
             />

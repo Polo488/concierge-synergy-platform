@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { hospitable } from '@/services/hospitable.service';
@@ -21,6 +20,7 @@ export function useHospitable() {
   useEffect(() => {
     // Si des identifiants sont stockés mais pas chargés en mémoire
     if (!hospitable.isAuthenticated() && sessionStorage.getItem('hospitableCredentials')) {
+      console.log('Found credentials in sessionStorage, loading them');
       hospitable.getCredentials(); // Force l'initialisation depuis le sessionStorage
     }
   }, []);
@@ -29,6 +29,12 @@ export function useHospitable() {
   const configMutation = useMutation({
     mutationFn: async (credentials: HospitableCredentials) => {
       console.log('Setting Hospitable credentials:', credentials);
+      
+      // Vérifier que le token commence bien par pat_
+      if (!credentials.accessToken.startsWith('pat_')) {
+        throw new Error("Le token d'accès doit commencer par 'pat_'");
+      }
+      
       hospitable.setCredentials(credentials);
       return hospitable.verifyCredentials();
     },
@@ -116,7 +122,7 @@ export function useHospitable() {
     
     // Configuration
     configMutation,
-    logout,
+    logout: hospitable.clearCredentials,
     
     // Importation
     importQuery,

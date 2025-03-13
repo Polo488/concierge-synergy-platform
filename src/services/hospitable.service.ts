@@ -34,6 +34,7 @@ class HospitableService {
         const storedCredentials = sessionStorage.getItem('hospitableCredentials');
         if (storedCredentials) {
           this.credentials = JSON.parse(storedCredentials);
+          console.log('Retrieved credentials from sessionStorage');
         }
       } catch (error) {
         console.error('Error retrieving Hospitable credentials:', error);
@@ -53,13 +54,15 @@ class HospitableService {
     }
 
     const headers = new Headers(options.headers);
-    // Utiliser le Personal Access Token dans l'en-tête Authorization
+    
+    // Utiliser le format exact selon la documentation pour le PAT
+    // La documentation indique d'utiliser: 'Authorization: Bearer pat_xyz123'
     headers.set('Authorization', `Bearer ${credentials.accessToken}`);
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
     // Construire l'URL complète
-    const url = new URL(`${API_BASE_URL}${endpoint}`);
+    let url = new URL(`${API_BASE_URL}${endpoint}`);
     
     // Ajouter l'account ID comme paramètre de requête si nécessaire
     if (credentials.accountId && !endpoint.includes('account')) {
@@ -67,6 +70,7 @@ class HospitableService {
     }
 
     console.log(`Hospitable API request: ${url.toString()}`);
+    console.log('Request headers:', Object.fromEntries(headers.entries()));
     
     try {
       const response = await fetch(url.toString(), {
@@ -75,7 +79,9 @@ class HospitableService {
       });
       
       if (!response.ok) {
-        console.error(`Hospitable API error (${response.status}): ${await response.text()}`);
+        const errorText = await response.text();
+        console.error(`Hospitable API error (${response.status}): ${errorText}`);
+        throw new Error(`API error: ${response.status} - ${errorText}`);
       }
       
       return response;
@@ -100,18 +106,13 @@ class HospitableService {
     }
 
     try {
-      // Selon la doc: GET /me pour vérifier l'accès avec PAT
+      // GET /me pour vérifier l'authentification avec PAT
       console.log('Verifying Hospitable credentials using /me endpoint');
       const response = await this.fetchWithAuth('/me');
       
-      if (response.ok) {
-        const userData = await response.json();
-        console.log('Hospitable authentication successful:', userData);
-        return true;
-      } else {
-        console.error(`Authentication failed: ${response.status} ${response.statusText}`);
-        return false;
-      }
+      const userData = await response.json();
+      console.log('Hospitable authentication successful:', userData);
+      return true;
     } catch (error) {
       console.error('Error verifying Hospitable credentials:', error);
       return false;
