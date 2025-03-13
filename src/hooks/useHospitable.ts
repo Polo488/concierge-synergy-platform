@@ -4,7 +4,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { hospitable } from '@/services/hospitable.service';
 import { 
   HospitableCredentials, 
-  HospitableImportResult 
+  HospitableImportResult,
+  HospitablePagination
 } from '@/types/hospitable';
 import { toast } from '@/components/ui/use-toast';
 
@@ -18,6 +19,7 @@ export function useHospitable() {
   const [importParams, setImportParams] = useState<{
     startDate?: Date;
     endDate?: Date;
+    pagination?: HospitablePagination;
   }>({});
   
   // Initialiser avec le token codé en dur au chargement
@@ -98,7 +100,11 @@ export function useHospitable() {
   });
   
   // Fonction pour démarrer l'importation
-  const startImport = (params?: { startDate?: Date; endDate?: Date }) => {
+  const startImport = (params?: { 
+    startDate?: Date; 
+    endDate?: Date; 
+    pagination?: HospitablePagination;
+  }) => {
     if (params) {
       setImportParams(params);
     }
@@ -110,6 +116,36 @@ export function useHospitable() {
     }
     
     importQuery.refetch();
+  };
+
+  // Fonction pour accéder à la page suivante des résultats
+  const loadNextPage = () => {
+    if (importQuery.data?.pagination?.next_page) {
+      const nextPage = importQuery.data.pagination.current_page + 1;
+      setImportParams(prev => ({
+        ...prev,
+        pagination: {
+          ...prev.pagination,
+          page: nextPage
+        }
+      }));
+      importQuery.refetch();
+    }
+  };
+
+  // Fonction pour accéder à la page précédente des résultats
+  const loadPreviousPage = () => {
+    if (importQuery.data?.pagination?.current_page > 1) {
+      const prevPage = importQuery.data.pagination.current_page - 1;
+      setImportParams(prev => ({
+        ...prev,
+        pagination: {
+          ...prev.pagination,
+          page: prevPage
+        }
+      }));
+      importQuery.refetch();
+    }
   };
 
   // Fonction pour se déconnecter de Hospitable
@@ -137,6 +173,10 @@ export function useHospitable() {
     startImport,
     importParams,
     setImportParams,
+    
+    // Pagination
+    loadNextPage,
+    loadPreviousPage,
     
     // Données importées
     importedData: importQuery.data,
