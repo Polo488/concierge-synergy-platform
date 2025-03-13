@@ -75,7 +75,7 @@ export function HospitableConfigDialog({
         <DialogHeader>
           <DialogTitle>Configuration de Hospitable</DialogTitle>
           <DialogDescription>
-            Entrez votre Personal Access Token (PAT) Hospitable pour vous connecter à votre compte.
+            Entrez votre token d'accès Hospitable (Personal Access Token) pour vous connecter à votre compte.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -85,10 +85,10 @@ export function HospitableConfigDialog({
               name="accessToken"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Personal Access Token (PAT)</FormLabel>
+                  <FormLabel>Token d'accès personnel</FormLabel>
                   <FormDescription className="flex items-center gap-1 text-sm">
                     <InfoIcon className="h-4 w-4" />
-                    Entrez votre token d'accès personnel Hospitable.
+                    Entrez votre token d'accès personnel Hospitable (sans préfixe).
                   </FormDescription>
                   <FormControl>
                     <Input placeholder="Votre token d'accès" {...field} />
@@ -96,7 +96,7 @@ export function HospitableConfigDialog({
                   <FormMessage />
                   <p className="text-xs text-muted-foreground mt-1">
                     <a 
-                      href="https://developer.hospitable.com/docs/public-api-docs/xpyjv51qyelmp-authentication#personal-access-tokens" 
+                      href="https://developer.hospitable.com/docs/public-api-docs/d862b3ee512e6-introduction#authentication" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-primary hover:underline"

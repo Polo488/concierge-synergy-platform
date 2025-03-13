@@ -31,16 +31,16 @@ export function useHospitable() {
     mutationFn: async (credentials: HospitableCredentials) => {
       console.log('Setting Hospitable credentials:', credentials);
       
-      // On ne fait aucune validation du token pour être sûr que ça passe
-      // On laisse l'API Hospitable valider le token
-      
+      // On stocke d'abord les identifiants pour les tests
       hospitable.setCredentials(credentials);
+      
+      // Puis on vérifie si le token est valide
       const isValid = await hospitable.verifyCredentials();
       
       console.log('Verification result:', isValid);
       
       if (!isValid) {
-        throw new Error("Le token d'accès n'est pas valide");
+        throw new Error("Le token d'accès n'est pas valide ou la connexion à l'API a échoué");
       }
       
       return isValid;

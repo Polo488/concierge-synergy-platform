@@ -8,7 +8,7 @@ import {
   HospitablePaginatedResponse
 } from '@/types/hospitable';
 
-// URL de base de l'API selon la documentation
+// URL de base de l'API selon la documentation officielle
 const API_BASE_URL = 'https://public.api.hospitable.com';
 
 class HospitableService {
@@ -54,13 +54,13 @@ class HospitableService {
 
     const headers = new Headers(options.headers);
     
-    // Format d'authentification correct selon la documentation:
+    // Format d'authentification selon la documentation officielle:
     // 'Authorization: Bearer <token>'
     headers.set('Authorization', `Bearer ${credentials.accessToken}`);
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
-    // Construire l'URL complète avec l'URL de base correcte
+    // Construire l'URL complète
     let url = new URL(`${API_BASE_URL}${endpoint}`);
     
     // Ajouter l'account ID comme paramètre de requête si nécessaire
@@ -80,7 +80,17 @@ class HospitableService {
       console.log(`Hospitable API response status: ${response.status}`);
       
       if (!response.ok) {
-        const errorText = await response.text();
+        let errorText = '';
+        try {
+          // Essayer d'obtenir le corps JSON de l'erreur
+          const errorBody = await response.json();
+          errorText = JSON.stringify(errorBody);
+          console.error('Hospitable API error details:', errorBody);
+        } catch {
+          // Si ce n'est pas du JSON, récupérer le texte brut
+          errorText = await response.text();
+        }
+        
         console.error(`Hospitable API error (${response.status}): ${errorText}`);
         throw new Error(`API error: ${response.status} - ${errorText}`);
       }
@@ -107,8 +117,10 @@ class HospitableService {
     }
 
     try {
-      // GET /me pour vérifier l'authentification avec PAT
+      // GET /me pour vérifier l'authentification
       console.log('Verifying Hospitable credentials using /me endpoint');
+      
+      // Selon la documentation, on peut utiliser /me pour vérifier l'authentification
       const response = await this.fetchWithAuth('/me');
       
       const userData = await response.json();
@@ -164,13 +176,12 @@ class HospitableService {
     }
 
     // Code pour l'implémentation réelle
-    // Endpoint selon la doc: GET /listings
-    const response = await this.fetchWithAuth('/listings');
-    if (!response.ok) {
-      throw new Error(`Failed to fetch properties: ${response.statusText}`);
-    }
-    
+    // Endpoint selon la doc: GET /properties
+    const response = await this.fetchWithAuth('/properties');
     const data = await response.json() as HospitablePaginatedResponse<any>;
+    
+    console.log('Properties data:', data);
+    
     return data.data.map((property: any) => ({
       id: property.id,
       name: property.name || property.title,
@@ -244,11 +255,10 @@ class HospitableService {
     }
     
     const response = await this.fetchWithAuth(endpoint);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch reservations: ${response.statusText}`);
-    }
-    
     const data = await response.json() as HospitablePaginatedResponse<any>;
+    
+    console.log('Reservations data:', data);
+    
     return data.data.map((reservation: any) => ({
       id: reservation.id,
       check_in: reservation.check_in,
@@ -303,11 +313,10 @@ class HospitableService {
     // Code pour l'implémentation réelle
     // Endpoint selon la doc: GET /guests
     const response = await this.fetchWithAuth('/guests');
-    if (!response.ok) {
-      throw new Error(`Failed to fetch guests: ${response.statusText}`);
-    }
-    
     const data = await response.json() as HospitablePaginatedResponse<any>;
+    
+    console.log('Guests data:', data);
+    
     return data.data.map((guest: any) => ({
       id: guest.id,
       first_name: guest.first_name,
@@ -357,14 +366,13 @@ class HospitableService {
     }
 
     // Code pour l'implémentation réelle
-    // Endpoint selon la doc: GET /payments ou GET /transactions
-    const endpoint = '/payments'; // utiliser l'endpoint correct selon la doc
+    // Endpoint selon la doc: GET /payments
+    const endpoint = '/payments';
     const response = await this.fetchWithAuth(endpoint);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch transactions: ${response.statusText}`);
-    }
-    
     const data = await response.json() as HospitablePaginatedResponse<any>;
+    
+    console.log('Transactions data:', data);
+    
     return data.data.map((transaction: any) => ({
       id: transaction.id,
       reservation_id: transaction.reservation_id,
@@ -377,35 +385,6 @@ class HospitableService {
       description: transaction.description,
       paid_at: transaction.paid_at
     }));
-  }
-
-  // Pagination helper pour récupérer toutes les pages de données
-  private async fetchAllPages<T>(
-    endpoint: string,
-    transform: (item: any) => T
-  ): Promise<T[]> {
-    let page = 1;
-    let hasMorePages = true;
-    const results: T[] = [];
-
-    while (hasMorePages) {
-      const url = `${endpoint}${endpoint.includes('?') ? '&' : '?'}page=${page}`;
-      const response = await this.fetchWithAuth(url);
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.statusText}`);
-      }
-
-      const data = await response.json() as HospitablePaginatedResponse<any>;
-      
-      results.push(...data.data.map(transform));
-
-      // Vérifier s'il y a des pages supplémentaires
-      hasMorePages = page < (data.meta.pagination.total_pages || 0);
-      page++;
-    }
-
-    return results;
   }
 
   // Importer toutes les données en une fois
