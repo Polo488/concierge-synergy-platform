@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { 
   Receipt, Download, Filter, PlusCircle, 
@@ -809,4 +810,177 @@ const Billing = () => {
             </DashboardCard>
           </div>
           
-          {/* Afficher
+          {/* Afficher les données importées si disponibles */}
+          {importQuery.data && (
+            <DashboardCard title="Données importées depuis Hospitable">
+              <HospitableImportedDataSummary data={importQuery.data} />
+            </DashboardCard>
+          )}
+        </TabsContent>
+
+        {/* Control Tab Content */}
+        <TabsContent value="control" className="space-y-6">
+          <DashboardCard title="Contrôle des données">
+            <p className="text-muted-foreground">
+              Vérifiez et corrigez les données importées avant de les traiter.
+            </p>
+          </DashboardCard>
+        </TabsContent>
+
+        {/* Coherence Tab Content */}
+        <TabsContent value="coherence" className="space-y-6">
+          <DashboardCard title="Cohérence des données">
+            <p className="text-muted-foreground">
+              Vérifiez la cohérence entre les différentes sources de données.
+            </p>
+          </DashboardCard>
+        </TabsContent>
+
+        {/* BA Tab Content */}
+        <TabsContent value="ba" className="space-y-6">
+          <DashboardCard title="Bordereaux d'Achat">
+            <p className="text-muted-foreground">
+              Gérez les bordereaux d'achat liés aux réservations.
+            </p>
+          </DashboardCard>
+        </TabsContent>
+
+        {/* Invoices Tab Content */}
+        <TabsContent value="invoices" className="space-y-6">
+          <DashboardCard title="Factures">
+            <p className="text-muted-foreground">
+              Gérez les factures générées pour vos clients et propriétaires.
+            </p>
+          </DashboardCard>
+        </TabsContent>
+
+        {/* Movements Tab Content */}
+        <TabsContent value="movements" className="space-y-6">
+          <DashboardCard title="Mouvements financiers">
+            <p className="text-muted-foreground">
+              Suivi des mouvements financiers liés aux réservations.
+            </p>
+          </DashboardCard>
+        </TabsContent>
+
+        {/* Emails Tab Content */}
+        <TabsContent value="emails" className="space-y-6">
+          <DashboardCard title="Emails">
+            <p className="text-muted-foreground">
+              Gérez les emails relatifs à la facturation.
+            </p>
+          </DashboardCard>
+        </TabsContent>
+
+        {/* Tourist Tax Tab Content */}
+        <TabsContent value="touristtax" className="space-y-6">
+          <DashboardCard title="Taxe de séjour">
+            <p className="text-muted-foreground">
+              Gérez les taxes de séjour liées aux réservations.
+            </p>
+          </DashboardCard>
+        </TabsContent>
+
+        {/* Billing Calls Tab Content */}
+        <TabsContent value="billingcalls" className="space-y-6">
+          <DashboardCard title="Appels à facturation">
+            <p className="text-muted-foreground">
+              Gestion des appels à facturation pour les différents services.
+            </p>
+          </DashboardCard>
+        </TabsContent>
+      </Tabs>
+
+      {/* Import Dialogs */}
+      <SmilyImportDialog 
+        open={smilyImportOpen}
+        onOpenChange={setSmilyImportOpen}
+        onImport={handleSmilyImport}
+        isLoading={isImporting}
+      />
+      
+      <HospitableConfigDialog
+        open={isConfiguring}
+        onOpenChange={setIsConfiguring}
+        onSubmit={configMutation.mutate}
+        initialData={credentials}
+        isLoading={configMutation.isPending}
+      />
+
+      <HospitableImportDialog
+        open={hospitableImportOpen}
+        onOpenChange={setHospitableImportOpen}
+        onImport={handleHospitableImport}
+        isLoading={importQuery.isFetching}
+      />
+
+      {/* Platform Import Dialog (to be implemented) */}
+      <Dialog open={platformImportOpen} onOpenChange={setPlatformImportOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Importer depuis les plateformes</DialogTitle>
+            <DialogDescription>
+              Importez les données depuis Airbnb, Booking ou Stripe.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="platform">Plateforme</Label>
+              <Select
+                value={platformParams.platform}
+                onValueChange={(value) => setPlatformParams({...platformParams, platform: value as 'airbnb' | 'booking' | 'stripe'})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionnez une plateforme" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="airbnb">Airbnb</SelectItem>
+                  <SelectItem value="booking">Booking.com</SelectItem>
+                  <SelectItem value="stripe">Stripe</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Date de début</Label>
+                <Input 
+                  id="startDate"
+                  type="date"
+                  value={platformParams.startDate}
+                  onChange={(e) => setPlatformParams({...platformParams, startDate: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="endDate">Date de fin</Label>
+                <Input 
+                  id="endDate"
+                  type="date"
+                  value={platformParams.endDate}
+                  onChange={(e) => setPlatformParams({...platformParams, endDate: e.target.value})}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPlatformImportOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handlePlatformImport} disabled={isImporting}>
+              {isImporting ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Importation...
+                </>
+              ) : (
+                'Importer'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default Billing;
