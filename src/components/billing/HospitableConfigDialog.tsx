@@ -25,11 +25,11 @@ import { Button } from '@/components/ui/button';
 import { HospitableCredentials } from '@/types/hospitable';
 import { InfoIcon, ExternalLink } from 'lucide-react';
 
-// Updated validation - no specific prefix requirement
+// Validation simplifiée - juste vérifier que le token n'est pas vide
 const formSchema = z.object({
   accessToken: z.string()
     .min(1, "Le token d'accès est requis"),
-  accountId: z.string().optional(), // Rendu facultatif
+  accountId: z.string().optional(), // Facultatif
 });
 
 export interface HospitableConfigDialogProps {

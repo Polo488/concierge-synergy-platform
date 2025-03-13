@@ -31,11 +31,19 @@ export function useHospitable() {
     mutationFn: async (credentials: HospitableCredentials) => {
       console.log('Setting Hospitable credentials:', credentials);
       
-      // Aucune validation spécifique de format n'est nécessaire
-      // selon la documentation, le token est simplement passé avec Bearer
+      // On ne fait aucune validation du token pour être sûr que ça passe
+      // On laisse l'API Hospitable valider le token
       
       hospitable.setCredentials(credentials);
-      return hospitable.verifyCredentials();
+      const isValid = await hospitable.verifyCredentials();
+      
+      console.log('Verification result:', isValid);
+      
+      if (!isValid) {
+        throw new Error("Le token d'accès n'est pas valide");
+      }
+      
+      return isValid;
     },
     onSuccess: (success) => {
       if (success) {
@@ -121,7 +129,7 @@ export function useHospitable() {
     
     // Configuration
     configMutation,
-    logout: hospitable.clearCredentials,
+    logout,
     
     // Importation
     importQuery,

@@ -1,4 +1,3 @@
-
 import { 
   HospitableCredentials,
   HospitableProperty,
@@ -10,7 +9,7 @@ import {
 } from '@/types/hospitable';
 
 // URL de base de l'API selon la documentation
-const API_BASE_URL = 'https://api.hospitable.com/v1';
+const API_BASE_URL = 'https://public.api.hospitable.com';
 
 class HospitableService {
   private credentials: HospitableCredentials | null = null;
@@ -61,9 +60,8 @@ class HospitableService {
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
-    // Construire l'URL complète
-    // Mise à jour: selon la documentation, l'URL de base devrait être https://public.api.hospitable.com
-    let url = new URL(`https://public.api.hospitable.com${endpoint}`);
+    // Construire l'URL complète avec l'URL de base correcte
+    let url = new URL(`${API_BASE_URL}${endpoint}`);
     
     // Ajouter l'account ID comme paramètre de requête si nécessaire
     if (credentials.accountId && !endpoint.includes('account')) {
@@ -78,6 +76,8 @@ class HospitableService {
         ...options,
         headers
       });
+      
+      console.log(`Hospitable API response status: ${response.status}`);
       
       if (!response.ok) {
         const errorText = await response.text();
