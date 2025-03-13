@@ -9,8 +9,8 @@ import {
   HospitablePaginatedResponse
 } from '@/types/hospitable';
 
-// URL de base de l'API selon la documentation officielle
-const API_BASE_URL = 'https://public.api.hospitable.com';
+// URL de base de l'API selon la documentation officielle (v2)
+const API_BASE_URL = 'https://public.api.hospitable.com/v2';
 
 class HospitableService {
   private credentials: HospitableCredentials | null = null;
@@ -61,8 +61,8 @@ class HospitableService {
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
-    // Construire l'URL complète
-    let url = `${API_BASE_URL}${endpoint}`;
+    // Construire l'URL complète (avec le préfixe v2)
+    let url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     
     // Ajouter l'account ID comme paramètre de requête si nécessaire
     if (credentials.accountId && !endpoint.includes('account')) {
@@ -79,6 +79,12 @@ class HospitableService {
       });
       
       console.log(`Hospitable API response status: ${response.status}`);
+      
+      // Gestion des erreurs d'authentification (401)
+      if (response.status === 401) {
+        console.error('Authentication failed: Token might be expired or invalid');
+        throw new Error('Authentication failed: Your access token might be expired or invalid. Please update your credentials.');
+      }
       
       if (!response.ok) {
         let errorText = '';
