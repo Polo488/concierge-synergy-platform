@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Copy, CheckCircle2, ExternalLink } from 'lucide-react';
+import { Copy, CheckCircle2 } from 'lucide-react';
 import { getWebhookURL } from '@/services/webhook-handler';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -67,7 +67,7 @@ export function WebhookUrlDisplay() {
                 <p className="font-medium text-sm">URL complète à utiliser dans Hospitable:</p>
                 <div className="flex items-center space-x-2 mt-1">
                   <Input 
-                    value={ngrokUrl ? `${ngrokUrl}/api/webhooks/hospitable` : 'Veuillez d'abord entrer l'URL ngrok'}
+                    value={ngrokUrl ? `${ngrokUrl}/api/webhooks/hospitable` : "Veuillez d'abord entrer l'URL ngrok"}
                     readOnly 
                     className="font-mono text-sm bg-white"
                   />
