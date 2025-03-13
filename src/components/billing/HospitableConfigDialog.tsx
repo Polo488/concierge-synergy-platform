@@ -18,10 +18,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { HospitableCredentials } from '@/types/hospitable';
+import { InfoIcon } from 'lucide-react';
 
 const formSchema = z.object({
   accessToken: z.string().min(1, "Le token d'accès est requis"),
@@ -71,7 +73,7 @@ export function HospitableConfigDialog({
         <DialogHeader>
           <DialogTitle>Configuration de Hospitable</DialogTitle>
           <DialogDescription>
-            Entrez votre Personal Access Token (PAT) Hospitable pour connecter à votre compte. L'ID du compte est facultatif.
+            Entrez votre Personal Access Token (PAT) Hospitable pour vous connecter à votre compte.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -81,9 +83,13 @@ export function HospitableConfigDialog({
               name="accessToken"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Personal Access Token</FormLabel>
+                  <FormLabel>Personal Access Token (PAT)</FormLabel>
+                  <FormDescription className="flex items-center gap-1 text-sm">
+                    <InfoIcon className="h-4 w-4" />
+                    Vous pouvez créer un PAT dans votre compte Hospitable, section API.
+                  </FormDescription>
                   <FormControl>
-                    <Input placeholder="Votre Personal Access Token Hospitable" {...field} />
+                    <Input placeholder="pat_xxxxxxxxxxxxxxxx" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -95,6 +101,9 @@ export function HospitableConfigDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>ID du Compte (facultatif)</FormLabel>
+                  <FormDescription>
+                    Requis uniquement si vous avez accès à plusieurs comptes.
+                  </FormDescription>
                   <FormControl>
                     <Input 
                       placeholder="L'ID de votre compte Hospitable (facultatif)" 

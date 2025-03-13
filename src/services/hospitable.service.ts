@@ -18,43 +18,82 @@ class HospitableService {
   setCredentials(credentials: HospitableCredentials) {
     this.credentials = credentials;
     console.log('Hospitable credentials set:', credentials);
+    
+    // Stocker les identifiants dans sessionStorage pour persister entre les rechargements
+    try {
+      sessionStorage.setItem('hospitableCredentials', JSON.stringify(credentials));
+    } catch (error) {
+      console.error('Error storing Hospitable credentials:', error);
+    }
   }
 
   getCredentials(): HospitableCredentials | null {
+    // Si les identifiants ne sont pas en mémoire, essayer de les récupérer du sessionStorage
+    if (!this.credentials) {
+      try {
+        const storedCredentials = sessionStorage.getItem('hospitableCredentials');
+        if (storedCredentials) {
+          this.credentials = JSON.parse(storedCredentials);
+        }
+      } catch (error) {
+        console.error('Error retrieving Hospitable credentials:', error);
+      }
+    }
     return this.credentials;
   }
 
   isAuthenticated(): boolean {
-    return !!this.credentials?.accessToken;
+    return !!this.getCredentials()?.accessToken;
   }
 
   private async fetchWithAuth(endpoint: string, options: RequestInit = {}): Promise<Response> {
-    if (!this.isAuthenticated()) {
+    const credentials = this.getCredentials();
+    if (!credentials || !credentials.accessToken) {
       throw new Error('Not authenticated with Hospitable');
     }
 
     const headers = new Headers(options.headers);
     // Utiliser le Personal Access Token dans l'en-tête Authorization
-    headers.set('Authorization', `Bearer ${this.credentials?.accessToken}`);
+    headers.set('Authorization', `Bearer ${credentials.accessToken}`);
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
-    // Ajouter l'account ID comme paramètre de requête si nécessaire
+    // Construire l'URL complète
     const url = new URL(`${API_BASE_URL}${endpoint}`);
-    if (this.credentials?.accountId && !endpoint.includes('account')) {
-      url.searchParams.append('account_id', this.credentials.accountId);
+    
+    // Ajouter l'account ID comme paramètre de requête si nécessaire
+    if (credentials.accountId && !endpoint.includes('account')) {
+      url.searchParams.append('account_id', credentials.accountId);
     }
 
-    return fetch(url.toString(), {
-      ...options,
-      headers
-    });
+    console.log(`Hospitable API request: ${url.toString()}`);
+    
+    try {
+      const response = await fetch(url.toString(), {
+        ...options,
+        headers
+      });
+      
+      if (!response.ok) {
+        console.error(`Hospitable API error (${response.status}): ${await response.text()}`);
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Hospitable API fetch error:', error);
+      throw error;
+    }
   }
 
   // Vérifier les identifiants
   async verifyCredentials(): Promise<boolean> {
+    if (!this.isAuthenticated()) {
+      console.error('Cannot verify credentials: No access token provided');
+      return false;
+    }
+
     // Simulation pour le développement
-    if (import.meta.env.DEV) {
+    if (import.meta.env.DEV && import.meta.env.VITE_MOCK_HOSPITABLE === 'true') {
       console.log('DEV: Simulating Hospitable credentials verification');
       await new Promise(resolve => setTimeout(resolve, 1000));
       return true;
@@ -62,8 +101,17 @@ class HospitableService {
 
     try {
       // Selon la doc: GET /me pour vérifier l'accès avec PAT
-      const response = await this.fetchWithAuth(`/me`);
-      return response.ok;
+      console.log('Verifying Hospitable credentials using /me endpoint');
+      const response = await this.fetchWithAuth('/me');
+      
+      if (response.ok) {
+        const userData = await response.json();
+        console.log('Hospitable authentication successful:', userData);
+        return true;
+      } else {
+        console.error(`Authentication failed: ${response.status} ${response.statusText}`);
+        return false;
+      }
     } catch (error) {
       console.error('Error verifying Hospitable credentials:', error);
       return false;
@@ -360,6 +408,10 @@ class HospitableService {
 
   // Importer toutes les données en une fois
   async importAll(params?: { startDate?: Date; endDate?: Date }): Promise<HospitableImportResult> {
+    if (!this.isAuthenticated()) {
+      throw new Error('Not authenticated with Hospitable. Please configure your credentials first.');
+    }
+
     try {
       console.log('Importing all data from Hospitable...');
       
@@ -379,6 +431,16 @@ class HospitableService {
     } catch (error) {
       console.error('Error importing data from Hospitable:', error);
       throw error;
+    }
+  }
+
+  // Réinitialiser les identifiants (déconnexion)
+  clearCredentials() {
+    this.credentials = null;
+    try {
+      sessionStorage.removeItem('hospitableCredentials');
+    } catch (error) {
+      console.error('Error clearing Hospitable credentials:', error);
     }
   }
 }

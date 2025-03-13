@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { hospitable } from '@/services/hospitable.service';
 import { 
@@ -17,9 +17,18 @@ export function useHospitable() {
     endDate?: Date;
   }>({});
   
+  // Vérifier l'état d'authentification au chargement
+  useEffect(() => {
+    // Si des identifiants sont stockés mais pas chargés en mémoire
+    if (!hospitable.isAuthenticated() && sessionStorage.getItem('hospitableCredentials')) {
+      hospitable.getCredentials(); // Force l'initialisation depuis le sessionStorage
+    }
+  }, []);
+  
   // Mutation pour configurer les identifiants
   const configMutation = useMutation({
     mutationFn: async (credentials: HospitableCredentials) => {
+      console.log('Setting Hospitable credentials:', credentials);
       hospitable.setCredentials(credentials);
       return hospitable.verifyCredentials();
     },
@@ -89,6 +98,15 @@ export function useHospitable() {
     importQuery.refetch();
   };
 
+  // Fonction pour se déconnecter de Hospitable
+  const logout = () => {
+    hospitable.clearCredentials();
+    toast({
+      title: "Déconnexion réussie",
+      description: "Vous avez été déconnecté de Hospitable."
+    });
+  };
+
   return {
     // États
     isConfiguring,
@@ -98,6 +116,7 @@ export function useHospitable() {
     
     // Configuration
     configMutation,
+    logout,
     
     // Importation
     importQuery,
