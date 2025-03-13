@@ -1,4 +1,3 @@
-
 export interface HospitableCredentials {
   accessToken: string;
   accountId?: string; // ID de compte facultatif
@@ -94,11 +93,24 @@ export interface HospitableTransaction {
   paid_at?: string;
 }
 
+export interface HospitablePagination {
+  page?: number;
+  per_page?: number;
+  total?: number;
+}
+
 export interface HospitableImportResult {
   reservations: HospitableReservation[];
   properties: HospitableProperty[];
   guests: HospitableGuest[];
   transactions: HospitableTransaction[];
+  pagination?: {
+    current_page: number;
+    total_pages: number;
+    per_page: number;
+    total: number;
+    next_page?: number;
+  };
 }
 
 // Pagination response selon la documentation V2
