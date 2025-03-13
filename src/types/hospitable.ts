@@ -5,7 +5,8 @@ export interface HospitableCredentials {
 }
 
 export interface HospitableProperty {
-  id: number;
+  id?: number;      // Conservé pour rétrocompatibilité
+  uuid: string;     // Nouveau: UUID au lieu d'ID numérique
   name: string;
   bedrooms_count: number;
   bathrooms_count: number;
@@ -19,24 +20,52 @@ export interface HospitableProperty {
   };
   created_at?: string;
   updated_at?: string;
+  listings?: {     // Nouveau: informations des listings associés
+    platform: string;
+    platform_id: string;
+    platform_name?: string;
+    platform_email?: string;
+  }[];
 }
 
 export interface HospitableReservation {
-  id: number;
-  check_in: string;
-  check_out: string;
-  status: string;
+  id?: number;     // Conservé pour rétrocompatibilité
+  uuid: string;    // Nouveau: UUID comme identifiant principal
+  arrival_date: string;   // Renommé depuis check_in
+  departure_date: string; // Renommé depuis check_out
+  check_in?: string;      // Heure complète d'arrivée
+  check_out?: string;     // Heure complète de départ
+  reservation_status: {
+    current: string;
+  };
   guest_id: number;
-  property_id: number;
-  amount: number;
-  currency: string;
-  created_at: string;
-  updated_at: string;
-  channel?: string;
-  channel_id?: string;
-  adults?: number;
-  children?: number;
-  infants?: number;
+  property_id?: number;   // Conservé pour rétrocompatibilité
+  property_uuid: string;  // Nouveau: UUID de la propriété
+  platform: string;       // Renommé depuis channel
+  platform_id: string;    // Renommé depuis code ou channel_id
+  nights: number;
+  created: string;        // Renommé depuis created_at
+  updated_at?: string;
+  guests: {
+    total: number;
+    adult_count: number;
+    children_count: number;
+    infants_count: number;
+    pet_count?: number;
+  };
+  financials: {
+    currency: string;
+    guest: {
+      accommodation: number;
+      total_price: number;
+    };
+    host: {
+      guest_fees: number;
+      host_fees: number;
+      taxes: number;
+      revenue: number;
+    };
+  };
 }
 
 export interface HospitableGuest {
@@ -44,11 +73,12 @@ export interface HospitableGuest {
   first_name: string;
   last_name: string;
   email?: string;
-  phone?: string;
+  phone_numbers?: string[];  // Changé en tableau selon la doc
   created_at: string;
   updated_at: string;
   notes?: string;
   country_code?: string;
+  profile_picture?: string;  // Renommé depuis picture_url
 }
 
 export interface HospitableTransaction {
@@ -71,7 +101,7 @@ export interface HospitableImportResult {
   transactions: HospitableTransaction[];
 }
 
-// Pagination response selon la documentation
+// Pagination response selon la documentation V2
 export interface HospitablePaginatedResponse<T> {
   data: T[];
   meta: {
@@ -85,5 +115,12 @@ export interface HospitablePaginatedResponse<T> {
         next?: string;
       };
     };
+  };
+  links?: {
+    self?: string;
+    first?: string;
+    prev?: string;
+    next?: string;
+    last?: string;
   };
 }

@@ -129,7 +129,7 @@ class HospitableService {
     }
   }
 
-  // Récupérer les propriétés selon la documentation
+  // Récupérer les propriétés selon la documentation V2
   async fetchProperties(): Promise<HospitableProperty[]> {
     if (import.meta.env.DEV) {
       console.log('DEV: Simulating properties fetch');
@@ -137,7 +137,8 @@ class HospitableService {
       
       return [
         {
-          id: 1,
+          uuid: '095be615-a8ad-4c33-8e9c-c7612fbf6c9f',
+          id: 1, // Pour rétrocompatibilité
           name: 'Appartement Hospitable Lyon 1',
           bedrooms_count: 2,
           bathrooms_count: 1,
@@ -150,10 +151,17 @@ class HospitableService {
             zip: '69001'
           },
           created_at: '2023-01-15T09:00:00Z',
-          updated_at: '2023-01-15T09:00:00Z'
+          updated_at: '2023-01-15T09:00:00Z',
+          listings: [
+            {
+              platform: 'airbnb',
+              platform_id: '12345678'
+            }
+          ]
         },
         {
-          id: 2,
+          uuid: '195be615-a8ad-4c33-8e9c-c7612fbf6c0d',
+          id: 2, // Pour rétrocompatibilité
           name: 'Studio Hospitable Lyon 2',
           bedrooms_count: 1,
           bathrooms_count: 1,
@@ -166,20 +174,27 @@ class HospitableService {
             zip: '69002'
           },
           created_at: '2023-02-20T14:30:00Z',
-          updated_at: '2023-02-20T14:30:00Z'
+          updated_at: '2023-02-20T14:30:00Z',
+          listings: [
+            {
+              platform: 'booking.com',
+              platform_id: '87654321'
+            }
+          ]
         }
       ];
     }
 
-    // Endpoint selon la doc: GET /properties
+    // Endpoint selon la doc V2: GET /properties
     const response = await this.fetchWithAuth('/properties');
-    const data = await response.json();
+    const data: HospitablePaginatedResponse<any> = await response.json();
     
     console.log('Properties data:', data);
     
     // Adapter la réponse au format de notre application
     return data.data.map((property: any) => ({
-      id: property.id,
+      uuid: property.uuid,
+      id: property.id, // Pour rétrocompatibilité
       name: property.name || property.title,
       bedrooms_count: property.bedrooms || 0,
       bathrooms_count: property.bathrooms || 0,
@@ -192,11 +207,12 @@ class HospitableService {
         zip: property.zip_code || property.postal_code
       },
       created_at: property.created_at,
-      updated_at: property.updated_at
+      updated_at: property.updated_at,
+      listings: property.listings || []
     }));
   }
 
-  // Récupérer les réservations selon la documentation
+  // Récupérer les réservations selon la documentation V2
   async fetchReservations(params?: { startDate?: Date; endDate?: Date }): Promise<HospitableReservation[]> {
     if (import.meta.env.DEV) {
       console.log('DEV: Simulating reservations fetch');
@@ -204,40 +220,86 @@ class HospitableService {
       
       return [
         {
-          id: 101,
+          uuid: 'f95be615-a8ad-4c33-8e9c-c7612fbf6c9f',
+          id: 101, // Pour rétrocompatibilité
+          arrival_date: '2023-11-15T14:00:00Z',
+          departure_date: '2023-11-20T10:00:00Z',
           check_in: '2023-11-15T14:00:00Z',
           check_out: '2023-11-20T10:00:00Z',
-          status: 'confirmed',
+          reservation_status: {
+            current: 'confirmed'
+          },
           guest_id: 201,
-          property_id: 1,
-          amount: 850,
-          currency: 'EUR',
-          created_at: '2023-10-05T09:23:45Z',
+          property_id: 1, // Pour rétrocompatibilité
+          property_uuid: '095be615-a8ad-4c33-8e9c-c7612fbf6c9f',
+          platform: 'airbnb',
+          platform_id: 'HMXYZ123',
+          nights: 5,
+          created: '2023-10-05T09:23:45Z',
           updated_at: '2023-10-05T09:23:45Z',
-          channel: 'airbnb',
-          adults: 2,
-          children: 0
+          guests: {
+            total: 2,
+            adult_count: 2,
+            children_count: 0,
+            infants_count: 0
+          },
+          financials: {
+            currency: 'EUR',
+            guest: {
+              accommodation: 800,
+              total_price: 850
+            },
+            host: {
+              guest_fees: 25,
+              host_fees: 30,
+              taxes: 20,
+              revenue: 775
+            }
+          }
         },
         {
-          id: 102,
+          uuid: 'g95be615-a8ad-4c33-8e9c-c7612fbf6d0f',
+          id: 102, // Pour rétrocompatibilité
+          arrival_date: '2023-12-01T15:00:00Z',
+          departure_date: '2023-12-08T11:00:00Z',
           check_in: '2023-12-01T15:00:00Z',
           check_out: '2023-12-08T11:00:00Z',
-          status: 'confirmed',
+          reservation_status: {
+            current: 'confirmed'
+          },
           guest_id: 202,
-          property_id: 2,
-          amount: 630,
-          currency: 'EUR',
-          created_at: '2023-11-10T14:30:12Z',
+          property_id: 2, // Pour rétrocompatibilité
+          property_uuid: '195be615-a8ad-4c33-8e9c-c7612fbf6c0d',
+          platform: 'booking.com',
+          platform_id: 'BDC456789',
+          nights: 7,
+          created: '2023-11-10T14:30:12Z',
           updated_at: '2023-11-10T14:30:12Z',
-          channel: 'booking.com',
-          adults: 1,
-          children: 0
+          guests: {
+            total: 1,
+            adult_count: 1,
+            children_count: 0,
+            infants_count: 0
+          },
+          financials: {
+            currency: 'EUR',
+            guest: {
+              accommodation: 600,
+              total_price: 630
+            },
+            host: {
+              guest_fees: 15,
+              host_fees: 20,
+              taxes: 10,
+              revenue: 585
+            }
+          }
         }
       ];
     }
 
     // Code pour l'implémentation réelle
-    // Endpoint selon la doc: GET /reservations
+    // Endpoint selon la doc V2: GET /reservations
     let endpoint = '/reservations';
     if (params) {
       const queryParams = [];
@@ -252,30 +314,52 @@ class HospitableService {
     }
     
     const response = await this.fetchWithAuth(endpoint);
-    const data = await response.json();
+    const data: HospitablePaginatedResponse<any> = await response.json();
     
     console.log('Reservations data:', data);
     
     return data.data.map((reservation: any) => ({
-      id: reservation.id,
+      uuid: reservation.uuid,
+      id: reservation.id, // Pour rétrocompatibilité
+      arrival_date: reservation.arrival_date || reservation.check_in,
+      departure_date: reservation.departure_date || reservation.check_out,
       check_in: reservation.check_in,
       check_out: reservation.check_out,
-      status: reservation.status,
+      reservation_status: {
+        current: reservation.reservation_status?.current || reservation.status
+      },
       guest_id: reservation.guest_id,
-      property_id: reservation.listing_id || reservation.property_id,
-      amount: reservation.total_amount || reservation.amount,
-      currency: reservation.currency || 'EUR',
-      created_at: reservation.created_at,
+      property_id: reservation.property_id, // Pour rétrocompatibilité
+      property_uuid: reservation.property_uuid || reservation.property?.uuid,
+      platform: reservation.platform || reservation.channel,
+      platform_id: reservation.platform_id || reservation.reservation_code || reservation.code,
+      nights: reservation.nights,
+      created: reservation.created || reservation.created_at,
       updated_at: reservation.updated_at,
-      channel: reservation.channel,
-      channel_id: reservation.channel_id,
-      adults: reservation.guests_adults || reservation.adults || 0,
-      children: reservation.guests_children || reservation.children || 0,
-      infants: reservation.guests_infants || reservation.infants || 0
+      guests: {
+        total: reservation.guests?.total || (reservation.adults || 0) + (reservation.children || 0) + (reservation.infants || 0),
+        adult_count: reservation.guests?.adult_count || reservation.adults || 0,
+        children_count: reservation.guests?.children_count || reservation.children || 0,
+        infants_count: reservation.guests?.infants_count || reservation.infants || 0,
+        pet_count: reservation.guests?.pet_count || reservation.pets || 0
+      },
+      financials: {
+        currency: reservation.financials?.currency || reservation.currency || 'EUR',
+        guest: {
+          accommodation: reservation.financials?.guest?.accommodation || reservation.base_price || 0,
+          total_price: reservation.financials?.guest?.total_price || reservation.total_price || reservation.amount || 0
+        },
+        host: {
+          guest_fees: reservation.financials?.host?.guest_fees || reservation.guest_fee || 0,
+          host_fees: reservation.financials?.host?.host_fees || reservation.host_service_fee || 0,
+          taxes: reservation.financials?.host?.taxes || reservation.tax_amount || 0,
+          revenue: reservation.financials?.host?.revenue || reservation.payout_price || 0
+        }
+      }
     }));
   }
 
-  // Récupérer les invités selon la documentation
+  // Récupérer les invités selon la documentation V2
   async fetchGuests(): Promise<HospitableGuest[]> {
     if (import.meta.env.DEV) {
       console.log('DEV: Simulating guests fetch');
@@ -287,18 +371,19 @@ class HospitableService {
           first_name: 'Thomas',
           last_name: 'Martin',
           email: 'thomas.martin@example.com',
-          phone: '+33612345678',
+          phone_numbers: ['+33612345678'],
           created_at: '2023-09-15T08:30:00Z',
           updated_at: '2023-09-15T08:30:00Z',
           notes: 'Arrivée tardive possible',
-          country_code: 'FR'
+          country_code: 'FR',
+          profile_picture: 'https://example.com/profile.jpg'
         },
         {
           id: 202,
           first_name: 'Sophie',
           last_name: 'Dubois',
           email: 'sophie.dubois@example.com',
-          phone: '+33687654321',
+          phone_numbers: ['+33687654321'],
           created_at: '2023-10-20T14:45:00Z',
           updated_at: '2023-10-20T14:45:00Z',
           country_code: 'FR'
@@ -306,9 +391,9 @@ class HospitableService {
       ];
     }
 
-    // Endpoint selon la doc: GET /guests
+    // Endpoint selon la doc V2: GET /guests
     const response = await this.fetchWithAuth('/guests');
-    const data = await response.json();
+    const data: HospitablePaginatedResponse<any> = await response.json();
     
     console.log('Guests data:', data);
     
@@ -317,15 +402,16 @@ class HospitableService {
       first_name: guest.first_name,
       last_name: guest.last_name,
       email: guest.email,
-      phone: guest.phone,
+      phone_numbers: guest.phone_numbers || (guest.phone ? [guest.phone] : []),
       created_at: guest.created_at,
       updated_at: guest.updated_at,
       notes: guest.notes,
-      country_code: guest.country_code
+      country_code: guest.country_code,
+      profile_picture: guest.profile_picture || guest.picture_url
     }));
   }
 
-  // Récupérer les transactions selon la documentation
+  // Récupérer les transactions selon la documentation V2
   async fetchTransactions(): Promise<HospitableTransaction[]> {
     if (import.meta.env.DEV) {
       console.log('DEV: Simulating transactions fetch');
@@ -359,10 +445,10 @@ class HospitableService {
       ];
     }
 
-    // Endpoint selon la doc: GET /payments
+    // Endpoint selon la doc V2: GET /payments
     const endpoint = '/payments';
     const response = await this.fetchWithAuth(endpoint);
-    const data = await response.json();
+    const data: HospitablePaginatedResponse<any> = await response.json();
     
     console.log('Transactions data:', data);
     
