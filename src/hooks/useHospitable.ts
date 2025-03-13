@@ -8,6 +8,9 @@ import {
 } from '@/types/hospitable';
 import { toast } from '@/components/ui/use-toast';
 
+// Token d'accès codé en dur
+const HARDCODED_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5YTYyNGRmMC0xMmYxLTQ0OGUtYjg4NC00MzY3ODBhNWQzY2QiLCJqdGkiOiIyZWM2MDdjM2RhYWIxODNhYzgyOTM2ODljYzdkYjRjMjU3NzIyZDg1OTY2OGRiNjc5Y2VhNDFkYzc4MjFmYzkzNTZjYmJhMWI2NWI1OTFkMSIsImlhdCI6MTc0MTg1NzIwNi43MDI4MDgsIm5iZiI6MTc0MTg1NzIwNi43MDI4MTIsImV4cCI6MTc3MzM5MzIwNi42OTU1ODUsInN1YiI6IjE4NzcxMiIsInNjb3BlcyI6WyJwYXQ6cmVhZCIsInBhdDp3cml0ZSJdfQ.WvniAvtezL8bM3K9Gi5vSGH5evSIfm9grK2UEjE0sna3bOQC-Mkz39eLsqPz3RzY6uATux-Wp8x8nLLZg59eGopkXboZVAqe1B6j51uRlm_UqTL9XppHlLel9i3KVjh71XVjyxinvRT00jZDvBK_OskTqhyuDrY2ykPQvss4d86XojS1BCM-6JNuDBQ627Pn-1TCtXTEncmlKlEWzJAAH3_mbwHNu_0vUrPJtAaFH41eu1mb_sWFIEpBiGytsZQcDNPdWwFkFGrmvmL8n_JwGZFMGWUzPdxObzQIQhyGVquDIbYELEtOSi-ogEPKdbv5t14uO0myood_5t-rD0-3-zgwfN6pBshSxC7lyuS5gkrsnNBGlrtiOoz9ea1oDcoKiIKr9pfF30EW7dvw47nOThIwNLqJ6bNohHKoRflqUgcXIgR8M-P8KUelmg820ZInJSkTYvfObLJTujICdwvoeVaCnEa8ZkQUGOHnQR0c1VjOovfFb9zRuG8we6AHqbqG-Lc71MDXgz5YlUIramCwJzGvkvu1YG6XzJLR9vHSMh8ua-sn_k3I1zcM44WAwbToIoezIoU6L_cJaJQOX8bOERM9RFcKzuvXuqpUsgi0T2cHhbg2tiW9oyAzaRy_FwfxDY77BKheEfvkZjwaCfOrbpRSjffctzsZi280_tuRX0A";
+
 export function useHospitable() {
   const [isConfiguring, setIsConfiguring] = useState(false);
   
@@ -17,12 +20,12 @@ export function useHospitable() {
     endDate?: Date;
   }>({});
   
-  // Vérifier l'état d'authentification au chargement
+  // Initialiser avec le token codé en dur au chargement
   useEffect(() => {
-    // Si des identifiants sont stockés mais pas chargés en mémoire
-    if (!hospitable.isAuthenticated() && sessionStorage.getItem('hospitableCredentials')) {
-      console.log('Found credentials in sessionStorage, loading them');
-      hospitable.getCredentials(); // Force l'initialisation depuis le sessionStorage
+    // Applique le token codé en dur si aucun token n'est configuré
+    if (!hospitable.isAuthenticated()) {
+      console.log('Setting hardcoded Hospitable token');
+      hospitable.setCredentials({ accessToken: HARDCODED_TOKEN });
     }
   }, []);
   
@@ -99,13 +102,9 @@ export function useHospitable() {
     }
     
     if (!hospitable.isAuthenticated()) {
-      toast({
-        title: "Non authentifié",
-        description: "Veuillez configurer vos identifiants Hospitable avant d'importer des données.",
-        variant: "destructive",
-      });
-      setIsConfiguring(true);
-      return;
+      // Appliquer automatiquement le token codé en dur
+      console.log('Auto-applying hardcoded token for import');
+      hospitable.setCredentials({ accessToken: HARDCODED_TOKEN });
     }
     
     importQuery.refetch();

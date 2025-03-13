@@ -23,7 +23,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { HospitableCredentials } from '@/types/hospitable';
-import { InfoIcon, ExternalLink } from 'lucide-react';
+import { InfoIcon, ExternalLink, KeyRound } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Validation simplifiée - juste vérifier que le token n'est pas vide
 const formSchema = z.object({
@@ -78,6 +79,14 @@ export function HospitableConfigDialog({
             Entrez votre token d'accès Hospitable (Personal Access Token) pour vous connecter à votre compte.
           </DialogDescription>
         </DialogHeader>
+
+        <Alert className="mb-4 bg-muted">
+          <KeyRound className="h-4 w-4" />
+          <AlertDescription>
+            Un token d'accès est déjà configuré par défaut. Vous pouvez le modifier si nécessaire.
+          </AlertDescription>
+        </Alert>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
             <FormField
