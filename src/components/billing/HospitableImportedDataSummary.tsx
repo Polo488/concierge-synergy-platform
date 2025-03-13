@@ -86,23 +86,26 @@ export function HospitableImportedDataSummary({ data }: Props) {
               </TableHeader>
               <TableBody>
                 {reservations.map((reservation: HospitableReservation) => {
-                  const property = properties.find(p => p.id === reservation.property_id);
+                  const property = properties.find(p => p.uuid === reservation.property_uuid);
                   const guest = guests.find(g => g.id === reservation.guest_id);
 
                   return (
-                    <TableRow key={reservation.id}>
-                      <TableCell>{reservation.id}</TableCell>
-                      <TableCell>{formatDate(reservation.check_in)}</TableCell>
-                      <TableCell>{formatDate(reservation.check_out)}</TableCell>
-                      <TableCell>{reservation.status}</TableCell>
-                      <TableCell>{property?.name || `Propriété #${reservation.property_id}`}</TableCell>
+                    <TableRow key={reservation.id || reservation.uuid}>
+                      <TableCell>{reservation.id || reservation.uuid}</TableCell>
+                      <TableCell>{formatDate(reservation.arrival_date)}</TableCell>
+                      <TableCell>{formatDate(reservation.departure_date)}</TableCell>
+                      <TableCell>{reservation.reservation_status.current}</TableCell>
+                      <TableCell>{property?.name || `Propriété #${reservation.property_uuid}`}</TableCell>
                       <TableCell>
                         {guest 
                           ? `${guest.first_name} ${guest.last_name}` 
                           : `Client #${reservation.guest_id}`}
                       </TableCell>
                       <TableCell>
-                        {formatCurrency(reservation.amount, reservation.currency)}
+                        {formatCurrency(
+                          reservation.financials.guest.total_price,
+                          reservation.financials.currency
+                        )}
                       </TableCell>
                     </TableRow>
                   );
@@ -126,8 +129,8 @@ export function HospitableImportedDataSummary({ data }: Props) {
               </TableHeader>
               <TableBody>
                 {properties.map((property: HospitableProperty) => (
-                  <TableRow key={property.id}>
-                    <TableCell>{property.id}</TableCell>
+                  <TableRow key={property.uuid}>
+                    <TableCell>{property.id || property.uuid}</TableCell>
                     <TableCell>{property.name}</TableCell>
                     <TableCell>
                       {property.address
@@ -161,7 +164,9 @@ export function HospitableImportedDataSummary({ data }: Props) {
                     <TableCell>{guest.id}</TableCell>
                     <TableCell>{`${guest.first_name} ${guest.last_name}`}</TableCell>
                     <TableCell>{guest.email || 'Non spécifié'}</TableCell>
-                    <TableCell>{guest.phone || 'Non spécifié'}</TableCell>
+                    <TableCell>{guest.phone_numbers && guest.phone_numbers.length > 0 
+                      ? guest.phone_numbers[0] 
+                      : 'Non spécifié'}</TableCell>
                     <TableCell>{formatDate(guest.created_at)}</TableCell>
                   </TableRow>
                 ))}
