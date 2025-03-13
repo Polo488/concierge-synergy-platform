@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -60,12 +59,14 @@ export function WebhookFormDialog({ open, onOpenChange, webhook, onClose }: Webh
       if (isEditing && webhook) {
         await updateWebhook.mutateAsync({
           id: webhook.id,
-          ...values,
+          label: values.label,
+          url: values.url,
           types: values.types as WebhookType[]
         });
       } else {
         await createWebhook.mutateAsync({
-          ...values,
+          label: values.label,
+          url: values.url,
           types: values.types as WebhookType[]
         });
       }

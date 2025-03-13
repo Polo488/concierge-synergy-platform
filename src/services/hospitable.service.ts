@@ -1,4 +1,3 @@
-
 import { 
   HospitableCredentials,
   HospitableProperty,
@@ -6,7 +5,9 @@ import {
   HospitableGuest,
   HospitableTransaction,
   HospitableImportResult,
-  HospitablePaginatedResponse
+  HospitablePaginatedResponse,
+  HospitableWebhook,
+  CreateWebhookRequest
 } from '@/types/hospitable';
 
 // URL de base de l'API selon la documentation officielle (v2)
@@ -502,6 +503,103 @@ class HospitableService {
     } catch (error) {
       console.error('Error clearing Hospitable credentials:', error);
     }
+  }
+
+  // Add webhook methods
+  async getWebhooks(): Promise<HospitableWebhook[]> {
+    if (import.meta.env.DEV) {
+      console.log('DEV: Simulating webhooks fetch');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      return [
+        {
+          id: '1',
+          label: 'Réservations webhook',
+          url: 'https://example.com/webhooks/reservations',
+          types: ['reservations'],
+          created_at: '2023-01-15T09:00:00Z',
+          updated_at: '2023-01-15T09:00:00Z',
+          status: 'active'
+        },
+        {
+          id: '2',
+          label: 'Properties webhook',
+          url: 'https://example.com/webhooks/properties',
+          types: ['properties'],
+          created_at: '2023-02-20T14:30:00Z',
+          updated_at: '2023-02-20T14:30:00Z',
+          status: 'active'
+        }
+      ];
+    }
+
+    // Endpoint for webhooks
+    const response = await this.fetchWithAuth('/webhooks');
+    const data: HospitablePaginatedResponse<HospitableWebhook> = await response.json();
+    
+    return data.data;
+  }
+
+  async createWebhook(data: CreateWebhookRequest): Promise<HospitableWebhook> {
+    if (import.meta.env.DEV) {
+      console.log('DEV: Simulating webhook creation', data);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      return {
+        id: Math.random().toString(36).substring(2, 11),
+        label: data.label,
+        url: data.url,
+        types: data.types,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        status: 'active'
+      };
+    }
+
+    const response = await this.fetchWithAuth('/webhooks', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    
+    const result = await response.json();
+    return result.data;
+  }
+
+  async updateWebhook(id: string, data: CreateWebhookRequest): Promise<HospitableWebhook> {
+    if (import.meta.env.DEV) {
+      console.log('DEV: Simulating webhook update', id, data);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      return {
+        id,
+        label: data.label,
+        url: data.url,
+        types: data.types,
+        created_at: '2023-01-15T09:00:00Z',
+        updated_at: new Date().toISOString(),
+        status: 'active'
+      };
+    }
+
+    const response = await this.fetchWithAuth(`/webhooks/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    
+    const result = await response.json();
+    return result.data;
+  }
+
+  async deleteWebhook(id: string): Promise<void> {
+    if (import.meta.env.DEV) {
+      console.log('DEV: Simulating webhook deletion', id);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return;
+    }
+
+    await this.fetchWithAuth(`/webhooks/${id}`, {
+      method: 'DELETE'
+    });
   }
 }
 

@@ -1,4 +1,3 @@
-
 export interface HospitableCredentials {
   accessToken: string;
   accountId?: string; // ID de compte facultatif
