@@ -55,9 +55,31 @@ export async function handleHospitableWebhook(payload: WebhookPayload): Promise<
  */
 export function getWebhookURL(): string {
   // En production, utilisez votre domaine réel
+  // Pour le développement local, on retourne simplement le chemin de l'API
   const baseURL = import.meta.env.DEV 
-    ? 'http://localhost:5173'  // URL de développement (changez le port si nécessaire)
-    : window.location.origin;  // URL de production
+    ? '/api/webhooks/hospitable'  // Chemin relatif pour le développement local
+    : `${window.location.origin}/api/webhooks/hospitable`;  // URL complète en production
     
-  return `${baseURL}/api/webhooks/hospitable`;
+  return baseURL;
+}
+
+/**
+ * Construit l'URL complète pour un webhook avec une URL ngrok
+ * @param ngrokUrl URL ngrok (ex: https://abc123.ngrok.io)
+ */
+export function buildWebhookUrlWithNgrok(ngrokUrl: string): string {
+  if (!ngrokUrl) return '';
+  
+  // Assurez-vous que l'URL ngrok est correctement formatée
+  const formattedNgrokUrl = ngrokUrl.trim();
+  if (!formattedNgrokUrl.startsWith('http')) {
+    return `https://${formattedNgrokUrl}/api/webhooks/hospitable`;
+  }
+  
+  // Si l'URL se termine par un slash, on le retire
+  const baseUrl = formattedNgrokUrl.endsWith('/') 
+    ? formattedNgrokUrl.slice(0, -1)
+    : formattedNgrokUrl;
+    
+  return `${baseUrl}/api/webhooks/hospitable`;
 }
