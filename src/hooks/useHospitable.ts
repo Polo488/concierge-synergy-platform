@@ -33,7 +33,7 @@ export function useHospitable() {
       } else {
         toast({
           title: "Échec de configuration",
-          description: "Impossible de se connecter à Hospitable. Vérifiez vos identifiants.",
+          description: "Impossible de se connecter à Hospitable. Vérifiez votre clé API.",
           variant: "destructive",
         });
       }

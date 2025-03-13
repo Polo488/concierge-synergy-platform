@@ -25,7 +25,7 @@ import { HospitableCredentials } from '@/types/hospitable';
 
 const formSchema = z.object({
   apiKey: z.string().min(1, "La clé API est requise"),
-  accountId: z.string().min(1, "L'ID du compte est requis"),
+  accountId: z.string().optional(), // Rendu facultatif
 });
 
 interface HospitableConfigDialogProps {
@@ -52,11 +52,15 @@ export function HospitableConfigDialog({
   });
 
   function handleSubmit(values: z.infer<typeof formSchema>) {
-    // Créer un objet avec les identifiants Hospitable complets
+    // Créer un objet avec les identifiants Hospitable
     const credentials: HospitableCredentials = {
       apiKey: values.apiKey,
-      accountId: values.accountId,
     };
+    
+    // Ajouter l'ID de compte seulement s'il est fourni
+    if (values.accountId && values.accountId.trim() !== '') {
+      credentials.accountId = values.accountId;
+    }
     
     onSubmit(credentials);
   }
@@ -67,7 +71,7 @@ export function HospitableConfigDialog({
         <DialogHeader>
           <DialogTitle>Configuration de Hospitable</DialogTitle>
           <DialogDescription>
-            Entrez vos identifiants d'API Hospitable pour connecter à votre compte.
+            Entrez votre clé API Hospitable pour connecter à votre compte. L'ID du compte est facultatif.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -90,10 +94,10 @@ export function HospitableConfigDialog({
               name="accountId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>ID du Compte</FormLabel>
+                  <FormLabel>ID du Compte (facultatif)</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="L'ID de votre compte Hospitable" 
+                      placeholder="L'ID de votre compte Hospitable (facultatif)" 
                       {...field} 
                     />
                   </FormControl>

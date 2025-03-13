@@ -1,7 +1,7 @@
 
 export interface HospitableCredentials {
   apiKey: string;
-  accountId: string;
+  accountId?: string; // ID de compte rendu facultatif
 }
 
 export interface HospitableProperty {
