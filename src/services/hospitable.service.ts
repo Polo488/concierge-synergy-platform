@@ -5,9 +5,11 @@ import {
   HospitableReservation,
   HospitableGuest,
   HospitableTransaction,
-  HospitableImportResult
+  HospitableImportResult,
+  HospitablePaginatedResponse
 } from '@/types/hospitable';
 
+// URL de base de l'API selon la documentation
 const API_BASE_URL = 'https://api.hospitable.com/v1';
 
 class HospitableService {
@@ -36,9 +38,9 @@ class HospitableService {
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
-    // Ajouter l'account ID comme paramètre de requête
+    // Ajouter l'account ID comme paramètre de requête si nécessaire
     const url = new URL(`${API_BASE_URL}${endpoint}`);
-    if (this.credentials?.accountId) {
+    if (this.credentials?.accountId && !endpoint.includes('account')) {
       url.searchParams.append('account_id', this.credentials.accountId);
     }
 
@@ -58,7 +60,8 @@ class HospitableService {
     }
 
     try {
-      const response = await this.fetchWithAuth('/account');
+      // Selon la doc: GET /accounts/{account_id} pour vérifier l'accès
+      const response = await this.fetchWithAuth(`/accounts/${this.credentials?.accountId}`);
       return response.ok;
     } catch (error) {
       console.error('Error verifying Hospitable credentials:', error);
@@ -66,7 +69,7 @@ class HospitableService {
     }
   }
 
-  // Récupérer les propriétés
+  // Récupérer les propriétés selon la documentation
   async fetchProperties(): Promise<HospitableProperty[]> {
     // Pour la simulation, retourner des données fictives
     if (import.meta.env.DEV) {
@@ -86,7 +89,9 @@ class HospitableService {
             country_code: 'FR',
             street: '10 Rue de la République',
             zip: '69001'
-          }
+          },
+          created_at: '2023-01-15T09:00:00Z',
+          updated_at: '2023-01-15T09:00:00Z'
         },
         {
           id: 2,
@@ -100,35 +105,40 @@ class HospitableService {
             country_code: 'FR',
             street: '5 Place Bellecour',
             zip: '69002'
-          }
+          },
+          created_at: '2023-02-20T14:30:00Z',
+          updated_at: '2023-02-20T14:30:00Z'
         }
       ];
     }
 
     // Code pour l'implémentation réelle
-    const response = await this.fetchWithAuth('/properties');
+    // Endpoint selon la doc: GET /listings
+    const response = await this.fetchWithAuth('/listings');
     if (!response.ok) {
       throw new Error(`Failed to fetch properties: ${response.statusText}`);
     }
     
-    const data = await response.json();
-    return data.properties.map((property: any) => ({
+    const data = await response.json() as HospitablePaginatedResponse<any>;
+    return data.data.map((property: any) => ({
       id: property.id,
-      name: property.name,
-      bedrooms_count: property.bedroom_count || 0,
-      bathrooms_count: property.bathroom_count || 0,
-      surface: property.square_feet || 0,
-      surface_unit: 'm²',
+      name: property.name || property.title,
+      bedrooms_count: property.bedrooms || 0,
+      bathrooms_count: property.bathrooms || 0,
+      surface: property.square_feet || property.square_meters || 0,
+      surface_unit: property.square_feet ? 'ft²' : 'm²',
       address: {
         city: property.city,
         country_code: property.country_code,
-        street: property.address,
-        zip: property.zipcode
-      }
+        street: property.address || property.street,
+        zip: property.zip_code || property.postal_code
+      },
+      created_at: property.created_at,
+      updated_at: property.updated_at
     }));
   }
 
-  // Récupérer les réservations
+  // Récupérer les réservations selon la documentation
   async fetchReservations(params?: { startDate?: Date; endDate?: Date }): Promise<HospitableReservation[]> {
     // Pour la simulation, retourner des données fictives
     if (import.meta.env.DEV) {
@@ -146,7 +156,10 @@ class HospitableService {
           amount: 850,
           currency: 'EUR',
           created_at: '2023-10-05T09:23:45Z',
-          updated_at: '2023-10-05T09:23:45Z'
+          updated_at: '2023-10-05T09:23:45Z',
+          channel: 'airbnb',
+          adults: 2,
+          children: 0
         },
         {
           id: 102,
@@ -158,15 +171,20 @@ class HospitableService {
           amount: 630,
           currency: 'EUR',
           created_at: '2023-11-10T14:30:12Z',
-          updated_at: '2023-11-10T14:30:12Z'
+          updated_at: '2023-11-10T14:30:12Z',
+          channel: 'booking.com',
+          adults: 1,
+          children: 0
         }
       ];
     }
 
     // Code pour l'implémentation réelle
+    // Endpoint selon la doc: GET /reservations
     let endpoint = '/reservations';
     if (params) {
       const queryParams = new URLSearchParams();
+      // Utiliser le format de date YYYY-MM-DD pour les paramètres selon la doc
       if (params.startDate) queryParams.append('start_date', params.startDate.toISOString().split('T')[0]);
       if (params.endDate) queryParams.append('end_date', params.endDate.toISOString().split('T')[0]);
       if (queryParams.toString()) {
@@ -179,22 +197,27 @@ class HospitableService {
       throw new Error(`Failed to fetch reservations: ${response.statusText}`);
     }
     
-    const data = await response.json();
-    return data.reservations.map((reservation: any) => ({
+    const data = await response.json() as HospitablePaginatedResponse<any>;
+    return data.data.map((reservation: any) => ({
       id: reservation.id,
       check_in: reservation.check_in,
       check_out: reservation.check_out,
       status: reservation.status,
       guest_id: reservation.guest_id,
-      property_id: reservation.property_id,
-      amount: reservation.total_amount,
+      property_id: reservation.listing_id || reservation.property_id,
+      amount: reservation.total_amount || reservation.amount,
       currency: reservation.currency || 'EUR',
       created_at: reservation.created_at,
-      updated_at: reservation.updated_at
+      updated_at: reservation.updated_at,
+      channel: reservation.channel,
+      channel_id: reservation.channel_id,
+      adults: reservation.guests_adults || reservation.adults,
+      children: reservation.guests_children || reservation.children,
+      infants: reservation.guests_infants || reservation.infants
     }));
   }
 
-  // Récupérer les invités
+  // Récupérer les invités selon la documentation
   async fetchGuests(): Promise<HospitableGuest[]> {
     // Pour la simulation, retourner des données fictives
     if (import.meta.env.DEV) {
@@ -209,7 +232,9 @@ class HospitableService {
           email: 'thomas.martin@example.com',
           phone: '+33612345678',
           created_at: '2023-09-15T08:30:00Z',
-          updated_at: '2023-09-15T08:30:00Z'
+          updated_at: '2023-09-15T08:30:00Z',
+          notes: 'Arrivée tardive possible',
+          country_code: 'FR'
         },
         {
           id: 202,
@@ -218,30 +243,34 @@ class HospitableService {
           email: 'sophie.dubois@example.com',
           phone: '+33687654321',
           created_at: '2023-10-20T14:45:00Z',
-          updated_at: '2023-10-20T14:45:00Z'
+          updated_at: '2023-10-20T14:45:00Z',
+          country_code: 'FR'
         }
       ];
     }
 
     // Code pour l'implémentation réelle
+    // Endpoint selon la doc: GET /guests
     const response = await this.fetchWithAuth('/guests');
     if (!response.ok) {
       throw new Error(`Failed to fetch guests: ${response.statusText}`);
     }
     
-    const data = await response.json();
-    return data.guests.map((guest: any) => ({
+    const data = await response.json() as HospitablePaginatedResponse<any>;
+    return data.data.map((guest: any) => ({
       id: guest.id,
       first_name: guest.first_name,
       last_name: guest.last_name,
       email: guest.email,
       phone: guest.phone,
       created_at: guest.created_at,
-      updated_at: guest.updated_at
+      updated_at: guest.updated_at,
+      notes: guest.notes,
+      country_code: guest.country_code
     }));
   }
 
-  // Récupérer les transactions
+  // Récupérer les transactions selon la documentation
   async fetchTransactions(): Promise<HospitableTransaction[]> {
     // Pour la simulation, retourner des données fictives
     if (import.meta.env.DEV) {
@@ -257,7 +286,9 @@ class HospitableService {
           status: 'completed',
           payment_method: 'credit_card',
           created_at: '2023-10-05T09:25:00Z',
-          updated_at: '2023-10-05T09:30:00Z'
+          updated_at: '2023-10-05T09:30:00Z',
+          description: 'Acompte 50%',
+          paid_at: '2023-10-05T09:28:00Z'
         },
         {
           id: 302,
@@ -267,19 +298,23 @@ class HospitableService {
           status: 'completed',
           payment_method: 'bank_transfer',
           created_at: '2023-11-10T10:15:00Z',
-          updated_at: '2023-11-10T10:20:00Z'
+          updated_at: '2023-11-10T10:20:00Z',
+          description: 'Solde 50%',
+          paid_at: '2023-11-10T10:18:00Z'
         }
       ];
     }
 
     // Code pour l'implémentation réelle
-    const response = await this.fetchWithAuth('/transactions');
+    // Endpoint selon la doc: GET /payments ou GET /transactions
+    const endpoint = '/payments'; // utiliser l'endpoint correct selon la doc
+    const response = await this.fetchWithAuth(endpoint);
     if (!response.ok) {
       throw new Error(`Failed to fetch transactions: ${response.statusText}`);
     }
     
-    const data = await response.json();
-    return data.transactions.map((transaction: any) => ({
+    const data = await response.json() as HospitablePaginatedResponse<any>;
+    return data.data.map((transaction: any) => ({
       id: transaction.id,
       reservation_id: transaction.reservation_id,
       amount: transaction.amount,
@@ -287,8 +322,39 @@ class HospitableService {
       status: transaction.status,
       payment_method: transaction.payment_method,
       created_at: transaction.created_at,
-      updated_at: transaction.updated_at
+      updated_at: transaction.updated_at,
+      description: transaction.description,
+      paid_at: transaction.paid_at
     }));
+  }
+
+  // Pagination helper pour récupérer toutes les pages de données
+  private async fetchAllPages<T>(
+    endpoint: string,
+    transform: (item: any) => T
+  ): Promise<T[]> {
+    let page = 1;
+    let hasMorePages = true;
+    const results: T[] = [];
+
+    while (hasMorePages) {
+      const url = `${endpoint}${endpoint.includes('?') ? '&' : '?'}page=${page}`;
+      const response = await this.fetchWithAuth(url);
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`);
+      }
+
+      const data = await response.json() as HospitablePaginatedResponse<any>;
+      
+      results.push(...data.data.map(transform));
+
+      // Vérifier s'il y a des pages supplémentaires
+      hasMorePages = page < (data.meta.pagination.total_pages || 0);
+      page++;
+    }
+
+    return results;
   }
 
   // Importer toutes les données en une fois
