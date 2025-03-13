@@ -23,7 +23,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { HospitableCredentials } from '@/types/hospitable';
-import { InfoIcon, ExternalLink, KeyRound, CheckCircle } from 'lucide-react';
+import { InfoIcon, ExternalLink, KeyRound, CheckCircle, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Validation simplifiée - juste vérifier que le token n'est pas vide
