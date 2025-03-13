@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { hospitable } from '@/services/hospitable.service';
@@ -30,7 +31,8 @@ export function useHospitable() {
     mutationFn: async (credentials: HospitableCredentials) => {
       console.log('Setting Hospitable credentials:', credentials);
       
-      // Nous avons supprimé la validation spécifique pour pat_
+      // Aucune validation spécifique de format n'est nécessaire
+      // selon la documentation, le token est simplement passé avec Bearer
       
       hospitable.setCredentials(credentials);
       return hospitable.verifyCredentials();

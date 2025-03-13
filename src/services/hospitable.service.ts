@@ -55,14 +55,15 @@ class HospitableService {
 
     const headers = new Headers(options.headers);
     
-    // Mise à jour du format d'authentification selon la documentation
-    // Nous n'appliquons plus le préfixe 'pat_' car il fait déjà partie du token
+    // Format d'authentification correct selon la documentation:
+    // 'Authorization: Bearer <token>'
     headers.set('Authorization', `Bearer ${credentials.accessToken}`);
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
     // Construire l'URL complète
-    let url = new URL(`${API_BASE_URL}${endpoint}`);
+    // Mise à jour: selon la documentation, l'URL de base devrait être https://public.api.hospitable.com
+    let url = new URL(`https://public.api.hospitable.com${endpoint}`);
     
     // Ajouter l'account ID comme paramètre de requête si nécessaire
     if (credentials.accountId && !endpoint.includes('account')) {
