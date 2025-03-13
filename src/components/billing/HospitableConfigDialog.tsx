@@ -25,13 +25,10 @@ import { Button } from '@/components/ui/button';
 import { HospitableCredentials } from '@/types/hospitable';
 import { InfoIcon, ExternalLink } from 'lucide-react';
 
-// Validate PAT format according to documentation: must start with 'pat_'
+// Updated validation - no specific prefix requirement
 const formSchema = z.object({
   accessToken: z.string()
-    .min(1, "Le token d'accès est requis")
-    .refine(val => val.startsWith('pat_'), {
-      message: "Le token doit commencer par 'pat_'"
-    }),
+    .min(1, "Le token d'accès est requis"),
   accountId: z.string().optional(), // Rendu facultatif
 });
 
@@ -91,10 +88,10 @@ export function HospitableConfigDialog({
                   <FormLabel>Personal Access Token (PAT)</FormLabel>
                   <FormDescription className="flex items-center gap-1 text-sm">
                     <InfoIcon className="h-4 w-4" />
-                    Le token doit commencer par 'pat_' comme indiqué dans la documentation Hospitable.
+                    Entrez votre token d'accès personnel Hospitable.
                   </FormDescription>
                   <FormControl>
-                    <Input placeholder="pat_xxxxxxxxxxxxxxxx" {...field} />
+                    <Input placeholder="Votre token d'accès" {...field} />
                   </FormControl>
                   <FormMessage />
                   <p className="text-xs text-muted-foreground mt-1">

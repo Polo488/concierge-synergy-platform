@@ -30,10 +30,7 @@ export function useHospitable() {
     mutationFn: async (credentials: HospitableCredentials) => {
       console.log('Setting Hospitable credentials:', credentials);
       
-      // Vérifier que le token commence bien par pat_
-      if (!credentials.accessToken.startsWith('pat_')) {
-        throw new Error("Le token d'accès doit commencer par 'pat_'");
-      }
+      // Nous avons supprimé la validation spécifique pour pat_
       
       hospitable.setCredentials(credentials);
       return hospitable.verifyCredentials();

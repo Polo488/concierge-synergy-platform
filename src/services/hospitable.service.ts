@@ -55,8 +55,8 @@ class HospitableService {
 
     const headers = new Headers(options.headers);
     
-    // Utiliser le format exact selon la documentation pour le PAT
-    // La documentation indique d'utiliser: 'Authorization: Bearer pat_xyz123'
+    // Mise à jour du format d'authentification selon la documentation
+    // Nous n'appliquons plus le préfixe 'pat_' car il fait déjà partie du token
     headers.set('Authorization', `Bearer ${credentials.accessToken}`);
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
