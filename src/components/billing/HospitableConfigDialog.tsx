@@ -28,7 +28,7 @@ const formSchema = z.object({
   accountId: z.string().optional(), // Rendu facultatif
 });
 
-interface HospitableConfigDialogProps {
+export interface HospitableConfigDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: HospitableCredentials) => void;

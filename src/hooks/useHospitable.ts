@@ -53,18 +53,21 @@ export function useHospitable() {
     queryKey: ['hospitable', 'import', importParams],
     queryFn: () => hospitable.importAll(importParams),
     enabled: false, // Ne s'exécute pas automatiquement
-    onSuccess: (data) => {
-      toast({
-        title: "Importation réussie",
-        description: `${data.reservations.length} réservations, ${data.properties.length} propriétés, ${data.guests.length} clients et ${data.transactions.length} transactions importés.`,
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Erreur d'importation",
-        description: error instanceof Error ? error.message : "Une erreur s'est produite lors de l'importation des données",
-        variant: "destructive",
-      });
+    // Move the callbacks into the meta object
+    meta: {
+      onSuccess: (data: HospitableImportResult) => {
+        toast({
+          title: "Importation réussie",
+          description: `${data.reservations.length} réservations, ${data.properties.length} propriétés, ${data.guests.length} clients et ${data.transactions.length} transactions importés.`,
+        });
+      },
+      onError: (error: Error) => {
+        toast({
+          title: "Erreur d'importation",
+          description: error instanceof Error ? error.message : "Une erreur s'est produite lors de l'importation des données",
+          variant: "destructive",
+        });
+      }
     }
   });
   

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { 
   Receipt, Download, Filter, PlusCircle, 
@@ -369,10 +368,6 @@ const Billing = () => {
   // State for import dialogs
   const [smilyImportOpen, setSmilyImportOpen] = useState(false);
   const [platformImportOpen, setPlatformImportOpen] = useState(false);
-  const [smilyParams, setSmilyParams] = useState<SmilyImportParams>({
-    startDate: '',
-    endDate: '',
-  });
   const [platformParams, setPlatformParams] = useState<PlatformImportParams>({
     platform: 'airbnb',
     startDate: '',
@@ -428,12 +423,20 @@ const Billing = () => {
     });
   };
   
-  // Handle SMILY import
-  const handleSmilyImport = async () => {
-    if (!smilyParams.startDate || !smilyParams.endDate) {
+  // Handle SMILY import - updated to match the SmilyImportDialog props
+  const handleSmilyImport = async (params: { startDate?: Date; endDate?: Date }) => {
+    if (!params.startDate || !params.endDate) {
       toast.error("Veuillez spécifier les dates de début et de fin");
       return;
     }
+    
+    // Convert Date objects to string format expected by the API
+    const smilyParams = {
+      startDate: params.startDate.toISOString().split('T')[0],
+      endDate: params.endDate.toISOString().split('T')[0]
+    };
+    
+    setIsImporting(true);
     
     try {
       const result = await importFromSmily(smilyParams);
@@ -449,6 +452,8 @@ const Billing = () => {
     } catch (error) {
       toast.error("Une erreur est survenue lors de l'import");
       console.error(error);
+    } finally {
+      setIsImporting(false);
     }
   };
   
@@ -804,184 +809,4 @@ const Billing = () => {
             </DashboardCard>
           </div>
           
-          {/* Afficher les données importées si disponibles */}
-          {importQuery.data && (
-            <DashboardCard title="Données importées depuis Hospitable">
-              <HospitableImportedDataSummary data={importQuery.data} />
-            </DashboardCard>
-          )}
-        </TabsContent>
-        
-        {/* Control Tab Content */}
-        <TabsContent value="control" className="space-y-6">
-          <DashboardCard title="Contrôle des importations">
-            <p className="text-muted-foreground">Vérifiez et assignez les réservations importées.</p>
-          </DashboardCard>
-        </TabsContent>
-        
-        {/* Coherence Tab Content */}
-        <TabsContent value="coherence" className="space-y-6">
-          <DashboardCard title="Vérification de cohérence">
-            <p className="text-muted-foreground">Vérifiez la cohérence entre les différentes sources de données.</p>
-          </DashboardCard>
-        </TabsContent>
-        
-        {/* BA Tab Content */}
-        <TabsContent value="ba" className="space-y-6">
-          <DashboardCard title="Bordereaux d'Achat">
-            <p className="text-muted-foreground">Gérez les bordereaux d'achat (BA).</p>
-          </DashboardCard>
-        </TabsContent>
-        
-        {/* Invoices Tab Content */}
-        <TabsContent value="invoices" className="space-y-6">
-          <DashboardCard title="Gestion des factures">
-            <p className="text-muted-foreground">Créez et gérez les factures.</p>
-          </DashboardCard>
-        </TabsContent>
-        
-        {/* Movements Tab Content */}
-        <TabsContent value="movements" className="space-y-6">
-          <DashboardCard title="Mouvements financiers">
-            <p className="text-muted-foreground">Suivez les mouvements financiers.</p>
-          </DashboardCard>
-        </TabsContent>
-        
-        {/* Emails Tab Content */}
-        <TabsContent value="emails" className="space-y-6">
-          <DashboardCard title="Emails et communications">
-            <p className="text-muted-foreground">Gérez les communications par email.</p>
-          </DashboardCard>
-        </TabsContent>
-        
-        {/* Tourist Tax Tab Content */}
-        <TabsContent value="touristtax" className="space-y-6">
-          <DashboardCard title="Gestion de la taxe de séjour">
-            <p className="text-muted-foreground">Gérez la collecte et le reporting de la taxe de séjour.</p>
-          </DashboardCard>
-        </TabsContent>
-        
-        {/* Billing Calls Tab Content */}
-        <TabsContent value="billingcalls" className="space-y-6">
-          <DashboardCard title="Appels à facturation">
-            <p className="text-muted-foreground">Gérez les appels à facturation pour les différents services.</p>
-          </DashboardCard>
-        </TabsContent>
-      </Tabs>
-      
-      {/* Dialogs for import */}
-      <HospitableConfigDialog 
-        open={isConfiguring} 
-        onOpenChange={setIsConfiguring} 
-        initialCredentials={credentials} 
-        onSubmit={(credentials) => configMutation.mutate(credentials)}
-        isLoading={configMutation.isPending} 
-      />
-      
-      <HospitableImportDialog
-        open={hospitableImportOpen}
-        onOpenChange={setHospitableImportOpen}
-        onImport={handleHospitableImport}
-      />
-      
-      <SmilyImportDialog 
-        open={smilyImportOpen}
-        onOpenChange={setSmilyImportOpen}
-        params={smilyParams}
-        onParamsChange={setSmilyParams}
-        onImport={handleSmilyImport}
-        isLoading={isImporting}
-      />
-      
-      <Dialog open={platformImportOpen} onOpenChange={setPlatformImportOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Importer depuis les plateformes</DialogTitle>
-            <DialogDescription>
-              Importez les données de règlement depuis Airbnb, Booking ou Stripe.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="platform">Plateforme</Label>
-              <Select 
-                value={platformParams.platform} 
-                onValueChange={(value) => setPlatformParams({...platformParams, platform: value as 'airbnb' | 'booking' | 'stripe'})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une plateforme" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="airbnb">Airbnb</SelectItem>
-                  <SelectItem value="booking">Booking.com</SelectItem>
-                  <SelectItem value="stripe">Stripe</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="startDate">Date de début</Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  value={platformParams.startDate}
-                  onChange={(e) => setPlatformParams({...platformParams, startDate: e.target.value})}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="endDate">Date de fin</Label>
-                <Input
-                  id="endDate"
-                  type="date"
-                  value={platformParams.endDate}
-                  onChange={(e) => setPlatformParams({...platformParams, endDate: e.target.value})}
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="file">Fichier CSV (optionnel)</Label>
-              <Input
-                id="file"
-                type="file"
-                accept=".csv"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    setPlatformParams({...platformParams, file: e.target.files[0]});
-                  }
-                }}
-              />
-              <p className="text-xs text-muted-foreground">
-                Vous pouvez importer manuellement un fichier CSV si vous ne souhaitez pas utiliser l'API.
-              </p>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPlatformImportOpen(false)}>
-              Annuler
-            </Button>
-            <Button 
-              onClick={handlePlatformImport} 
-              disabled={isImporting || !platformParams.startDate || !platformParams.endDate}
-            >
-              {isImporting ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Importation...
-                </>
-              ) : (
-                'Importer'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
-
-export default Billing;
+          {/* Afficher

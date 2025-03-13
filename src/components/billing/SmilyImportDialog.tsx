@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
-interface SmilyImportDialogProps {
+export interface SmilyImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onImport: (params: { startDate?: Date; endDate?: Date }) => void;
