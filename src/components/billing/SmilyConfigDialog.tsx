@@ -53,8 +53,16 @@ export function SmilyConfigDialog({
     },
   });
 
+  // Fix the type issue by ensuring all required fields are present
   function handleSubmit(values: z.infer<typeof formSchema>) {
-    onSubmit(values);
+    // Create a proper BookingSyncCredentials object with all required fields
+    const credentials: BookingSyncCredentials = {
+      clientId: values.clientId,
+      clientSecret: values.clientSecret,
+      redirectUri: values.redirectUri,
+    };
+    
+    onSubmit(credentials);
   }
 
   return (
