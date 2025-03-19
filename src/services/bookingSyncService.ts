@@ -451,11 +451,20 @@ class BookingSyncService {
       
       console.log('Import completed successfully');
       
+      // Calculate unassigned bookings (those without rental mapping)
+      const unassignedCount = bookings.filter(booking => {
+        const rental = rentals.find(r => r.id === booking.rental_id);
+        return !rental;
+      }).length;
+      
       return {
         rentals,
         bookings,
         clients,
-        payments
+        payments,
+        bookingsCount: bookings.length,
+        unassignedCount,
+        errorCount: 0 // Default to 0 since we don't track errors in this implementation
       };
     } catch (error) {
       console.error('Error importing data from BookingSync:', error);

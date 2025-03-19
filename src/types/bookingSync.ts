@@ -63,4 +63,7 @@ export interface BookingSyncImportResult {
   rentals: BookingSyncRental[];
   clients: BookingSyncClient[];
   payments: BookingSyncPayment[];
+  bookingsCount?: number;
+  unassignedCount?: number;
+  errorCount?: number;
 }
