@@ -40,4 +40,4 @@ export const MainNav: React.FC = () => {
       </Link>
     </nav>
   );
-};
+}
