@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { bookingSyncService } from '@/services/bookingSyncService';
@@ -12,13 +11,13 @@ import { toast } from '@/hooks/use-toast';
 const DEFAULT_CREDENTIALS: BookingSyncCredentials = {
   clientId: '62cf3c457d20bf1e7dc5cac0d182f9c6c6b5d3e3d628bb7057defbc4ed53e4da',
   clientSecret: '30e0c5100953296cacdcdf559aaeb2566322dddf2ec5e6608af3be7a67921b36',
-  redirectUri: 'https://bnb-lyon.com/auth/callback'
+  redirectUri: 'https://preview--concierge-synergy-platform.lovable.app/billing'
 };
 
 export function useBookingSync() {
   const [isConfiguring, setIsConfiguring] = useState(false);
   const [apiEndpoint, setApiEndpoint] = useState('/rentals');
-  const [apiMethod, setApiMethod] = useState<'GET' | 'POST' | 'PUT' | 'DELETE'>('GET');
+  const [apiMethod, setApiMethod] = useState<'GET'>('GET'); // Seule la méthode GET est autorisée
   const [apiParams, setApiParams] = useState<Record<string, string>>({});
   const [apiBody, setApiBody] = useState<string>('');
   const [apiResponse, setApiResponse] = useState<any>(null);
@@ -73,12 +72,11 @@ export function useBookingSync() {
     mutationFn: async () => {
       setApiError(null);
       try {
-        const parsedBody = apiBody ? JSON.parse(apiBody) : undefined;
+        // Seule la méthode GET est autorisée, donc pas besoin de parsedBody
         return await bookingSyncService.executeApiRequest(
           apiEndpoint,
-          apiMethod,
-          apiParams,
-          parsedBody
+          'GET',
+          apiParams
         );
       } catch (error) {
         if (error instanceof SyntaxError && apiBody) {
@@ -196,8 +194,7 @@ export function useBookingSync() {
     // API Request
     apiEndpoint,
     setApiEndpoint,
-    apiMethod,
-    setApiMethod,
+    apiMethod, // Only GET is allowed
     apiParams,
     setApiParams,
     addApiParam,

@@ -1,4 +1,3 @@
-
 import { 
   BookingSyncCredentials,
   BookingSyncRental,
@@ -148,11 +147,12 @@ class BookingSyncService {
   }
 
   // Generic method to execute any API request according to BookingSync API documentation
+  // Modifié pour n'accepter que la méthode GET
   async executeApiRequest(
     endpoint: string, 
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
+    method: 'GET' = 'GET', // Seule la méthode GET est autorisée
     params?: Record<string, string>,
-    body?: any
+    body?: any // Conservé pour la compatibilité mais non utilisé
   ): Promise<any> {
     try {
       if (!this.isAuthenticated()) {
@@ -171,7 +171,7 @@ class BookingSyncService {
       
       // For development, simulate API responses
       if (import.meta.env.DEV) {
-        console.log(`DEV: Simulating API request: ${method} ${url}`);
+        console.log(`DEV: Simulating API request: GET ${url}`);
         await new Promise(resolve => setTimeout(resolve, 800));
         
         // Return mock data based on the endpoint
@@ -197,16 +197,12 @@ class BookingSyncService {
       }
       
       const options: RequestInit = {
-        method,
+        method: 'GET', // Force la méthode GET
         headers: {
           'Content-Type': 'application/vnd.api+json',
           'Accept': 'application/vnd.api+json'
         }
       };
-      
-      if (body && (method === 'POST' || method === 'PUT')) {
-        options.body = JSON.stringify(body);
-      }
       
       const response = await this.fetchWithAuth(url, options);
       

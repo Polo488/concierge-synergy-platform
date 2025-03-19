@@ -33,7 +33,7 @@ const formSchema = z.object({
 const DEFAULT_CREDENTIALS = {
   clientId: '62cf3c457d20bf1e7dc5cac0d182f9c6c6b5d3e3d628bb7057defbc4ed53e4da',
   clientSecret: '30e0c5100953296cacdcdf559aaeb2566322dddf2ec5e6608af3be7a67921b36',
-  redirectUri: 'https://bnb-lyon.com/auth/callback',
+  redirectUri: 'https://preview--concierge-synergy-platform.lovable.app/billing',
 };
 
 interface SmilyConfigDialogProps {
