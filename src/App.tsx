@@ -12,7 +12,6 @@ import Cleaning from "./pages/Cleaning";
 import Calendar from "./pages/Calendar";
 import Properties from "./pages/Properties";
 import Billing from "./pages/Billing";
-import Webhooks from "./pages/Webhooks";
 import MoyenneDuree from "./pages/MoyenneDuree";
 import NotFound from "./pages/NotFound";
 
@@ -33,7 +32,6 @@ const App = () => (
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="/billing" element={<Billing />} />
-            <Route path="/webhooks" element={<Webhooks />} />
             <Route path="/moyenne-duree" element={<MoyenneDuree />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

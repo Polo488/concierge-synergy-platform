@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Calendar as CalendarIcon, ArrowRightIcon, Loader2, AlertCircle } from 'lucide-react';
+import { Calendar as CalendarIcon, ArrowRightIcon, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -19,14 +19,12 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
-export interface SmilyImportDialogProps {
+interface SmilyImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onImport: (params: { startDate?: Date; endDate?: Date }) => void;
   isLoading?: boolean;
-  error?: string;
 }
 
 export function SmilyImportDialog({
@@ -34,7 +32,6 @@ export function SmilyImportDialog({
   onOpenChange,
   onImport,
   isLoading = false,
-  error,
 }: SmilyImportDialogProps) {
   const [startDate, setStartDate] = useState<Date | undefined>(
     new Date(new Date().setMonth(new Date().getMonth() - 3))
@@ -56,13 +53,6 @@ export function SmilyImportDialog({
             Sélectionnez une période pour importer les réservations depuis SMILY (BookingSync).
           </DialogDescription>
         </DialogHeader>
-        
-        {error && (
-          <Alert variant="destructive" className="mt-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
         
         <div className="py-6 space-y-4">
           <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-2">
