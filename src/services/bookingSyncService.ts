@@ -1,4 +1,3 @@
-
 import { 
   BookingSyncCredentials,
   BookingSyncRental,
@@ -95,79 +94,6 @@ class BookingSyncService {
     } catch (error) {
       console.error('API test connection error:', error);
       return false;
-    }
-  }
-
-  // Nouvelle méthode pour exécuter des requêtes API génériques
-  async executeApiRequest(endpoint: string): Promise<any> {
-    try {
-      // Dans un environnement de dev, on peut soit simuler une réponse, soit faire un appel réel
-      if (import.meta.env.DEV) {
-        console.log(`DEV: Executing API request to ${endpoint}`);
-        // Simulation d'un délai réseau
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Si l'endpoint est /rentals, retournons des données simulées de logements
-        if (endpoint.startsWith('/rentals')) {
-          return {
-            rentals: [
-              {
-                id: 1,
-                name: 'Appartement Bellecour',
-                bedrooms_count: 2,
-                bathrooms_count: 1,
-                surface: 65,
-                surface_unit: 'm²',
-                address: {
-                  city: 'Lyon',
-                  country_code: 'FR',
-                  street: '10 Place Bellecour',
-                  zip: '69002'
-                }
-              },
-              {
-                id: 2,
-                name: 'Studio Croix-Rousse',
-                bedrooms_count: 1,
-                bathrooms_count: 1,
-                surface: 35,
-                surface_unit: 'm²',
-                address: {
-                  city: 'Lyon',
-                  country_code: 'FR',
-                  street: '5 Boulevard de la Croix-Rousse',
-                  zip: '69004'
-                }
-              }
-            ],
-            meta: {
-              pagination: {
-                current_page: 1,
-                per_page: 20,
-                total_pages: 1,
-                total_count: 2
-              }
-            }
-          };
-        }
-        
-        // Pour les autres endpoints, retournons un objet générique
-        return {
-          success: true,
-          message: `DEV: Simulated API response for ${endpoint}`,
-          timestamp: new Date().toISOString()
-        };
-      }
-      
-      // Dans un environnement de production ou si on force un vrai appel API
-      const response = await this.fetchWithAuth(endpoint);
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error(`Error executing API request to ${endpoint}:`, error);
-      throw error;
     }
   }
 

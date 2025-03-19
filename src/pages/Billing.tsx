@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { 
   Receipt, Download, Filter, PlusCircle, 
@@ -24,9 +25,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { useBookingSync } from '@/hooks/useBookingSync';
-import { SmilyConfigDialog } from '@/components/billing/SmilyConfigDialog';
-import { SmilyImportDialog } from '@/components/billing/SmilyImportDialog';
 
 // Mock data
 const invoicesData = [
@@ -360,14 +358,6 @@ const Billing = () => {
     endDate: '',
   });
   const [isImporting, setIsImporting] = useState(false);
-  const [apiResponse, setApiResponse] = useState<string>('');
-
-  // State for API testing
-  const [apiEndpoint, setApiEndpoint] = useState('/rentals');
-  const [apiParams, setApiParams] = useState('');
-
-  // Use the BookingSync hook
-  const bookingSync = useBookingSync();
   
   // Mock function to import from SMILY
   const importFromSmily = async (params: SmilyImportParams): Promise<ImportResult> => {
@@ -464,41 +454,6 @@ const Billing = () => {
       console.error(error);
     }
   };
-
-  // Function to execute the direct API call
-  const executeApiCall = async () => {
-    if (!bookingSync.isAuthenticated) {
-      toast.error("Veuillez vous authentifier d'abord");
-      bookingSync.setIsConfiguring(true);
-      return;
-    }
-
-    try {
-      // Parse API parameters
-      const paramsObject: Record<string, string> = {};
-      if (apiParams.trim()) {
-        const paramPairs = apiParams.split('&');
-        for (const pair of paramPairs) {
-          const [key, value] = pair.split('=');
-          if (key && value) {
-            paramsObject[key.trim()] = value.trim();
-          }
-        }
-      }
-      
-      // Execute the API call using our enhanced service
-      const result = await bookingSync.executeApiCall(apiEndpoint, paramsObject);
-      
-      if (result) {
-        setApiResponse(JSON.stringify(result, null, 2));
-        toast.success("Requête exécutée avec succès");
-      }
-    } catch (error) {
-      console.error('API call error:', error);
-      toast.error("Erreur lors de l'exécution de la requête API");
-      setApiResponse(error instanceof Error ? `Error: ${error.message}` : 'Unknown error occurred');
-    }
-  };
   
   const getStatusBadge = (status: string) => {
     switch(status) {
@@ -560,7 +515,6 @@ const Billing = () => {
         <TabsList className="w-full border-b pb-0 flex flex-nowrap overflow-x-auto">
           <TabsTrigger value="dashboard">Tableau de bord</TabsTrigger>
           <TabsTrigger value="import">Import</TabsTrigger>
-          <TabsTrigger value="api">API Test</TabsTrigger>
           <TabsTrigger value="control">Contrôle</TabsTrigger>
           <TabsTrigger value="coherence">Cohérence</TabsTrigger>
           <TabsTrigger value="ba">BA</TabsTrigger>
@@ -805,4 +759,237 @@ const Billing = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</
+                  <TableHead>Date</TableHead>
+                  <TableHead>Source</TableHead>
+                  <TableHead>Période</TableHead>
+                  <TableHead>Réservations</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>15/11/2023</TableCell>
+                  <TableCell>SMILY</TableCell>
+                  <TableCell>01/11/2023 - 30/11/2023</TableCell>
+                  <TableCell>12</TableCell>
+                  <TableCell>
+                    <Badge className="bg-green-100 text-green-800 rounded-full">Succès</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="sm">Détails</Button>
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>15/11/2023</TableCell>
+                  <TableCell>Airbnb</TableCell>
+                  <TableCell>01/11/2023 - 30/11/2023</TableCell>
+                  <TableCell>8</TableCell>
+                  <TableCell>
+                    <Badge className="bg-blue-100 text-blue-800 rounded-full">2 non assignées</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="sm">Détails</Button>
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>16/11/2023</TableCell>
+                  <TableCell>Booking</TableCell>
+                  <TableCell>01/11/2023 - 30/11/2023</TableCell>
+                  <TableCell>5</TableCell>
+                  <TableCell>
+                    <Badge className="bg-green-100 text-green-800 rounded-full">Succès</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="sm">Détails</Button>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </DashboardCard>
+        </TabsContent>
+        
+        {/* Control Tab Content - Placeholder */}
+        <TabsContent value="control" className="space-y-6">
+          <DashboardCard title="Contrôle des imports">
+            <p className="text-muted-foreground">Fonctionnalité à implémenter.</p>
+          </DashboardCard>
+        </TabsContent>
+        
+        {/* Coherence Tab Content - Placeholder */}
+        <TabsContent value="coherence" className="space-y-6">
+          <DashboardCard title="Cohérence des données">
+            <p className="text-muted-foreground">Fonctionnalité à implémenter.</p>
+          </DashboardCard>
+        </TabsContent>
+        
+        {/* BA Tab Content - Placeholder */}
+        <TabsContent value="ba" className="space-y-6">
+          <DashboardCard title="Gestion des BA">
+            <p className="text-muted-foreground">Fonctionnalité à implémenter.</p>
+          </DashboardCard>
+        </TabsContent>
+        
+        {/* Invoices Tab Content - Placeholder */}
+        <TabsContent value="invoices" className="space-y-6">
+          <DashboardCard title="Gestion des factures">
+            <p className="text-muted-foreground">Fonctionnalité à implémenter.</p>
+          </DashboardCard>
+        </TabsContent>
+        
+        {/* Movements Tab Content - Placeholder */}
+        <TabsContent value="movements" className="space-y-6">
+          <DashboardCard title="Mouvements financiers">
+            <p className="text-muted-foreground">Fonctionnalité à implémenter.</p>
+          </DashboardCard>
+        </TabsContent>
+        
+        {/* Emails Tab Content - Placeholder */}
+        <TabsContent value="emails" className="space-y-6">
+          <DashboardCard title="Gestion des emails">
+            <p className="text-muted-foreground">Fonctionnalité à implémenter.</p>
+          </DashboardCard>
+        </TabsContent>
+        
+        {/* Tourist Tax Tab Content - Placeholder */}
+        <TabsContent value="touristtax" className="space-y-6">
+          <DashboardCard title="Taxe de séjour">
+            <p className="text-muted-foreground">Fonctionnalité à implémenter.</p>
+          </DashboardCard>
+        </TabsContent>
+        
+        {/* Billing Calls Tab Content - Placeholder */}
+        <TabsContent value="billingcalls" className="space-y-6">
+          <DashboardCard title="Appels à facturation">
+            <p className="text-muted-foreground">Fonctionnalité à implémenter.</p>
+          </DashboardCard>
+        </TabsContent>
+      </Tabs>
+      
+      {/* Dialog for SMILY Import */}
+      <Dialog open={smilyImportOpen} onOpenChange={setSmilyImportOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import depuis SMILY</DialogTitle>
+            <DialogDescription>
+              Sélectionnez la période pour laquelle importer les réservations.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Date de début</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={smilyParams.startDate}
+                  onChange={(e) => setSmilyParams({...smilyParams, startDate: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="endDate">Date de fin</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={smilyParams.endDate}
+                  onChange={(e) => setSmilyParams({...smilyParams, endDate: e.target.value})}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="apiKey">Clé API (optionnel)</Label>
+              <Input
+                id="apiKey"
+                placeholder="Votre clé API SMILY"
+                value={smilyParams.apiKey || ''}
+                onChange={(e) => setSmilyParams({...smilyParams, apiKey: e.target.value})}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSmilyImportOpen(false)}>Annuler</Button>
+            <Button
+              onClick={handleSmilyImport}
+              disabled={isImporting}
+            >
+              {isImporting ? "Importation..." : "Importer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for Platform Import */}
+      <Dialog open={platformImportOpen} onOpenChange={setPlatformImportOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import depuis {platformParams.platform}</DialogTitle>
+            <DialogDescription>
+              Sélectionnez la période et le fichier d'import.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label>Plateforme</Label>
+              <Select 
+                value={platformParams.platform} 
+                onValueChange={(value) => setPlatformParams({...platformParams, platform: value as 'airbnb' | 'booking' | 'stripe'})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner une plateforme" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="airbnb">Airbnb</SelectItem>
+                  <SelectItem value="booking">Booking.com</SelectItem>
+                  <SelectItem value="stripe">Stripe</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="platformStartDate">Date de début</Label>
+                <Input
+                  id="platformStartDate"
+                  type="date"
+                  value={platformParams.startDate}
+                  onChange={(e) => setPlatformParams({...platformParams, startDate: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="platformEndDate">Date de fin</Label>
+                <Input
+                  id="platformEndDate"
+                  type="date"
+                  value={platformParams.endDate}
+                  onChange={(e) => setPlatformParams({...platformParams, endDate: e.target.value})}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="importFile">Fichier d'import (CSV)</Label>
+              <Input id="importFile" type="file" accept=".csv" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes (optionnel)</Label>
+              <Textarea
+                id="notes"
+                placeholder="Informations supplémentaires..."
+                className="min-h-[80px]"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPlatformImportOpen(false)}>Annuler</Button>
+            <Button
+              onClick={handlePlatformImport}
+              disabled={isImporting}
+            >
+              {isImporting ? "Importation..." : "Importer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default Billing;
