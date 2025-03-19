@@ -1,3 +1,4 @@
+
 import { 
   BookingSyncCredentials,
   BookingSyncRental,
@@ -12,12 +13,19 @@ const API_BASE_URL = 'https://www.bookingsync.com/api/v3';
 class BookingSyncService {
   private credentials: BookingSyncCredentials | null = null;
   private authenticated: boolean = false;
+  private accessToken: string | null = null;
 
   setCredentials(credentials: BookingSyncCredentials) {
     this.credentials = credentials;
     // Dans une implémentation réelle, nous stockerions cela dans localStorage
     localStorage.setItem('bookingSyncCredentials', JSON.stringify(credentials));
     console.log('Credentials set:', credentials);
+    
+    // If we have an access token in the credentials, set authenticated to true
+    if (credentials.accessToken) {
+      this.accessToken = credentials.accessToken;
+      this.authenticated = true;
+    }
   }
 
   getCredentials(): BookingSyncCredentials | null {
@@ -27,6 +35,12 @@ class BookingSyncService {
       if (storedCredentials) {
         try {
           this.credentials = JSON.parse(storedCredentials);
+          
+          // If we have an access token in the credentials, set authenticated to true
+          if (this.credentials.accessToken) {
+            this.accessToken = this.credentials.accessToken;
+            this.authenticated = true;
+          }
         } catch (e) {
           console.error('Failed to parse stored credentials:', e);
         }
@@ -37,6 +51,10 @@ class BookingSyncService {
 
   isAuthenticated(): boolean {
     return this.authenticated;
+  }
+
+  getAccessToken(): string | null {
+    return this.accessToken;
   }
 
   // Dans une vraie implémentation, cette méthode ouvrirait une fenêtre pour l'authentification OAuth
@@ -53,7 +71,19 @@ class BookingSyncService {
       // Pour le développement, nous simulons une réponse positive
       await new Promise(resolve => setTimeout(resolve, 1500));
       
+      // Simulate access token generation for development
+      this.accessToken = `dev_${this.credentials.clientId}_token_${Date.now()}`;
       this.authenticated = true;
+      
+      // Update credentials with the new access token
+      this.credentials = {
+        ...this.credentials,
+        accessToken: this.accessToken,
+        expiresAt: Date.now() + 3600000 // 1 hour from now
+      };
+      
+      // Store updated credentials
+      localStorage.setItem('bookingSyncCredentials', JSON.stringify(this.credentials));
       
       // Essayons de faire un appel API simple pour vérifier les identifiants
       try {
@@ -98,32 +128,104 @@ class BookingSyncService {
   }
 
   private async fetchWithAuth(endpoint: string, options: RequestInit = {}): Promise<Response> {
-    if (!this.credentials) {
-      throw new Error('No credentials available for BookingSync API');
+    if (!this.isAuthenticated() || !this.accessToken) {
+      throw new Error('Not authenticated with BookingSync API');
     }
 
     const headers = new Headers(options.headers);
     
-    // En production, nous utiliserions le vrai token d'accès
-    // Pour le développement, nous simulons avec l'ID client
-    headers.set('Authorization', `Bearer ${this.credentials.clientId}`);
+    // According to BookingSync API documentation
+    headers.set('Authorization', `Bearer ${this.accessToken}`);
     headers.set('Content-Type', 'application/vnd.api+json');
     headers.set('Accept', 'application/vnd.api+json');
 
-    return fetch(`${API_BASE_URL}${endpoint}`, {
+    const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+    
+    return fetch(url, {
       ...options,
       headers
     });
   }
 
-  // Récupérer les hébergements (rentals)
-  async fetchRentals(): Promise<BookingSyncRental[]> {
-    // Pour la simulation, retourner des données fictives
-    if (import.meta.env.DEV) {
-      console.log('DEV: Simulating rental fetch');
-      await new Promise(resolve => setTimeout(resolve, 800));
+  // Generic method to execute any API request according to BookingSync API documentation
+  async executeApiRequest(
+    endpoint: string, 
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
+    params?: Record<string, string>,
+    body?: any
+  ): Promise<any> {
+    try {
+      if (!this.isAuthenticated()) {
+        await this.authenticate();
+      }
       
-      return [
+      // Build URL with parameters if provided
+      let url = endpoint;
+      if (params && Object.keys(params).length > 0) {
+        const queryParams = new URLSearchParams();
+        for (const [key, value] of Object.entries(params)) {
+          queryParams.append(key, value);
+        }
+        url += `?${queryParams.toString()}`;
+      }
+      
+      // For development, simulate API responses
+      if (import.meta.env.DEV) {
+        console.log(`DEV: Simulating API request: ${method} ${url}`);
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Return mock data based on the endpoint
+        if (url.includes('/rentals')) {
+          return this.getMockRentals();
+        } else if (url.includes('/bookings')) {
+          return this.getMockBookings();
+        } else if (url.includes('/clients')) {
+          return this.getMockClients();
+        } else if (url.includes('/payments')) {
+          return this.getMockPayments();
+        } else {
+          // Generic mock response
+          return {
+            data: [],
+            meta: {
+              count: 0,
+              total_pages: 1,
+              current_page: 1
+            }
+          };
+        }
+      }
+      
+      const options: RequestInit = {
+        method,
+        headers: {
+          'Content-Type': 'application/vnd.api+json',
+          'Accept': 'application/vnd.api+json'
+        }
+      };
+      
+      if (body && (method === 'POST' || method === 'PUT')) {
+        options.body = JSON.stringify(body);
+      }
+      
+      const response = await this.fetchWithAuth(url, options);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API request failed: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API request error:', error);
+      throw error;
+    }
+  }
+
+  // Mock data methods for development
+  private getMockRentals(): any {
+    return {
+      rentals: [
         {
           id: 1,
           name: 'Appartement Bellecour',
@@ -166,27 +268,18 @@ class BookingSyncService {
             zip: '69002'
           }
         }
-      ];
-    }
-
-    // Code pour l'implémentation réelle
-    const response = await this.fetchWithAuth('/rentals');
-    if (!response.ok) {
-      throw new Error(`Failed to fetch rentals: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    return data.rentals;
+      ],
+      meta: {
+        count: 3,
+        total_pages: 1,
+        current_page: 1
+      }
+    };
   }
 
-  // Récupérer les réservations (bookings)
-  async fetchBookings(params?: { start_at?: string; end_at?: string }): Promise<BookingSyncBooking[]> {
-    // Pour la simulation, retourner des données fictives
-    if (import.meta.env.DEV) {
-      console.log('DEV: Simulating bookings fetch');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      return [
+  private getMockBookings(): any {
+    return {
+      bookings: [
         {
           id: 101,
           start_at: '2023-11-15T14:00:00Z',
@@ -223,37 +316,18 @@ class BookingSyncService {
           created_at: '2023-11-25T17:42:18Z',
           updated_at: '2023-11-25T17:42:18Z'
         }
-      ];
-    }
-
-    // Code pour l'implémentation réelle
-    let url = '/bookings';
-    if (params) {
-      const queryParams = new URLSearchParams();
-      if (params.start_at) queryParams.set('start_at', params.start_at);
-      if (params.end_at) queryParams.set('end_at', params.end_at);
-      if (queryParams.toString()) {
-        url += `?${queryParams.toString()}`;
+      ],
+      meta: {
+        count: 3,
+        total_pages: 1,
+        current_page: 1
       }
-    }
-    
-    const response = await this.fetchWithAuth(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch bookings: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    return data.bookings;
+    };
   }
 
-  // Récupérer les clients
-  async fetchClients(): Promise<BookingSyncClient[]> {
-    // Pour la simulation, retourner des données fictives
-    if (import.meta.env.DEV) {
-      console.log('DEV: Simulating clients fetch');
-      await new Promise(resolve => setTimeout(resolve, 700));
-      
-      return [
+  private getMockClients(): any {
+    return {
+      clients: [
         {
           id: 201,
           firstname: 'Pierre',
@@ -281,27 +355,18 @@ class BookingSyncService {
           created_at: '2023-11-05T11:15:00Z',
           updated_at: '2023-11-05T11:15:00Z'
         }
-      ];
-    }
-
-    // Code pour l'implémentation réelle
-    const response = await this.fetchWithAuth('/clients');
-    if (!response.ok) {
-      throw new Error(`Failed to fetch clients: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    return data.clients;
+      ],
+      meta: {
+        count: 3,
+        total_pages: 1,
+        current_page: 1
+      }
+    };
   }
 
-  // Récupérer les paiements
-  async fetchPayments(): Promise<BookingSyncPayment[]> {
-    // Pour la simulation, retourner des données fictives
-    if (import.meta.env.DEV) {
-      console.log('DEV: Simulating payments fetch');
-      await new Promise(resolve => setTimeout(resolve, 900));
-      
-      return [
+  private getMockPayments(): any {
+    return {
+      payments: [
         {
           id: 301,
           booking_id: 101,
@@ -332,17 +397,37 @@ class BookingSyncService {
           created_at: '2023-11-10T14:35:00Z',
           updated_at: '2023-11-10T14:40:00Z'
         }
-      ];
-    }
+      ],
+      meta: {
+        count: 3,
+        total_pages: 1,
+        current_page: 1
+      }
+    };
+  }
 
-    // Code pour l'implémentation réelle
-    const response = await this.fetchWithAuth('/payments');
-    if (!response.ok) {
-      throw new Error(`Failed to fetch payments: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    return data.payments;
+  // Récupérer les hébergements (rentals)
+  async fetchRentals(): Promise<BookingSyncRental[]> {
+    const response = await this.executeApiRequest('/rentals');
+    return response.rentals;
+  }
+
+  // Récupérer les réservations (bookings)
+  async fetchBookings(params?: { start_at?: string; end_at?: string }): Promise<BookingSyncBooking[]> {
+    const response = await this.executeApiRequest('/bookings', 'GET', params);
+    return response.bookings;
+  }
+
+  // Récupérer les clients
+  async fetchClients(): Promise<BookingSyncClient[]> {
+    const response = await this.executeApiRequest('/clients');
+    return response.clients;
+  }
+
+  // Récupérer les paiements
+  async fetchPayments(): Promise<BookingSyncPayment[]> {
+    const response = await this.executeApiRequest('/payments');
+    return response.payments;
   }
 
   // Importer toutes les données en une fois

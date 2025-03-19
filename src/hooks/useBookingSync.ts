@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { bookingSyncService } from '@/services/bookingSyncService';
 import { 
@@ -17,13 +17,19 @@ const DEFAULT_CREDENTIALS: BookingSyncCredentials = {
 
 export function useBookingSync() {
   const [isConfiguring, setIsConfiguring] = useState(false);
+  const [apiEndpoint, setApiEndpoint] = useState('/rentals');
+  const [apiMethod, setApiMethod] = useState<'GET' | 'POST' | 'PUT' | 'DELETE'>('GET');
+  const [apiParams, setApiParams] = useState<Record<string, string>>({});
+  const [apiBody, setApiBody] = useState<string>('');
+  const [apiResponse, setApiResponse] = useState<any>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
   
   // Set default credentials if none exist
-  useState(() => {
+  useEffect(() => {
     if (!bookingSyncService.getCredentials()) {
       bookingSyncService.setCredentials(DEFAULT_CREDENTIALS);
     }
-  });
+  }, []);
   
   // État pour suivre les paramètres d'importation
   const [importParams, setImportParams] = useState<{
@@ -57,6 +63,43 @@ export function useBookingSync() {
       toast({
         title: "Erreur d'authentification",
         description: error instanceof Error ? error.message : "Une erreur s'est produite lors de la connexion à SMILY",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // API request mutation
+  const apiRequestMutation = useMutation({
+    mutationFn: async () => {
+      setApiError(null);
+      try {
+        const parsedBody = apiBody ? JSON.parse(apiBody) : undefined;
+        return await bookingSyncService.executeApiRequest(
+          apiEndpoint,
+          apiMethod,
+          apiParams,
+          parsedBody
+        );
+      } catch (error) {
+        if (error instanceof SyntaxError && apiBody) {
+          throw new Error("Invalid JSON in request body");
+        }
+        throw error;
+      }
+    },
+    onSuccess: (data) => {
+      setApiResponse(data);
+      toast({
+        title: "Requête API réussie",
+        description: `L'appel à ${apiEndpoint} a réussi.`,
+      });
+    },
+    onError: (error) => {
+      console.error('API request error:', error);
+      setApiError(error instanceof Error ? error.message : "Une erreur s'est produite lors de l'appel API");
+      toast({
+        title: "Erreur d'appel API",
+        description: error instanceof Error ? error.message : "Une erreur s'est produite lors de l'appel API",
         variant: "destructive",
       });
     }
@@ -98,6 +141,38 @@ export function useBookingSync() {
     }
   });
 
+  // Helper function to add API parameters
+  const addApiParam = (key: string, value: string) => {
+    setApiParams(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  // Helper function to remove API parameters
+  const removeApiParam = (key: string) => {
+    setApiParams(prev => {
+      const newParams = { ...prev };
+      delete newParams[key];
+      return newParams;
+    });
+  };
+
+  // Helper function to execute API request
+  const executeApiRequest = () => {
+    if (!bookingSyncService.isAuthenticated()) {
+      toast({
+        title: "Non authentifié",
+        description: "Veuillez configurer vos identifiants SMILY avant d'exécuter des requêtes API.",
+        variant: "destructive",
+      });
+      setIsConfiguring(true);
+      return;
+    }
+    
+    apiRequestMutation.mutate();
+  };
+
   return {
     // États
     isConfiguring,
@@ -117,5 +192,22 @@ export function useBookingSync() {
     
     // Données importées
     importedData: importQuery.data,
+    
+    // API Request
+    apiEndpoint,
+    setApiEndpoint,
+    apiMethod,
+    setApiMethod,
+    apiParams,
+    setApiParams,
+    addApiParam,
+    removeApiParam,
+    apiBody,
+    setApiBody,
+    apiResponse,
+    apiError,
+    executeApiRequest,
+    isExecutingApi: apiRequestMutation.isPending,
+    resetApiResponse: () => setApiResponse(null)
   };
 }
