@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { bookingSyncService } from '@/services/bookingSyncService';
@@ -26,17 +27,35 @@ export function useBookingSync() {
   // Set default credentials if none exist and attempt to authenticate
   useEffect(() => {
     const initAuth = async () => {
+      console.log('Initializing authentication...');
       if (!bookingSyncService.getCredentials()) {
+        console.log('No credentials found, setting default credentials');
         bookingSyncService.setCredentials(DEFAULT_CREDENTIALS);
       }
       
-      // If we have credentials but aren't authenticated, try to authenticate
+      // Si nous avons des identifiants mais que nous ne sommes pas authentifiés, tenter l'authentification
       if (bookingSyncService.getCredentials() && !bookingSyncService.isAuthenticated()) {
+        console.log('Have credentials but not authenticated, attempting to authenticate');
         try {
-          await bookingSyncService.authenticate();
+          const success = await bookingSyncService.authenticate();
+          console.log('Authentication attempt result:', success);
+          
+          if (success) {
+            toast({
+              title: "Authentifié avec SMILY",
+              description: "La connexion à SMILY a été établie avec les identifiants par défaut.",
+            });
+          }
         } catch (err) {
           console.error('Initial authentication failed:', err);
+          toast({
+            title: "Échec d'authentification",
+            description: "Impossible de se connecter à SMILY avec les identifiants par défaut.",
+            variant: "destructive",
+          });
         }
+      } else if (bookingSyncService.isAuthenticated()) {
+        console.log('Already authenticated with BookingSync');
       }
     };
     
@@ -158,11 +177,45 @@ export function useBookingSync() {
   // Auto-authenticate avec les identifiants par défaut
   const autoAuthenticateMutation = useMutation({
     mutationFn: async () => {
+      console.log('Starting auto-authentication...');
+      // Si nous avons déjà des identifiants et ne sommes pas authentifiés
       if (bookingSyncService.getCredentials() && !bookingSyncService.isAuthenticated()) {
-        console.log('Auto-authenticating with BookingSync...');
-        return await bookingSyncService.authenticate();
+        console.log('Auto-authenticating with BookingSync using existing credentials');
+        const success = await bookingSyncService.authenticate();
+        console.log('Auto-authentication result:', success);
+        return success;
       }
-      return Promise.resolve(bookingSyncService.isAuthenticated());
+      // Si nous sommes déjà authentifiés
+      if (bookingSyncService.isAuthenticated()) {
+        console.log('Already authenticated, no need for auto-authentication');
+        return true;
+      }
+      // Si nous n'avons pas d'identifiants, utiliser les identifiants par défaut
+      console.log('No credentials, setting default credentials and authenticating');
+      bookingSyncService.setCredentials(DEFAULT_CREDENTIALS);
+      const success = await bookingSyncService.authenticate();
+      console.log('Default credentials authentication result:', success);
+      return success;
+    },
+    onSuccess: (success) => {
+      if (success) {
+        console.log('Auto-authentication successful');
+      } else {
+        console.log('Auto-authentication failed');
+        toast({
+          title: "Échec d'authentification automatique",
+          description: "Impossible de se connecter automatiquement à SMILY.",
+          variant: "destructive",
+        });
+      }
+    },
+    onError: (error) => {
+      console.error('Auto-authentication error:', error);
+      toast({
+        title: "Erreur d'authentification",
+        description: error instanceof Error ? error.message : "Une erreur s'est produite lors de la connexion automatique à SMILY",
+        variant: "destructive",
+      });
     }
   });
 
@@ -172,12 +225,18 @@ export function useBookingSync() {
       setImportParams(params);
     }
     
+    console.log('Starting import process, current auth status:', bookingSyncService.isAuthenticated());
+    
     // If not authenticated, try to auto-authenticate with default credentials
     if (!bookingSyncService.isAuthenticated()) {
-      console.log('Not authenticated, attempting to authenticate with default credentials');
+      console.log('Not authenticated, attempting to authenticate automatically');
       try {
+        // Force authentication with default credentials if needed
         const success = await autoAuthenticateMutation.mutateAsync();
+        console.log('Auto-authentication for import result:', success);
+        
         if (!success) {
+          console.error('Auto-authentication failed before import');
           toast({
             title: "Non authentifié",
             description: "Veuillez configurer vos identifiants SMILY avant d'importer des données.",
@@ -199,8 +258,10 @@ export function useBookingSync() {
     }
     
     // Now we should be authenticated, proceed with the import
-    console.log('Starting import with authenticated client');
-    return importQuery.refetch();
+    console.log('Starting import with authenticated client, params:', params);
+    const result = await importQuery.refetch();
+    console.log('Import refetch result:', result);
+    return result;
   };
 
   return {
@@ -229,13 +290,37 @@ export function useBookingSync() {
     apiMethod, // Only GET is allowed
     apiParams,
     setApiParams,
-    addApiParam,
-    removeApiParam,
+    addApiParam: (key: string, value: string) => {
+      setApiParams(prev => ({
+        ...prev,
+        [key]: value
+      }));
+    },
+    removeApiParam: (key: string) => {
+      setApiParams(prev => {
+        const newParams = { ...prev };
+        delete newParams[key];
+        return newParams;
+      });
+    },
     apiBody,
     setApiBody,
     apiResponse,
     apiError,
-    executeApiRequest,
+    executeApiRequest: () => {
+      if (!bookingSyncService.isAuthenticated()) {
+        toast({
+          title: "Non authentifié",
+          description: "Veuillez configurer vos identifiants SMILY avant d'exécuter des requêtes API.",
+          variant: "destructive",
+        });
+        setIsConfiguring(true);
+        return;
+      }
+      
+      // I need to use the mutate() function from apiRequestMutation but don't have it, using a direct method call
+      apiRequestMutation.mutate();
+    },
     isExecutingApi: apiRequestMutation.isPending,
     resetApiResponse: () => setApiResponse(null)
   };

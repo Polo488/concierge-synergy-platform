@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -46,6 +47,7 @@ export function SmilyImportDialog({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<string[]>([]);
   const [initialAuthCheck, setInitialAuthCheck] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   
   const { 
     startImport, 
@@ -61,13 +63,18 @@ export function SmilyImportDialog({
       const checkAuth = async () => {
         try {
           console.log('Checking auth status on dialog open:', isAuthenticated);
+          setIsAuthenticating(true);
+          
           if (!isAuthenticated) {
-            console.log('Not authenticated, attempting auto-authentication');
+            console.log('Not authenticated, attempting auto-authentication from dialog');
             await autoAuthenticateMutation.mutateAsync();
           }
+          
           setInitialAuthCheck(true);
+          setIsAuthenticating(false);
         } catch (error) {
           console.error('Auth check failed:', error);
+          setIsAuthenticating(false);
         }
       };
       
@@ -97,17 +104,26 @@ export function SmilyImportDialog({
       // Auto-authenticate if needed before import
       if (!isAuthenticated) {
         console.log('Not authenticated, trying auto-authentication before import');
-        const authSuccess = await autoAuthenticateMutation.mutateAsync();
-        if (!authSuccess) {
-          setErrorMessage("Veuillez configurer vos identifiants SMILY avant d'importer des données.");
-          toast({
-            title: "Non authentifié",
-            description: "Veuillez configurer vos identifiants SMILY avant d'importer des données.",
-            variant: "destructive",
-          });
-          setIsConfiguring(true);
-          onOpenChange(false);
-          return;
+        setIsAuthenticating(true);
+        
+        try {
+          const authSuccess = await autoAuthenticateMutation.mutateAsync();
+          setIsAuthenticating(false);
+          
+          if (!authSuccess) {
+            setErrorMessage("Veuillez configurer vos identifiants SMILY avant d'importer des données.");
+            toast({
+              title: "Non authentifié",
+              description: "Veuillez configurer vos identifiants SMILY avant d'importer des données.",
+              variant: "destructive",
+            });
+            setIsConfiguring(true);
+            onOpenChange(false);
+            return;
+          }
+        } catch (error) {
+          setIsAuthenticating(false);
+          throw error;
         }
       }
       
@@ -217,6 +233,16 @@ export function SmilyImportDialog({
                 </Alert>
               )}
               
+              {isAuthenticating && (
+                <Alert className="mb-4">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <AlertTitle>Authentification en cours...</AlertTitle>
+                  <AlertDescription>
+                    Connexion à SMILY en cours, veuillez patienter.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-2">
                 <div className="flex flex-col space-y-2">
                   <label htmlFor="startDate" className="text-sm font-medium">
@@ -311,13 +337,13 @@ export function SmilyImportDialog({
                 type="button" 
                 variant="outline" 
                 onClick={handleCloseDialog}
-                disabled={importQuery.isLoading}
+                disabled={importQuery.isLoading || isAuthenticating}
               >
                 Annuler
               </Button>
               <Button 
                 onClick={handleImport} 
-                disabled={importQuery.isLoading || !startDate || !endDate}
+                disabled={importQuery.isLoading || isAuthenticating || !startDate || !endDate}
               >
                 {importQuery.isLoading ? (
                   <>
