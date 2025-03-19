@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Calendar as CalendarIcon, ArrowRightIcon, Loader2, AlertTriangle } from 'lucide-react';
+import { Calendar as CalendarIcon, ArrowRightIcon, Loader2, AlertTriangle, XCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -45,6 +45,7 @@ export function SmilyImportDialog({
   const [importedData, setImportedData] = useState<BookingSyncImportResult | null>(null);
   const [showSummary, setShowSummary] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<string[]>([]);
   
   const { 
     startImport, 
@@ -56,6 +57,7 @@ export function SmilyImportDialog({
   const handleImport = async () => {
     // Réinitialiser les erreurs précédentes
     setErrorMessage(null);
+    setErrorDetails([]);
     
     if (!startDate || !endDate) {
       setErrorMessage("Veuillez sélectionner une date de début et de fin.");
@@ -93,6 +95,11 @@ export function SmilyImportDialog({
         
         setErrorMessage(errorMsg);
         
+        // Récupération des détails d'erreur si disponibles
+        if (importQuery.error instanceof Error && 'details' in importQuery.error) {
+          setErrorDetails((importQuery.error as any).details || []);
+        }
+        
         toast({
           title: "Erreur lors de l'import",
           description: errorMsg,
@@ -101,6 +108,7 @@ export function SmilyImportDialog({
       } else if (importQuery.isSuccess && importQuery.data) {
         // Réinitialiser les erreurs en cas de succès
         setErrorMessage(null);
+        setErrorDetails([]);
         
         toast({
           title: "Import réussi",
@@ -123,6 +131,11 @@ export function SmilyImportDialog({
       
       setErrorMessage(errorMsg);
       
+      // Récupération des détails d'erreur si disponibles
+      if (error instanceof Error && 'details' in error) {
+        setErrorDetails((error as any).details || []);
+      }
+      
       toast({
         title: "Erreur lors de l'import",
         description: errorMsg,
@@ -135,6 +148,7 @@ export function SmilyImportDialog({
     // When closing the dialog, reset the display state but keep the imported data
     setShowSummary(false);
     setErrorMessage(null);
+    setErrorDetails([]);
     onOpenChange(false);
   };
 
@@ -158,7 +172,19 @@ export function SmilyImportDialog({
                 <Alert variant="destructive" className="mb-4">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertTitle>Erreur</AlertTitle>
-                  <AlertDescription>{errorMessage}</AlertDescription>
+                  <AlertDescription>
+                    <p>{errorMessage}</p>
+                    {errorDetails.length > 0 && (
+                      <ul className="mt-2 space-y-1 text-sm">
+                        {errorDetails.map((detail, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <XCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                            <span>{detail}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </AlertDescription>
                 </Alert>
               )}
               

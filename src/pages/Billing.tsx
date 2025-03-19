@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { 
   Receipt, Download, Filter, PlusCircle, 
@@ -25,6 +24,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { SmilyImportDialog } from '@/components/billing/SmilyImportDialog';
+import { BookingSyncImportResult } from '@/types/bookingSync';
 
 // Mock data
 const invoicesData = [
@@ -348,10 +349,6 @@ const Billing = () => {
   // State for import dialogs
   const [smilyImportOpen, setSmilyImportOpen] = useState(false);
   const [platformImportOpen, setPlatformImportOpen] = useState(false);
-  const [smilyParams, setSmilyParams] = useState<SmilyImportParams>({
-    startDate: '',
-    endDate: '',
-  });
   const [platformParams, setPlatformParams] = useState<PlatformImportParams>({
     platform: 'airbnb',
     startDate: '',
@@ -359,28 +356,17 @@ const Billing = () => {
   });
   const [isImporting, setIsImporting] = useState(false);
   
-  // Mock function to import from SMILY
-  const importFromSmily = async (params: SmilyImportParams): Promise<ImportResult> => {
-    setIsImporting(true);
+  // Handle import success from SMILY
+  const handleSmilyImportSuccess = (result: BookingSyncImportResult) => {
+    console.log('Import successful:', result);
     
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log('Importing from SMILY with params:', params);
-        
-        // Mock result
-        const result: ImportResult = {
-          success: true,
-          message: "Import réussi",
-          importedCount: 12,
-          errorCount: 0,
-          unassignedCount: 1
-        };
-        
-        setIsImporting(false);
-        resolve(result);
-      }, 2000);
-    });
+    // Here we could update our local state with the imported data
+    // For example, add new bookings to the bookings state
+    
+    toast.success(`Import réussi: ${result.bookingsCount || 0} réservations importées.`);
+    if (result.unassignedCount && result.unassignedCount > 0) {
+      toast.warning(`${result.unassignedCount} réservations non assignées, vérifiez l'onglet Contrôle.`);
+    }
   };
   
   // Mock function to import from platforms
@@ -405,30 +391,6 @@ const Billing = () => {
         resolve(result);
       }, 2000);
     });
-  };
-  
-  // Handle SMILY import
-  const handleSmilyImport = async () => {
-    if (!smilyParams.startDate || !smilyParams.endDate) {
-      toast.error("Veuillez spécifier les dates de début et de fin");
-      return;
-    }
-    
-    try {
-      const result = await importFromSmily(smilyParams);
-      if (result.success) {
-        toast.success(`Import réussi: ${result.importedCount} réservations importées.`);
-        if (result.unassignedCount > 0) {
-          toast.warning(`${result.unassignedCount} réservations non assignées, vérifiez l'onglet Contrôle.`);
-        }
-        setSmilyImportOpen(false);
-      } else {
-        toast.error(`Erreur lors de l'import: ${result.message}`);
-      }
-    } catch (error) {
-      toast.error("Une erreur est survenue lors de l'import");
-      console.error(error);
-    }
   };
   
   // Handle platform import
@@ -866,58 +828,13 @@ const Billing = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Dialog for SMILY Import */}
-      <Dialog open={smilyImportOpen} onOpenChange={setSmilyImportOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Import depuis SMILY</DialogTitle>
-            <DialogDescription>
-              Sélectionnez la période pour laquelle importer les réservations.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="startDate">Date de début</Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  value={smilyParams.startDate}
-                  onChange={(e) => setSmilyParams({...smilyParams, startDate: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="endDate">Date de fin</Label>
-                <Input
-                  id="endDate"
-                  type="date"
-                  value={smilyParams.endDate}
-                  onChange={(e) => setSmilyParams({...smilyParams, endDate: e.target.value})}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="apiKey">Clé API (optionnel)</Label>
-              <Input
-                id="apiKey"
-                placeholder="Votre clé API SMILY"
-                value={smilyParams.apiKey || ''}
-                onChange={(e) => setSmilyParams({...smilyParams, apiKey: e.target.value})}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSmilyImportOpen(false)}>Annuler</Button>
-            <Button
-              onClick={handleSmilyImport}
-              disabled={isImporting}
-            >
-              {isImporting ? "Importation..." : "Importer"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
+      {/* SMILY Import Dialog */}
+      <SmilyImportDialog 
+        open={smilyImportOpen}
+        onOpenChange={setSmilyImportOpen}
+        onImportSuccess={handleSmilyImportSuccess}
+      />
+      
       {/* Dialog for Platform Import */}
       <Dialog open={platformImportOpen} onOpenChange={setPlatformImportOpen}>
         <DialogContent className="sm:max-w-md">
