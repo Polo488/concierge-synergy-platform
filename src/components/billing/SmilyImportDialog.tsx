@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Calendar as CalendarIcon, ArrowRightIcon, Loader2, AlertTriangle, XCircle } from 'lucide-react';
@@ -46,13 +45,35 @@ export function SmilyImportDialog({
   const [showSummary, setShowSummary] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<string[]>([]);
+  const [initialAuthCheck, setInitialAuthCheck] = useState(false);
   
   const { 
     startImport, 
     importQuery,
     isAuthenticated,
-    setIsConfiguring 
+    setIsConfiguring,
+    autoAuthenticateMutation
   } = useBookingSync();
+  
+  // When dialog opens, check authentication status
+  useEffect(() => {
+    if (open && !initialAuthCheck) {
+      const checkAuth = async () => {
+        try {
+          console.log('Checking auth status on dialog open:', isAuthenticated);
+          if (!isAuthenticated) {
+            console.log('Not authenticated, attempting auto-authentication');
+            await autoAuthenticateMutation.mutateAsync();
+          }
+          setInitialAuthCheck(true);
+        } catch (error) {
+          console.error('Auth check failed:', error);
+        }
+      };
+      
+      checkAuth();
+    }
+  }, [open, isAuthenticated, autoAuthenticateMutation, initialAuthCheck]);
   
   const handleImport = async () => {
     // Réinitialiser les erreurs précédentes
@@ -69,58 +90,66 @@ export function SmilyImportDialog({
       return;
     }
     
-    if (!isAuthenticated) {
-      setErrorMessage("Veuillez configurer vos identifiants SMILY avant d'importer des données.");
-      toast({
-        title: "Non authentifié",
-        description: "Veuillez configurer vos identifiants SMILY avant d'importer des données.",
-        variant: "destructive",
-      });
-      setIsConfiguring(true);
-      onOpenChange(false);
-      return;
-    }
-    
     try {
       setShowSummary(false);
-      startImport({ startDate, endDate });
+      console.log('Starting import with dates:', startDate, endDate);
+      
+      // Auto-authenticate if needed before import
+      if (!isAuthenticated) {
+        console.log('Not authenticated, trying auto-authentication before import');
+        const authSuccess = await autoAuthenticateMutation.mutateAsync();
+        if (!authSuccess) {
+          setErrorMessage("Veuillez configurer vos identifiants SMILY avant d'importer des données.");
+          toast({
+            title: "Non authentifié",
+            description: "Veuillez configurer vos identifiants SMILY avant d'importer des données.",
+            variant: "destructive",
+          });
+          setIsConfiguring(true);
+          onOpenChange(false);
+          return;
+        }
+      }
+      
+      // Start the import process
+      const importResult = await startImport({ startDate, endDate });
       
       // On attend que la requête soit terminée
-      await importQuery.refetch();
-      
-      if (importQuery.isError) {
-        const errorMsg = importQuery.error instanceof Error 
-          ? importQuery.error.message 
-          : "Une erreur est survenue lors de l'importation";
-        
-        setErrorMessage(errorMsg);
-        
-        // Récupération des détails d'erreur si disponibles
-        if (importQuery.error instanceof Error && 'details' in importQuery.error) {
-          setErrorDetails((importQuery.error as any).details || []);
-        }
-        
-        toast({
-          title: "Erreur lors de l'import",
-          description: errorMsg,
-          variant: "destructive",
-        });
-      } else if (importQuery.isSuccess && importQuery.data) {
-        // Réinitialiser les erreurs en cas de succès
-        setErrorMessage(null);
-        setErrorDetails([]);
-        
-        toast({
-          title: "Import réussi",
-          description: "Les données ont été importées avec succès depuis SMILY.",
-        });
-        
-        // Set the imported data so we can display it
-        setImportedData(importQuery.data);
-        setShowSummary(true);
-        
-        if (onImportSuccess) {
-          onImportSuccess(importQuery.data);
+      if (importResult && importQuery.data) {
+        if (importQuery.isError) {
+          const errorMsg = importQuery.error instanceof Error 
+            ? importQuery.error.message 
+            : "Une erreur est survenue lors de l'importation";
+          
+          setErrorMessage(errorMsg);
+          
+          // Récupération des détails d'erreur si disponibles
+          if (importQuery.error instanceof Error && 'details' in importQuery.error) {
+            setErrorDetails((importQuery.error as any).details || []);
+          }
+          
+          toast({
+            title: "Erreur lors de l'import",
+            description: errorMsg,
+            variant: "destructive",
+          });
+        } else if (importQuery.isSuccess && importQuery.data) {
+          // Réinitialiser les erreurs en cas de succès
+          setErrorMessage(null);
+          setErrorDetails([]);
+          
+          toast({
+            title: "Import réussi",
+            description: "Les données ont été importées avec succès depuis SMILY.",
+          });
+          
+          // Set the imported data so we can display it
+          setImportedData(importQuery.data);
+          setShowSummary(true);
+          
+          if (onImportSuccess) {
+            onImportSuccess(importQuery.data);
+          }
         }
       }
     } catch (error) {

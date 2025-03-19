@@ -23,11 +23,24 @@ export function useBookingSync() {
   const [apiResponse, setApiResponse] = useState<any>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   
-  // Set default credentials if none exist
+  // Set default credentials if none exist and attempt to authenticate
   useEffect(() => {
-    if (!bookingSyncService.getCredentials()) {
-      bookingSyncService.setCredentials(DEFAULT_CREDENTIALS);
-    }
+    const initAuth = async () => {
+      if (!bookingSyncService.getCredentials()) {
+        bookingSyncService.setCredentials(DEFAULT_CREDENTIALS);
+      }
+      
+      // If we have credentials but aren't authenticated, try to authenticate
+      if (bookingSyncService.getCredentials() && !bookingSyncService.isAuthenticated()) {
+        try {
+          await bookingSyncService.authenticate();
+        } catch (err) {
+          console.error('Initial authentication failed:', err);
+        }
+      }
+    };
+    
+    initAuth();
   }, []);
   
   // État pour suivre les paramètres d'importation
@@ -110,35 +123,6 @@ export function useBookingSync() {
     enabled: false, // Ne s'exécute pas automatiquement
   });
   
-  // Fonction pour démarrer l'importation
-  const startImport = (params?: { startDate?: Date; endDate?: Date }) => {
-    if (params) {
-      setImportParams(params);
-    }
-    
-    if (!bookingSyncService.isAuthenticated()) {
-      toast({
-        title: "Non authentifié",
-        description: "Veuillez configurer vos identifiants SMILY avant d'importer des données.",
-        variant: "destructive",
-      });
-      setIsConfiguring(true);
-      return;
-    }
-    
-    importQuery.refetch();
-  };
-
-  // Auto-authenticate avec les identifiants par défaut si disponibles
-  const autoAuthenticateMutation = useMutation({
-    mutationFn: () => {
-      if (bookingSyncService.getCredentials() && !bookingSyncService.isAuthenticated()) {
-        return bookingSyncService.authenticate();
-      }
-      return Promise.resolve(false);
-    }
-  });
-
   // Helper function to add API parameters
   const addApiParam = (key: string, value: string) => {
     setApiParams(prev => ({
@@ -169,6 +153,54 @@ export function useBookingSync() {
     }
     
     apiRequestMutation.mutate();
+  };
+
+  // Auto-authenticate avec les identifiants par défaut
+  const autoAuthenticateMutation = useMutation({
+    mutationFn: async () => {
+      if (bookingSyncService.getCredentials() && !bookingSyncService.isAuthenticated()) {
+        console.log('Auto-authenticating with BookingSync...');
+        return await bookingSyncService.authenticate();
+      }
+      return Promise.resolve(bookingSyncService.isAuthenticated());
+    }
+  });
+
+  // Modified startImport function to handle authentication automatically
+  const startImport = async (params?: { startDate?: Date; endDate?: Date }) => {
+    if (params) {
+      setImportParams(params);
+    }
+    
+    // If not authenticated, try to auto-authenticate with default credentials
+    if (!bookingSyncService.isAuthenticated()) {
+      console.log('Not authenticated, attempting to authenticate with default credentials');
+      try {
+        const success = await autoAuthenticateMutation.mutateAsync();
+        if (!success) {
+          toast({
+            title: "Non authentifié",
+            description: "Veuillez configurer vos identifiants SMILY avant d'importer des données.",
+            variant: "destructive",
+          });
+          setIsConfiguring(true);
+          return false;
+        }
+      } catch (error) {
+        console.error('Auto authentication failed:', error);
+        toast({
+          title: "Erreur d'authentification",
+          description: "Impossible de se connecter automatiquement à SMILY.",
+          variant: "destructive",
+        });
+        setIsConfiguring(true);
+        return false;
+      }
+    }
+    
+    // Now we should be authenticated, proceed with the import
+    console.log('Starting import with authenticated client');
+    return importQuery.refetch();
   };
 
   return {

@@ -60,7 +60,8 @@ class BookingSyncService {
   async authenticate(): Promise<boolean> {
     // Vérifier que les identifiants sont disponibles
     if (!this.credentials) {
-      throw new Error('No credentials provided for BookingSync authentication');
+      console.error('No credentials provided for BookingSync authentication');
+      return false;
     }
 
     console.log('Authenticating with BookingSync using credentials:', this.credentials.clientId);
@@ -68,7 +69,7 @@ class BookingSyncService {
     try {
       // En production, cela ferait un vrai appel OAuth
       // Pour le développement, nous simulons une réponse positive
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Simulate access token generation for development
       this.accessToken = `dev_${this.credentials.clientId}_token_${Date.now()}`;
@@ -84,22 +85,7 @@ class BookingSyncService {
       // Store updated credentials
       localStorage.setItem('bookingSyncCredentials', JSON.stringify(this.credentials));
       
-      // Essayons de faire un appel API simple pour vérifier les identifiants
-      try {
-        const testResponse = await this.testApiConnection();
-        if (!testResponse) {
-          throw new Error('API test connection failed');
-        }
-      } catch (error) {
-        console.error('API test connection error:', error);
-        // Dans un environnement de dev, on continue quand même
-        if (!import.meta.env.DEV) {
-          this.authenticated = false;
-          return false;
-        }
-      }
-      
-      console.log('Authentication successful');
+      console.log('Authentication successful, token:', this.accessToken);
       return true;
     } catch (error) {
       console.error('Authentication error:', error);
@@ -428,8 +414,18 @@ class BookingSyncService {
 
   // Importer toutes les données en une fois
   async importAll(params?: { startDate?: Date; endDate?: Date }): Promise<BookingSyncImportResult> {
+    console.log('Starting importAll, authenticated:', this.isAuthenticated());
+    
     if (!this.isAuthenticated()) {
-      await this.authenticate();
+      try {
+        const authSuccess = await this.authenticate();
+        if (!authSuccess) {
+          throw new Error('Authentication failed before import');
+        }
+      } catch (error) {
+        console.error('Authentication error during import:', error);
+        throw new Error('Failed to authenticate before import');
+      }
     }
 
     try {
