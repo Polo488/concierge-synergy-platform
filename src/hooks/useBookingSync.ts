@@ -17,6 +17,7 @@ const DEFAULT_CREDENTIALS: BookingSyncCredentials = {
 
 export function useBookingSync() {
   const [isConfiguring, setIsConfiguring] = useState(false);
+  const [apiResponseData, setApiResponseData] = useState<any>(null);
   
   // Set default credentials if none exist
   useEffect(() => {
@@ -97,6 +98,37 @@ export function useBookingSync() {
       return Promise.resolve(false);
     }
   });
+  
+  // Function to execute direct API call
+  const executeApiCall = async (endpoint: string = '/rentals', params: Record<string, string> = {}) => {
+    if (!bookingSyncService.isAuthenticated()) {
+      toast({
+        title: "Non authentifié",
+        description: "Veuillez configurer vos identifiants SMILY avant d'exécuter des requêtes API.",
+        variant: "destructive",
+      });
+      setIsConfiguring(true);
+      return null;
+    }
+    
+    try {
+      // Build the query string from params
+      const queryString = new URLSearchParams(params).toString();
+      const url = `${endpoint}${queryString ? `?${queryString}` : ''}`;
+      
+      const response = await bookingSyncService.executeApiRequest(url);
+      setApiResponseData(response);
+      return response;
+    } catch (error) {
+      console.error('API call error:', error);
+      toast({
+        title: "Erreur API",
+        description: error instanceof Error ? error.message : "Une erreur s'est produite lors de l'exécution de la requête API",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
 
   return {
     // States
@@ -104,6 +136,7 @@ export function useBookingSync() {
     setIsConfiguring,
     isAuthenticated: bookingSyncService.isAuthenticated(),
     credentials: bookingSyncService.getCredentials(),
+    apiResponseData,
     
     // Configuration
     configMutation,
@@ -114,6 +147,9 @@ export function useBookingSync() {
     startImport,
     importParams,
     setImportParams,
+    
+    // API
+    executeApiCall,
     
     // Imported data
     importedData: importQuery.data,

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { 
   Receipt, Download, Filter, PlusCircle, 
@@ -26,6 +25,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useBookingSync } from '@/hooks/useBookingSync';
+import { SmilyConfigDialog } from '@/components/billing/SmilyConfigDialog';
+import { SmilyImportDialog } from '@/components/billing/SmilyImportDialog';
 
 // Mock data
 const invoicesData = [
@@ -361,6 +362,10 @@ const Billing = () => {
   const [isImporting, setIsImporting] = useState(false);
   const [apiResponse, setApiResponse] = useState<string>('');
 
+  // State for API testing
+  const [apiEndpoint, setApiEndpoint] = useState('/rentals');
+  const [apiParams, setApiParams] = useState('');
+
   // Use the BookingSync hook
   const bookingSync = useBookingSync();
   
@@ -460,7 +465,7 @@ const Billing = () => {
     }
   };
 
-  // New function to execute the direct API call
+  // Function to execute the direct API call
   const executeApiCall = async () => {
     if (!bookingSync.isAuthenticated) {
       toast.error("Veuillez vous authentifier d'abord");
@@ -469,22 +474,29 @@ const Billing = () => {
     }
 
     try {
-      // Make a direct fetch to the BookingSync API
-      const response = await fetch("https://www.bookingsync.com/api/v3/rentals?page=1", {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${bookingSync.credentials?.clientId}`,
-          'Content-Type': 'application/vnd.api+json',
-          'Accept': 'application/vnd.api+json'
+      // Parse API parameters
+      const paramsObject: Record<string, string> = {};
+      if (apiParams.trim()) {
+        const paramPairs = apiParams.split('&');
+        for (const pair of paramPairs) {
+          const [key, value] = pair.split('=');
+          if (key && value) {
+            paramsObject[key.trim()] = value.trim();
+          }
         }
-      });
-
-      const data = await response.json();
-      setApiResponse(JSON.stringify(data, null, 2));
-      toast.success("Requête exécutée avec succès");
+      }
+      
+      // Execute the API call using our enhanced service
+      const result = await bookingSync.executeApiCall(apiEndpoint, paramsObject);
+      
+      if (result) {
+        setApiResponse(JSON.stringify(result, null, 2));
+        toast.success("Requête exécutée avec succès");
+      }
     } catch (error) {
       console.error('API call error:', error);
       toast.error("Erreur lors de l'exécution de la requête API");
+      setApiResponse(error instanceof Error ? `Error: ${error.message}` : 'Unknown error occurred');
     }
   };
   
@@ -794,94 +806,3 @@ const Billing = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Période</TableHead>
-                  <TableHead>Réservations</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell>15/11/2023</TableCell>
-                  <TableCell>SMILY</TableCell>
-                  <TableCell>01/11/2023 - 30/11/2023</TableCell>
-                  <TableCell>124</TableCell>
-                  <TableCell>
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200 rounded-full">Succès</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm">Voir détails</Button>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>10/11/2023</TableCell>
-                  <TableCell>Airbnb</TableCell>
-                  <TableCell>01/10/2023 - 31/10/2023</TableCell>
-                  <TableCell>87</TableCell>
-                  <TableCell>
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200 rounded-full">Succès</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm">Voir détails</Button>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>05/11/2023</TableCell>
-                  <TableCell>Booking</TableCell>
-                  <TableCell>01/10/2023 - 31/10/2023</TableCell>
-                  <TableCell>52</TableCell>
-                  <TableCell>
-                    <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 rounded-full">Partiel</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm">Voir détails</Button>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </DashboardCard>
-        </TabsContent>
-        
-        {/* API Test Tab Content */}
-        <TabsContent value="api" className="space-y-6">
-          <DashboardCard title="Test API BookingSync">
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Cette section permet de tester la connexion à l'API BookingSync et d'exécuter des requêtes de test.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button 
-                  onClick={() => bookingSync.setIsConfiguring(true)}
-                  variant="outline"
-                >
-                  Configurer l'accès API
-                </Button>
-                <Button 
-                  onClick={executeApiCall}
-                  disabled={!bookingSync.isAuthenticated}
-                >
-                  Exécuter https://www.bookingsync.com/api/v3/rentals?page=1
-                </Button>
-              </div>
-              
-              {apiResponse && (
-                <div className="mt-4">
-                  <h3 className="font-medium mb-2">Réponse API:</h3>
-                  <div className="bg-black rounded-md p-4 overflow-auto max-h-96">
-                    <pre className="text-green-400 text-xs">
-                      {apiResponse}
-                    </pre>
-                  </div>
-                </div>
-              )}
-            </div>
-          </DashboardCard>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-};
-
-export default Billing;
