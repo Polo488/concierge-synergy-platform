@@ -22,7 +22,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { BookingSyncCredentials } from '@/types/bookingSync';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 const formSchema = z.object({
   clientId: z.string().min(1, "L'ID client est requis"),
@@ -52,8 +51,6 @@ export function SmilyConfigDialog({
   initialData,
   isLoading = false,
 }: SmilyConfigDialogProps) {
-  const { t } = useLanguage();
-  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -79,9 +76,9 @@ export function SmilyConfigDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{t('booking.config.title')}</DialogTitle>
+          <DialogTitle>Configuration de SMILY (BookingSync)</DialogTitle>
           <DialogDescription>
-            {t('booking.config.description')}
+            Les identifiants d'API BookingSync sont pré-remplis. Vous pouvez les utiliser directement ou les modifier selon vos besoins.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -91,7 +88,7 @@ export function SmilyConfigDialog({
               name="clientId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('booking.client.id')}</FormLabel>
+                  <FormLabel>ID Client</FormLabel>
                   <FormControl>
                     <Input placeholder="Votre ID client BookingSync" {...field} />
                   </FormControl>
@@ -104,7 +101,7 @@ export function SmilyConfigDialog({
               name="clientSecret"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('booking.client.secret')}</FormLabel>
+                  <FormLabel>Secret Client</FormLabel>
                   <FormControl>
                     <Input 
                       type="password" 
@@ -121,7 +118,7 @@ export function SmilyConfigDialog({
               name="redirectUri"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('booking.redirect.uri')}</FormLabel>
+                  <FormLabel>URI de Redirection</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="https://votre-app.com/callback" 
@@ -139,10 +136,10 @@ export function SmilyConfigDialog({
                 onClick={() => onOpenChange(false)}
                 disabled={isLoading}
               >
-                {t('booking.cancel')}
+                Annuler
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? t('booking.configuring') : t('booking.configure')}
+                {isLoading ? 'Configuration en cours...' : 'Configurer'}
               </Button>
             </DialogFooter>
           </form>
