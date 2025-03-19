@@ -6,10 +6,24 @@ import {
   BookingSyncCredentials, 
   BookingSyncImportResult 
 } from '@/types/bookingSync';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
+
+// Default credentials for SMILY API
+const DEFAULT_CREDENTIALS: BookingSyncCredentials = {
+  clientId: '62cf3c457d20bf1e7dc5cac0d182f9c6c6b5d3e3d628bb7057defbc4ed53e4da',
+  clientSecret: '30e0c5100953296cacdcdf559aaeb2566322dddf2ec5e6608af3be7a67921b36',
+  redirectUri: 'https://bnb-lyon.com/auth/callback'
+};
 
 export function useBookingSync() {
   const [isConfiguring, setIsConfiguring] = useState(false);
+  
+  // Set default credentials if none exist
+  useState(() => {
+    if (!bookingSyncService.getCredentials()) {
+      bookingSyncService.setCredentials(DEFAULT_CREDENTIALS);
+    }
+  });
   
   // État pour suivre les paramètres d'importation
   const [importParams, setImportParams] = useState<{
@@ -74,6 +88,16 @@ export function useBookingSync() {
     importQuery.refetch();
   };
 
+  // Auto-authenticate avec les identifiants par défaut si disponibles
+  const autoAuthenticateMutation = useMutation({
+    mutationFn: () => {
+      if (bookingSyncService.getCredentials() && !bookingSyncService.isAuthenticated()) {
+        return bookingSyncService.authenticate();
+      }
+      return Promise.resolve(false);
+    }
+  });
+
   return {
     // États
     isConfiguring,
@@ -83,6 +107,7 @@ export function useBookingSync() {
     
     // Configuration
     configMutation,
+    autoAuthenticateMutation,
     
     // Importation
     importQuery,

@@ -29,6 +29,13 @@ const formSchema = z.object({
   redirectUri: z.string().url("L'URI de redirection doit être une URL valide"),
 });
 
+// Default SMILY API credentials
+const DEFAULT_CREDENTIALS = {
+  clientId: '62cf3c457d20bf1e7dc5cac0d182f9c6c6b5d3e3d628bb7057defbc4ed53e4da',
+  clientSecret: '30e0c5100953296cacdcdf559aaeb2566322dddf2ec5e6608af3be7a67921b36',
+  redirectUri: 'https://bnb-lyon.com/auth/callback',
+};
+
 interface SmilyConfigDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -47,9 +54,9 @@ export function SmilyConfigDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      clientId: initialData?.clientId || '',
-      clientSecret: initialData?.clientSecret || '',
-      redirectUri: initialData?.redirectUri || 'https://bnb-lyon.com/auth/callback',
+      clientId: initialData?.clientId || DEFAULT_CREDENTIALS.clientId,
+      clientSecret: initialData?.clientSecret || DEFAULT_CREDENTIALS.clientSecret,
+      redirectUri: initialData?.redirectUri || DEFAULT_CREDENTIALS.redirectUri,
     },
   });
 
@@ -71,7 +78,7 @@ export function SmilyConfigDialog({
         <DialogHeader>
           <DialogTitle>Configuration de SMILY (BookingSync)</DialogTitle>
           <DialogDescription>
-            Entrez vos identifiants d'API BookingSync pour connecter SMILY à votre compte.
+            Les identifiants d'API BookingSync sont pré-remplis. Vous pouvez les utiliser directement ou les modifier selon vos besoins.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

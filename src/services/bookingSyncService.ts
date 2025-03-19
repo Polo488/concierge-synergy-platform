@@ -1,4 +1,3 @@
-
 import { 
   BookingSyncCredentials,
   BookingSyncRental,
@@ -12,54 +11,102 @@ const API_BASE_URL = 'https://www.bookingsync.com/api/v3';
 
 class BookingSyncService {
   private credentials: BookingSyncCredentials | null = null;
+  private authenticated: boolean = false;
 
   setCredentials(credentials: BookingSyncCredentials) {
     this.credentials = credentials;
-    // Dans une implémentation réelle, nous stockerions cela dans localStorage ou un autre stockage sécurisé
+    // Dans une implémentation réelle, nous stockerions cela dans localStorage
+    localStorage.setItem('bookingSyncCredentials', JSON.stringify(credentials));
     console.log('Credentials set:', credentials);
   }
 
   getCredentials(): BookingSyncCredentials | null {
+    // Tenter de récupérer les identifiants de localStorage s'ils n'existent pas en mémoire
+    if (!this.credentials) {
+      const storedCredentials = localStorage.getItem('bookingSyncCredentials');
+      if (storedCredentials) {
+        try {
+          this.credentials = JSON.parse(storedCredentials);
+        } catch (e) {
+          console.error('Failed to parse stored credentials:', e);
+        }
+      }
+    }
     return this.credentials;
   }
 
   isAuthenticated(): boolean {
-    if (!this.credentials?.accessToken) return false;
-    
-    // Vérifier si le token est expiré
-    if (this.credentials.expiresAt && this.credentials.expiresAt < Date.now()) {
-      return false;
-    }
-    
-    return true;
+    return this.authenticated;
   }
 
   // Dans une vraie implémentation, cette méthode ouvrirait une fenêtre pour l'authentification OAuth
   async authenticate(): Promise<boolean> {
-    // Simulation pour le développement
-    console.log('Authenticating with BookingSync...');
-    
-    // Simuler un délai de réseau
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Définir un accessToken fictif pour le développement
-    if (this.credentials) {
-      this.credentials.accessToken = 'simulated_access_token';
-      this.credentials.refreshToken = 'simulated_refresh_token';
-      this.credentials.expiresAt = Date.now() + 3600 * 1000; // expire dans 1 heure
-      return true;
+    // Vérifier que les identifiants sont disponibles
+    if (!this.credentials) {
+      throw new Error('No credentials provided for BookingSync authentication');
     }
+
+    console.log('Authenticating with BookingSync using credentials:', this.credentials.clientId);
     
-    return false;
+    try {
+      // En production, cela ferait un vrai appel OAuth
+      // Pour le développement, nous simulons une réponse positive
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      this.authenticated = true;
+      
+      // Essayons de faire un appel API simple pour vérifier les identifiants
+      try {
+        const testResponse = await this.testApiConnection();
+        if (!testResponse) {
+          throw new Error('API test connection failed');
+        }
+      } catch (error) {
+        console.error('API test connection error:', error);
+        // Dans un environnement de dev, on continue quand même
+        if (!import.meta.env.DEV) {
+          this.authenticated = false;
+          return false;
+        }
+      }
+      
+      console.log('Authentication successful');
+      return true;
+    } catch (error) {
+      console.error('Authentication error:', error);
+      this.authenticated = false;
+      return false;
+    }
+  }
+
+  // Méthode pour tester la connexion API
+  private async testApiConnection(): Promise<boolean> {
+    try {
+      // Dans un environnement de dev, on simule une réponse positive
+      if (import.meta.env.DEV) {
+        console.log('DEV: Simulating API test connection');
+        return true;
+      }
+      
+      // Dans un environnement de production, on fait un vrai appel API
+      const response = await this.fetchWithAuth('/rentals?per_page=1');
+      return response.ok;
+    } catch (error) {
+      console.error('API test connection error:', error);
+      return false;
+    }
   }
 
   private async fetchWithAuth(endpoint: string, options: RequestInit = {}): Promise<Response> {
-    if (!this.isAuthenticated()) {
-      throw new Error('Not authenticated with BookingSync');
+    if (!this.credentials) {
+      throw new Error('No credentials available for BookingSync API');
     }
 
     const headers = new Headers(options.headers);
-    headers.set('Authorization', `Bearer ${this.credentials?.accessToken}`);
+    
+    // En production, nous utiliserions le vrai token d'accès
+    // Pour le développement, nous simulons avec l'ID client
+    headers.set('Authorization', `Bearer ${this.credentials.clientId}`);
     headers.set('Content-Type', 'application/vnd.api+json');
     headers.set('Accept', 'application/vnd.api+json');
 
@@ -300,6 +347,10 @@ class BookingSyncService {
 
   // Importer toutes les données en une fois
   async importAll(params?: { startDate?: Date; endDate?: Date }): Promise<BookingSyncImportResult> {
+    if (!this.isAuthenticated()) {
+      await this.authenticate();
+    }
+
     try {
       console.log('Importing all data from BookingSync...');
       
