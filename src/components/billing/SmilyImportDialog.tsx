@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Calendar as CalendarIcon, ArrowRightIcon, Loader2 } from 'lucide-react';
+import { Calendar as CalendarIcon, ArrowRightIcon, Loader2, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +23,7 @@ import { useBookingSync } from '@/hooks/useBookingSync';
 import { toast } from '@/hooks/use-toast';
 import { ImportedDataSummary } from '@/components/billing/ImportedDataSummary';
 import { BookingSyncImportResult } from '@/types/bookingSync';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 interface SmilyImportDialogProps {
   open: boolean;
@@ -42,6 +44,7 @@ export function SmilyImportDialog({
   const [endCalendarOpen, setEndCalendarOpen] = useState(false);
   const [importedData, setImportedData] = useState<BookingSyncImportResult | null>(null);
   const [showSummary, setShowSummary] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   const { 
     startImport, 
@@ -51,7 +54,11 @@ export function SmilyImportDialog({
   } = useBookingSync();
   
   const handleImport = async () => {
+    // Réinitialiser les erreurs précédentes
+    setErrorMessage(null);
+    
     if (!startDate || !endDate) {
+      setErrorMessage("Veuillez sélectionner une date de début et de fin.");
       toast({
         title: "Dates manquantes",
         description: "Veuillez sélectionner une date de début et de fin.",
@@ -61,6 +68,7 @@ export function SmilyImportDialog({
     }
     
     if (!isAuthenticated) {
+      setErrorMessage("Veuillez configurer vos identifiants SMILY avant d'importer des données.");
       toast({
         title: "Non authentifié",
         description: "Veuillez configurer vos identifiants SMILY avant d'importer des données.",
@@ -79,12 +87,21 @@ export function SmilyImportDialog({
       await importQuery.refetch();
       
       if (importQuery.isError) {
+        const errorMsg = importQuery.error instanceof Error 
+          ? importQuery.error.message 
+          : "Une erreur est survenue lors de l'importation";
+        
+        setErrorMessage(errorMsg);
+        
         toast({
           title: "Erreur lors de l'import",
-          description: importQuery.error instanceof Error ? importQuery.error.message : "Une erreur est survenue",
+          description: errorMsg,
           variant: "destructive",
         });
       } else if (importQuery.isSuccess && importQuery.data) {
+        // Réinitialiser les erreurs en cas de succès
+        setErrorMessage(null);
+        
         toast({
           title: "Import réussi",
           description: "Les données ont été importées avec succès depuis SMILY.",
@@ -100,9 +117,15 @@ export function SmilyImportDialog({
       }
     } catch (error) {
       console.error("Import error:", error);
+      const errorMsg = error instanceof Error 
+        ? error.message 
+        : "Une erreur inconnue est survenue lors de l'importation";
+      
+      setErrorMessage(errorMsg);
+      
       toast({
         title: "Erreur lors de l'import",
-        description: error instanceof Error ? error.message : "Une erreur est survenue",
+        description: errorMsg,
         variant: "destructive",
       });
     }
@@ -111,6 +134,7 @@ export function SmilyImportDialog({
   const handleCloseDialog = () => {
     // When closing the dialog, reset the display state but keep the imported data
     setShowSummary(false);
+    setErrorMessage(null);
     onOpenChange(false);
   };
 
@@ -130,6 +154,14 @@ export function SmilyImportDialog({
         {!showSummary ? (
           <>
             <div className="py-6 space-y-4">
+              {errorMessage && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Erreur</AlertTitle>
+                  <AlertDescription>{errorMessage}</AlertDescription>
+                </Alert>
+              )}
+              
               <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-2">
                 <div className="flex flex-col space-y-2">
                   <label htmlFor="startDate" className="text-sm font-medium">
