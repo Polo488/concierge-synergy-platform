@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { 
   Receipt, Download, Filter, PlusCircle, 
@@ -804,4 +805,83 @@ const Billing = () => {
                 <TableRow>
                   <TableCell>15/11/2023</TableCell>
                   <TableCell>SMILY</TableCell>
-                  <TableCell>01/11/2023 - 3
+                  <TableCell>01/11/2023 - 30/11/2023</TableCell>
+                  <TableCell>124</TableCell>
+                  <TableCell>
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200 rounded-full">Succès</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="outline" size="sm">Voir détails</Button>
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>10/11/2023</TableCell>
+                  <TableCell>Airbnb</TableCell>
+                  <TableCell>01/10/2023 - 31/10/2023</TableCell>
+                  <TableCell>87</TableCell>
+                  <TableCell>
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200 rounded-full">Succès</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="outline" size="sm">Voir détails</Button>
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>05/11/2023</TableCell>
+                  <TableCell>Booking</TableCell>
+                  <TableCell>01/10/2023 - 31/10/2023</TableCell>
+                  <TableCell>52</TableCell>
+                  <TableCell>
+                    <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 rounded-full">Partiel</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="outline" size="sm">Voir détails</Button>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </DashboardCard>
+        </TabsContent>
+        
+        {/* API Test Tab Content */}
+        <TabsContent value="api" className="space-y-6">
+          <DashboardCard title="Test API BookingSync">
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Cette section permet de tester la connexion à l'API BookingSync et d'exécuter des requêtes de test.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  onClick={() => bookingSync.setIsConfiguring(true)}
+                  variant="outline"
+                >
+                  Configurer l'accès API
+                </Button>
+                <Button 
+                  onClick={executeApiCall}
+                  disabled={!bookingSync.isAuthenticated}
+                >
+                  Exécuter https://www.bookingsync.com/api/v3/rentals?page=1
+                </Button>
+              </div>
+              
+              {apiResponse && (
+                <div className="mt-4">
+                  <h3 className="font-medium mb-2">Réponse API:</h3>
+                  <div className="bg-black rounded-md p-4 overflow-auto max-h-96">
+                    <pre className="text-green-400 text-xs">
+                      {apiResponse}
+                    </pre>
+                  </div>
+                </div>
+              )}
+            </div>
+          </DashboardCard>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default Billing;
