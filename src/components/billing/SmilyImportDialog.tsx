@@ -19,19 +19,19 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { useBookingSync } from '@/hooks/useBookingSync';
+import { toast } from '@/hooks/use-toast';
 
 interface SmilyImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onImport: (params: { startDate?: Date; endDate?: Date }) => void;
-  isLoading?: boolean;
+  onImportSuccess?: (result: any) => void;
 }
 
 export function SmilyImportDialog({
   open,
   onOpenChange,
-  onImport,
-  isLoading = false,
+  onImportSuccess,
 }: SmilyImportDialogProps) {
   const [startDate, setStartDate] = useState<Date | undefined>(
     new Date(new Date().setMonth(new Date().getMonth() - 3))
@@ -39,9 +39,67 @@ export function SmilyImportDialog({
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [startCalendarOpen, setStartCalendarOpen] = useState(false);
   const [endCalendarOpen, setEndCalendarOpen] = useState(false);
-
-  const handleImport = () => {
-    onImport({ startDate, endDate });
+  
+  const { 
+    startImport, 
+    importQuery,
+    isAuthenticated,
+    setIsConfiguring 
+  } = useBookingSync();
+  
+  const handleImport = async () => {
+    if (!startDate || !endDate) {
+      toast({
+        title: "Dates manquantes",
+        description: "Veuillez sélectionner une date de début et de fin.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!isAuthenticated) {
+      toast({
+        title: "Non authentifié",
+        description: "Veuillez configurer vos identifiants SMILY avant d'importer des données.",
+        variant: "destructive",
+      });
+      setIsConfiguring(true);
+      onOpenChange(false);
+      return;
+    }
+    
+    try {
+      startImport({ startDate, endDate });
+      
+      // On attend que la requête soit terminée
+      await importQuery.refetch();
+      
+      if (importQuery.isError) {
+        toast({
+          title: "Erreur lors de l'import",
+          description: importQuery.error instanceof Error ? importQuery.error.message : "Une erreur est survenue",
+          variant: "destructive",
+        });
+      } else if (importQuery.isSuccess) {
+        toast({
+          title: "Import réussi",
+          description: "Les données ont été importées avec succès depuis SMILY.",
+        });
+        
+        if (onImportSuccess && importQuery.data) {
+          onImportSuccess(importQuery.data);
+        }
+        
+        onOpenChange(false);
+      }
+    } catch (error) {
+      console.error("Import error:", error);
+      toast({
+        title: "Erreur lors de l'import",
+        description: error instanceof Error ? error.message : "Une erreur est survenue",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -149,15 +207,15 @@ export function SmilyImportDialog({
             type="button" 
             variant="outline" 
             onClick={() => onOpenChange(false)}
-            disabled={isLoading}
+            disabled={importQuery.isLoading}
           >
             Annuler
           </Button>
           <Button 
             onClick={handleImport} 
-            disabled={isLoading || !startDate || !endDate}
+            disabled={importQuery.isLoading || !startDate || !endDate}
           >
-            {isLoading ? (
+            {importQuery.isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Importation en cours...
