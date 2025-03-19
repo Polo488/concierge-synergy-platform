@@ -800,4 +800,4 @@ const Billing = () => {
                     {bookingSync.importQuery.data ? (
                       <TableRow>
                         <TableCell>{new Date().toLocaleDateString()}</TableCell>
-                        <TableCell>SMILY</TableCell>
+                        <TableCell>SMILY
