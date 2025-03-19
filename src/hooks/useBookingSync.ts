@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { bookingSyncService } from '@/services/bookingSyncService';
 import { 
@@ -19,19 +19,19 @@ export function useBookingSync() {
   const [isConfiguring, setIsConfiguring] = useState(false);
   
   // Set default credentials if none exist
-  useState(() => {
+  useEffect(() => {
     if (!bookingSyncService.getCredentials()) {
       bookingSyncService.setCredentials(DEFAULT_CREDENTIALS);
     }
-  });
+  }, []);
   
-  // État pour suivre les paramètres d'importation
+  // State for tracking import parameters
   const [importParams, setImportParams] = useState<{
     startDate?: Date;
     endDate?: Date;
   }>({});
   
-  // Mutation pour configurer les identifiants
+  // Mutation for configuring credentials
   const configMutation = useMutation({
     mutationFn: (credentials: BookingSyncCredentials) => {
       bookingSyncService.setCredentials(credentials);
@@ -62,14 +62,14 @@ export function useBookingSync() {
     }
   });
 
-  // Query pour importer les données
+  // Query for importing data
   const importQuery = useQuery({
     queryKey: ['bookingSync', 'import', importParams],
     queryFn: () => bookingSyncService.importAll(importParams),
-    enabled: false, // Ne s'exécute pas automatiquement
+    enabled: false, // Does not run automatically
   });
   
-  // Fonction pour démarrer l'importation
+  // Function to start import
   const startImport = (params?: { startDate?: Date; endDate?: Date }) => {
     if (params) {
       setImportParams(params);
@@ -88,7 +88,7 @@ export function useBookingSync() {
     importQuery.refetch();
   };
 
-  // Auto-authenticate avec les identifiants par défaut si disponibles
+  // Auto-authenticate with default credentials if available
   const autoAuthenticateMutation = useMutation({
     mutationFn: () => {
       if (bookingSyncService.getCredentials() && !bookingSyncService.isAuthenticated()) {
@@ -99,7 +99,7 @@ export function useBookingSync() {
   });
 
   return {
-    // États
+    // States
     isConfiguring,
     setIsConfiguring,
     isAuthenticated: bookingSyncService.isAuthenticated(),
@@ -109,13 +109,13 @@ export function useBookingSync() {
     configMutation,
     autoAuthenticateMutation,
     
-    // Importation
+    // Import
     importQuery,
     startImport,
     importParams,
     setImportParams,
     
-    // Données importées
+    // Imported data
     importedData: importQuery.data,
   };
 }
