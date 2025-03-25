@@ -13,8 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { format, addDays, isSameDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { CleaningTask, NewCleaningTask } from '@/types/cleaning';
-import { getNextId, generateLabelsPrintWindow } from '@/utils/cleaningUtils';
+import { CleaningTask, CleaningStatus, NewCleaningTask } from '@/types/cleaning';
+import { getNextId, generateLabelsPrintWindow, getStatusBadgeClass, getStatusLabel } from '@/utils/cleaningUtils';
 
 // Component imports
 import { CleaningTaskList } from '@/components/cleaning/CleaningTaskList';
@@ -34,7 +34,7 @@ const cleaningAgents = [
   'Thomas Laurent'
 ];
 
-const getStatusBadge = (status: string) => {
+const getStatusBadge = (status: CleaningStatus) => {
   switch(status) {
     case 'todo':
       return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 rounded-full">À faire</Badge>;
@@ -200,7 +200,7 @@ const Cleaning = () => {
       if (t.id === task.id) {
         return {
           ...t,
-          status: 'inProgress',
+          status: 'inProgress' as CleaningStatus,
           startTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
         };
       }
@@ -209,8 +209,7 @@ const Cleaning = () => {
     
     setTodayCleaningTasks(updatedTasks);
     
-    toast({
-      title: "Ménage commencé",
+    toast("Ménage commencé", {
       description: `Le ménage pour ${task.property} a débuté.`
     });
   };
@@ -220,17 +219,16 @@ const Cleaning = () => {
     setTodayCleaningTasks(updatedTodayTasks);
     
     const now = new Date();
-    const completedTask = {
+    const completedTask: CleaningTask = {
       ...task,
-      status: 'completed',
+      status: 'completed' as CleaningStatus,
       date: now.toISOString().split('T')[0],
       endTime: now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
     };
     
     setCompletedCleaningTasks([completedTask, ...completedCleaningTasks]);
     
-    toast({
-      title: "Ménage terminé",
+    toast("Ménage terminé", {
       description: `Le ménage pour ${task.property} a été complété avec succès.`
     });
   };
@@ -261,8 +259,7 @@ const Cleaning = () => {
 
     setAssignDialogOpen(false);
     
-    toast({
-      title: "Agent assigné",
+    toast("Agent assigné", {
       description: `${selectedAgent} a été assigné au ménage pour ${currentTask.property}.`
     });
   };
@@ -279,8 +276,7 @@ const Cleaning = () => {
   };
 
   const handleReportProblem = () => {
-    toast({
-      title: "Problème signalé",
+    toast("Problème signalé", {
       description: `Un problème a été signalé pour ${currentTask?.property}. L'équipe de support a été notifiée.`,
       variant: "destructive"
     });
@@ -288,15 +284,13 @@ const Cleaning = () => {
   };
 
   const handleExport = () => {
-    toast({
-      title: "Exportation réussie",
+    toast("Exportation réussie", {
       description: "Les données de ménage ont été exportées avec succès."
     });
   };
 
   const handleSync = () => {
-    toast({
-      title: "Synchronisation réussie",
+    toast("Synchronisation réussie", {
       description: "Les données de ménage ont été synchronisées avec succès."
     });
   };
@@ -314,8 +308,7 @@ const Cleaning = () => {
       } else if (isSameDay(date, addDays(new Date(), 1))) {
         setActiveTab("tomorrow");
       } else {
-        toast({
-          title: "Date sélectionnée",
+        toast("Date sélectionnée", {
           description: `Vous avez sélectionné le ${format(date, 'dd MMMM yyyy', { locale: fr })}`
         });
       }
@@ -371,7 +364,10 @@ const Cleaning = () => {
       setActiveTab("tomorrow");
     } else {
       // Pour les dates futures, ajouter à "demain" avec statut planifié
-      const scheduledTask = { ...taskToAdd, status: 'scheduled' };
+      const scheduledTask: CleaningTask = { 
+        ...taskToAdd, 
+        status: 'scheduled' 
+      };
       setTomorrowCleaningTasks([...tomorrowCleaningTasks, scheduledTask]);
       setActiveTab("tomorrow");
     }
@@ -392,8 +388,7 @@ const Cleaning = () => {
     
     setAddTaskDialogOpen(false);
     
-    toast({
-      title: "Ménage ajouté",
+    toast("Ménage ajouté", {
       description: `Un nouveau ménage pour ${taskToAdd.property} a été ajouté.`
     });
   };
@@ -418,8 +413,7 @@ const Cleaning = () => {
     
     setDeleteConfirmDialogOpen(false);
     
-    toast({
-      title: "Ménage supprimé",
+    toast("Ménage supprimé", {
       description: `Le ménage pour ${currentTask.property} a été supprimé.`,
       variant: "destructive"
     });
@@ -427,8 +421,7 @@ const Cleaning = () => {
 
   const handlePrintLabels = () => {
     if (selectedTasks.length === 0) {
-      toast({
-        title: "Sélection requise",
+      toast("Sélection requise", {
         description: "Veuillez sélectionner au moins un ménage pour générer des étiquettes.",
         variant: "destructive"
       });
@@ -437,8 +430,7 @@ const Cleaning = () => {
 
     generateLabelsPrintWindow(selectedTasks);
 
-    toast({
-      title: "Étiquettes générées",
+    toast("Étiquettes générées", {
       description: `${selectedTasks.length} étiquette(s) prête(s) à imprimer.`
     });
     
@@ -471,8 +463,7 @@ const Cleaning = () => {
       ));
     }
     
-    toast({
-      title: "Commentaires modifiés",
+    toast("Commentaires modifiés", {
       description: `Les commentaires pour ${currentTask.property} ont été mis à jour.`
     });
     

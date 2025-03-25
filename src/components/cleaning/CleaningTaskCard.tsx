@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp, Eye, Trash2 } from 'lucide-react';
-import { CleaningTask } from '@/types/cleaning';
+import { CleaningTask, CleaningStatus } from '@/types/cleaning';
+import { getStatusLabel, getStatusBadgeClass } from '@/utils/cleaningUtils';
 
 interface CleaningTaskCardProps {
   task: CleaningTask;
@@ -35,7 +36,7 @@ export const CleaningTaskCard = ({
 }: CleaningTaskCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: CleaningStatus) => {
     switch(status) {
       case 'todo':
         return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 rounded-full">À faire</Badge>;
