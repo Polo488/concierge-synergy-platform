@@ -254,14 +254,14 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
                   className="h-8"
                 />
                 <Select
-                  value={selectedCategory || ""}
-                  onValueChange={(val) => setSelectedCategory(val || null)}
+                  value={selectedCategory || "all-categories"}
+                  onValueChange={(val) => setSelectedCategory(val === "all-categories" ? null : val)}
                 >
                   <SelectTrigger className="h-8 w-40">
                     <SelectValue placeholder="Catégorie" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Toutes</SelectItem>
+                    <SelectItem value="all-categories">Toutes</SelectItem>
                     {categories.map(category => (
                       <SelectItem key={category} value={category}>
                         {category}
