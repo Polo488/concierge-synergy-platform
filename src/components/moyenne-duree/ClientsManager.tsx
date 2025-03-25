@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -163,7 +162,7 @@ const ClientsManager: React.FC = () => {
     contactDate: new Date().toISOString().split('T')[0],
     lastContactDate: new Date().toISOString().split('T')[0],
     assignedTo: "",
-    potentialValue: ""
+    potentialValue: null
   });
   const [isEditing, setIsEditing] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
@@ -185,14 +184,32 @@ const ClientsManager: React.FC = () => {
       contactDate: new Date().toISOString().split('T')[0],
       lastContactDate: new Date().toISOString().split('T')[0],
       assignedTo: "",
-      potentialValue: ""
+      potentialValue: null
     });
     setIsEditing(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setClientForm(prev => ({ ...prev, [name]: value }));
+    
+    // Special handling for potentialValue to convert it to a number when appropriate
+    if (name === "potentialValue") {
+      // If empty string, set to null
+      if (value === "") {
+        setClientForm(prev => ({ ...prev, [name]: null }));
+      } else {
+        // Try to convert to number
+        const numberValue = parseFloat(value);
+        if (!isNaN(numberValue)) {
+          setClientForm(prev => ({ ...prev, [name]: value })); // Keep as string in form
+        } else {
+          setClientForm(prev => ({ ...prev, [name]: value }));
+        }
+      }
+    } else {
+      // For other fields, just set the value
+      setClientForm(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSelectChange = (name: string, value: string) => {
