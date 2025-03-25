@@ -212,7 +212,7 @@ const ClientsManager: React.FC = () => {
         client.id === clientForm.id ? { 
           ...client, 
           ...clientForm,
-          // Fix for the TypeScript error - convert string to number for potentialValue if it exists
+          // Fix for the TypeScript error - ensure potentialValue is a number
           potentialValue: clientForm.potentialValue ? Number(clientForm.potentialValue) : undefined
         } as Client : client
       );
@@ -233,7 +233,7 @@ const ClientsManager: React.FC = () => {
         contactDate: clientForm.contactDate!,
         lastContactDate: clientForm.lastContactDate!,
         assignedTo: clientForm.assignedTo,
-        // Convert string to number for potentialValue if it exists
+        // Fix for the TypeScript error - ensure potentialValue is a number 
         potentialValue: clientForm.potentialValue ? Number(clientForm.potentialValue) : undefined
       };
 
