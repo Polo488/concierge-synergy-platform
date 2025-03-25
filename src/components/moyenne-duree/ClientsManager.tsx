@@ -209,7 +209,12 @@ const ClientsManager: React.FC = () => {
     if (isEditing && clientForm.id) {
       // Mettre à jour un client existant
       const updatedClients = clients.map(client => 
-        client.id === clientForm.id ? { ...client, ...clientForm } as Client : client
+        client.id === clientForm.id ? { 
+          ...client, 
+          ...clientForm,
+          // Fix for the TypeScript error - convert string to number for potentialValue if it exists
+          potentialValue: clientForm.potentialValue ? Number(clientForm.potentialValue) : undefined
+        } as Client : client
       );
       setClients(updatedClients);
       toast.success("Client mis à jour avec succès");

@@ -8,16 +8,20 @@ interface DashboardCardProps {
   className?: string;
   actions?: ReactNode;
   footer?: ReactNode;
+  icon?: ReactNode;
 }
 
-export function DashboardCard({ title, children, className, actions, footer }: DashboardCardProps) {
+export function DashboardCard({ title, children, className, actions, footer, icon }: DashboardCardProps) {
   return (
     <div className={cn(
       "glass rounded-xl border border-border/40 overflow-hidden shadow-soft animate-slide-up card-hover",
       className
     )}>
       <div className="flex items-center justify-between p-5 border-b border-border/30">
-        <h3 className="font-medium text-foreground">{title}</h3>
+        <div className="flex items-center gap-2">
+          {icon && <span className="text-muted-foreground">{icon}</span>}
+          <h3 className="font-medium text-foreground">{title}</h3>
+        </div>
         {actions && <div className="flex items-center space-x-2">{actions}</div>}
       </div>
       <div className="p-5">{children}</div>
