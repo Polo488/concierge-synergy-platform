@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   Wrench, PlusCircle, AlertTriangle, Clock, CheckCircle,
   ClipboardList, BadgeAlert, Calendar, Search, User
@@ -12,14 +12,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { MaintenanceTask, NewMaintenanceFormData, UrgencyLevel } from '@/types/maintenance';
+import NewMaintenanceDialog from '@/components/maintenance/NewMaintenanceDialog';
+import TechnicianAssignDialog from '@/components/maintenance/TechnicianAssignDialog';
 
 // Mock data
-const pendingMaintenance = [
+const initialPendingMaintenance = [
   { 
     id: 1, 
     title: 'Fuite robinet salle de bain', 
     property: 'Appartement 12 Rue du Port',
-    urgency: 'high',
+    urgency: 'high' as UrgencyLevel,
     createdAt: '2023-11-20',
     description: 'Fuite importante sous le lavabo de la salle de bain principale',
     materials: ['Joint silicone', 'Clé à molette']
@@ -28,7 +33,7 @@ const pendingMaintenance = [
     id: 2, 
     title: 'Serrure porte d\'entrée bloquée', 
     property: 'Studio 8 Avenue des Fleurs',
-    urgency: 'critical',
+    urgency: 'critical' as UrgencyLevel,
     createdAt: '2023-11-21',
     description: 'Client ne peut pas entrer dans le logement, serrure bloquée',
     materials: ['Lubrifiant', 'Tournevis']
@@ -37,19 +42,19 @@ const pendingMaintenance = [
     id: 3, 
     title: 'Ampoule salon grillée', 
     property: 'Maison 23 Rue de la Paix',
-    urgency: 'low',
+    urgency: 'low' as UrgencyLevel,
     createdAt: '2023-11-22',
     description: 'Remplacer l\'ampoule du plafonnier dans le salon',
     materials: ['Ampoule LED E27']
   },
 ];
 
-const inProgressMaintenance = [
+const initialInProgressMaintenance = [
   { 
     id: 4, 
     title: 'Problème chauffage', 
     property: 'Appartement 45 Boulevard Central',
-    urgency: 'medium',
+    urgency: 'medium' as UrgencyLevel,
     createdAt: '2023-11-19',
     technician: 'Martin Dupont',
     startedAt: '2023-11-20',
@@ -60,7 +65,7 @@ const inProgressMaintenance = [
     id: 5, 
     title: 'Volet roulant bloqué', 
     property: 'Loft 72 Rue des Arts',
-    urgency: 'medium',
+    urgency: 'medium' as UrgencyLevel,
     createdAt: '2023-11-18',
     technician: 'Sophie Moreau',
     startedAt: '2023-11-20',
@@ -69,12 +74,12 @@ const inProgressMaintenance = [
   },
 ];
 
-const completedMaintenance = [
+const initialCompletedMaintenance = [
   { 
     id: 6, 
     title: 'Remplacement chasse d\'eau', 
     property: 'Appartement 12 Rue du Port',
-    urgency: 'high',
+    urgency: 'high' as UrgencyLevel,
     createdAt: '2023-11-15',
     completedAt: '2023-11-16',
     technician: 'Martin Dupont',
@@ -85,7 +90,7 @@ const completedMaintenance = [
     id: 7, 
     title: 'Installation étagère', 
     property: 'Studio 8 Avenue des Fleurs',
-    urgency: 'low',
+    urgency: 'low' as UrgencyLevel,
     createdAt: '2023-11-16',
     completedAt: '2023-11-17',
     technician: 'Sophie Moreau',
@@ -98,6 +103,24 @@ const Maintenance = () => {
   useEffect(() => {
     document.title = 'Maintenance - Concierge Synergy Platform';
   }, []);
+
+  // State for tasks
+  const [pendingTasks, setPendingTasks] = useState<MaintenanceTask[]>(initialPendingMaintenance);
+  const [inProgressTasks, setInProgressTasks] = useState<MaintenanceTask[]>(initialInProgressMaintenance);
+  const [completedTasks, setCompletedTasks] = useState<MaintenanceTask[]>(initialCompletedMaintenance);
+  
+  // State for dialogs
+  const [newMaintenanceOpen, setNewMaintenanceOpen] = useState(false);
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | number | null>(null);
+  
+  // Calculate statistics
+  const stats = {
+    pending: pendingTasks.length,
+    inProgress: inProgressTasks.length,
+    critical: pendingTasks.filter(task => task.urgency === 'critical').length,
+    completedThisMonth: completedTasks.length
+  };
 
   const getUrgencyBadge = (urgency: string) => {
     switch(urgency) {
@@ -114,11 +137,68 @@ const Maintenance = () => {
     }
   };
 
+  // Handle task operations
+  const handleNewMaintenance = (data: NewMaintenanceFormData) => {
+    const newTask: MaintenanceTask = {
+      id: Date.now(), // Generate a unique ID
+      title: data.title,
+      property: data.property,
+      urgency: data.urgency,
+      createdAt: new Date().toISOString().split('T')[0],
+      description: data.description,
+      materials: data.materials ? data.materials.split(',').map(item => item.trim()) : []
+    };
+    
+    setPendingTasks(prev => [newTask, ...prev]);
+    setNewMaintenanceOpen(false);
+    toast.success("Nouvelle intervention créée avec succès");
+  };
+
+  const handleAssignTechnician = (taskId: string | number, technicianName: string) => {
+    const task = pendingTasks.find(task => task.id === taskId);
+    
+    if (task) {
+      // Remove from pending
+      setPendingTasks(prev => prev.filter(task => task.id !== taskId));
+      
+      // Add to in-progress with technician and startedAt
+      const updatedTask: MaintenanceTask = {
+        ...task,
+        technician: technicianName,
+        startedAt: new Date().toISOString().split('T')[0]
+      };
+      
+      setInProgressTasks(prev => [updatedTask, ...prev]);
+      toast.success(`Intervention assignée à ${technicianName}`);
+    }
+    
+    setAssignDialogOpen(false);
+    setSelectedTaskId(null);
+  };
+
+  const handleCompleteTask = (taskId: string | number) => {
+    const task = inProgressTasks.find(task => task.id === taskId);
+    
+    if (task) {
+      // Remove from in-progress
+      setInProgressTasks(prev => prev.filter(task => task.id !== taskId));
+      
+      // Add to completed with completedAt
+      const updatedTask: MaintenanceTask = {
+        ...task,
+        completedAt: new Date().toISOString().split('T')[0]
+      };
+      
+      setCompletedTasks(prev => [updatedTask, ...prev]);
+      toast.success("Intervention marquée comme terminée");
+    }
+  };
+
   const MaintenanceTask = ({ 
     task, 
     type 
   }: { 
-    task: any, 
+    task: MaintenanceTask, 
     type: 'pending' | 'inProgress' | 'completed' 
   }) => {
     return (
@@ -144,7 +224,7 @@ const Maintenance = () => {
               <div className="mb-3">
                 <p className="text-sm font-medium mb-1">Matériel nécessaire:</p>
                 <div className="flex flex-wrap gap-2">
-                  {task.materials.map((material: string, i: number) => (
+                  {task.materials.map((material, i) => (
                     <Badge key={i} variant="outline" className="rounded-full">
                       {material}
                     </Badge>
@@ -156,7 +236,7 @@ const Maintenance = () => {
             {task.technician && (
               <div className="flex items-center gap-2 mt-3">
                 <Avatar className="h-6 w-6">
-                  <AvatarFallback>{task.technician.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
+                  <AvatarFallback>{task.technician.split(' ').map((n) => n[0]).join('')}</AvatarFallback>
                 </Avatar>
                 <span className="text-sm">Assigné à: {task.technician}</span>
               </div>
@@ -166,18 +246,72 @@ const Maintenance = () => {
           <div className="flex flex-col gap-2">
             {type === 'pending' && (
               <>
-                <Button size="sm" className="w-full">Assigner</Button>
-                <Button size="sm" variant="outline" className="w-full">Modifier</Button>
+                <Dialog open={assignDialogOpen && selectedTaskId === task.id} onOpenChange={(open) => {
+                  if (!open) setSelectedTaskId(null);
+                  setAssignDialogOpen(open);
+                }}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => {
+                        setSelectedTaskId(task.id);
+                        setAssignDialogOpen(true);
+                      }}
+                    >
+                      Assigner
+                    </Button>
+                  </DialogTrigger>
+                  
+                  {selectedTaskId === task.id && (
+                    <TechnicianAssignDialog 
+                      taskId={task.id}
+                      onSubmit={handleAssignTechnician}
+                      onCancel={() => {
+                        setAssignDialogOpen(false);
+                        setSelectedTaskId(null);
+                      }}
+                    />
+                  )}
+                </Dialog>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => toast.info("Fonctionnalité de modification à venir")}
+                >
+                  Modifier
+                </Button>
               </>
             )}
             {type === 'inProgress' && (
               <>
-                <Button size="sm" className="w-full">Terminer</Button>
-                <Button size="sm" variant="outline" className="w-full">Détails</Button>
+                <Button 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => handleCompleteTask(task.id)}
+                >
+                  Terminer
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => toast.info("Détails de l'intervention à venir")}
+                >
+                  Détails
+                </Button>
               </>
             )}
             {type === 'completed' && (
-              <Button size="sm" variant="outline" className="w-full">Détails</Button>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full"
+                onClick={() => toast.info("Détails de l'intervention à venir")}
+              >
+                Détails
+              </Button>
             )}
           </div>
         </div>
@@ -198,26 +332,26 @@ const Maintenance = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard 
           title="En attente" 
-          value="3" 
+          value={stats.pending.toString()} 
           icon={<ClipboardList className="h-5 w-5" />}
           className="stagger-1"
         />
         <StatCard 
           title="En cours" 
-          value="2" 
+          value={stats.inProgress.toString()} 
           icon={<Clock className="h-5 w-5" />}
           className="stagger-2"
         />
         <StatCard 
           title="Critiques" 
-          value="1" 
+          value={stats.critical.toString()} 
           icon={<AlertTriangle className="h-5 w-5" />}
           change={{ value: 1, type: 'increase' }}
           className="stagger-3"
         />
         <StatCard 
           title="Terminées (mois)" 
-          value="15" 
+          value={stats.completedThisMonth.toString()} 
           icon={<CheckCircle className="h-5 w-5" />}
           change={{ value: 5, type: 'increase' }}
           className="stagger-4"
@@ -228,10 +362,18 @@ const Maintenance = () => {
       <DashboardCard 
         title="Interventions"
         actions={
-          <Button size="sm" className="gap-1">
-            <PlusCircle className="h-4 w-4" />
-            Nouvelle intervention
-          </Button>
+          <Dialog open={newMaintenanceOpen} onOpenChange={setNewMaintenanceOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-1">
+                <PlusCircle className="h-4 w-4" />
+                Nouvelle intervention
+              </Button>
+            </DialogTrigger>
+            <NewMaintenanceDialog 
+              onSubmit={handleNewMaintenance} 
+              onCancel={() => setNewMaintenanceOpen(false)} 
+            />
+          </Dialog>
         }
       >
         <div className="space-y-4">
@@ -259,14 +401,14 @@ const Maintenance = () => {
           
           <Tabs defaultValue="pending">
             <TabsList className="w-full max-w-md grid grid-cols-3">
-              <TabsTrigger value="pending">En attente (3)</TabsTrigger>
-              <TabsTrigger value="inProgress">En cours (2)</TabsTrigger>
+              <TabsTrigger value="pending">En attente ({stats.pending})</TabsTrigger>
+              <TabsTrigger value="inProgress">En cours ({stats.inProgress})</TabsTrigger>
               <TabsTrigger value="completed">Terminées</TabsTrigger>
             </TabsList>
             
             <TabsContent value="pending" className="animate-slide-up">
               <div className="space-y-4 mt-4">
-                {pendingMaintenance.map((task) => (
+                {pendingTasks.map((task) => (
                   <MaintenanceTask key={task.id} task={task} type="pending" />
                 ))}
               </div>
@@ -274,7 +416,7 @@ const Maintenance = () => {
             
             <TabsContent value="inProgress" className="animate-slide-up">
               <div className="space-y-4 mt-4">
-                {inProgressMaintenance.map((task) => (
+                {inProgressTasks.map((task) => (
                   <MaintenanceTask key={task.id} task={task} type="inProgress" />
                 ))}
               </div>
@@ -282,7 +424,7 @@ const Maintenance = () => {
             
             <TabsContent value="completed" className="animate-slide-up">
               <div className="space-y-4 mt-4">
-                {completedMaintenance.map((task) => (
+                {completedTasks.map((task) => (
                   <MaintenanceTask key={task.id} task={task} type="completed" />
                 ))}
               </div>
