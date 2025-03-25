@@ -153,7 +153,7 @@ const typeColors: Record<ClientType, string> = {
 
 const ClientsManager: React.FC = () => {
   const [clients, setClients] = useState<Client[]>(mockClients);
-  const [clientForm, setClientForm] = useState<Partial<Client>>({
+  const [clientForm, setClientForm] = useState<Partial<Client> & { potentialValue?: number | string }>({
     name: "",
     email: "",
     phone: "",
@@ -212,8 +212,9 @@ const ClientsManager: React.FC = () => {
         client.id === clientForm.id ? { 
           ...client, 
           ...clientForm,
-          // Fix for the TypeScript error - ensure potentialValue is a number
-          potentialValue: clientForm.potentialValue ? Number(clientForm.potentialValue) : undefined
+          potentialValue: typeof clientForm.potentialValue === 'string' && clientForm.potentialValue !== '' 
+            ? Number(clientForm.potentialValue) 
+            : (typeof clientForm.potentialValue === 'number' ? clientForm.potentialValue : undefined)
         } as Client : client
       );
       setClients(updatedClients);
@@ -233,8 +234,9 @@ const ClientsManager: React.FC = () => {
         contactDate: clientForm.contactDate!,
         lastContactDate: clientForm.lastContactDate!,
         assignedTo: clientForm.assignedTo,
-        // Fix for the TypeScript error - ensure potentialValue is a number 
-        potentialValue: clientForm.potentialValue ? Number(clientForm.potentialValue) : undefined
+        potentialValue: typeof clientForm.potentialValue === 'string' && clientForm.potentialValue !== ''
+          ? Number(clientForm.potentialValue)
+          : (typeof clientForm.potentialValue === 'number' ? clientForm.potentialValue : undefined)
       };
 
       setClients([client, ...clients]);
