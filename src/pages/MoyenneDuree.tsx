@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Plus, Edit2, Trash2, Euro, CalendarDays, User, TrendingUp, Database, Activity, ChartBar, BarChart, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -848,3 +849,680 @@ const MoyenneDuree = () => {
       ? bookings.reduce((acc, b) => {
           const start = new Date(b.startDate);
           const end = new Date(b.endDate);
+          const diffTime = Math.abs(end.getTime() - start.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          return acc + diffDays;
+        }, 0) / bookings.length
+      : 0;
+    
+    const minDuration = bookings.length
+      ? Math.min(...bookings.map(b => calculateRentalDays(b.startDate, b.endDate)))
+      : 0;
+    
+    const maxDuration = bookings.length
+      ? Math.max(...bookings.map(b => calculateRentalDays(b.startDate, b.endDate)))
+      : 0;
+    
+    return {
+      totalBookings,
+      activeBookings,
+      upcomingBookings,
+      totalMandats,
+      activeMandats,
+      expiredMandats,
+      terminatedMandats,
+      renewalRate,
+      annualMandatsRevenue,
+      monthlyMandatsRevenue,
+      totalAmount,
+      totalCommission,
+      bnbLyonCommission,
+      hamacCommission,
+      avgDurationDays,
+      minDuration,
+      maxDuration
+    };
+  };
+
+  const stats = calculateStats();
+
+  return (
+    <div className="container px-4 py-6 mx-auto">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Gestion Moyenne Durée</h1>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="dashboard">Tableau de bord</TabsTrigger>
+          <TabsTrigger value="mandats">Mandats</TabsTrigger>
+          <TabsTrigger value="locations">Locations</TabsTrigger>
+          <TabsTrigger value="clients">Clients</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="dashboard" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Réservations</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4">
+                  <StatCard
+                    title="Total"
+                    value={stats.totalBookings.toString()}
+                    icon={<Database className="h-4 w-4" />}
+                  />
+                  <StatCard
+                    title="En cours"
+                    value={stats.activeBookings.toString()}
+                    icon={<Activity className="h-4 w-4" />}
+                    className="bg-green-50 text-green-700"
+                  />
+                  <StatCard
+                    title="À venir"
+                    value={stats.upcomingBookings.toString()}
+                    icon={<CalendarDays className="h-4 w-4" />}
+                    className="bg-blue-50 text-blue-700"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Mandats</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4">
+                  <StatCard
+                    title="Total"
+                    value={stats.totalMandats.toString()}
+                    icon={<Database className="h-4 w-4" />}
+                  />
+                  <StatCard
+                    title="Actifs"
+                    value={stats.activeMandats.toString()}
+                    icon={<Activity className="h-4 w-4" />}
+                    className="bg-green-50 text-green-700"
+                  />
+                  <StatCard
+                    title="Expirés"
+                    value={stats.expiredMandats.toString()}
+                    icon={<TrendingUp className="h-4 w-4" />}
+                    className="bg-yellow-50 text-yellow-700"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Durée des séjours</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4">
+                  <StatCard
+                    title="Moyenne"
+                    value={`${stats.avgDurationDays.toFixed(1)} jours`}
+                    icon={<CalendarDays className="h-4 w-4" />}
+                  />
+                  <StatCard
+                    title="Min"
+                    value={`${stats.minDuration} jours`}
+                    icon={<TrendingUp className="h-4 w-4" />}
+                    className="bg-blue-50 text-blue-700"
+                  />
+                  <StatCard
+                    title="Max"
+                    value={`${stats.maxDuration} jours`}
+                    icon={<TrendingUp className="h-4 w-4" />}
+                    className="bg-purple-50 text-purple-700"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <DashboardCard
+              title="Revenus"
+              icon={<Euro />}
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Commissions totales</h3>
+                  <p className="text-2xl font-bold">{formatCurrency(stats.totalCommission)}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Honoraires mandats (mensuel)</h3>
+                  <p className="text-2xl font-bold">{formatCurrency(stats.monthlyMandatsRevenue)}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Commission BNB Lyon</h3>
+                  <p className="text-2xl font-bold">{formatCurrency(stats.bnbLyonCommission)}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Commission Hamac</h3>
+                  <p className="text-2xl font-bold">{formatCurrency(stats.hamacCommission)}</p>
+                </div>
+              </div>
+            </DashboardCard>
+
+            <DashboardCard
+              title="Performance"
+              icon={<ChartBar />}
+            >
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Total des réservations</h3>
+                  <p className="text-2xl font-bold">{formatCurrency(stats.totalAmount)}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Taux de renouvellement mandats</h3>
+                  <p className="text-2xl font-bold">{stats.renewalRate.toFixed(1)}%</p>
+                </div>
+              </div>
+            </DashboardCard>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="mandats" className="space-y-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Mandats de gestion</h2>
+            <Button onClick={() => {
+              resetMandatForm();
+              setOpenMandatDialog(true);
+            }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nouveau mandat
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            {mandats.map(mandat => (
+              <MandatCard
+                key={mandat.id}
+                mandat={mandat}
+                formatter={{ date: formatDate, currency: formatCurrency }}
+                statusInfo={{
+                  getColor: getMandatStatusColor,
+                  getLabel: getMandatStatusLabel
+                }}
+                onEdit={() => openEditMandatDialog(mandat)}
+                onDelete={() => handleDeleteMandat(mandat.id)}
+                onViewDetails={() => openMandatDetailsDialog(mandat)}
+              />
+            ))}
+          </div>
+
+          {/* Formulaire de mandat */}
+          <Dialog open={openMandatDialog} onOpenChange={setOpenMandatDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{isEditingMandat ? "Modifier le mandat" : "Ajouter un mandat"}</DialogTitle>
+                <DialogDescription>
+                  {isEditingMandat 
+                    ? "Modifiez les informations du mandat de gestion." 
+                    : "Remplissez le formulaire pour ajouter un nouveau mandat de gestion."
+                  }
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="property">Bien immobilier</Label>
+                    <Input
+                      id="property"
+                      name="property"
+                      value={mandatForm.property}
+                      onChange={handleMandatInputChange}
+                      placeholder="Nom du bien"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="owner">Propriétaire</Label>
+                    <Input
+                      id="owner"
+                      name="owner"
+                      value={mandatForm.owner}
+                      onChange={handleMandatInputChange}
+                      placeholder="Nom du propriétaire"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="startDate">Date de début</Label>
+                    <Input
+                      id="startDate"
+                      name="startDate"
+                      type="date"
+                      value={mandatForm.startDate}
+                      onChange={handleMandatInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="endDate">Date de fin</Label>
+                    <Input
+                      id="endDate"
+                      name="endDate"
+                      type="date"
+                      value={mandatForm.endDate}
+                      onChange={handleMandatInputChange}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fee">Honoraires annuels (€)</Label>
+                  <Input
+                    id="fee"
+                    name="fee"
+                    type="number"
+                    value={mandatForm.fee}
+                    onChange={handleMandatInputChange}
+                    placeholder="Montant en euros"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea
+                    id="notes"
+                    name="notes"
+                    value={mandatForm.notes}
+                    onChange={handleMandatInputChange}
+                    placeholder="Notes ou observations"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOpenMandatDialog(false)}>Annuler</Button>
+                <Button onClick={handleAddOrUpdateMandat}>
+                  {isEditingMandat ? "Mettre à jour" : "Ajouter"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Confirmation de suppression */}
+          <AlertDialog open={deleteMandatConfirmOpen} onOpenChange={setDeleteMandatConfirmOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce mandat ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Cette action ne peut pas être annulée. Le mandat sera définitivement supprimé.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction onClick={confirmDeleteMandat} className="bg-red-600 hover:bg-red-700">
+                  Supprimer
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          {/* Détails du mandat */}
+          <Dialog open={mandatDetailsDialogOpen} onOpenChange={setMandatDetailsDialogOpen}>
+            <DialogContent className="max-w-3xl">
+              {selectedMandat && (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>{selectedMandat.property}</DialogTitle>
+                    <DialogDescription>
+                      Mandat de gestion - {selectedMandat.id}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Propriétaire</h3>
+                        <p className="text-base">{selectedMandat.owner}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Période</h3>
+                        <p className="text-base">{formatDate(selectedMandat.startDate)} - {formatDate(selectedMandat.endDate)}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
+                        <div className={`px-2 py-1 rounded-full text-xs font-medium inline-block mt-1 ${getMandatStatusColor(selectedMandat.status)}`}>
+                          {getMandatStatusLabel(selectedMandat.status)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Honoraires annuels</h3>
+                        <p className="text-base font-semibold">{formatCurrency(selectedMandat.fee)}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Honoraires mensuels</h3>
+                        <p className="text-base font-semibold">{formatCurrency(selectedMandat.fee / 12)}</p>
+                      </div>
+                    </div>
+                    {selectedMandat.notes && (
+                      <div className="col-span-1 md:col-span-2">
+                        <h3 className="text-sm font-medium text-muted-foreground mb-1">Notes</h3>
+                        <div className="p-3 bg-muted rounded-md">
+                          <p className="text-sm whitespace-pre-line">{selectedMandat.notes}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => openEditMandatDialog(selectedMandat)} className="mr-2">
+                      <Edit2 className="h-4 w-4 mr-2" />
+                      Modifier
+                    </Button>
+                    <Button variant="destructive" onClick={() => {
+                      setMandatDetailsDialogOpen(false);
+                      handleDeleteMandat(selectedMandat.id);
+                    }}>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Supprimer
+                    </Button>
+                  </DialogFooter>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
+        </TabsContent>
+
+        <TabsContent value="locations" className="space-y-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Réservations Moyenne Durée</h2>
+            <Button onClick={() => {
+              resetForm();
+              setOpenDialog(true);
+            }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nouvelle réservation
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            {bookings.map(booking => (
+              <BookingCard
+                key={booking.id}
+                booking={booking}
+                formatter={{ date: formatDate, currency: formatCurrency }}
+                statusInfo={{
+                  getColor: getStatusColor,
+                  getLabel: getStatusLabel
+                }}
+                commissionSplitInfo={getCommissionSplitType(booking)}
+                onEdit={() => openEditDialog(booking)}
+                onDelete={() => handleDeleteBooking(booking.id)}
+                onViewDetails={() => openDetailsDialog(booking)}
+              />
+            ))}
+          </div>
+
+          {/* Formulaire de réservation */}
+          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{isEditing ? "Modifier la réservation" : "Ajouter une réservation"}</DialogTitle>
+                <DialogDescription>
+                  {isEditing 
+                    ? "Modifiez les informations de la réservation moyenne durée." 
+                    : "Remplissez le formulaire pour ajouter une nouvelle réservation moyenne durée."
+                  }
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="property">Bien immobilier</Label>
+                    <Input
+                      id="property"
+                      name="property"
+                      value={bookingForm.property}
+                      onChange={handleInputChange}
+                      placeholder="Nom du bien"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tenant">Locataire</Label>
+                    <Input
+                      id="tenant"
+                      name="tenant"
+                      value={bookingForm.tenant}
+                      onChange={handleInputChange}
+                      placeholder="Nom du locataire"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="startDate">Date d'arrivée</Label>
+                    <Input
+                      id="startDate"
+                      name="startDate"
+                      type="date"
+                      value={bookingForm.startDate}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="endDate">Date de départ</Label>
+                    <Input
+                      id="endDate"
+                      name="endDate"
+                      type="date"
+                      value={bookingForm.endDate}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">Montant total (€)</Label>
+                    <Input
+                      id="amount"
+                      name="amount"
+                      type="number"
+                      value={bookingForm.amount}
+                      onChange={handleInputChange}
+                      placeholder="Montant en euros"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cleaningFee">Frais de ménage (€)</Label>
+                    <Input
+                      id="cleaningFee"
+                      name="cleaningFee"
+                      type="number"
+                      value={bookingForm.cleaningFee}
+                      onChange={handleInputChange}
+                      placeholder="Frais en euros"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="commissionRate">Taux de commission</Label>
+                  <Select
+                    value={bookingForm.commissionRate}
+                    onValueChange={(value) => handleSelectChange("commissionRate", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner le taux" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {commissionRates.map(rate => (
+                        <SelectItem key={rate.value} value={rate.value}>
+                          {rate.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Répartition de la commission</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="bnbLyonSplit">BNB Lyon (%)</Label>
+                      <Select
+                        value={bookingForm.bnbLyonSplit}
+                        onValueChange={(value) => handleSelectChange("bnbLyonSplit", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="%" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {commissionSplits.map(split => (
+                            <SelectItem key={split.value} value={split.value}>
+                              {split.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="hamacSplit">Hamac (%)</Label>
+                      <Select
+                        value={bookingForm.hamacSplit}
+                        onValueChange={(value) => handleSelectChange("hamacSplit", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="%" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {commissionSplits.map(split => (
+                            <SelectItem key={split.value} value={split.value}>
+                              {split.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOpenDialog(false)}>Annuler</Button>
+                <Button onClick={handleAddOrUpdateBooking}>
+                  {isEditing ? "Mettre à jour" : "Ajouter"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Confirmation de suppression */}
+          <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cette réservation ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Cette action ne peut pas être annulée. La réservation sera définitivement supprimée.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+                  Supprimer
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          {/* Détails de la réservation */}
+          <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+            <DialogContent className="max-w-3xl">
+              {selectedBooking && (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>{selectedBooking.property}</DialogTitle>
+                    <DialogDescription>
+                      Réservation moyenne durée - {selectedBooking.id}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Locataire</h3>
+                        <p className="text-base">{selectedBooking.tenant}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Période</h3>
+                        <p className="text-base">{formatDate(selectedBooking.startDate)} - {formatDate(selectedBooking.endDate)}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Durée</h3>
+                        <p className="text-base">{calculateRentalDays(selectedBooking.startDate, selectedBooking.endDate)} jours</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
+                        <div className={`px-2 py-1 rounded-full text-xs font-medium inline-block mt-1 ${getStatusColor(selectedBooking.status)}`}>
+                          {getStatusLabel(selectedBooking.status)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Montant total</h3>
+                        <p className="text-base font-semibold">{formatCurrency(selectedBooking.amount)}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Frais de ménage</h3>
+                        <p className="text-base">{formatCurrency(selectedBooking.cleaningFee)}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Taux de commission</h3>
+                        <p className="text-base">{selectedBooking.commissionRate}%</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Commission totale</h3>
+                        <p className="text-base font-semibold">{formatCurrency(selectedBooking.commission.total)}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="py-2">
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Répartition de la commission</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-blue-50 p-3 rounded-md">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">BNB Lyon ({selectedBooking.commissionSplit.bnbLyon}%)</span>
+                          <span className="text-sm font-semibold">{formatCurrency(selectedBooking.commission.bnbLyon)}</span>
+                        </div>
+                      </div>
+                      <div className="bg-purple-50 p-3 rounded-md">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">Hamac ({selectedBooking.commissionSplit.hamac}%)</span>
+                          <span className="text-sm font-semibold">{formatCurrency(selectedBooking.commission.hamac)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => openEditDialog(selectedBooking)} className="mr-2">
+                      <Edit2 className="h-4 w-4 mr-2" />
+                      Modifier
+                    </Button>
+                    <Button variant="destructive" onClick={() => {
+                      setDetailsDialogOpen(false);
+                      handleDeleteBooking(selectedBooking.id);
+                    }}>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Supprimer
+                    </Button>
+                  </DialogFooter>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
+        </TabsContent>
+
+        <TabsContent value="clients">
+          <ClientsManager />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default MoyenneDuree;
