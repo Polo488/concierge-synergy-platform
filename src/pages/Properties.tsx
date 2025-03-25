@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { 
   Home, PlusCircle, Search, Filter, 
@@ -726,8 +727,63 @@ const Properties = () => {
                         </a>
                       ))}
                     </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="maintenance" className="space-y-4 mt-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <h3 className="font-medium text-lg mb-4">Historique des interventions</h3>
                     
-                    <div className="mt-6">
-                      <h4 className="font-medium mb-3">Liens personnalisés</h4>
-                      <div className="space-y-3">
-                        <div className="
+                    {getPropertyMaintenanceHistory(selectedProperty.id).length > 0 ? (
+                      <div className="rounded-md border">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Type</TableHead>
+                              <TableHead>Urgence</TableHead>
+                              <TableHead>Statut</TableHead>
+                              <TableHead>Technicien</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {getPropertyMaintenanceHistory(selectedProperty.id)
+                              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                              .map((task) => (
+                                <TableRow key={task.id}>
+                                  <TableCell>{new Date(task.createdAt).toLocaleDateString()}</TableCell>
+                                  <TableCell>{task.title}</TableCell>
+                                  <TableCell>{getUrgencyBadge(task.urgency)}</TableCell>
+                                  <TableCell className="flex items-center gap-1">
+                                    {getStatusIcon(task)}
+                                    {getStatusText(task)}
+                                  </TableCell>
+                                  <TableCell>{task.technician || '-'}</TableCell>
+                                </TableRow>
+                              ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ) : (
+                      <div className="text-center p-8 bg-muted/30 rounded-lg">
+                        <Wrench className="h-8 w-8 text-muted-foreground/60 mx-auto mb-2" />
+                        <h4 className="text-lg font-medium mb-1">Aucune intervention</h4>
+                        <p className="text-muted-foreground">
+                          Ce logement n'a pas encore d'historique d'interventions de maintenance.
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+};
+
+export default Properties;
