@@ -153,6 +153,7 @@ const typeColors: Record<ClientType, string> = {
 
 const ClientsManager: React.FC = () => {
   const [clients, setClients] = useState<Client[]>(mockClients);
+  // Update the type of clientForm to handle potentialValue as both string and number
   const [clientForm, setClientForm] = useState<Partial<Client> & { potentialValue?: number | string }>({
     name: "",
     email: "",
@@ -206,15 +207,31 @@ const ClientsManager: React.FC = () => {
       return;
     }
 
+    // Parse potential value
+    let parsedPotentialValue: number | undefined = undefined;
+    
+    // If potentialValue exists and is not empty string
+    if (clientForm.potentialValue !== undefined && clientForm.potentialValue !== '') {
+      // If it's already a number, use it directly
+      if (typeof clientForm.potentialValue === 'number') {
+        parsedPotentialValue = clientForm.potentialValue;
+      } 
+      // If it's a string, convert to number
+      else if (typeof clientForm.potentialValue === 'string') {
+        const numberValue = Number(clientForm.potentialValue);
+        if (!isNaN(numberValue)) {
+          parsedPotentialValue = numberValue;
+        }
+      }
+    }
+
     if (isEditing && clientForm.id) {
       // Mettre à jour un client existant
       const updatedClients = clients.map(client => 
         client.id === clientForm.id ? { 
           ...client, 
           ...clientForm,
-          potentialValue: typeof clientForm.potentialValue === 'string' && clientForm.potentialValue !== '' 
-            ? Number(clientForm.potentialValue) 
-            : (typeof clientForm.potentialValue === 'number' ? clientForm.potentialValue : undefined)
+          potentialValue: parsedPotentialValue
         } as Client : client
       );
       setClients(updatedClients);
@@ -234,9 +251,7 @@ const ClientsManager: React.FC = () => {
         contactDate: clientForm.contactDate!,
         lastContactDate: clientForm.lastContactDate!,
         assignedTo: clientForm.assignedTo,
-        potentialValue: typeof clientForm.potentialValue === 'string' && clientForm.potentialValue !== ''
-          ? Number(clientForm.potentialValue)
-          : (typeof clientForm.potentialValue === 'number' ? clientForm.potentialValue : undefined)
+        potentialValue: parsedPotentialValue
       };
 
       setClients([client, ...clients]);
@@ -265,7 +280,8 @@ const ClientsManager: React.FC = () => {
   const openEditDialog = (client: Client) => {
     setClientForm({
       ...client,
-      potentialValue: client.potentialValue?.toString()
+      // When editing, convert the number to string for the input field
+      potentialValue: client.potentialValue !== undefined ? client.potentialValue.toString() : undefined
     });
     setIsEditing(true);
     setOpenDialog(true);
