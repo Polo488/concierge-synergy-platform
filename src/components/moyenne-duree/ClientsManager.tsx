@@ -150,9 +150,14 @@ const typeColors: Record<ClientType, string> = {
   partenaire: "bg-amber-100 text-amber-800"
 };
 
+// Define a custom type for the client form that allows string for potentialValue in the form
+type ClientFormState = Omit<Partial<Client>, 'potentialValue'> & { 
+  potentialValue?: string | null 
+};
+
 const ClientsManager: React.FC = () => {
   const [clients, setClients] = useState<Client[]>(mockClients);
-  const [clientForm, setClientForm] = useState<Partial<Client> & { potentialValue?: string | number | null }>({
+  const [clientForm, setClientForm] = useState<ClientFormState>({
     name: "",
     email: "",
     phone: "",
@@ -198,13 +203,8 @@ const ClientsManager: React.FC = () => {
       if (value === "") {
         setClientForm(prev => ({ ...prev, [name]: null }));
       } else {
-        // Try to convert to number
-        const numberValue = parseFloat(value);
-        if (!isNaN(numberValue)) {
-          setClientForm(prev => ({ ...prev, [name]: value })); // Keep as string in form
-        } else {
-          setClientForm(prev => ({ ...prev, [name]: value }));
-        }
+        // Keep as string in form
+        setClientForm(prev => ({ ...prev, [name]: value }));
       }
     } else {
       // For other fields, just set the value
@@ -228,16 +228,9 @@ const ClientsManager: React.FC = () => {
     
     // Si potentialValue existe et n'est pas une chaîne vide ni null
     if (clientForm.potentialValue !== undefined && clientForm.potentialValue !== '' && clientForm.potentialValue !== null) {
-      // Si c'est déjà un nombre, utiliser directement
-      if (typeof clientForm.potentialValue === 'number') {
-        parsedPotentialValue = clientForm.potentialValue;
-      } 
-      // Si c'est une chaîne, convertir en nombre
-      else if (typeof clientForm.potentialValue === 'string') {
-        const numberValue = parseFloat(clientForm.potentialValue);
-        if (!isNaN(numberValue)) {
-          parsedPotentialValue = numberValue;
-        }
+      const numberValue = parseFloat(clientForm.potentialValue);
+      if (!isNaN(numberValue)) {
+        parsedPotentialValue = numberValue;
       }
     }
 
@@ -299,7 +292,7 @@ const ClientsManager: React.FC = () => {
       // Convertir le nombre en chaîne pour le champ de saisie
       potentialValue: client.potentialValue !== null && client.potentialValue !== undefined 
         ? client.potentialValue.toString() 
-        : ""
+        : null
     });
     setIsEditing(true);
     setOpenDialog(true);
