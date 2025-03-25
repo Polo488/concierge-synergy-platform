@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { 
   Package, Filter, PlusCircle, Search, 
@@ -249,7 +248,7 @@ const Inventory = () => {
           title="Alertes stock" 
           value={alertsCount.toString()} 
           icon={<AlertTriangle className="h-5 w-5" />}
-          change={{ value: alertsCount > 4 ? alertsCount - 4 : 0, type: alertsCount > 4 ? 'increase' : 'neutral' }}
+          change={{ value: alertsCount > 4 ? alertsCount - 4 : 0, type: alertsCount > 4 ? 'increase' : 'decrease' }}
           className="stagger-2"
         />
         <StatCard 
