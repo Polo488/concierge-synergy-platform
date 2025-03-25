@@ -12,16 +12,18 @@ import { fr } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
 
 interface TechnicianAssignDialogProps {
   taskId: string | number;
-  onSubmit: (taskId: string | number, technicianName: string, scheduledDate?: string) => void;
+  onSubmit: (taskId: string | number, technicianName: string, scheduledDate?: string, notes?: string) => void;
   onCancel: () => void;
 }
 
 const TechnicianAssignDialog = ({ taskId, onSubmit, onCancel }: TechnicianAssignDialogProps) => {
   const [selectedTechnician, setSelectedTechnician] = useState<string>("");
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
+  const [notes, setNotes] = useState<string>("");
   
   // Mock technicians list
   const technicians = [
@@ -41,7 +43,7 @@ const TechnicianAssignDialog = ({ taskId, onSubmit, onCancel }: TechnicianAssign
     }
     
     const formattedDate = scheduledDate ? format(scheduledDate, "yyyy-MM-dd") : undefined;
-    onSubmit(taskId, selectedTechnician, formattedDate);
+    onSubmit(taskId, selectedTechnician, formattedDate, notes);
   };
 
   return (
@@ -101,6 +103,17 @@ const TechnicianAssignDialog = ({ taskId, onSubmit, onCancel }: TechnicianAssign
                 />
               </PopoverContent>
             </Popover>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="notes">Commentaires (optionnel)</Label>
+            <Textarea
+              id="notes"
+              placeholder="Ajouter des détails ou instructions supplémentaires..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="min-h-[100px]"
+            />
           </div>
         </div>
         <DialogFooter>

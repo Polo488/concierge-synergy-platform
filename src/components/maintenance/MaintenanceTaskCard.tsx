@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Calendar, ChevronDown, ChevronUp, Eye, House } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronUp, Eye, House, FileText } from 'lucide-react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MaintenanceTask } from '@/types/maintenance';
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
@@ -82,6 +82,13 @@ export const MaintenanceTaskCard = ({
                 <AvatarFallback>{task.technician.split(' ').map((n) => n[0]).join('')}</AvatarFallback>
               </Avatar>
               <span className="text-sm">Assigné à: {task.technician}</span>
+            </div>
+          )}
+          
+          {task.notes && (
+            <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+              <FileText className="h-3 w-3" />
+              <span>Notes: {task.notes}</span>
             </div>
           )}
         </div>
