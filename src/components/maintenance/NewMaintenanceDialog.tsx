@@ -1,15 +1,11 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { NewMaintenanceFormData, UrgencyLevel, InventoryItem } from "@/types/maintenance";
 import { toast } from "sonner";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
+import { MaintenanceFormFields } from "./MaintenanceFormFields";
+import { MaterialSelection } from "./MaterialSelection";
 
 interface NewMaintenanceDialogProps {
   onSubmit: (data: NewMaintenanceFormData) => void;
@@ -27,9 +23,6 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
     materialQuantities: {},
   });
 
-  const [searchMaterial, setSearchMaterial] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
   // Mock properties list for dropdown
   const properties = [
     "Appartement 12 Rue du Port",
@@ -39,16 +32,7 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
     "Loft 72 Rue des Arts",
   ];
 
-  // Filter materials
-  const categories = [...new Set(inventoryItems.map(item => item.category))];
-  
-  const filteredMaterials = inventoryItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchMaterial.toLowerCase());
-    const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
-    return matchesSearch && matchesCategory;
-  });
-
-  const handleChange = (field: keyof Omit<NewMaintenanceFormData, 'materials' | 'materialQuantities'>, value: string) => {
+  const handleFieldChange = (field: keyof Omit<NewMaintenanceFormData, 'materials' | 'materialQuantities'>, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -100,14 +84,6 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
     }));
   };
 
-  const isMaterialSelected = (id: number) => {
-    return formData.materials.some(m => m.id === id);
-  };
-
-  const getQuantity = (id: number) => {
-    return formData.materialQuantities[id] || 1;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -119,7 +95,7 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
     
     // Verify material stock availability
     const stockIssues = formData.materials.filter(
-      m => getQuantity(m.id) > m.stock
+      m => formData.materialQuantities[m.id] > m.stock
     );
     
     if (stockIssues.length > 0) {
@@ -140,192 +116,22 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Titre de l'intervention*</Label>
-            <Input
-              id="title"
-              placeholder="Ex: Fuite robinet salle de bain"
-              value={formData.title}
-              onChange={(e) => handleChange("title", e.target.value)}
-              required
-            />
-          </div>
+          <MaintenanceFormFields
+            title={formData.title}
+            property={formData.property}
+            urgency={formData.urgency}
+            description={formData.description}
+            onFieldChange={handleFieldChange}
+            properties={properties}
+          />
           
-          <div className="space-y-2">
-            <Label htmlFor="property">Logement*</Label>
-            <Select 
-              value={formData.property} 
-              onValueChange={(value) => handleChange("property", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner un logement" />
-              </SelectTrigger>
-              <SelectContent>
-                {properties.map((property) => (
-                  <SelectItem key={property} value={property}>
-                    {property}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="urgency">Niveau d'urgence</Label>
-            <Select 
-              value={formData.urgency} 
-              onValueChange={(value) => handleChange("urgency", value as UrgencyLevel)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner un niveau d'urgence" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="low">Faible</SelectItem>
-                <SelectItem value="medium">Moyenne</SelectItem>
-                <SelectItem value="high">Élevée</SelectItem>
-                <SelectItem value="critical">Critique</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="description">Description*</Label>
-            <Textarea
-              id="description"
-              placeholder="Décrivez le problème en détail..."
-              className="min-h-[80px]"
-              value={formData.description}
-              onChange={(e) => handleChange("description", e.target.value)}
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Matériel nécessaire</Label>
-            
-            <div className="flex flex-wrap gap-2 mb-3">
-              {formData.materials.map(material => (
-                <Badge 
-                  key={material.id} 
-                  variant="outline" 
-                  className="rounded-full flex items-center gap-2 py-1.5 px-3"
-                >
-                  <span>{material.name}</span>
-                  <div className="flex items-center gap-1 ml-1">
-                    <Button 
-                      type="button"
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-4 w-4 rounded-full"
-                      onClick={() => updateQuantity(material.id, getQuantity(material.id) - 1)}
-                    >
-                      -
-                    </Button>
-                    <span className="w-5 text-center">{getQuantity(material.id)}</span>
-                    <Button 
-                      type="button"
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-4 w-4 rounded-full"
-                      onClick={() => updateQuantity(material.id, getQuantity(material.id) + 1)}
-                    >
-                      +
-                    </Button>
-                  </div>
-                  <Button 
-                    type="button"
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-5 w-5 ml-1 rounded-full"
-                    onClick={() => toggleMaterial(material)}
-                  >
-                    ×
-                  </Button>
-                </Badge>
-              ))}
-            </div>
-            
-            <div className="border rounded-md p-3">
-              <div className="flex items-center gap-2 mb-3">
-                <Input
-                  placeholder="Rechercher un matériel..."
-                  value={searchMaterial}
-                  onChange={(e) => setSearchMaterial(e.target.value)}
-                  className="h-8"
-                />
-                <Select
-                  value={selectedCategory || "all-categories"}
-                  onValueChange={(val) => setSelectedCategory(val === "all-categories" ? null : val)}
-                >
-                  <SelectTrigger className="h-8 w-40">
-                    <SelectValue placeholder="Catégorie" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all-categories">Toutes</SelectItem>
-                    {categories.map(category => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="max-h-40 overflow-y-auto space-y-1">
-                {filteredMaterials.map(material => (
-                  <div 
-                    key={material.id} 
-                    className="flex items-center justify-between border-b pb-1 last:border-0"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Checkbox 
-                        id={`material-${material.id}`} 
-                        checked={isMaterialSelected(material.id)}
-                        onCheckedChange={() => toggleMaterial(material)}
-                      />
-                      <Label 
-                        htmlFor={`material-${material.id}`}
-                        className="flex flex-col cursor-pointer"
-                      >
-                        <span>{material.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          En stock: {material.stock}
-                        </span>
-                      </Label>
-                    </div>
-                    {isMaterialSelected(material.id) && (
-                      <div className="flex items-center gap-1">
-                        <Button 
-                          type="button"
-                          variant="outline" 
-                          size="icon" 
-                          className="h-6 w-6 rounded-full"
-                          onClick={() => updateQuantity(material.id, getQuantity(material.id) - 1)}
-                        >
-                          -
-                        </Button>
-                        <span className="w-6 text-center">{getQuantity(material.id)}</span>
-                        <Button 
-                          type="button"
-                          variant="outline" 
-                          size="icon" 
-                          className="h-6 w-6 rounded-full"
-                          onClick={() => updateQuantity(material.id, getQuantity(material.id) + 1)}
-                        >
-                          +
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-                {filteredMaterials.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-2">
-                    Aucun matériel trouvé
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
+          <MaterialSelection
+            materials={inventoryItems}
+            selectedMaterials={formData.materials}
+            materialQuantities={formData.materialQuantities}
+            onToggleMaterial={toggleMaterial}
+            onUpdateQuantity={updateQuantity}
+          />
         </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onCancel}>
