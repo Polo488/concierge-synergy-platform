@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -152,8 +153,7 @@ const typeColors: Record<ClientType, string> = {
 
 const ClientsManager: React.FC = () => {
   const [clients, setClients] = useState<Client[]>(mockClients);
-  // Define clientForm to handle potentialValue as both string and number
-  const [clientForm, setClientForm] = useState<Partial<Client> & { potentialValue?: number | string }>({
+  const [clientForm, setClientForm] = useState<Partial<Client> & { potentialValue?: string | number | null }>({
     name: "",
     email: "",
     phone: "",
@@ -163,7 +163,7 @@ const ClientsManager: React.FC = () => {
     contactDate: new Date().toISOString().split('T')[0],
     lastContactDate: new Date().toISOString().split('T')[0],
     assignedTo: "",
-    potentialValue: undefined
+    potentialValue: ""
   });
   const [isEditing, setIsEditing] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
@@ -185,7 +185,7 @@ const ClientsManager: React.FC = () => {
       contactDate: new Date().toISOString().split('T')[0],
       lastContactDate: new Date().toISOString().split('T')[0],
       assignedTo: "",
-      potentialValue: undefined
+      potentialValue: ""
     });
     setIsEditing(false);
   };
@@ -207,17 +207,17 @@ const ClientsManager: React.FC = () => {
     }
 
     // Parse potential value
-    let parsedPotentialValue: number | undefined = undefined;
+    let parsedPotentialValue: number | null = null;
     
-    // If potentialValue exists and is not empty string
-    if (clientForm.potentialValue !== undefined && clientForm.potentialValue !== '') {
-      // If it's already a number, use it directly
+    // Si potentialValue existe et n'est pas une chaîne vide ni null
+    if (clientForm.potentialValue !== undefined && clientForm.potentialValue !== '' && clientForm.potentialValue !== null) {
+      // Si c'est déjà un nombre, utiliser directement
       if (typeof clientForm.potentialValue === 'number') {
         parsedPotentialValue = clientForm.potentialValue;
       } 
-      // If it's a string, convert to number
+      // Si c'est une chaîne, convertir en nombre
       else if (typeof clientForm.potentialValue === 'string') {
-        const numberValue = Number(clientForm.potentialValue);
+        const numberValue = parseFloat(clientForm.potentialValue);
         if (!isNaN(numberValue)) {
           parsedPotentialValue = numberValue;
         }
@@ -279,9 +279,10 @@ const ClientsManager: React.FC = () => {
   const openEditDialog = (client: Client) => {
     setClientForm({
       ...client,
-      // When editing, convert the number to string for the input field
-      // Fix: Handle potential undefined value safely
-      potentialValue: client.potentialValue !== undefined ? String(client.potentialValue) : undefined
+      // Convertir le nombre en chaîne pour le champ de saisie
+      potentialValue: client.potentialValue !== null && client.potentialValue !== undefined 
+        ? client.potentialValue.toString() 
+        : ""
     });
     setIsEditing(true);
     setOpenDialog(true);

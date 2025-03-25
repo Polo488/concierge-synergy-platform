@@ -25,5 +25,5 @@ export interface Client {
   contactDate: string;
   lastContactDate: string;
   assignedTo?: string;
-  potentialValue?: number;
+  potentialValue?: number | null;
 }
