@@ -23,6 +23,7 @@ export interface MaintenanceTask {
   scheduledDate?: string; // Added scheduled date for the maintenance
   technician?: string;
   description: string;
+  notes?: string; // Added notes field for additional information
   materials?: InventoryItem[];
   materialQuantities?: Record<number, number>; // id -> quantity
 }
