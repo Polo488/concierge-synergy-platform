@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -233,6 +232,7 @@ const ClientsManager: React.FC = () => {
         contactDate: clientForm.contactDate!,
         lastContactDate: clientForm.lastContactDate!,
         assignedTo: clientForm.assignedTo,
+        // Fix for the TypeScript error - convert string to number for potentialValue if it exists
         potentialValue: clientForm.potentialValue ? Number(clientForm.potentialValue) : undefined
       };
 
