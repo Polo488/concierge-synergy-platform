@@ -5,15 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 interface TechnicianAssignDialogProps {
   taskId: string | number;
-  onSubmit: (taskId: string | number, technicianName: string) => void;
+  onSubmit: (taskId: string | number, technicianName: string, scheduledDate?: string) => void;
   onCancel: () => void;
 }
 
 const TechnicianAssignDialog = ({ taskId, onSubmit, onCancel }: TechnicianAssignDialogProps) => {
   const [selectedTechnician, setSelectedTechnician] = useState<string>("");
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
   
   // Mock technicians list
   const technicians = [
@@ -32,7 +40,8 @@ const TechnicianAssignDialog = ({ taskId, onSubmit, onCancel }: TechnicianAssign
       return;
     }
     
-    onSubmit(taskId, selectedTechnician);
+    const formattedDate = scheduledDate ? format(scheduledDate, "yyyy-MM-dd") : undefined;
+    onSubmit(taskId, selectedTechnician, formattedDate);
   };
 
   return (
@@ -41,7 +50,7 @@ const TechnicianAssignDialog = ({ taskId, onSubmit, onCancel }: TechnicianAssign
         <DialogHeader>
           <DialogTitle>Assigner un technicien</DialogTitle>
           <DialogDescription>
-            Choisissez un technicien pour cette intervention
+            Choisissez un technicien pour cette intervention et planifiez la date
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -62,6 +71,36 @@ const TechnicianAssignDialog = ({ taskId, onSubmit, onCancel }: TechnicianAssign
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="scheduled-date">Date de l'intervention (optionnel)</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="scheduled-date"
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !scheduledDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {scheduledDate ? format(scheduledDate, "dd MMMM yyyy", { locale: fr }) : 
+                    <span>Sélectionner une date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={scheduledDate}
+                  onSelect={setScheduledDate}
+                  initialFocus
+                  locale={fr}
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
         <DialogFooter>

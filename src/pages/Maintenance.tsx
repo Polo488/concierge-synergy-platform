@@ -1,8 +1,8 @@
-
 import { useEffect, useState } from 'react';
 import { 
   Wrench, PlusCircle, AlertTriangle, Clock, CheckCircle,
-  ClipboardList, BadgeAlert, Calendar, Search, User
+  ClipboardList, BadgeAlert, Calendar, Search, User,
+  House
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,12 +47,13 @@ const maintenance: InventoryItem[] = [
 // Combine all inventory items
 const allInventoryItems: InventoryItem[] = [...consummables, ...linen, ...maintenance];
 
-// Mock data for maintenance tasks with updated material storage
+// Mock data for maintenance tasks with updated material storage and internal names
 const initialPendingMaintenance: MaintenanceTask[] = [
   { 
     id: 1, 
     title: 'Fuite robinet salle de bain', 
     property: 'Appartement 12 Rue du Port',
+    internalName: 'Port-12',
     urgency: 'high' as UrgencyLevel,
     createdAt: '2023-11-20',
     description: 'Fuite importante sous le lavabo de la salle de bain principale',
@@ -66,6 +67,7 @@ const initialPendingMaintenance: MaintenanceTask[] = [
     id: 2, 
     title: 'Serrure porte d\'entrée bloquée', 
     property: 'Studio 8 Avenue des Fleurs',
+    internalName: 'Fleurs-8',
     urgency: 'critical' as UrgencyLevel,
     createdAt: '2023-11-21',
     description: 'Client ne peut pas entrer dans le logement, serrure bloquée',
@@ -78,6 +80,7 @@ const initialPendingMaintenance: MaintenanceTask[] = [
     id: 3, 
     title: 'Ampoule salon grillée', 
     property: 'Maison 23 Rue de la Paix',
+    internalName: 'Paix-23',
     urgency: 'low' as UrgencyLevel,
     createdAt: '2023-11-22',
     description: 'Remplacer l\'ampoule du plafonnier dans le salon',
@@ -93,10 +96,12 @@ const initialInProgressMaintenance: MaintenanceTask[] = [
     id: 4, 
     title: 'Problème chauffage', 
     property: 'Appartement 45 Boulevard Central',
+    internalName: 'Central-45',
     urgency: 'medium' as UrgencyLevel,
     createdAt: '2023-11-19',
     technician: 'Martin Dupont',
     startedAt: '2023-11-20',
+    scheduledDate: '2023-11-25',
     description: 'Radiateur de la chambre ne chauffe pas correctement',
     materials: [
       allInventoryItems.find(i => i.id === 14) as InventoryItem
@@ -107,6 +112,7 @@ const initialInProgressMaintenance: MaintenanceTask[] = [
     id: 5, 
     title: 'Volet roulant bloqué', 
     property: 'Loft 72 Rue des Arts',
+    internalName: 'Arts-72',
     urgency: 'medium' as UrgencyLevel,
     createdAt: '2023-11-18',
     technician: 'Sophie Moreau',
@@ -124,6 +130,7 @@ const initialCompletedMaintenance: MaintenanceTask[] = [
     id: 6, 
     title: 'Remplacement chasse d\'eau', 
     property: 'Appartement 12 Rue du Port',
+    internalName: 'Port-12',
     urgency: 'high' as UrgencyLevel,
     createdAt: '2023-11-15',
     completedAt: '2023-11-16',
@@ -138,6 +145,7 @@ const initialCompletedMaintenance: MaintenanceTask[] = [
     id: 7, 
     title: 'Installation étagère', 
     property: 'Studio 8 Avenue des Fleurs',
+    internalName: 'Fleurs-8',
     urgency: 'low' as UrgencyLevel,
     createdAt: '2023-11-16',
     completedAt: '2023-11-17',
@@ -217,6 +225,7 @@ const Maintenance = () => {
       id: Date.now(), // Generate a unique ID
       title: data.title,
       property: data.property,
+      internalName: data.internalName,
       urgency: data.urgency,
       createdAt: new Date().toISOString().split('T')[0],
       description: data.description,
@@ -232,22 +241,24 @@ const Maintenance = () => {
     toast.success("Nouvelle intervention créée avec succès");
   };
 
-  const handleAssignTechnician = (taskId: string | number, technicianName: string) => {
+  // Update the handleAssignTechnician function to accept a scheduled date
+  const handleAssignTechnician = (taskId: string | number, technicianName: string, scheduledDate?: string) => {
     const task = pendingTasks.find(task => task.id === taskId);
     
     if (task) {
       // Remove from pending
       setPendingTasks(prev => prev.filter(task => task.id !== taskId));
       
-      // Add to in-progress with technician and startedAt
+      // Add to in-progress with technician, startedAt and scheduledDate
       const updatedTask: MaintenanceTask = {
         ...task,
         technician: technicianName,
-        startedAt: new Date().toISOString().split('T')[0]
+        startedAt: new Date().toISOString().split('T')[0],
+        scheduledDate
       };
       
       setInProgressTasks(prev => [updatedTask, ...prev]);
-      toast.success(`Intervention assignée à ${technicianName}`);
+      toast.success(`Intervention assignée à ${technicianName}${scheduledDate ? ` pour le ${scheduledDate}` : ''}`);
     }
     
     setAssignDialogOpen(false);
@@ -280,6 +291,7 @@ const Maintenance = () => {
     setDetailsDialogOpen(true);
   };
 
+  // Update the MaintenanceTask component to display internal name and scheduled date
   const MaintenanceTask = ({ 
     task, 
     type 
@@ -301,9 +313,23 @@ const Maintenance = () => {
                     : `Créé le ${task.createdAt}`
                 }
               </span>
+              {task.scheduledDate && (
+                <Badge variant="outline" className="ml-2">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  Planifié: {task.scheduledDate}
+                </Badge>
+              )}
             </div>
             <h3 className="font-semibold text-lg">{task.title}</h3>
-            <p className="text-sm text-muted-foreground mb-2">{task.property}</p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+              <span>{task.property}</span>
+              {task.internalName && (
+                <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                  <House className="h-3 w-3" />
+                  {task.internalName}
+                </Badge>
+              )}
+            </div>
             <p className="text-sm mb-3">{task.description}</p>
             
             {task.materials && task.materials.length > 0 && (
