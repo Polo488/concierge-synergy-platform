@@ -3,7 +3,8 @@ import {
   Home, PlusCircle, Search, Filter, 
   Building, User, MapPin, BedDouble, List, Grid3X3, SlidersHorizontal,
   ChevronRight, Camera, Thermometer, Wifi, Radio, Tv, Car, 
-  Wind, CigaretteOff, Waves, UtensilsCrossed, Globe, ExternalLink
+  Wind, CigaretteOff, Waves, UtensilsCrossed, Globe, ExternalLink,
+  Wrench, Clock, CheckCircle, AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { toast } from "@/hooks/use-toast";
+import { MaintenanceTask, UrgencyLevel } from '@/types/maintenance';
 
 const generateProperties = () => {
   const propertyTypes = ['Appartement', 'Studio', 'Loft', 'Maison', 'Villa'];
@@ -125,8 +127,71 @@ const generateProperties = () => {
   });
 };
 
+// Add sample maintenance tasks for demo purposes
+const generateMaintenanceHistory = (properties) => {
+  // Using the same urgency levels and maintenance types as in the Maintenance page
+  const urgencyLevels: UrgencyLevel[] = ['low', 'medium', 'high', 'critical'];
+  const maintenanceTypes = [
+    'Fuite robinet', 'Remplacement ampoule', 'Serrure bloquée', 'Problème chauffage',
+    'Volet roulant bloqué', 'Chasse d\'eau défectueuse', 'Réparation mur', 'Nettoyage ventilation'
+  ];
+  const technicians = ['Martin Dupont', 'Sophie Moreau', 'Jean Mercier', 'Emma Laurent'];
+  
+  // Generate some maintenance history
+  const maintenanceHistory: MaintenanceTask[] = [];
+  
+  properties.forEach(property => {
+    // Each property gets 0-5 maintenance tasks
+    const tasksCount = Math.floor(Math.random() * 6);
+    
+    for (let i = 0; i < tasksCount; i++) {
+      const id = `maint-${property.id}-${i}`;
+      const createdDate = new Date();
+      // Set the date to be between 1 and 180 days in the past
+      createdDate.setDate(createdDate.getDate() - Math.floor(Math.random() * 180) - 1);
+      const createdAt = createdDate.toISOString().split('T')[0];
+      
+      const urgency = urgencyLevels[Math.floor(Math.random() * urgencyLevels.length)];
+      const title = `${maintenanceTypes[Math.floor(Math.random() * maintenanceTypes.length)]} - ${property.type}`;
+      const technician = technicians[Math.floor(Math.random() * technicians.length)];
+      
+      // Some tasks are completed, some in progress, some pending
+      const status = Math.random();
+      let startedAt, completedAt;
+      
+      if (status > 0.3) { // 70% chance of being started
+        const startDate = new Date(createdDate);
+        startDate.setDate(startDate.getDate() + Math.floor(Math.random() * 7) + 1); // 1-7 days after creation
+        startedAt = startDate.toISOString().split('T')[0];
+        
+        if (status > 0.6) { // 40% chance of being completed (out of all tasks)
+          const completeDate = new Date(startDate);
+          completeDate.setDate(completeDate.getDate() + Math.floor(Math.random() * 14) + 1); // 1-14 days after starting
+          completedAt = completeDate.toISOString().split('T')[0];
+        }
+      }
+      
+      maintenanceHistory.push({
+        id,
+        propertyId: property.id,
+        title,
+        property: `${property.type} ${property.number} - ${property.address}`,
+        urgency,
+        createdAt,
+        startedAt,
+        completedAt,
+        technician: startedAt ? technician : undefined,
+        description: `Intervention de maintenance pour ${title.toLowerCase()} dans le logement ${property.number}.`
+      });
+    }
+  });
+  
+  return maintenanceHistory;
+};
+
 const Properties = () => {
   const [properties] = useState(generateProperties);
+  const [maintenanceHistory] = useState(() => generateMaintenanceHistory(properties));
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('');
   const [viewMode, setViewMode] = useState('list');
@@ -153,6 +218,49 @@ const Properties = () => {
   const handleClosePropertyDetails = () => {
     setSelectedProperty(null);
     setSelectedPhotoCategory('Toutes');
+  };
+
+  // Function to get property maintenance history
+  const getPropertyMaintenanceHistory = (propertyId) => {
+    return maintenanceHistory.filter(task => task.propertyId === propertyId);
+  };
+
+  // Function to get urgency badge for maintenance tasks
+  const getUrgencyBadge = (urgency: UrgencyLevel) => {
+    switch(urgency) {
+      case 'low':
+        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 rounded-full">Faible</Badge>;
+      case 'medium':
+        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 rounded-full">Moyenne</Badge>;
+      case 'high':
+        return <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-200 rounded-full">Élevée</Badge>;
+      case 'critical':
+        return <Badge className="bg-red-100 text-red-800 hover:bg-red-200 rounded-full">Critique</Badge>;
+      default:
+        return null;
+    }
+  };
+
+  // Function to get status icon for maintenance tasks
+  const getStatusIcon = (task: MaintenanceTask) => {
+    if (task.completedAt) {
+      return <CheckCircle className="h-4 w-4 text-green-500" />;
+    } else if (task.startedAt) {
+      return <Clock className="h-4 w-4 text-amber-500" />;
+    } else {
+      return <AlertTriangle className="h-4 w-4 text-red-500" />;
+    }
+  };
+
+  // Function to get status text for maintenance tasks
+  const getStatusText = (task: MaintenanceTask) => {
+    if (task.completedAt) {
+      return <span className="text-green-600">Terminée</span>;
+    } else if (task.startedAt) {
+      return <span className="text-amber-600">En cours</span>;
+    } else {
+      return <span className="text-red-600">En attente</span>;
+    }
   };
 
   const getAmenityIcon = (amenity) => {
@@ -406,11 +514,14 @@ const Properties = () => {
             </DialogHeader>
 
             <Tabs defaultValue="info" className="mt-4">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="info">Informations</TabsTrigger>
                 <TabsTrigger value="equipment">Équipements</TabsTrigger>
                 <TabsTrigger value="photos">Photos</TabsTrigger>
                 <TabsTrigger value="platforms">Plateformes</TabsTrigger>
+                <TabsTrigger value="maintenance" className="flex items-center gap-1">
+                  <Wrench className="h-4 w-4" /> Maintenance
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="info" className="space-y-4 mt-4">
@@ -619,26 +730,4 @@ const Properties = () => {
                     <div className="mt-6">
                       <h4 className="font-medium mb-3">Liens personnalisés</h4>
                       <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <Input placeholder="Nom de la plateforme" className="flex-1" />
-                          <Input placeholder="URL" className="flex-1" />
-                          <Button variant="outline" size="sm">Ajouter</Button>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Note: Les liens personnalisés ne sont pas encore fonctionnels. Ils seront implémentés dans une future mise à jour.
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
-  );
-};
-
-export default Properties;
-
+                        <div className="

@@ -14,6 +14,7 @@ export interface MaintenanceTask {
   id: string | number;
   title: string;
   property: string;
+  propertyId?: string; // Added property ID for linking to properties
   urgency: UrgencyLevel;
   createdAt: string;
   startedAt?: string;
