@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { 
   Sparkles, CheckCircle, Clock, Calendar as CalendarIcon, 
@@ -276,9 +275,8 @@ const Cleaning = () => {
   };
 
   const handleReportProblem = () => {
-    toast("Problème signalé", {
-      description: `Un problème a été signalé pour ${currentTask?.property}. L'équipe de support a été notifiée.`,
-      variant: "destructive"
+    toast.error("Problème signalé", {
+      description: `Un problème a été signalé pour ${currentTask?.property}. L'équipe de support a été notifiée.`
     });
     setProblemDialogOpen(false);
   };
@@ -413,17 +411,15 @@ const Cleaning = () => {
     
     setDeleteConfirmDialogOpen(false);
     
-    toast("Ménage supprimé", {
-      description: `Le ménage pour ${currentTask.property} a été supprimé.`,
-      variant: "destructive"
+    toast.error("Ménage supprimé", {
+      description: `Le ménage pour ${currentTask.property} a été supprimé.`
     });
   };
 
   const handlePrintLabels = () => {
     if (selectedTasks.length === 0) {
-      toast("Sélection requise", {
-        description: "Veuillez sélectionner au moins un ménage pour générer des étiquettes.",
-        variant: "destructive"
+      toast.error("Sélection requise", {
+        description: "Veuillez sélectionner au moins un ménage pour générer des étiquettes."
       });
       return;
     }
