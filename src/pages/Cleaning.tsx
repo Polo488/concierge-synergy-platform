@@ -2,27 +2,30 @@
 import { useEffect, useState } from 'react';
 import { 
   Sparkles, CheckCircle, Clock, Calendar as CalendarIcon, 
-  Search, Download, Filter, User, ChevronLeft, ChevronRight,
-  Printer, Tag, Tags, QrCode, ChevronDown, ChevronUp, Eye,
-  Plus, Trash2
+  Search, Download, Filter, Tag, Plus, Printer
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "@/components/ui/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { toast } from "sonner";
 import { format, addDays, isSameDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { CleaningTask, NewCleaningTask } from '@/types/cleaning';
+import { getNextId, generateLabelsPrintWindow } from '@/utils/cleaningUtils';
+
+// Component imports
+import { CleaningTaskList } from '@/components/cleaning/CleaningTaskList';
+import { CleaningAgentAssignDialog } from '@/components/cleaning/CleaningAgentAssignDialog';
+import { CleaningTaskDetailsDialog } from '@/components/cleaning/CleaningTaskDetailsDialog';
+import { ProblemReportDialog } from '@/components/cleaning/ProblemReportDialog';
+import { CalendarDialog } from '@/components/cleaning/CalendarDialog';
+import { LabelsDialog } from '@/components/cleaning/LabelsDialog';
+import { AddCleaningTaskDialog } from '@/components/cleaning/AddCleaningTaskDialog';
+import { EditCommentsDialog } from '@/components/cleaning/EditCommentsDialog';
+import { DeleteConfirmDialog } from '@/components/cleaning/DeleteConfirmDialog';
 
 const cleaningAgents = [
   'Marie Lambert',
@@ -31,8 +34,23 @@ const cleaningAgents = [
   'Thomas Laurent'
 ];
 
+const getStatusBadge = (status: string) => {
+  switch(status) {
+    case 'todo':
+      return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 rounded-full">À faire</Badge>;
+    case 'inProgress':
+      return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 rounded-full">En cours</Badge>;
+    case 'completed':
+      return <Badge className="bg-green-100 text-green-800 hover:bg-green-200 rounded-full">Terminé</Badge>;
+    case 'scheduled':
+      return <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200 rounded-full">Planifié</Badge>;
+    default:
+      return null;
+  }
+};
+
 const Cleaning = () => {
-  const [todayCleaningTasks, setTodayCleaningTasks] = useState([
+  const [todayCleaningTasks, setTodayCleaningTasks] = useState<CleaningTask[]>([
     {
       id: 1,
       property: 'Appartement 12 Rue du Port',
@@ -77,7 +95,7 @@ const Cleaning = () => {
     }
   ]);
 
-  const [tomorrowCleaningTasks, setTomorrowCleaningTasks] = useState([
+  const [tomorrowCleaningTasks, setTomorrowCleaningTasks] = useState<CleaningTask[]>([
     {
       id: 4,
       property: 'Maison 23 Rue de la Paix',
@@ -108,7 +126,7 @@ const Cleaning = () => {
     }
   ]);
 
-  const [completedCleaningTasks, setCompletedCleaningTasks] = useState([
+  const [completedCleaningTasks, setCompletedCleaningTasks] = useState<CleaningTask[]>([
     {
       id: 6,
       property: 'Studio 15 Rue des Lilas',
@@ -145,22 +163,22 @@ const Cleaning = () => {
   const [labelsDialogOpen, setLabelsDialogOpen] = useState(false);
   const [addTaskDialogOpen, setAddTaskDialogOpen] = useState(false);
   const [deleteConfirmDialogOpen, setDeleteConfirmDialogOpen] = useState(false);
+  const [editCommentsDialogOpen, setEditCommentsDialogOpen] = useState(false);
   
   // État pour les tâches et données sélectionnées
-  const [currentTask, setCurrentTask] = useState<any>(null);
+  const [currentTask, setCurrentTask] = useState<CleaningTask | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<string>("");
   const [problemDescription, setProblemDescription] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [activeTab, setActiveTab] = useState("today");
-  const [selectedTasks, setSelectedTasks] = useState<Array<any>>([]);
+  const [selectedTasks, setSelectedTasks] = useState<CleaningTask[]>([]);
   const [labelType, setLabelType] = useState<"standard" | "detailed" | "qrcode">("standard");
   
   // Ajout d'un état pour les commentaires lors de la modification
   const [taskComments, setTaskComments] = useState<string>("");
-  const [editCommentsDialogOpen, setEditCommentsDialogOpen] = useState(false);
   
   // État pour la nouvelle tâche à ajouter
-  const [newTask, setNewTask] = useState({
+  const [newTask, setNewTask] = useState<NewCleaningTask>({
     property: '',
     checkoutTime: '11:00',
     checkinTime: '15:00',
@@ -173,32 +191,11 @@ const Cleaning = () => {
     comments: ''
   });
 
-  // Générer prochain ID disponible
-  const getNextId = () => {
-    const allTasks = [...todayCleaningTasks, ...tomorrowCleaningTasks, ...completedCleaningTasks];
-    return Math.max(...allTasks.map(t => t.id), 0) + 1;
-  };
-
   useEffect(() => {
     document.title = 'Ménage - GESTION BNB LYON';
   }, []);
 
-  const getStatusBadge = (status: string) => {
-    switch(status) {
-      case 'todo':
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 rounded-full">À faire</Badge>;
-      case 'inProgress':
-        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 rounded-full">En cours</Badge>;
-      case 'completed':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200 rounded-full">Terminé</Badge>;
-      case 'scheduled':
-        return <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200 rounded-full">Planifié</Badge>;
-      default:
-        return null;
-    }
-  };
-
-  const handleStartCleaning = (task: any) => {
+  const handleStartCleaning = (task: CleaningTask) => {
     const updatedTasks = todayCleaningTasks.map(t => {
       if (t.id === task.id) {
         return {
@@ -218,7 +215,7 @@ const Cleaning = () => {
     });
   };
 
-  const handleCompleteCleaning = (task: any) => {
+  const handleCompleteCleaning = (task: CleaningTask) => {
     const updatedTodayTasks = todayCleaningTasks.filter(t => t.id !== task.id);
     setTodayCleaningTasks(updatedTodayTasks);
     
@@ -238,14 +235,16 @@ const Cleaning = () => {
     });
   };
 
-  const openAssignDialog = (task: any) => {
+  const openAssignDialog = (task: CleaningTask) => {
     setCurrentTask(task);
     setSelectedAgent(task.cleaningAgent || "");
     setAssignDialogOpen(true);
   };
 
   const handleAssignAgent = () => {
-    const updateTask = (tasks: any[], taskId: number) => {
+    if (!currentTask) return;
+    
+    const updateTask = (tasks: CleaningTask[], taskId: number) => {
       return tasks.map(t => {
         if (t.id === taskId) {
           return { ...t, cleaningAgent: selectedAgent };
@@ -268,12 +267,12 @@ const Cleaning = () => {
     });
   };
 
-  const openDetailsDialog = (task: any) => {
+  const openDetailsDialog = (task: CleaningTask) => {
     setCurrentTask(task);
     setDetailsDialogOpen(true);
   };
 
-  const openProblemDialog = (task: any) => {
+  const openProblemDialog = (task: CleaningTask) => {
     setCurrentTask(task);
     setProblemDialogOpen(true);
     setProblemDescription("");
@@ -282,7 +281,7 @@ const Cleaning = () => {
   const handleReportProblem = () => {
     toast({
       title: "Problème signalé",
-      description: `Un problème a été signalé pour ${currentTask.property}. L'équipe de support a été notifiée.`,
+      description: `Un problème a été signalé pour ${currentTask?.property}. L'équipe de support a été notifiée.`,
       variant: "destructive"
     });
     setProblemDialogOpen(false);
@@ -331,7 +330,7 @@ const Cleaning = () => {
     setLabelsDialogOpen(true);
   };
 
-  const handleSelectTask = (task: any) => {
+  const handleSelectTask = (task: CleaningTask) => {
     setSelectedTasks(prev => {
       const taskIndex = prev.findIndex(t => t.id === task.id);
       if (taskIndex === -1) {
@@ -342,19 +341,17 @@ const Cleaning = () => {
     });
   };
 
-  // Nouvelle fonction pour ajouter une tâche
+  // Ajouter une tâche
   const handleAddTask = () => {
-    const id = getNextId();
-    const now = new Date();
-    const currentTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const allTasks = [...todayCleaningTasks, ...tomorrowCleaningTasks, ...completedCleaningTasks];
+    const id = getNextId(allTasks);
     
-    const taskToAdd = {
+    const taskToAdd: CleaningTask = {
       ...newTask,
       id,
       cleaningAgent: newTask.cleaningAgent === '' ? null : newTask.cleaningAgent,
-      // Add startTime and endTime properties for all tasks
-      startTime: currentTime,
-      endTime: currentTime
+      startTime: '',
+      endTime: ''
     };
     
     // Déterminer dans quelle liste ajouter la tâche selon la date et le statut
@@ -402,12 +399,14 @@ const Cleaning = () => {
   };
 
   // Supprimer une tâche
-  const openDeleteDialog = (task: any) => {
+  const openDeleteDialog = (task: CleaningTask) => {
     setCurrentTask(task);
     setDeleteConfirmDialogOpen(true);
   };
 
   const handleDeleteTask = () => {
+    if (!currentTask) return;
+    
     // Trouver dans quelle liste est la tâche
     if (currentTask.status === 'completed') {
       setCompletedCleaningTasks(completedCleaningTasks.filter(t => t.id !== currentTask.id));
@@ -436,176 +435,7 @@ const Cleaning = () => {
       return;
     }
 
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Étiquettes Ménage - GESTION BNB LYON</title>
-            <style>
-              @media print {
-                @page { 
-                  margin: 0.5cm;
-                  size: auto;
-                }
-              }
-              body { 
-                font-family: Arial, sans-serif; 
-                margin: 0;
-                padding: 15px;
-              }
-              .container { 
-                display: flex;
-                flex-direction: column;
-                gap: 30px;
-              }
-              .label { 
-                page-break-inside: avoid;
-                page-break-after: always;
-                width: 100%;
-                max-width: 800px;
-              }
-              .property-header {
-                border: 3px solid #000;
-                border-radius: 15px;
-                padding: 10px 15px;
-                font-weight: bold;
-                font-size: 24px;
-                display: inline-block;
-                margin-bottom: 15px;
-              }
-              .arrival-status {
-                font-size: 24px;
-                font-weight: bold;
-                float: right;
-                margin-top: 10px;
-              }
-              .items-container {
-                display: flex;
-                justify-content: space-between;
-              }
-              .left-column {
-                flex: 3;
-                font-size: 18px;
-              }
-              .right-column {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                font-size: 24px;
-                font-weight: bold;
-              }
-              .item-row {
-                margin-bottom: 10px;
-                font-size: 22px;
-              }
-              .item-qty {
-                font-weight: bold;
-                font-size: 24px;
-              }
-              .item-name {
-                font-style: italic;
-              }
-              .consumable-row {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin-bottom: 10px;
-              }
-              .consumable-icon {
-                border: 1px solid #000;
-                width: 40px;
-                height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 12px;
-              }
-              .consumable-text {
-                font-size: 24px;
-                font-weight: bold;
-              }
-              .box-icon {
-                border: 1px solid #000;
-                width: 40px;
-                height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                font-size: 12px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              ${selectedTasks.map(task => {
-                // Extract property number and name
-                const propertyMatch = task.property.match(/^([^a-zA-Z]+)\\s*(.*)$/);
-                const propertyNum = propertyMatch ? propertyMatch[1].trim() : '';
-                const propertyName = propertyMatch ? propertyMatch[2].trim() : task.property;
-                
-                return `
-                <div class="label">
-                  <div class="header-row">
-                    <span class="property-header">${propertyNum} : ${propertyName}</span>
-                    <span class="arrival-status">ARRIVÉE AUJD : ${task.status === 'scheduled' ? 'NON' : 'OUI'}</span>
-                  </div>
-                  
-                  <div class="items-container">
-                    <div class="left-column">
-                      ${task.bedding?.map(item => {
-                        const qtyMatch = item.match(/x(\\d+)$/);
-                        const qty = qtyMatch ? qtyMatch[1] : '1';
-                        const itemName = item.replace(/x\\d+$/, '').trim();
-                        return `<div class="item-row"><span class="item-qty">${qty} x</span> <span class="item-name">${itemName}</span></div>`;
-                      }).join('') || ''}
-                      
-                      ${task.items?.map(item => {
-                        const qtyMatch = item.match(/x(\\d+)$/);
-                        const qty = qtyMatch ? qtyMatch[1] : '1';
-                        const itemName = item.replace(/x\\d+$/, '').trim();
-                        // Filter out only items related to towels, bath mats, etc.
-                        if (itemName.toLowerCase().includes('serviette') || 
-                            itemName.toLowerCase().includes('tapis')) {
-                          return `<div class="item-row"><span class="item-qty">${qty} x</span> <span class="item-name">${itemName}</span></div>`;
-                        }
-                        return '';
-                      }).join('') || ''}
-                    </div>
-                    
-                    <div class="right-column">
-                      <div class="consumable-row">
-                        <div class="box-icon">☕</div>
-                        <span class="consumable-text">x 4</span>
-                      </div>
-                      <div class="consumable-row">
-                        <div class="box-icon">🍵</div>
-                        <span class="consumable-text">x 4</span>
-                      </div>
-                      <div class="consumable-row">
-                        <div class="box-icon">CUISINE</div>
-                        <span class="consumable-text">x 1</span>
-                      </div>
-                      <div class="consumable-row">
-                        <div class="box-icon">SDB</div>
-                        <span class="consumable-text">x 2</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              `;
-              }).join('')}
-            </div>
-            <script>
-              window.onload = function() { window.print(); }
-            </script>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-    }
+    generateLabelsPrintWindow(selectedTasks);
 
     toast({
       title: "Étiquettes générées",
@@ -614,169 +444,39 @@ const Cleaning = () => {
     
     setLabelsDialogOpen(false);
   };
-
-  const CleaningTask = ({ task }: { task: any }) => {
-    const isTaskSelected = selectedTasks.some(t => t.id === task.id);
-    const [isExpanded, setIsExpanded] = useState(false);
+  
+  const handleEditComments = () => {
+    if (!currentTask) return;
     
-    return (
-      <Card className={`p-3 mb-2 animate-slide-up card-hover border border-border/40 ${labelsDialogOpen && isTaskSelected ? 'ring-2 ring-primary' : ''}`}>
-        <div className="flex justify-between items-center">
-          <div 
-            className={`flex-1 ${labelsDialogOpen ? "cursor-pointer" : ""}`} 
-            onClick={labelsDialogOpen ? () => handleSelectTask(task) : undefined}
-          >
-            <div className="flex items-center gap-2">
-              {getStatusBadge(task.status)}
-              <h3 className="font-semibold">{task.property}</h3>
-              {labelsDialogOpen && (
-                <div className="ml-auto">
-                  <input 
-                    type="checkbox" 
-                    checked={isTaskSelected}
-                    onChange={() => handleSelectTask(task)}
-                    className="h-4 w-4"
-                  />
-                </div>
-              )}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {task.date ? (
-                <span>{task.date} · {task.startTime} - {task.endTime}</span>
-              ) : (
-                <span>Check-out: {task.checkoutTime} · Check-in: {task.checkinTime}</span>
-              )}
-            </div>
-            {task.comments && (
-              <div className="mt-1 text-sm italic text-muted-foreground">
-                "{task.comments}"
-              </div>
-            )}
-          </div>
-          
-          {!labelsDialogOpen && (
-            <div className="flex items-center gap-2">
-              {task.status === 'todo' && (
-                <>
-                  <Button size="sm" variant="ghost" className="px-2" onClick={() => openDetailsDialog(task)}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" className="py-1 px-2 h-8" onClick={() => handleStartCleaning(task)}>
-                    Commencer
-                  </Button>
-                </>
-              )}
-              {task.status === 'inProgress' && (
-                <>
-                  <Button size="sm" variant="ghost" className="px-2" onClick={() => openDetailsDialog(task)}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" className="py-1 px-2 h-8" onClick={() => handleCompleteCleaning(task)}>
-                    Terminer
-                  </Button>
-                </>
-              )}
-              {(task.status === 'completed' || task.status === 'scheduled') && (
-                <Button size="sm" variant="ghost" className="px-2" onClick={() => openDetailsDialog(task)}>
-                  <Eye className="h-4 w-4" />
-                </Button>
-              )}
-              <Collapsible>
-                <CollapsibleTrigger asChild>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="px-2"
-                    onClick={() => setIsExpanded(!isExpanded)}
-                  >
-                    {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-3 pt-3 border-t">
-                  {task.cleaningAgent && (
-                    <div className="flex items-center gap-2 mb-3">
-                      <Avatar className="h-6 w-6">
-                        <AvatarFallback>{task.cleaningAgent.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm">Agent: {task.cleaningAgent}</span>
-                    </div>
-                  )}
-                  
-                  <div className="space-y-2">
-                    {task.items?.length > 0 && (
-                      <div>
-                        <p className="text-sm font-medium mb-1">Linge à prévoir:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {task.items.map((item: string, i: number) => (
-                            <Badge key={i} variant="outline" className="rounded-full">
-                              {item}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {task.bedding?.length > 0 && (
-                      <div>
-                        <p className="text-sm font-medium mb-1">Housses et taies:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {task.bedding.map((item: string, i: number) => (
-                            <Badge key={i} variant="outline" className="rounded-full bg-blue-50">
-                              {item}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {task.consumables?.length > 0 && (
-                      <div>
-                        <p className="text-sm font-medium mb-1">Consommables:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {task.consumables.map((item: string, i: number) => (
-                            <Badge key={i} variant="outline" className="rounded-full bg-green-50">
-                              {item}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex gap-2 mt-4">
-                    {task.status === 'todo' && !task.cleaningAgent && (
-                      <Button size="sm" variant="outline" className="py-1 px-2 h-8" onClick={() => openAssignDialog(task)}>
-                        Assigner
-                      </Button>
-                    )}
-                    {task.status === 'todo' && task.cleaningAgent && (
-                      <Button size="sm" variant="outline" className="py-1 px-2 h-8" onClick={() => openAssignDialog(task)}>
-                        Changer
-                      </Button>
-                    )}
-                    {task.status === 'inProgress' && (
-                      <Button size="sm" variant="outline" className="py-1 px-2 h-8" onClick={() => openProblemDialog(task)}>
-                        Problème
-                      </Button>
-                    )}
-                    {/* Bouton de suppression pour toutes les tâches */}
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="py-1 px-2 h-8 text-destructive hover:bg-destructive/10" 
-                      onClick={() => openDeleteDialog(task)}
-                    >
-                      <Trash2 className="h-3 w-3 mr-1" />
-                      Supprimer
-                    </Button>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-          )}
-        </div>
-      </Card>
-    );
+    setTaskComments(currentTask.comments);
+    setDetailsDialogOpen(false);
+    setEditCommentsDialogOpen(true);
+  };
+  
+  const handleSaveComments = () => {
+    if (!currentTask) return;
+    
+    // Update comments in the appropriate task list
+    if (currentTask.status === 'completed') {
+      setCompletedCleaningTasks(completedCleaningTasks.map(t => 
+        t.id === currentTask.id ? {...t, comments: taskComments} : t
+      ));
+    } else if (currentTask.status === 'scheduled') {
+      setTomorrowCleaningTasks(tomorrowCleaningTasks.map(t => 
+        t.id === currentTask.id ? {...t, comments: taskComments} : t
+      ));
+    } else {
+      setTodayCleaningTasks(todayCleaningTasks.map(t => 
+        t.id === currentTask.id ? {...t, comments: taskComments} : t
+      ));
+    }
+    
+    toast({
+      title: "Commentaires modifiés",
+      description: `Les commentaires pour ${currentTask.property} ont été mis à jour.`
+    });
+    
+    setEditCommentsDialogOpen(false);
   };
 
   return (
@@ -839,7 +539,7 @@ const Cleaning = () => {
               Calendrier
             </Button>
             <Button size="sm" variant="outline" className="gap-1" onClick={handleSync}>
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-5 w-5" />
               Synchroniser
             </Button>
           </div>
@@ -864,539 +564,134 @@ const Cleaning = () => {
           </div>
           
           <TabsContent value="today" className="space-y-4">
-            <div className="space-y-2">
-              {todayCleaningTasks.map((task) => (
-                <CleaningTask key={task.id} task={task} />
-              ))}
-              
-              {todayCleaningTasks.length === 0 && (
-                <div className="text-center p-4">
-                  <p className="text-muted-foreground">Aucun ménage prévu pour aujourd'hui</p>
-                </div>
-              )}
-            </div>
+            <CleaningTaskList
+              tasks={todayCleaningTasks}
+              emptyMessage="Aucun ménage prévu pour aujourd'hui"
+              labelsDialogOpen={false}
+              selectedTasks={selectedTasks}
+              onSelectTask={handleSelectTask}
+              onStartCleaning={handleStartCleaning}
+              onCompleteCleaning={handleCompleteCleaning}
+              onOpenDetails={openDetailsDialog}
+              onAssign={openAssignDialog}
+              onReportProblem={openProblemDialog}
+              onDelete={openDeleteDialog}
+            />
           </TabsContent>
           
           <TabsContent value="tomorrow" className="space-y-4">
-            <div className="space-y-2">
-              {tomorrowCleaningTasks.map((task) => (
-                <CleaningTask key={task.id} task={task} />
-              ))}
-              
-              {tomorrowCleaningTasks.length === 0 && (
-                <div className="text-center p-4">
-                  <p className="text-muted-foreground">Aucun ménage prévu pour demain</p>
-                </div>
-              )}
-            </div>
+            <CleaningTaskList
+              tasks={tomorrowCleaningTasks}
+              emptyMessage="Aucun ménage prévu pour demain"
+              labelsDialogOpen={false}
+              selectedTasks={selectedTasks}
+              onSelectTask={handleSelectTask}
+              onStartCleaning={handleStartCleaning}
+              onCompleteCleaning={handleCompleteCleaning}
+              onOpenDetails={openDetailsDialog}
+              onAssign={openAssignDialog}
+              onReportProblem={openProblemDialog}
+              onDelete={openDeleteDialog}
+            />
           </TabsContent>
           
           <TabsContent value="completed" className="space-y-4">
-            <div className="space-y-2">
-              {completedCleaningTasks.map((task) => (
-                <CleaningTask key={task.id} task={task} />
-              ))}
-              
-              {completedCleaningTasks.length === 0 && (
-                <div className="text-center p-4">
-                  <p className="text-muted-foreground">Aucun ménage complété</p>
-                </div>
-              )}
-            </div>
+            <CleaningTaskList
+              tasks={completedCleaningTasks}
+              emptyMessage="Aucun ménage complété"
+              labelsDialogOpen={false}
+              selectedTasks={selectedTasks}
+              onSelectTask={handleSelectTask}
+              onStartCleaning={handleStartCleaning}
+              onCompleteCleaning={handleCompleteCleaning}
+              onOpenDetails={openDetailsDialog}
+              onAssign={openAssignDialog}
+              onReportProblem={openProblemDialog}
+              onDelete={openDeleteDialog}
+            />
           </TabsContent>
         </Tabs>
       </DashboardCard>
 
-      {/* Assign Dialog */}
-      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Assigner un agent</DialogTitle>
-            <DialogDescription>
-              Choisissez un agent de ménage pour {currentTask?.property}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Select value={selectedAgent} onValueChange={setSelectedAgent}>
-            <SelectTrigger>
-              <SelectValue placeholder="Sélectionner un agent" />
-            </SelectTrigger>
-            <SelectContent>
-              {cleaningAgents.map((agent) => (
-                <SelectItem key={agent} value={agent}>
-                  {agent}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>Annuler</Button>
-            <Button onClick={handleAssignAgent}>Assigner</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Dialogs */}
+      <CleaningAgentAssignDialog
+        open={assignDialogOpen}
+        onOpenChange={setAssignDialogOpen}
+        currentTask={currentTask}
+        selectedAgent={selectedAgent}
+        setSelectedAgent={setSelectedAgent}
+        cleaningAgents={cleaningAgents}
+        onAssign={handleAssignAgent}
+      />
 
-      {/* Details Dialog */}
-      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Détails du ménage</DialogTitle>
-            <DialogDescription>
-              {currentTask?.property}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h3 className="font-medium mb-2">Informations principales</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Statut:</span>
-                  <span>{getStatusBadge(currentTask?.status || 'todo')}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Check-out:</span>
-                  <span>{currentTask?.checkoutTime}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Check-in:</span>
-                  <span>{currentTask?.checkinTime}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Agent:</span>
-                  <span>{currentTask?.cleaningAgent || "Non assigné"}</span>
-                </div>
-                {currentTask?.startTime && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Démarré à:</span>
-                    <span>{currentTask.startTime}</span>
-                  </div>
-                )}
-                {currentTask?.endTime && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Terminé à:</span>
-                    <span>{currentTask.endTime}</span>
-                  </div>
-                )}
-                {currentTask?.comments && (
-                  <div className="flex flex-col">
-                    <span className="text-muted-foreground">Commentaires:</span>
-                    <div className="border p-3 rounded-lg mt-1 bg-muted">
-                      {currentTask.comments}
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="mt-1 self-end"
-                      onClick={() => {
-                        setTaskComments(currentTask.comments);
-                        setCurrentTask(currentTask);
-                        setDetailsDialogOpen(false);
-                        setEditCommentsDialogOpen(true);
-                      }}
-                    >
-                      Modifier
-                    </Button>
-                  </div>
-                )}
-                {!currentTask?.comments && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Commentaires:</span>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => {
-                        setTaskComments("");
-                        setCurrentTask(currentTask);
-                        setDetailsDialogOpen(false);
-                        setEditCommentsDialogOpen(true);
-                      }}
-                    >
-                      Ajouter
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="font-medium mb-2">Détails</h3>
-              <div className="space-y-3">
-                {currentTask?.items && currentTask.items.length > 0 && (
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Linge à prévoir:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {currentTask.items.map((item: string, i: number) => (
-                        <Badge key={i} variant="outline" className="rounded-full">
-                          {item}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {currentTask?.bedding && currentTask.bedding.length > 0 && (
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Housses et taies:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {currentTask.bedding.map((item: string, i: number) => (
-                        <Badge key={i} variant="outline" className="rounded-full bg-blue-50">
-                          {item}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {currentTask?.consumables && currentTask.consumables.length > 0 && (
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Consommables:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {currentTask.consumables.map((item: string, i: number) => (
-                        <Badge key={i} variant="outline" className="rounded-full bg-green-50">
-                          {item}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDetailsDialogOpen(false)}>Fermer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CleaningTaskDetailsDialog
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        currentTask={currentTask}
+        getStatusBadge={getStatusBadge}
+        onEditComments={handleEditComments}
+      />
 
-      {/* Problem Dialog */}
-      <Dialog open={problemDialogOpen} onOpenChange={setProblemDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Signaler un problème</DialogTitle>
-            <DialogDescription>
-              Décrivez le problème rencontré pendant le ménage de {currentTask?.property}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Description</label>
-              <Input
-                value={problemDescription}
-                onChange={(e) => setProblemDescription(e.target.value)}
-                placeholder="Décrivez le problème..."
-                className="h-32"
-              />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setProblemDialogOpen(false)}>Annuler</Button>
-            <Button variant="destructive" onClick={handleReportProblem}>Signaler</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ProblemReportDialog
+        open={problemDialogOpen}
+        onOpenChange={setProblemDialogOpen}
+        currentTask={currentTask}
+        problemDescription={problemDescription}
+        setProblemDescription={setProblemDescription}
+        onReport={handleReportProblem}
+      />
 
-      {/* Calendar Dialog */}
-      <Dialog open={calendarDialogOpen} onOpenChange={setCalendarDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Sélectionner une date</DialogTitle>
-            <DialogDescription>
-              Choisissez une date pour voir les ménages prévus
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={handleDateChange}
-            locale={fr}
-            className="mx-auto"
-          />
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCalendarDialogOpen(false)}>Annuler</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CalendarDialog
+        open={calendarDialogOpen}
+        onOpenChange={setCalendarDialogOpen}
+        selectedDate={selectedDate}
+        onDateChange={handleDateChange}
+      />
 
-      {/* Labels Dialog */}
-      <Dialog open={labelsDialogOpen} onOpenChange={setLabelsDialogOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Générer des étiquettes</DialogTitle>
-            <DialogDescription>
-              Sélectionnez les ménages pour lesquels vous souhaitez générer des étiquettes
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Type d'étiquette</label>
-              <Select value={labelType} onValueChange={(value: any) => setLabelType(value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="standard">Standard</SelectItem>
-                  <SelectItem value="detailed">Détaillée</SelectItem>
-                  <SelectItem value="qrcode">QR Code</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-medium">Ménages</label>
-                <span className="text-xs text-muted-foreground">
-                  {selectedTasks.length} sélectionné(s)
-                </span>
-              </div>
-              
-              <div className="border rounded-md h-64 overflow-y-auto p-2">
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid grid-cols-3 w-full">
-                    <TabsTrigger value="today">Aujourd'hui</TabsTrigger>
-                    <TabsTrigger value="tomorrow">Demain</TabsTrigger>
-                    <TabsTrigger value="completed">Complétés</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="today" className="mt-2 space-y-2">
-                    {todayCleaningTasks.map((task) => (
-                      <CleaningTask key={task.id} task={task} />
-                    ))}
-                  </TabsContent>
-                  
-                  <TabsContent value="tomorrow" className="mt-2 space-y-2">
-                    {tomorrowCleaningTasks.map((task) => (
-                      <CleaningTask key={task.id} task={task} />
-                    ))}
-                  </TabsContent>
-                  
-                  <TabsContent value="completed" className="mt-2 space-y-2">
-                    {completedCleaningTasks.map((task) => (
-                      <CleaningTask key={task.id} task={task} />
-                    ))}
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setLabelsDialogOpen(false)}>Annuler</Button>
-            <Button onClick={handlePrintLabels} className="gap-1">
-              <Printer className="h-4 w-4" />
-              Imprimer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <LabelsDialog
+        open={labelsDialogOpen}
+        onOpenChange={setLabelsDialogOpen}
+        labelType={labelType}
+        setLabelType={setLabelType}
+        selectedTasks={selectedTasks}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        todayCleaningTasks={todayCleaningTasks}
+        tomorrowCleaningTasks={tomorrowCleaningTasks}
+        completedCleaningTasks={completedCleaningTasks}
+        onSelectTask={handleSelectTask}
+        onStartCleaning={handleStartCleaning}
+        onCompleteCleaning={handleCompleteCleaning}
+        onOpenDetails={openDetailsDialog}
+        onAssign={openAssignDialog}
+        onReportProblem={openProblemDialog}
+        onDelete={openDeleteDialog}
+        onPrintLabels={handlePrintLabels}
+      />
 
-      {/* Add Task Dialog */}
-      <Dialog open={addTaskDialogOpen} onOpenChange={setAddTaskDialogOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Ajouter un ménage</DialogTitle>
-            <DialogDescription>
-              Complétez les informations pour ajouter un nouveau ménage
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Propriété</label>
-                <Input
-                  value={newTask.property}
-                  onChange={(e) => setNewTask({...newTask, property: e.target.value})}
-                  placeholder="Nom de l'appartement"
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Check-out</label>
-                  <Input
-                    type="time"
-                    value={newTask.checkoutTime}
-                    onChange={(e) => setNewTask({...newTask, checkoutTime: e.target.value})}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Check-in</label>
-                  <Input
-                    type="time"
-                    value={newTask.checkinTime}
-                    onChange={(e) => setNewTask({...newTask, checkinTime: e.target.value})}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Date</label>
-                <Input
-                  type="date"
-                  value={newTask.date}
-                  onChange={(e) => setNewTask({...newTask, date: e.target.value})}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Statut</label>
-                <Select 
-                  value={newTask.status} 
-                  onValueChange={(value: any) => setNewTask({...newTask, status: value})}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un statut" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todo">À faire</SelectItem>
-                    <SelectItem value="completed">Terminé</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Agent de ménage</label>
-                <Select 
-                  value={newTask.cleaningAgent} 
-                  onValueChange={(value: string) => setNewTask({...newTask, cleaningAgent: value})}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un agent" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Non assigné</SelectItem>
-                    {cleaningAgents.map((agent) => (
-                      <SelectItem key={agent} value={agent}>{agent}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Linge à prévoir</label>
-                <Input
-                  value={newTask.items.join(', ')}
-                  onChange={(e) => setNewTask({...newTask, items: e.target.value.split(', ')})}
-                  placeholder="Serviettes bain x2, Serviettes main x2"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Housses et taies</label>
-                <Input
-                  value={newTask.bedding.join(', ')}
-                  onChange={(e) => setNewTask({...newTask, bedding: e.target.value.split(', ')})}
-                  placeholder="Housse de couette queen x1, Taies d'oreiller x2"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Consommables</label>
-                <Input
-                  value={newTask.consumables.join(', ')}
-                  onChange={(e) => setNewTask({...newTask, consumables: e.target.value.split(', ')})}
-                  placeholder="Capsules café x4, Sachets thé x2"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Commentaires</label>
-                <Input
-                  value={newTask.comments}
-                  onChange={(e) => setNewTask({...newTask, comments: e.target.value})}
-                  placeholder="Instructions spéciales..."
-                />
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAddTaskDialogOpen(false)}>Annuler</Button>
-            <Button onClick={handleAddTask}>Ajouter</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AddCleaningTaskDialog
+        open={addTaskDialogOpen}
+        onOpenChange={setAddTaskDialogOpen}
+        newTask={newTask}
+        setNewTask={setNewTask}
+        cleaningAgents={cleaningAgents}
+        onAddTask={handleAddTask}
+      />
 
-      {/* Edit Comments Dialog */}
-      <Dialog open={editCommentsDialogOpen} onOpenChange={setEditCommentsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Modifier les commentaires</DialogTitle>
-            <DialogDescription>
-              Modifiez les commentaires pour {currentTask?.property}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Commentaires</label>
-              <Input
-                value={taskComments}
-                onChange={(e) => setTaskComments(e.target.value)}
-                placeholder="Instructions spéciales..."
-                className="h-32"
-              />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditCommentsDialogOpen(false)}>Annuler</Button>
-            <Button onClick={() => {
-              // Update comments in the appropriate task list
-              if (currentTask) {
-                if (currentTask.status === 'completed') {
-                  setCompletedCleaningTasks(completedCleaningTasks.map(t => 
-                    t.id === currentTask.id ? {...t, comments: taskComments} : t
-                  ));
-                } else if (currentTask.status === 'scheduled') {
-                  setTomorrowCleaningTasks(tomorrowCleaningTasks.map(t => 
-                    t.id === currentTask.id ? {...t, comments: taskComments} : t
-                  ));
-                } else {
-                  setTodayCleaningTasks(todayCleaningTasks.map(t => 
-                    t.id === currentTask.id ? {...t, comments: taskComments} : t
-                  ));
-                }
-                toast({
-                  title: "Commentaires modifiés",
-                  description: `Les commentaires pour ${currentTask.property} ont été mis à jour.`
-                });
-              }
-              setEditCommentsDialogOpen(false);
-            }}>
-              Enregistrer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EditCommentsDialog
+        open={editCommentsDialogOpen}
+        onOpenChange={setEditCommentsDialogOpen}
+        currentTask={currentTask}
+        taskComments={taskComments}
+        setTaskComments={setTaskComments}
+        onSaveComments={handleSaveComments}
+      />
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteConfirmDialogOpen} onOpenChange={setDeleteConfirmDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirmer la suppression</DialogTitle>
-            <DialogDescription>
-              Êtes-vous sûr de vouloir supprimer ce ménage ? Cette action ne peut pas être annulée.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirmDialogOpen(false)}>Annuler</Button>
-            <Button variant="destructive" onClick={handleDeleteTask}>Supprimer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DeleteConfirmDialog
+        open={deleteConfirmDialogOpen}
+        onOpenChange={setDeleteConfirmDialogOpen}
+        onDelete={handleDeleteTask}
+      />
     </div>
   );
 };
