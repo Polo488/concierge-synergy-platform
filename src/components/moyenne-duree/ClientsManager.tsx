@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -153,7 +152,7 @@ const typeColors: Record<ClientType, string> = {
 
 const ClientsManager: React.FC = () => {
   const [clients, setClients] = useState<Client[]>(mockClients);
-  // Update the type of clientForm to handle potentialValue as both string and number
+  // Define clientForm to handle potentialValue as both string and number
   const [clientForm, setClientForm] = useState<Partial<Client> & { potentialValue?: number | string }>({
     name: "",
     email: "",
@@ -281,7 +280,8 @@ const ClientsManager: React.FC = () => {
     setClientForm({
       ...client,
       // When editing, convert the number to string for the input field
-      potentialValue: client.potentialValue !== undefined ? client.potentialValue.toString() : undefined
+      // Fix: Handle potential undefined value safely
+      potentialValue: client.potentialValue !== undefined ? String(client.potentialValue) : undefined
     });
     setIsEditing(true);
     setOpenDialog(true);
