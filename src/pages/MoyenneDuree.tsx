@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { Plus, Edit2, Trash2, Euro, CalendarDays, User, TrendingUp, Database, Activity, ChartBar, BarChart, Briefcase } from "lucide-react";
+import { Plus, Edit2, Trash2, Euro, CalendarDays, User, TrendingUp, Database, Activity, ChartBar, BarChart, Briefcase, Clock, BellRing, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -17,6 +17,9 @@ import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Textarea } from "@/components/ui/textarea";
 import ClientsManager from "@/components/moyenne-duree/ClientsManager";
+import { Badge } from "@/components/ui/badge";
+import { addDays, format, isAfter, isBefore, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
 
 // Interface pour un mandat
 interface Mandat {
@@ -25,9 +28,27 @@ interface Mandat {
   owner: string;
   startDate: string;
   endDate: string;
-  fee: number; // Montant des honoraires annuels
   status: "active" | "expired" | "terminated";
   notes?: string;
+}
+
+// Type pour la source de réservation
+type BookingSource = 
+  | "airbnb" 
+  | "booking" 
+  | "homelike" 
+  | "wunderflats" 
+  | "direct" 
+  | "relocation" 
+  | "other";
+
+// Interface pour un paiement
+interface Payment {
+  id: string;
+  dueDate: string;
+  amount: number;
+  status: "pending" | "paid" | "overdue";
+  paymentDate?: string;
 }
 
 // Define the interface for a booking
@@ -49,6 +70,9 @@ interface Booking {
     bnbLyon: number;
     hamac: number;
   };
+  source: BookingSource;
+  monthlyPayment: boolean;
+  payments?: Payment[];
   status: "upcoming" | "active" | "completed";
 }
 
@@ -60,7 +84,6 @@ const mockMandats: Mandat[] = [
     owner: "Jean Dupont",
     startDate: "2023-01-15",
     endDate: "2024-01-15",
-    fee: 480,
     status: "active",
     notes: "Propriétaire très réactif. Immeuble avec gardien."
   },
@@ -70,7 +93,6 @@ const mockMandats: Mandat[] = [
     owner: "Marie Martin",
     startDate: "2023-03-01",
     endDate: "2024-03-01",
-    fee: 360,
     status: "active",
     notes: "Rénovation complète en 2022."
   },
@@ -80,7 +102,6 @@ const mockMandats: Mandat[] = [
     owner: "Pierre Bertrand",
     startDate: "2022-11-01",
     endDate: "2023-11-01",
-    fee: 540,
     status: "expired",
     notes: "À renouveler rapidement. Propriétaire satisfait."
   },
@@ -90,13 +111,12 @@ const mockMandats: Mandat[] = [
     owner: "Sophie Blanc",
     startDate: "2024-01-01",
     endDate: "2025-01-01",
-    fee: 420,
     status: "active",
     notes: "Nouveau mandat. Première location pour ce propriétaire."
   }
 ];
 
-// Update mock data to include commissionSplit
+// Update mock data to include new fields
 const mockBookings: Booking[] = [
   {
     id: "MD-2023-001",
@@ -116,6 +136,8 @@ const mockBookings: Booking[] = [
       bnbLyon: 285,
       hamac: 285
     },
+    source: "airbnb",
+    monthlyPayment: false,
     status: "active"
   },
   {
@@ -136,6 +158,30 @@ const mockBookings: Booking[] = [
       bnbLyon: 228,
       hamac: 228
     },
+    source: "homelike",
+    monthlyPayment: true,
+    payments: [
+      {
+        id: "PAY-001",
+        dueDate: "2023-11-01",
+        amount: 800,
+        status: "paid",
+        paymentDate: "2023-11-01"
+      },
+      {
+        id: "PAY-002",
+        dueDate: "2023-12-01",
+        amount: 800,
+        status: "paid",
+        paymentDate: "2023-12-02"
+      },
+      {
+        id: "PAY-003",
+        dueDate: "2024-01-01",
+        amount: 800,
+        status: "pending"
+      }
+    ],
     status: "active"
   },
   {
@@ -156,6 +202,31 @@ const mockBookings: Booking[] = [
       bnbLyon: 342,
       hamac: 342
     },
+    source: "direct",
+    monthlyPayment: true,
+    payments: [
+      {
+        id: "PAY-004",
+        dueDate: "2023-09-01",
+        amount: 1200,
+        status: "paid",
+        paymentDate: "2023-09-01"
+      },
+      {
+        id: "PAY-005",
+        dueDate: "2023-10-01",
+        amount: 1200,
+        status: "paid",
+        paymentDate: "2023-10-01"
+      },
+      {
+        id: "PAY-006",
+        dueDate: "2023-11-01",
+        amount: 1200,
+        status: "paid",
+        paymentDate: "2023-11-01"
+      }
+    ],
     status: "completed"
   },
   {
@@ -176,7 +247,31 @@ const mockBookings: Booking[] = [
       bnbLyon: 304,
       hamac: 304
     },
-    status: "upcoming"
+    source: "wunderflats",
+    monthlyPayment: true,
+    payments: [
+      {
+        id: "PAY-007",
+        dueDate: "2024-01-01",
+        amount: 1066.67,
+        status: "paid",
+        paymentDate: "2024-01-01"
+      },
+      {
+        id: "PAY-008",
+        dueDate: "2024-02-01",
+        amount: 1066.67,
+        status: "paid",
+        paymentDate: "2024-02-01"
+      },
+      {
+        id: "PAY-009",
+        dueDate: "2024-03-01",
+        amount: 1066.66,
+        status: "pending"
+      }
+    ],
+    status: "active"
   }
 ];
 
@@ -205,7 +300,6 @@ interface MandatCardProps {
   mandat: Mandat;
   formatter: {
     date: (date: string) => string;
-    currency: (amount: number) => string;
   };
   statusInfo: {
     getColor: (status: string) => string;
@@ -261,14 +355,10 @@ const MandatCard = ({ mandat, formatter, statusInfo, onEdit, onDelete, onViewDet
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-muted-foreground">Période</p>
             <p>{formatter.date(mandat.startDate)} - {formatter.date(mandat.endDate)}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Honoraires annuels</p>
-            <p className="font-medium">{formatter.currency(mandat.fee)}</p>
           </div>
           <div>
             <p className="text-muted-foreground">ID Mandat</p>
@@ -282,6 +372,18 @@ const MandatCard = ({ mandat, formatter, statusInfo, onEdit, onDelete, onViewDet
 
 // BookingCard component
 const BookingCard = ({ booking, formatter, statusInfo, commissionSplitInfo, onEdit, onDelete, onViewDetails }: BookingCardProps) => {
+  // Check for upcoming payments
+  const hasUpcomingPayment = booking.monthlyPayment && 
+    booking.payments?.some(p => p.status === "pending");
+  
+  // Find the next payment due
+  const nextPayment = booking.payments?.find(p => p.status === "pending");
+  
+  // Check if any payment is overdue
+  const hasOverduePayment = booking.payments?.some(p => 
+    p.status === "pending" && isAfter(new Date(), parseISO(p.dueDate))
+  );
+
   return (
     <Card className="animate-fade-in cursor-pointer hover:shadow-card transition-shadow" onClick={onViewDetails}>
       <CardHeader className="pb-2">
@@ -338,12 +440,133 @@ const BookingCard = ({ booking, formatter, statusInfo, commissionSplitInfo, onEd
             <p className="font-medium">{formatter.currency(booking.amount)}</p>
           </div>
           <div>
-            <p className="text-muted-foreground">Commission</p>
-            <p className="font-medium">{formatter.currency(booking.commission.total)}</p>
+            <p className="text-muted-foreground">Source</p>
+            <p className="font-medium">{getSourceLabel(booking.source)}</p>
           </div>
         </div>
+        
+        {booking.monthlyPayment && nextPayment && (
+          <div className="mt-4 flex items-center justify-between p-2 rounded-md border border-gray-200">
+            <div className="flex items-center gap-2">
+              {hasOverduePayment ? (
+                <BellRing className="text-red-500 h-5 w-5" />
+              ) : (
+                <Bell className="text-blue-500 h-5 w-5" />
+              )}
+              <div>
+                <p className="text-sm font-medium">
+                  {hasOverduePayment ? 'Paiement en retard' : 'Prochain paiement'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatter.date(nextPayment.dueDate)} - {formatter.currency(nextPayment.amount)}
+                </p>
+              </div>
+            </div>
+            <Badge 
+              variant={hasOverduePayment ? "destructive" : "outline"}
+              className="ml-2"
+            >
+              {hasOverduePayment ? 'En retard' : 'À venir'}
+            </Badge>
+          </div>
+        )}
       </CardContent>
     </Card>
+  );
+};
+
+// Function to get source label
+const getSourceLabel = (source: BookingSource): string => {
+  switch (source) {
+    case 'airbnb':
+      return 'Airbnb';
+    case 'booking':
+      return 'Booking.com';
+    case 'homelike':
+      return 'Homelike';
+    case 'wunderflats':
+      return 'Wunderflats';
+    case 'direct':
+      return 'Direct';
+    case 'relocation':
+      return 'Agence relocation';
+    case 'other':
+      return 'Autre';
+    default:
+      return source;
+  }
+};
+
+// Component for payment schedule
+const PaymentSchedule = ({ 
+  payments, 
+  formatter,
+  onUpdatePaymentStatus 
+}: { 
+  payments: Payment[], 
+  formatter: { date: (date: string) => string, currency: (amount: number) => string },
+  onUpdatePaymentStatus?: (paymentId: string, status: Payment['status']) => void
+}) => {
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Échéancier de paiement</h3>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Date d'échéance</TableHead>
+            <TableHead>Montant</TableHead>
+            <TableHead>Statut</TableHead>
+            <TableHead>Date de paiement</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {payments.map((payment) => (
+            <TableRow key={payment.id}>
+              <TableCell>{formatter.date(payment.dueDate)}</TableCell>
+              <TableCell>{formatter.currency(payment.amount)}</TableCell>
+              <TableCell>
+                <Badge
+                  className={
+                    payment.status === 'paid' 
+                      ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                      : payment.status === 'overdue' 
+                        ? 'bg-red-100 text-red-800 hover:bg-red-200' 
+                        : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                  }
+                >
+                  {payment.status === 'paid' ? 'Payé' : payment.status === 'overdue' ? 'En retard' : 'En attente'}
+                </Badge>
+              </TableCell>
+              <TableCell>{payment.paymentDate ? formatter.date(payment.paymentDate) : '-'}</TableCell>
+              <TableCell className="text-right">
+                {payment.status !== 'paid' && onUpdatePaymentStatus && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onUpdatePaymentStatus(payment.id, 'paid')}
+                  >
+                    Marquer comme payé
+                  </Button>
+                )}
+                {payment.status === 'pending' && 
+                 isAfter(new Date(), parseISO(payment.dueDate)) && 
+                 onUpdatePaymentStatus && (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="ml-2"
+                    onClick={() => onUpdatePaymentStatus(payment.id, 'overdue')}
+                  >
+                    Marquer en retard
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 
@@ -363,7 +586,6 @@ const MoyenneDuree = () => {
     owner: "",
     startDate: "",
     endDate: "",
-    fee: "",
     notes: "",
   });
   const [openMandatDialog, setOpenMandatDialog] = useState(false);
@@ -385,6 +607,9 @@ const MoyenneDuree = () => {
     commissionRate: "20",
     bnbLyonSplit: "50",
     hamacSplit: "50",
+    source: "airbnb",
+    monthlyPayment: false,
+    paymentDay: "",
   });
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -392,6 +617,7 @@ const MoyenneDuree = () => {
   const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [paymentScheduleOpen, setPaymentScheduleOpen] = useState(false);
 
   // Available commission rates
   const commissionRates = [
@@ -416,6 +642,17 @@ const MoyenneDuree = () => {
     { value: "100", label: "100%" },
   ];
 
+  // Available booking sources
+  const bookingSources = [
+    { value: "airbnb", label: "Airbnb" },
+    { value: "booking", label: "Booking.com" },
+    { value: "homelike", label: "Homelike" },
+    { value: "wunderflats", label: "Wunderflats" },
+    { value: "direct", label: "Direct" },
+    { value: "relocation", label: "Agence relocation" },
+    { value: "other", label: "Autre" },
+  ];
+
   // Gestion des mandats
   const resetMandatForm = () => {
     setMandatForm({
@@ -424,7 +661,6 @@ const MoyenneDuree = () => {
       owner: "",
       startDate: "",
       endDate: "",
-      fee: "",
       notes: "",
     });
     setIsEditingMandat(false);
@@ -442,7 +678,6 @@ const MoyenneDuree = () => {
       owner: mandat.owner,
       startDate: mandat.startDate,
       endDate: mandat.endDate,
-      fee: mandat.fee.toString(),
       notes: mandat.notes || "",
     });
     setIsEditingMandat(true);
@@ -452,15 +687,8 @@ const MoyenneDuree = () => {
   const handleAddOrUpdateMandat = () => {
     // Valider le formulaire
     if (!mandatForm.property || !mandatForm.owner || !mandatForm.startDate || 
-        !mandatForm.endDate || !mandatForm.fee) {
+        !mandatForm.endDate) {
       toast.error("Veuillez remplir tous les champs obligatoires");
-      return;
-    }
-
-    const fee = parseFloat(mandatForm.fee);
-    
-    if (isNaN(fee) || fee <= 0) {
-      toast.error("Les honoraires doivent être un nombre positif");
       return;
     }
 
@@ -482,7 +710,6 @@ const MoyenneDuree = () => {
           owner: mandatForm.owner,
           startDate: mandatForm.startDate,
           endDate: mandatForm.endDate,
-          fee: fee,
           notes: mandatForm.notes,
           status: status
         } : mandat
@@ -499,7 +726,6 @@ const MoyenneDuree = () => {
         owner: mandatForm.owner,
         startDate: mandatForm.startDate,
         endDate: mandatForm.endDate,
-        fee: fee,
         notes: mandatForm.notes,
         status: status
       };
@@ -558,6 +784,85 @@ const MoyenneDuree = () => {
     }
   };
 
+  // Generate payment schedule based on booking info
+  const generatePaymentSchedule = (
+    startDate: string,
+    endDate: string,
+    totalAmount: number,
+    paymentDay: string
+  ): Payment[] => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const payments: Payment[] = [];
+    
+    // Calculate number of months
+    let currentDate = new Date(start);
+    let monthCounter = 0;
+    
+    while (currentDate <= end) {
+      monthCounter++;
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    }
+    
+    // If less than a month, just one payment
+    if (monthCounter <= 1) {
+      return [{
+        id: `PAY-${Date.now()}-1`,
+        dueDate: format(start, 'yyyy-MM-dd'),
+        amount: totalAmount,
+        status: 'pending'
+      }];
+    }
+    
+    // Calculate monthly payment amount
+    const monthlyAmount = parseFloat((totalAmount / monthCounter).toFixed(2));
+    
+    // Generate payment schedule
+    currentDate = new Date(start);
+    let paymentId = 1;
+    
+    // If payment day is specified, use it
+    const usePaymentDay = paymentDay && !isNaN(parseInt(paymentDay));
+    const specifiedDay = usePaymentDay ? parseInt(paymentDay) : start.getDate();
+    
+    for (let i = 0; i < monthCounter; i++) {
+      let paymentDate = new Date(currentDate);
+      
+      // Set the payment day if specified
+      if (usePaymentDay) {
+        // Make sure the day exists in the current month
+        const lastDayOfMonth = new Date(
+          paymentDate.getFullYear(),
+          paymentDate.getMonth() + 1,
+          0
+        ).getDate();
+        
+        paymentDate.setDate(Math.min(specifiedDay, lastDayOfMonth));
+      }
+      
+      // Last payment might be different to match total amount
+      const isLastPayment = i === monthCounter - 1;
+      let paymentAmount = monthlyAmount;
+      
+      if (isLastPayment) {
+        const totalPaid = monthlyAmount * (monthCounter - 1);
+        paymentAmount = parseFloat((totalAmount - totalPaid).toFixed(2));
+      }
+      
+      payments.push({
+        id: `PAY-${Date.now()}-${paymentId}`,
+        dueDate: format(paymentDate, 'yyyy-MM-dd'),
+        amount: paymentAmount,
+        status: 'pending'
+      });
+      
+      paymentId++;
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    }
+    
+    return payments;
+  };
+
   // Calculate commission based on amount, cleaning fee, commission rate, and the split between entities
   const calculateCommission = (
     amount: number, 
@@ -593,6 +898,11 @@ const MoyenneDuree = () => {
     setBookingForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setBookingForm(prev => ({ ...prev, [name]: checked }));
+  };
+
   const handleSelectChange = (name: string, value: string) => {
     setBookingForm(prev => ({ ...prev, [name]: value }));
     
@@ -616,6 +926,9 @@ const MoyenneDuree = () => {
       commissionRate: "20",
       bnbLyonSplit: "50",
       hamacSplit: "50",
+      source: "airbnb",
+      monthlyPayment: false,
+      paymentDay: "",
     });
     setIsEditing(false);
   };
@@ -632,6 +945,11 @@ const MoyenneDuree = () => {
       commissionRate: booking.commissionRate.toString(),
       bnbLyonSplit: booking.commissionSplit.bnbLyon.toString(),
       hamacSplit: booking.commissionSplit.hamac.toString(),
+      source: booking.source,
+      monthlyPayment: booking.monthlyPayment,
+      paymentDay: booking.payments && booking.payments.length > 0 
+        ? new Date(booking.payments[0].dueDate).getDate().toString() 
+        : "",
     });
     setIsEditing(true);
     setOpenDialog(true);
@@ -642,7 +960,15 @@ const MoyenneDuree = () => {
     if (!bookingForm.property || !bookingForm.tenant || !bookingForm.startDate || 
         !bookingForm.endDate || !bookingForm.amount || !bookingForm.cleaningFee || 
         !bookingForm.commissionRate || !bookingForm.bnbLyonSplit || !bookingForm.hamacSplit) {
-      toast.error("Veuillez remplir tous les champs");
+      toast.error("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
+
+    // Validate payment day if monthly payment is enabled
+    if (bookingForm.monthlyPayment && 
+        (!bookingForm.paymentDay || isNaN(parseInt(bookingForm.paymentDay)) || 
+         parseInt(bookingForm.paymentDay) < 1 || parseInt(bookingForm.paymentDay) > 31)) {
+      toast.error("Veuillez entrer un jour de paiement valide (entre 1 et 31)");
       return;
     }
 
@@ -683,6 +1009,17 @@ const MoyenneDuree = () => {
 
     const commission = calculateCommission(amount, cleaningFee, commissionRate, bnbLyonSplit);
     
+    // Generate payment schedule if monthly payment is enabled
+    let payments: Payment[] | undefined = undefined;
+    if (bookingForm.monthlyPayment) {
+      payments = generatePaymentSchedule(
+        bookingForm.startDate,
+        bookingForm.endDate,
+        amount,
+        bookingForm.paymentDay
+      );
+    }
+    
     if (isEditing) {
       // Update existing booking
       const updatedBookings = bookings.map(booking => 
@@ -700,6 +1037,11 @@ const MoyenneDuree = () => {
             hamac: hamacSplit
           },
           commission: commission,
+          source: bookingForm.source as BookingSource,
+          monthlyPayment: bookingForm.monthlyPayment,
+          payments: bookingForm.monthlyPayment 
+            ? payments 
+            : undefined,
           status: status
         } : booking
       );
@@ -723,6 +1065,11 @@ const MoyenneDuree = () => {
           hamac: hamacSplit
         },
         commission: commission,
+        source: bookingForm.source as BookingSource,
+        monthlyPayment: bookingForm.monthlyPayment,
+        payments: bookingForm.monthlyPayment 
+          ? payments 
+          : undefined,
         status: status
       };
 
@@ -747,6 +1094,41 @@ const MoyenneDuree = () => {
       setDeleteConfirmOpen(false);
       setBookingToDelete(null);
     }
+  };
+
+  const handleUpdatePaymentStatus = (bookingId: string, paymentId: string, status: Payment['status']) => {
+    const updatedBookings = bookings.map(booking => {
+      if (booking.id === bookingId && booking.payments) {
+        const updatedPayments = booking.payments.map(payment => {
+          if (payment.id === paymentId) {
+            return {
+              ...payment,
+              status,
+              paymentDate: status === 'paid' ? format(new Date(), 'yyyy-MM-dd') : undefined
+            };
+          }
+          return payment;
+        });
+        
+        return {
+          ...booking,
+          payments: updatedPayments
+        };
+      }
+      return booking;
+    });
+    
+    setBookings(updatedBookings);
+    
+    // Also update the selected booking if we're in details view
+    if (selectedBooking && selectedBooking.id === bookingId) {
+      const updatedBooking = updatedBookings.find(b => b.id === bookingId);
+      if (updatedBooking) {
+        setSelectedBooking(updatedBooking);
+      }
+    }
+    
+    toast.success(`Statut du paiement mis à jour avec succès`);
   };
 
   const getStatusColor = (status: string) => {
@@ -777,7 +1159,7 @@ const MoyenneDuree = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('fr-FR').format(date);
+    return format(date, 'dd/MM/yyyy', { locale: fr });
   };
 
   const formatCurrency = (amount: number) => {
@@ -787,6 +1169,14 @@ const MoyenneDuree = () => {
   const openDetailsDialog = (booking: Booking) => {
     setSelectedBooking(booking);
     setDetailsDialogOpen(true);
+  };
+
+  const openPaymentSchedule = () => {
+    if (selectedBooking && selectedBooking.payments) {
+      setPaymentScheduleOpen(true);
+    } else {
+      toast.error("Aucun échéancier disponible pour cette réservation");
+    }
   };
 
   const calculateRentalDays = (startDate: string, endDate: string) => {
@@ -816,6 +1206,47 @@ const MoyenneDuree = () => {
     }
   };
 
+  // Find upcoming payments
+  const getUpcomingPayments = (): { booking: Booking, payment: Payment }[] => {
+    const result: { booking: Booking, payment: Payment }[] = [];
+    
+    // Get current date and date 7 days from now
+    const now = new Date();
+    const sevenDaysLater = addDays(now, 7);
+    
+    bookings.forEach(booking => {
+      if (booking.monthlyPayment && booking.payments) {
+        booking.payments.forEach(payment => {
+          const dueDate = parseISO(payment.dueDate);
+          
+          // Include if payment is pending and due date is within 7 days
+          if (payment.status === 'pending' && 
+              isAfter(dueDate, now) && 
+              isBefore(dueDate, sevenDaysLater)) {
+            result.push({
+              booking,
+              payment
+            });
+          }
+          
+          // Include if payment is pending and overdue
+          if (payment.status === 'pending' && 
+              isBefore(dueDate, now)) {
+            result.push({
+              booking,
+              payment
+            });
+          }
+        });
+      }
+    });
+    
+    // Sort by due date (oldest first)
+    return result.sort((a, b) => 
+      parseISO(a.payment.dueDate).getTime() - parseISO(b.payment.dueDate).getTime()
+    );
+  };
+
   // Calcul des statistiques
   const calculateStats = () => {
     // Valeurs totales
@@ -828,10 +1259,6 @@ const MoyenneDuree = () => {
     const activeMandats = mandats.filter(m => m.status === "active").length;
     const expiredMandats = mandats.filter(m => m.status === "expired").length;
     const terminatedMandats = mandats.filter(m => m.status === "terminated").length;
-    const annualMandatsRevenue = mandats
-      .filter(m => m.status === "active")
-      .reduce((sum, m) => sum + m.fee, 0);
-    const monthlyMandatsRevenue = annualMandatsRevenue / 12;
     
     // Calcul du taux de renouvellement (approximation simple)
     const renewalRate = totalMandats > 0
@@ -843,6 +1270,24 @@ const MoyenneDuree = () => {
     const totalCommission = bookings.reduce((acc, b) => acc + b.commission.total, 0);
     const bnbLyonCommission = bookings.reduce((acc, b) => acc + b.commission.bnbLyon, 0);
     const hamacCommission = bookings.reduce((acc, b) => acc + b.commission.hamac, 0);
+    
+    // Statistiques sources
+    const bookingsBySource = bookingSources.map(source => ({
+      source: source.label,
+      count: bookings.filter(b => b.source === source.value).length
+    }));
+    
+    // Statistiques paiements
+    const overduePayments = bookings.reduce((total, booking) => {
+      if (booking.payments) {
+        return total + booking.payments.filter(p => 
+          p.status === 'pending' && isAfter(new Date(), parseISO(p.dueDate))
+        ).length;
+      }
+      return total;
+    }, 0);
+    
+    const upcomingPayments = getUpcomingPayments().length;
     
     // Statistiques temporelles
     const avgDurationDays = bookings.length 
@@ -872,12 +1317,13 @@ const MoyenneDuree = () => {
       expiredMandats,
       terminatedMandats,
       renewalRate,
-      annualMandatsRevenue,
-      monthlyMandatsRevenue,
       totalAmount,
       totalCommission,
       bnbLyonCommission,
       hamacCommission,
+      bookingsBySource,
+      overduePayments,
+      upcomingPayments,
       avgDurationDays,
       minDuration,
       maxDuration
@@ -885,6 +1331,7 @@ const MoyenneDuree = () => {
   };
 
   const stats = calculateStats();
+  const upcomingPayments = getUpcomingPayments();
 
   return (
     <div className="container px-4 py-6 mx-auto">
@@ -991,12 +1438,12 @@ const MoyenneDuree = () => {
             >
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Commissions totales</h3>
-                  <p className="text-2xl font-bold">{formatCurrency(stats.totalCommission)}</p>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Montant total des locations</h3>
+                  <p className="text-2xl font-bold">{formatCurrency(stats.totalAmount)}</p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Honoraires mandats (mensuel)</h3>
-                  <p className="text-2xl font-bold">{formatCurrency(stats.monthlyMandatsRevenue)}</p>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Commissions totales</h3>
+                  <p className="text-2xl font-bold">{formatCurrency(stats.totalCommission)}</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 mt-4">
@@ -1012,19 +1459,54 @@ const MoyenneDuree = () => {
             </DashboardCard>
 
             <DashboardCard
-              title="Performance"
-              icon={<ChartBar />}
+              title="Paiements à suivre"
+              icon={<BellRing />}
             >
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Total des réservations</h3>
-                  <p className="text-2xl font-bold">{formatCurrency(stats.totalAmount)}</p>
+              {upcomingPayments.length > 0 ? (
+                <div className="space-y-3">
+                  {upcomingPayments.slice(0, 5).map(({ booking, payment }, index) => (
+                    <div 
+                      key={payment.id} 
+                      className="flex items-center justify-between p-2 rounded-md border border-gray-200"
+                      onClick={() => {
+                        setSelectedBooking(booking);
+                        setDetailsDialogOpen(true);
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        {isAfter(new Date(), parseISO(payment.dueDate)) ? (
+                          <BellRing className="text-red-500 h-5 w-5" />
+                        ) : (
+                          <Bell className="text-blue-500 h-5 w-5" />
+                        )}
+                        <div>
+                          <p className="text-sm font-medium">
+                            {booking.property} - {booking.tenant}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(payment.dueDate)} - {formatCurrency(payment.amount)}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge 
+                        variant={isAfter(new Date(), parseISO(payment.dueDate)) ? "destructive" : "outline"}
+                        className="ml-2"
+                      >
+                        {isAfter(new Date(), parseISO(payment.dueDate)) ? 'En retard' : 'À venir'}
+                      </Badge>
+                    </div>
+                  ))}
+                  {upcomingPayments.length > 5 && (
+                    <p className="text-sm text-center text-muted-foreground">
+                      + {upcomingPayments.length - 5} autres paiements à suivre
+                    </p>
+                  )}
                 </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Taux de renouvellement mandats</h3>
-                  <p className="text-2xl font-bold">{stats.renewalRate.toFixed(1)}%</p>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-40">
+                  <p className="text-muted-foreground">Aucun paiement à venir</p>
                 </div>
-              </div>
+              )}
             </DashboardCard>
           </div>
         </TabsContent>
@@ -1046,7 +1528,7 @@ const MoyenneDuree = () => {
               <MandatCard
                 key={mandat.id}
                 mandat={mandat}
-                formatter={{ date: formatDate, currency: formatCurrency }}
+                formatter={{ date: formatDate }}
                 statusInfo={{
                   getColor: getMandatStatusColor,
                   getLabel: getMandatStatusLabel
@@ -1116,17 +1598,6 @@ const MoyenneDuree = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="fee">Honoraires annuels (€)</Label>
-                  <Input
-                    id="fee"
-                    name="fee"
-                    type="number"
-                    value={mandatForm.fee}
-                    onChange={handleMandatInputChange}
-                    placeholder="Montant en euros"
-                  />
-                </div>
-                <div className="space-y-2">
                   <Label htmlFor="notes">Notes</Label>
                   <Textarea
                     id="notes"
@@ -1190,16 +1661,6 @@ const MoyenneDuree = () => {
                         <div className={`px-2 py-1 rounded-full text-xs font-medium inline-block mt-1 ${getMandatStatusColor(selectedMandat.status)}`}>
                           {getMandatStatusLabel(selectedMandat.status)}
                         </div>
-                      </div>
-                    </div>
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="text-sm font-medium text-muted-foreground">Honoraires annuels</h3>
-                        <p className="text-base font-semibold">{formatCurrency(selectedMandat.fee)}</p>
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-muted-foreground">Honoraires mensuels</h3>
-                        <p className="text-base font-semibold">{formatCurrency(selectedMandat.fee / 12)}</p>
                       </div>
                     </div>
                     {selectedMandat.notes && (
@@ -1342,6 +1803,57 @@ const MoyenneDuree = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="source">Source de la réservation</Label>
+                  <Select 
+                    value={bookingForm.source}
+                    onValueChange={(value) => handleSelectChange("source", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisir la source" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bookingSources.map(source => (
+                        <SelectItem key={source.value} value={source.value}>
+                          {source.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="monthlyPayment"
+                      name="monthlyPayment"
+                      checked={bookingForm.monthlyPayment}
+                      onCheckedChange={(checked) => 
+                        setBookingForm(prev => ({ ...prev, monthlyPayment: !!checked }))
+                      }
+                    />
+                    <Label htmlFor="monthlyPayment">Paiement mensuel</Label>
+                  </div>
+                </div>
+                
+                {bookingForm.monthlyPayment && (
+                  <div className="space-y-2">
+                    <Label htmlFor="paymentDay">Jour de paiement mensuel</Label>
+                    <Input
+                      id="paymentDay"
+                      name="paymentDay"
+                      type="number"
+                      min="1"
+                      max="31"
+                      value={bookingForm.paymentDay}
+                      onChange={handleInputChange}
+                      placeholder="Jour du mois (1-31)"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Le locataire sera facturé ce jour de chaque mois pendant la durée de son séjour.
+                    </p>
+                  </div>
+                )}
+                
+                <div className="space-y-2">
                   <Label htmlFor="commissionRate">Taux de commission</Label>
                   <Select
                     value={bookingForm.commissionRate}
@@ -1459,6 +1971,10 @@ const MoyenneDuree = () => {
                           {getStatusLabel(selectedBooking.status)}
                         </div>
                       </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Source</h3>
+                        <p className="text-base">{getSourceLabel(selectedBooking.source)}</p>
+                      </div>
                     </div>
                     <div className="space-y-4">
                       <div>
@@ -1477,6 +1993,25 @@ const MoyenneDuree = () => {
                         <h3 className="text-sm font-medium text-muted-foreground">Commission totale</h3>
                         <p className="text-base font-semibold">{formatCurrency(selectedBooking.commission.total)}</p>
                       </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Type de paiement</h3>
+                        <p className="text-base">
+                          {selectedBooking.monthlyPayment ? 'Mensuel' : 'Unique'}
+                        </p>
+                      </div>
+                      {selectedBooking.monthlyPayment && selectedBooking.payments && (
+                        <div>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={openPaymentSchedule}
+                            className="mt-2"
+                          >
+                            <CalendarDays className="mr-2 h-4 w-4" />
+                            Voir l'échéancier
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1510,6 +2045,34 @@ const MoyenneDuree = () => {
                       <Trash2 className="h-4 w-4 mr-2" />
                       Supprimer
                     </Button>
+                  </DialogFooter>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {/* Dialog d'échéancier de paiement */}
+          <Dialog open={paymentScheduleOpen} onOpenChange={setPaymentScheduleOpen}>
+            <DialogContent className="max-w-4xl">
+              {selectedBooking && selectedBooking.payments && (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>Échéancier de paiement</DialogTitle>
+                    <DialogDescription>
+                      {selectedBooking.property} - {selectedBooking.tenant}
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <PaymentSchedule 
+                    payments={selectedBooking.payments} 
+                    formatter={{ date: formatDate, currency: formatCurrency }}
+                    onUpdatePaymentStatus={(paymentId, status) => 
+                      handleUpdatePaymentStatus(selectedBooking.id, paymentId, status)
+                    }
+                  />
+                  
+                  <DialogFooter>
+                    <Button onClick={() => setPaymentScheduleOpen(false)}>Fermer</Button>
                   </DialogFooter>
                 </>
               )}
