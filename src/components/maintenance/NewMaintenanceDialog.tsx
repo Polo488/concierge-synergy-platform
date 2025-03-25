@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { NewMaintenanceFormData, UrgencyLevel, InventoryItem } from "@/types/maintenance";
-import { toast } from "sonner";
+import { NewMaintenanceFormData, InventoryItem } from "@/types/maintenance";
 import { MaintenanceFormFields } from "./MaintenanceFormFields";
 import { MaterialSelection } from "./MaterialSelection";
+import { useMaintenanceFormValidation } from "@/hooks/useMaintenanceFormValidation";
 
 interface NewMaintenanceDialogProps {
   onSubmit: (data: NewMaintenanceFormData) => void;
@@ -23,6 +23,8 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
     materialQuantities: {},
   });
 
+  const { formErrors, validateForm, clearErrors } = useMaintenanceFormValidation(inventoryItems);
+
   // Mock properties list for dropdown
   const properties = [
     "Appartement 12 Rue du Port",
@@ -34,6 +36,10 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
 
   const handleFieldChange = (field: keyof Omit<NewMaintenanceFormData, 'materials' | 'materialQuantities'>, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error for this field when user starts typing
+    if (formErrors[field]) {
+      clearErrors();
+    }
   };
 
   const toggleMaterial = (material: InventoryItem) => {
@@ -64,6 +70,11 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
         }
       }));
     }
+    
+    // Clear material errors when selection changes
+    if (formErrors.materials) {
+      clearErrors();
+    }
   };
 
   const updateQuantity = (materialId: number, quantity: number) => {
@@ -71,7 +82,7 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
     
     const material = inventoryItems.find(m => m.id === materialId);
     if (material && quantity > material.stock) {
-      toast.error(`Stock insuffisant pour ${material.name}. Maximum: ${material.stock}`);
+      // Instead of showing a toast here, we'll capture this in form validation
       return;
     }
     
@@ -82,28 +93,20 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
         [materialId]: quantity
       }
     }));
+    
+    // Clear material errors when quantities change
+    if (formErrors.materials) {
+      clearErrors();
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate required fields
-    if (!formData.title || !formData.property || !formData.description) {
-      toast.error("Veuillez remplir tous les champs obligatoires");
-      return;
+    // Validate the form using our hook
+    if (validateForm(formData)) {
+      onSubmit(formData);
     }
-    
-    // Verify material stock availability
-    const stockIssues = formData.materials.filter(
-      m => formData.materialQuantities[m.id] > m.stock
-    );
-    
-    if (stockIssues.length > 0) {
-      toast.error(`Stock insuffisant pour: ${stockIssues.map(m => m.name).join(', ')}`);
-      return;
-    }
-    
-    onSubmit(formData);
   };
 
   return (
@@ -123,6 +126,7 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
             description={formData.description}
             onFieldChange={handleFieldChange}
             properties={properties}
+            errors={formErrors}
           />
           
           <MaterialSelection
@@ -131,6 +135,7 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
             materialQuantities={formData.materialQuantities}
             onToggleMaterial={toggleMaterial}
             onUpdateQuantity={updateQuantity}
+            error={formErrors.materials}
           />
         </div>
         <DialogFooter>
