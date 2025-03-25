@@ -14,12 +14,41 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { MaintenanceTask, NewMaintenanceFormData, UrgencyLevel } from '@/types/maintenance';
+import { MaintenanceTask, NewMaintenanceFormData, UrgencyLevel, InventoryItem } from '@/types/maintenance';
 import NewMaintenanceDialog from '@/components/maintenance/NewMaintenanceDialog';
 import TechnicianAssignDialog from '@/components/maintenance/TechnicianAssignDialog';
+import MaintenanceMaterialsDetails from '@/components/maintenance/MaintenanceMaterialsDetails';
 
-// Mock data
-const initialPendingMaintenance = [
+// Mock data for inventory
+const consummables: InventoryItem[] = [
+  { id: 1, name: 'Papier toilette', category: 'Consommables', stock: 15, min: 20, status: 'low' },
+  { id: 2, name: 'Savon liquide', category: 'Consommables', stock: 23, min: 15, status: 'low' },
+  { id: 3, name: 'Éponges', category: 'Consommables', stock: 45, min: 20, status: 'ok' },
+  { id: 4, name: 'Produit vaisselle', category: 'Consommables', stock: 32, min: 15, status: 'ok' },
+  { id: 5, name: 'Liquide vaisselle', category: 'Consommables', stock: 28, min: 15, status: 'ok' },
+];
+
+const linen: InventoryItem[] = [
+  { id: 6, name: 'Draps king size', category: 'Linge', stock: 28, min: 15, status: 'ok' },
+  { id: 7, name: 'Housses couette', category: 'Linge', stock: 18, min: 20, status: 'low' },
+  { id: 8, name: 'Serviettes bain', category: 'Linge', stock: 52, min: 30, status: 'ok' },
+  { id: 9, name: 'Serviettes main', category: 'Linge', stock: 64, min: 30, status: 'ok' },
+  { id: 10, name: 'Taies d\'oreiller', category: 'Linge', stock: 35, min: 20, status: 'ok' },
+];
+
+const maintenance: InventoryItem[] = [
+  { id: 11, name: 'Ampoules LED', category: 'Maintenance', stock: 24, min: 10, status: 'ok' },
+  { id: 12, name: 'Joints silicone', category: 'Maintenance', stock: 8, min: 5, status: 'ok' },
+  { id: 13, name: 'Piles AA', category: 'Maintenance', stock: 16, min: 20, status: 'low' },
+  { id: 14, name: 'Fusibles', category: 'Maintenance', stock: 12, min: 10, status: 'ok' },
+  { id: 15, name: 'Ruban adhésif', category: 'Maintenance', stock: 4, min: 3, status: 'ok' },
+];
+
+// Combine all inventory items
+const allInventoryItems: InventoryItem[] = [...consummables, ...linen, ...maintenance];
+
+// Mock data for maintenance tasks with updated material storage
+const initialPendingMaintenance: MaintenanceTask[] = [
   { 
     id: 1, 
     title: 'Fuite robinet salle de bain', 
@@ -27,7 +56,11 @@ const initialPendingMaintenance = [
     urgency: 'high' as UrgencyLevel,
     createdAt: '2023-11-20',
     description: 'Fuite importante sous le lavabo de la salle de bain principale',
-    materials: ['Joint silicone', 'Clé à molette']
+    materials: [
+      allInventoryItems.find(i => i.id === 12) as InventoryItem,
+      allInventoryItems.find(i => i.id === 15) as InventoryItem
+    ],
+    materialQuantities: { 12: 1, 15: 2 }
   },
   { 
     id: 2, 
@@ -36,7 +69,10 @@ const initialPendingMaintenance = [
     urgency: 'critical' as UrgencyLevel,
     createdAt: '2023-11-21',
     description: 'Client ne peut pas entrer dans le logement, serrure bloquée',
-    materials: ['Lubrifiant', 'Tournevis']
+    materials: [
+      allInventoryItems.find(i => i.id === 15) as InventoryItem
+    ],
+    materialQuantities: { 15: 1 }
   },
   { 
     id: 3, 
@@ -45,11 +81,14 @@ const initialPendingMaintenance = [
     urgency: 'low' as UrgencyLevel,
     createdAt: '2023-11-22',
     description: 'Remplacer l\'ampoule du plafonnier dans le salon',
-    materials: ['Ampoule LED E27']
+    materials: [
+      allInventoryItems.find(i => i.id === 11) as InventoryItem
+    ],
+    materialQuantities: { 11: 1 }
   },
 ];
 
-const initialInProgressMaintenance = [
+const initialInProgressMaintenance: MaintenanceTask[] = [
   { 
     id: 4, 
     title: 'Problème chauffage', 
@@ -59,7 +98,10 @@ const initialInProgressMaintenance = [
     technician: 'Martin Dupont',
     startedAt: '2023-11-20',
     description: 'Radiateur de la chambre ne chauffe pas correctement',
-    materials: ['Clé de purge', 'Joint']
+    materials: [
+      allInventoryItems.find(i => i.id === 14) as InventoryItem
+    ],
+    materialQuantities: { 14: 2 }
   },
   { 
     id: 5, 
@@ -70,11 +112,14 @@ const initialInProgressMaintenance = [
     technician: 'Sophie Moreau',
     startedAt: '2023-11-20',
     description: 'Volet roulant de la chambre principale ne descend plus',
-    materials: ['Lubrifiant', 'Tournevis']
+    materials: [
+      allInventoryItems.find(i => i.id === 15) as InventoryItem
+    ],
+    materialQuantities: { 15: 1 }
   },
 ];
 
-const initialCompletedMaintenance = [
+const initialCompletedMaintenance: MaintenanceTask[] = [
   { 
     id: 6, 
     title: 'Remplacement chasse d\'eau', 
@@ -84,7 +129,10 @@ const initialCompletedMaintenance = [
     completedAt: '2023-11-16',
     technician: 'Martin Dupont',
     description: 'Remplacement complet du mécanisme de chasse d\'eau',
-    materials: ['Mécanisme chasse d\'eau', 'Joint']
+    materials: [
+      allInventoryItems.find(i => i.id === 12) as InventoryItem
+    ],
+    materialQuantities: { 12: 2 }
   },
   { 
     id: 7, 
@@ -95,7 +143,10 @@ const initialCompletedMaintenance = [
     completedAt: '2023-11-17',
     technician: 'Sophie Moreau',
     description: 'Installation d\'une étagère dans la cuisine selon demande du propriétaire',
-    materials: ['Étagère', 'Chevilles', 'Vis']
+    materials: [
+      allInventoryItems.find(i => i.id === 15) as InventoryItem
+    ],
+    materialQuantities: { 15: 3 }
   },
 ];
 
@@ -103,6 +154,9 @@ const Maintenance = () => {
   useEffect(() => {
     document.title = 'Maintenance - Concierge Synergy Platform';
   }, []);
+
+  // State for inventory items
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>(allInventoryItems);
 
   // State for tasks
   const [pendingTasks, setPendingTasks] = useState<MaintenanceTask[]>(initialPendingMaintenance);
@@ -112,7 +166,9 @@ const Maintenance = () => {
   // State for dialogs
   const [newMaintenanceOpen, setNewMaintenanceOpen] = useState(false);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | number | null>(null);
+  const [selectedTask, setSelectedTask] = useState<MaintenanceTask | null>(null);
   
   // Calculate statistics
   const stats = {
@@ -120,6 +176,24 @@ const Maintenance = () => {
     inProgress: inProgressTasks.length,
     critical: pendingTasks.filter(task => task.urgency === 'critical').length,
     completedThisMonth: completedTasks.length
+  };
+
+  // Function to update inventory based on material usage
+  const updateInventory = (materialQuantities: Record<number, number>, isDeduction: boolean) => {
+    setInventoryItems(prevItems => {
+      return prevItems.map(item => {
+        if (materialQuantities[item.id]) {
+          const changeAmount = isDeduction ? -materialQuantities[item.id] : materialQuantities[item.id];
+          const newStock = item.stock + changeAmount;
+          return {
+            ...item,
+            stock: newStock,
+            status: newStock < item.min ? 'low' : 'ok'
+          };
+        }
+        return item;
+      });
+    });
   };
 
   const getUrgencyBadge = (urgency: string) => {
@@ -146,8 +220,12 @@ const Maintenance = () => {
       urgency: data.urgency,
       createdAt: new Date().toISOString().split('T')[0],
       description: data.description,
-      materials: data.materials ? data.materials.split(',').map(item => item.trim()) : []
+      materials: data.materials,
+      materialQuantities: data.materialQuantities
     };
+    
+    // Update inventory (reduce stock)
+    updateInventory(data.materialQuantities, true);
     
     setPendingTasks(prev => [newTask, ...prev]);
     setNewMaintenanceOpen(false);
@@ -192,6 +270,14 @@ const Maintenance = () => {
       setCompletedTasks(prev => [updatedTask, ...prev]);
       toast.success("Intervention marquée comme terminée");
     }
+    
+    setDetailsDialogOpen(false);
+    setSelectedTask(null);
+  };
+
+  const openDetailsDialog = (task: MaintenanceTask) => {
+    setSelectedTask(task);
+    setDetailsDialogOpen(true);
   };
 
   const MaintenanceTask = ({ 
@@ -220,13 +306,14 @@ const Maintenance = () => {
             <p className="text-sm text-muted-foreground mb-2">{task.property}</p>
             <p className="text-sm mb-3">{task.description}</p>
             
-            {task.materials?.length > 0 && (
+            {task.materials && task.materials.length > 0 && (
               <div className="mb-3">
                 <p className="text-sm font-medium mb-1">Matériel nécessaire:</p>
                 <div className="flex flex-wrap gap-2">
                   {task.materials.map((material, i) => (
                     <Badge key={i} variant="outline" className="rounded-full">
-                      {material}
+                      {material.name} {task.materialQuantities && task.materialQuantities[material.id] > 1 ? 
+                        `(${task.materialQuantities[material.id]})` : ''}
                     </Badge>
                   ))}
                 </div>
@@ -278,9 +365,9 @@ const Maintenance = () => {
                   size="sm" 
                   variant="outline" 
                   className="w-full"
-                  onClick={() => toast.info("Fonctionnalité de modification à venir")}
+                  onClick={() => openDetailsDialog(task)}
                 >
-                  Modifier
+                  Détails
                 </Button>
               </>
             )}
@@ -297,7 +384,7 @@ const Maintenance = () => {
                   size="sm" 
                   variant="outline" 
                   className="w-full"
-                  onClick={() => toast.info("Détails de l'intervention à venir")}
+                  onClick={() => openDetailsDialog(task)}
                 >
                   Détails
                 </Button>
@@ -308,7 +395,7 @@ const Maintenance = () => {
                 size="sm" 
                 variant="outline" 
                 className="w-full"
-                onClick={() => toast.info("Détails de l'intervention à venir")}
+                onClick={() => openDetailsDialog(task)}
               >
                 Détails
               </Button>
@@ -371,7 +458,8 @@ const Maintenance = () => {
             </DialogTrigger>
             <NewMaintenanceDialog 
               onSubmit={handleNewMaintenance} 
-              onCancel={() => setNewMaintenanceOpen(false)} 
+              onCancel={() => setNewMaintenanceOpen(false)}
+              inventoryItems={inventoryItems}
             />
           </Dialog>
         }
@@ -432,6 +520,20 @@ const Maintenance = () => {
           </Tabs>
         </div>
       </DashboardCard>
+
+      {/* Details Dialog */}
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        {selectedTask && (
+          <MaintenanceMaterialsDetails 
+            task={selectedTask}
+            onClose={() => {
+              setDetailsDialogOpen(false);
+              setSelectedTask(null);
+            }}
+            onMarkComplete={handleCompleteTask}
+          />
+        )}
+      </Dialog>
     </div>
   );
 };
