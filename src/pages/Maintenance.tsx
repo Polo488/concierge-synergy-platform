@@ -82,20 +82,21 @@ const Maintenance = () => {
     toast.success("Nouvelle intervention créée avec succès");
   };
 
-  // Update the handleAssignTechnician function to accept a scheduled date
-  const handleAssignTechnician = (taskId: string | number, technicianName: string, scheduledDate?: string) => {
+  // Update the handleAssignTechnician function to accept a scheduled date and notes
+  const handleAssignTechnician = (taskId: string | number, technicianName: string, scheduledDate?: string, notes?: string) => {
     const task = pendingTasks.find(task => task.id === taskId);
     
     if (task) {
       // Remove from pending
       setPendingTasks(prev => prev.filter(task => task.id !== taskId));
       
-      // Add to in-progress with technician, startedAt and scheduledDate
+      // Add to in-progress with technician, startedAt, scheduledDate and notes
       const updatedTask: MaintenanceTask = {
         ...task,
         technician: technicianName,
         startedAt: new Date().toISOString().split('T')[0],
-        scheduledDate
+        scheduledDate,
+        notes
       };
       
       setInProgressTasks(prev => [updatedTask, ...prev]);
