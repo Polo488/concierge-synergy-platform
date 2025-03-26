@@ -109,6 +109,7 @@ export const useCalendarData = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedProperty, setSelectedProperty] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [bookings, setBookings] = useState(bookingsData);
   const [filteredBookings, setFilteredBookings] = useState(bookingsData);
   const [dateRange, setDateRange] = useState<DateRange>();
   const [availableProperties, setAvailableProperties] = useState<Property[]>([]);
@@ -121,7 +122,7 @@ export const useCalendarData = () => {
 
   // Filter bookings based on selected property and search query
   useEffect(() => {
-    let filtered = bookingsData;
+    let filtered = bookings;
     
     // Filter by property
     if (selectedProperty !== "all") {
@@ -139,14 +140,14 @@ export const useCalendarData = () => {
     }
     
     setFilteredBookings(filtered);
-  }, [selectedProperty, searchQuery]);
+  }, [selectedProperty, searchQuery, bookings]);
 
   // Find available properties in a date range
   const findAvailableProperties = (range: DateRange) => {
     if (!range.from || !range.to) return;
     
     // Get all bookings that overlap with the selected date range
-    const overlappingBookings = bookingsData.filter(booking => {
+    const overlappingBookings = bookings.filter(booking => {
       const bookingStart = booking.checkIn;
       const bookingEnd = booking.checkOut;
       
@@ -170,12 +171,20 @@ export const useCalendarData = () => {
     setCurrentDate(addMonths(currentDate, direction === 'prev' ? -1 : 1));
   };
 
+  // Add a new booking
+  const addBooking = (newBooking: Booking) => {
+    setBookings(prev => [newBooking, ...prev]);
+  };
+
   return {
     currentDate,
     setCurrentDate,
     properties,
     bookingsData,
+    bookings,
+    setBookings,
     filteredBookings,
+    setFilteredBookings,
     selectedProperty,
     setSelectedProperty,
     searchQuery,
@@ -186,6 +195,7 @@ export const useCalendarData = () => {
     availableProperties,
     setAvailableProperties,
     findAvailableProperties,
-    navigateMonth
+    navigateMonth,
+    addBooking
   };
 };

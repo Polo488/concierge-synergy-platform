@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { CalendarRange, Download } from 'lucide-react';
+import { CalendarRange, Download, Plus } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,7 @@ import { BookingDetailsDialog } from '@/components/calendar/BookingDetailsDialog
 import { AvailabilityDialog } from '@/components/calendar/AvailabilityDialog';
 import { CalendarHeader } from '@/components/calendar/CalendarHeader';
 import { CalendarFilters } from '@/components/calendar/CalendarFilters';
+import { NewBookingDialog } from '@/components/calendar/NewBookingDialog';
 import { useCalendarData } from '@/hooks/useCalendarData';
 
 const Calendar = () => {
@@ -20,7 +21,9 @@ const Calendar = () => {
     currentDate,
     setCurrentDate,
     properties,
+    bookingsData,
     filteredBookings,
+    setFilteredBookings,
     selectedProperty,
     setSelectedProperty,
     searchQuery,
@@ -30,7 +33,8 @@ const Calendar = () => {
     setDateRange,
     availableProperties,
     findAvailableProperties,
-    navigateMonth
+    navigateMonth,
+    addBooking
   } = useCalendarData();
   
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
@@ -38,6 +42,9 @@ const Calendar = () => {
   const [currentView, setCurrentView] = useState<'month' | 'property'>('month');
   const [rangeSelectorOpen, setRangeSelectorOpen] = useState(false);
   const [showAvailabilityDialog, setShowAvailabilityDialog] = useState(false);
+  const [newBookingDialogOpen, setNewBookingDialogOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedPropertyForBooking, setSelectedPropertyForBooking] = useState<any>(undefined);
 
   useEffect(() => {
     document.title = 'Calendrier - GESTION BNB LYON';
@@ -63,6 +70,26 @@ const Calendar = () => {
     }
   };
 
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+    setSelectedPropertyForBooking(undefined);
+    setNewBookingDialogOpen(true);
+  };
+
+  const handleCellClick = (date: Date, propertyId: number) => {
+    setSelectedDate(date);
+    setSelectedPropertyForBooking(properties.find(p => p.id === propertyId));
+    setNewBookingDialogOpen(true);
+  };
+
+  const handleAddBooking = (newBooking: any) => {
+    addBooking(newBooking);
+    toast({
+      title: "Réservation ajoutée",
+      description: "La nouvelle réservation a été ajoutée avec succès."
+    });
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -84,6 +111,19 @@ const Calendar = () => {
             >
               <CalendarRange className="h-4 w-4" />
               Voir disponibilités
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="gap-1" 
+              onClick={() => {
+                setSelectedDate(new Date());
+                setSelectedPropertyForBooking(undefined);
+                setNewBookingDialogOpen(true);
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              Nouvelle réservation
             </Button>
             <Button size="sm" variant="outline" className="gap-1" onClick={handleExport}>
               <Download className="h-4 w-4" />
@@ -115,6 +155,7 @@ const Calendar = () => {
               filteredBookings={filteredBookings}
               showBookingDetails={showBookingDetails}
               properties={properties}
+              onDateClick={handleDateClick}
             />
           ) : (
             <PropertyCalendarView 
@@ -123,6 +164,7 @@ const Calendar = () => {
               filteredBookings={filteredBookings}
               selectedProperty={selectedProperty}
               showBookingDetails={showBookingDetails}
+              onCellClick={handleCellClick}
             />
           )}
         </div>
@@ -149,6 +191,15 @@ const Calendar = () => {
         mode="range"
         onRangeSelect={handleRangeSelect}
         autoApply={true}
+      />
+
+      <NewBookingDialog
+        open={newBookingDialogOpen}
+        onOpenChange={setNewBookingDialogOpen}
+        properties={properties}
+        selectedDate={selectedDate}
+        selectedProperty={selectedPropertyForBooking}
+        onAddBooking={handleAddBooking}
       />
     </div>
   );

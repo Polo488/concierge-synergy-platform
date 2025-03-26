@@ -10,6 +10,7 @@ interface PropertyCalendarViewProps {
   filteredBookings: any[];
   selectedProperty: string;
   showBookingDetails: (booking: any) => void;
+  onCellClick?: (date: Date, propertyId: number) => void;
 }
 
 export const PropertyCalendarView = ({
@@ -17,7 +18,8 @@ export const PropertyCalendarView = ({
   properties,
   filteredBookings,
   selectedProperty,
-  showBookingDetails
+  showBookingDetails,
+  onCellClick
 }: PropertyCalendarViewProps) => {
   const filteredProperties = selectedProperty === "all" 
     ? properties 
@@ -54,6 +56,7 @@ export const PropertyCalendarView = ({
                   
                   const isCheckIn = dayBookings.some(b => isSameDay(day, b.checkIn));
                   const isCheckOut = dayBookings.some(b => isSameDay(day, b.checkOut));
+                  const hasBooking = dayBookings.length > 0;
                   
                   return (
                     <div 
@@ -61,11 +64,18 @@ export const PropertyCalendarView = ({
                       className={cn(
                         "border-b min-h-[40px] relative",
                         isSameDay(day, new Date()) ? "bg-blue-50" : "",
-                        dayBookings.length > 0 ? "cursor-pointer" : ""
+                        hasBooking ? "cursor-pointer" : "",
+                        !hasBooking && onCellClick ? "cursor-pointer hover:bg-blue-50/50" : ""
                       )}
-                      onClick={() => dayBookings.length > 0 && showBookingDetails(dayBookings[0])}
+                      onClick={(e) => {
+                        if (hasBooking) {
+                          showBookingDetails(dayBookings[0]);
+                        } else if (onCellClick) {
+                          onCellClick(day, property.id);
+                        }
+                      }}
                     >
-                      {dayBookings.length > 0 && (
+                      {hasBooking && (
                         <div 
                           className="absolute inset-0 flex items-center justify-center text-white text-xs"
                           style={{ 

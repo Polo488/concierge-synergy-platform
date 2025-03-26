@@ -8,13 +8,15 @@ interface MonthCalendarViewProps {
   filteredBookings: any[];
   showBookingDetails: (booking: any) => void;
   properties: any[];
+  onDateClick?: (date: Date) => void;
 }
 
 export const MonthCalendarView = ({
   days,
   filteredBookings,
   showBookingDetails,
-  properties
+  properties,
+  onDateClick
 }: MonthCalendarViewProps) => {
   return (
     <div className="mt-6">
@@ -37,13 +39,21 @@ export const MonthCalendarView = ({
             isWithinInterval(day, { start: booking.checkIn, end: addDays(booking.checkOut, -1) })
           );
           
+          const hasBookings = dayBookings.length > 0;
+          
           return (
             <div 
               key={idx}
               className={cn(
                 "h-24 border border-border/40 rounded-md p-1 overflow-hidden transition-colors",
-                isSameDay(day, new Date()) ? "bg-blue-50" : "bg-card"
+                isSameDay(day, new Date()) ? "bg-blue-50" : "bg-card",
+                !hasBookings && onDateClick ? "cursor-pointer hover:bg-blue-50/50" : ""
               )}
+              onClick={() => {
+                if (!hasBookings && onDateClick) {
+                  onDateClick(day);
+                }
+              }}
             >
               <div className="text-right text-xs font-medium mb-1">
                 {format(day, 'd')}
@@ -57,7 +67,10 @@ export const MonthCalendarView = ({
                   return (
                     <div 
                       key={booking.id}
-                      onClick={() => showBookingDetails(booking)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        showBookingDetails(booking);
+                      }}
                       className="text-xs p-1 rounded cursor-pointer truncate text-white"
                       style={{ 
                         backgroundColor: booking.color,
