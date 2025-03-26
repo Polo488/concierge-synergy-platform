@@ -1,7 +1,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Wifi, Wind, Car, Tv, Waves, UtensilsCrossed, CigaretteOff } from 'lucide-react';
-import { getAmenityIcon } from '@/utils/propertyUtils';
+import { getAmenityIcon } from '@/utils/uiHelpers';
 
 interface PropertyAmenityBadgeProps {
   amenity: string;

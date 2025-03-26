@@ -1,10 +1,10 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { TabsContent } from '@/components/ui/tabs';
-import { MaintenanceTask } from '@/types/maintenance';
+import { MaintenanceTask, UrgencyLevel } from '@/types/maintenance';
 import { User, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { getUrgencyBadge } from '@/utils/propertyUtils';
+import { getUrgencyBadge } from '@/utils/uiHelpers';
 
 interface PropertyMaintenanceTabProps {
   maintenance: MaintenanceTask[];
