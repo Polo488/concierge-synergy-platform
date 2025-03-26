@@ -50,14 +50,32 @@ export const CalendarDialog = ({
           </DialogDescription>
         </DialogHeader>
         
-        <Calendar
-          mode={mode}
-          selected={mode === "single" ? selectedDate : internalRange}
-          onSelect={handleSelect}
-          locale={fr}
-          className="mx-auto"
-          numberOfMonths={mode === "range" ? 2 : 1}
-        />
+        {mode === "single" ? (
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={handleSelect as (date: Date | undefined) => void}
+            locale={fr}
+            className="mx-auto"
+          />
+        ) : mode === "range" ? (
+          <Calendar
+            mode="range"
+            selected={internalRange}
+            onSelect={handleSelect as (date: DateRange | undefined) => void}
+            locale={fr}
+            className="mx-auto"
+            numberOfMonths={2}
+          />
+        ) : (
+          <Calendar
+            mode="multiple"
+            selected={[]}
+            onSelect={() => {}}
+            locale={fr}
+            className="mx-auto"
+          />
+        )}
         
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
