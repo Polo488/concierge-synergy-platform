@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Grid3X3, Home, List, PlusCircle, Building, BedDouble } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ const Properties = () => {
   const [properties] = useState(generateProperties);
   const [maintenanceHistory] = useState(() => generateMaintenanceHistory(properties));
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('');
+  const [filterType, setFilterType] = useState('all');
   const [viewMode, setViewMode] = useState('list');
   const [selectedProperty, setSelectedProperty] = useState(null);
   
@@ -28,7 +27,7 @@ const Properties = () => {
       property.number.includes(searchTerm) ||
       property.address.toLowerCase().includes(searchLower) ||
       property.owner.name.toLowerCase().includes(searchLower)
-    ) && (filterType ? property.type === filterType : true);
+    ) && (filterType === 'all' ? true : property.type === filterType);
   });
 
   const handleOpenPropertyDetails = (property) => {

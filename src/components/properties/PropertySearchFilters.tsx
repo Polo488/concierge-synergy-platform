@@ -35,7 +35,7 @@ export const PropertySearchFilters = ({
             <SelectValue placeholder="Type de bien" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tous les types</SelectItem>
+            <SelectItem value="all">Tous les types</SelectItem>
             <SelectItem value="Appartement">Appartement</SelectItem>
             <SelectItem value="Studio">Studio</SelectItem>
             <SelectItem value="Loft">Loft</SelectItem>
