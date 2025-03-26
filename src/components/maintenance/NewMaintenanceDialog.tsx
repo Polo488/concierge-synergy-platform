@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,12 @@ import { NewMaintenanceFormData, InventoryItem } from "@/types/maintenance";
 import { MaintenanceFormFields } from "./MaintenanceFormFields";
 import { MaterialSelection } from "./MaterialSelection";
 import { useMaintenanceFormValidation } from "@/hooks/useMaintenanceFormValidation";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
 
 interface NewMaintenanceDialogProps {
   onSubmit: (data: NewMaintenanceFormData) => void;
@@ -22,6 +27,7 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
     materials: [],
     materialQuantities: {},
   });
+  const [date, setDate] = useState<Date | undefined>(undefined);
 
   const { formErrors, validateForm, clearErrors } = useMaintenanceFormValidation(inventoryItems);
 
@@ -34,7 +40,7 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
     "Loft 72 Rue des Arts",
   ];
 
-  const handleFieldChange = (field: keyof Omit<NewMaintenanceFormData, 'materials' | 'materialQuantities'>, value: string) => {
+  const handleFieldChange = (field: keyof Omit<NewMaintenanceFormData, 'materials' | 'materialQuantities' | 'scheduledDate'>, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error for this field when user starts typing
     if (formErrors[field]) {
@@ -100,6 +106,20 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
     }
   };
 
+  const handleDateChange = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+    if (selectedDate) {
+      setFormData(prev => ({
+        ...prev,
+        scheduledDate: format(selectedDate, 'yyyy-MM-dd')
+      }));
+    } else {
+      // If date is cleared, remove the scheduledDate property
+      const { scheduledDate, ...rest } = formData;
+      setFormData(rest as NewMaintenanceFormData);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -128,6 +148,35 @@ const NewMaintenanceDialog = ({ onSubmit, onCancel, inventoryItems }: NewMainten
             properties={properties}
             errors={formErrors}
           />
+          
+          {/* Date Picker */}
+          <div className="space-y-2">
+            <Label htmlFor="scheduledDate">Date prévue (optionnel)</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="scheduledDate"
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : <span>Sélectionner une date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={handleDateChange}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
           
           <MaterialSelection
             materials={inventoryItems}

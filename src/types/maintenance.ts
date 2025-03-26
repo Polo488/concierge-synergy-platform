@@ -34,6 +34,7 @@ export interface NewMaintenanceFormData {
   internalName?: string; // Added internal name for the property
   urgency: UrgencyLevel;
   description: string;
+  scheduledDate?: string; // Added scheduled date for new maintenance tasks
   materials: InventoryItem[];
   materialQuantities: Record<number, number>; // id -> quantity
 }

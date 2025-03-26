@@ -49,14 +49,22 @@ export const useMaintenanceTasks = () => {
       createdAt: new Date().toISOString().split('T')[0],
       description: data.description,
       materials: data.materials,
-      materialQuantities: data.materialQuantities
+      materialQuantities: data.materialQuantities,
+      scheduledDate: data.scheduledDate // Include the scheduled date
     };
     
     // Update inventory (reduce stock)
     updateInventory(data.materialQuantities, true);
     
     setPendingTasks(prev => [newTask, ...prev]);
-    toast.success("Nouvelle intervention créée avec succès");
+    
+    // Customize the success message based on whether a scheduled date was provided
+    if (data.scheduledDate) {
+      toast.success(`Nouvelle intervention créée et programmée pour le ${data.scheduledDate}`);
+    } else {
+      toast.success("Nouvelle intervention créée avec succès");
+    }
+    
     return newTask;
   };
 
