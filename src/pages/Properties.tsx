@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Grid3X3, Home, List, PlusCircle, Building, BedDouble } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -56,19 +57,19 @@ const Properties = () => {
         />
         <StatCard 
           title="Appartements" 
-          value={properties.filter(p => p.type === 'Appartement').length.toString()} 
+          value={properties.filter(p => p.classification === 'Appartement').length.toString()} 
           icon={<Building className="h-5 w-5" />}
           className="stagger-2"
         />
         <StatCard 
           title="Maisons" 
-          value={properties.filter(p => p.type === 'Maison').length.toString()} 
+          value={properties.filter(p => p.classification === 'Maison').length.toString()} 
           icon={<Home className="h-5 w-5" />}
           className="stagger-3"
         />
         <StatCard 
           title="Studios" 
-          value={properties.filter(p => p.type === 'Studio').length.toString()} 
+          value={properties.filter(p => p.classification === 'Studio').length.toString()} 
           icon={<BedDouble className="h-5 w-5" />}
           className="stagger-4"
         />
