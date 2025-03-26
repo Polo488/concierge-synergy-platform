@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { format, addDays, isSameDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -69,6 +68,7 @@ interface CleaningContextType {
   handleAddTask: () => void;
   handleDeleteTask: () => void;
   handleSaveComments: () => void;
+  handleUpdateCheckTimes: (checkoutTime: string, checkinTime: string) => void;
   
   // Helpers
   openAssignDialog: (task: CleaningTask) => void;
@@ -493,6 +493,44 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     setEditCommentsDialogOpen(false);
   };
 
+  // Nouvel handler pour la mise à jour des heures de check-in/check-out
+  const handleUpdateCheckTimes = (checkoutTime: string, checkinTime: string) => {
+    if (!currentTask) return;
+    
+    const updateTask = (tasks: CleaningTask[], taskId: number) => {
+      return tasks.map(t => {
+        if (t.id === taskId) {
+          return { 
+            ...t, 
+            checkoutTime,
+            checkinTime
+          };
+        }
+        return t;
+      });
+    };
+
+    // Mettre à jour la tâche dans la liste appropriée selon son statut
+    if (currentTask.status === 'todo' || currentTask.status === 'inProgress') {
+      setTodayCleaningTasks(updateTask(todayCleaningTasks, currentTask.id));
+    } else if (currentTask.status === 'scheduled') {
+      setTomorrowCleaningTasks(updateTask(tomorrowCleaningTasks, currentTask.id));
+    } else if (currentTask.status === 'completed') {
+      setCompletedCleaningTasks(updateTask(completedCleaningTasks, currentTask.id));
+    }
+    
+    // Mettre à jour la tâche courante
+    setCurrentTask({
+      ...currentTask,
+      checkoutTime,
+      checkinTime
+    });
+    
+    toast("Horaires mis à jour", {
+      description: `Les horaires de check-in/check-out pour ${currentTask.property} ont été mis à jour.`
+    });
+  };
+
   const value = {
     // Data
     todayCleaningTasks,
@@ -554,6 +592,7 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     handleAddTask,
     handleDeleteTask,
     handleSaveComments,
+    handleUpdateCheckTimes,
     
     // Helpers
     openAssignDialog,

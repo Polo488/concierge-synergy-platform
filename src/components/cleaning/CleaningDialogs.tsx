@@ -1,13 +1,14 @@
 
-import { CleaningAgentAssignDialog } from '@/components/cleaning/CleaningAgentAssignDialog';
-import { CleaningTaskDetailsDialog } from '@/components/cleaning/CleaningTaskDetailsDialog';
-import { ProblemReportDialog } from '@/components/cleaning/ProblemReportDialog';
-import { CalendarDialog } from '@/components/cleaning/CalendarDialog';
-import { LabelsDialog } from '@/components/cleaning/LabelsDialog';
-import { AddCleaningTaskDialog } from '@/components/cleaning/AddCleaningTaskDialog';
-import { EditCommentsDialog } from '@/components/cleaning/EditCommentsDialog';
-import { DeleteConfirmDialog } from '@/components/cleaning/DeleteConfirmDialog';
 import { useCleaning } from '@/contexts/CleaningContext';
+import { CleaningAgentAssignDialog } from './CleaningAgentAssignDialog';
+import { CleaningTaskDetailsDialog } from './CleaningTaskDetailsDialog';
+import { ProblemReportDialog } from './ProblemReportDialog';
+import { CalendarDialog } from './CalendarDialog';
+import { LabelsDialog } from './LabelsDialog';
+import { AddCleaningTaskDialog } from './AddCleaningTaskDialog';
+import { DeleteConfirmDialog } from './DeleteConfirmDialog';
+import { EditCommentsDialog } from './EditCommentsDialog';
+import { getStatusBadgeClass, getStatusLabel } from '@/utils/cleaningUtils';
 import { Badge } from '@/components/ui/badge';
 import { CleaningStatus } from '@/types/cleaning';
 
@@ -28,32 +29,10 @@ export const CleaningDialogs = () => {
     selectedAgent,
     problemDescription,
     selectedDate,
-    activeTab,
-    todayCleaningTasks,
-    tomorrowCleaningTasks,
-    completedCleaningTasks,
     selectedTasks,
     labelType,
     taskComments,
     newTask,
-    
-    // Setters
-    setSelectedAgent,
-    setProblemDescription,
-    setLabelType,
-    setActiveTab,
-    setTaskComments,
-    setNewTask,
-    
-    // Dialog controllers
-    setAssignDialogOpen,
-    setDetailsDialogOpen,
-    setProblemDialogOpen,
-    setCalendarDialogOpen,
-    setLabelsDialogOpen,
-    setAddTaskDialogOpen,
-    setDeleteConfirmDialogOpen,
-    setEditCommentsDialogOpen,
     
     // Actions
     handleAssignAgent,
@@ -63,96 +42,85 @@ export const CleaningDialogs = () => {
     handleAddTask,
     handleDeleteTask,
     handleSaveComments,
+    handleUpdateCheckTimes,
+    
+    // Setters and handlers
+    setSelectedAgent,
+    setProblemDescription,
+    setDetailsDialogOpen,
+    setAssignDialogOpen,
+    setProblemDialogOpen,
+    setCalendarDialogOpen,
+    setLabelsDialogOpen,
+    setSelectedTasks,
+    setLabelType,
+    setAddTaskDialogOpen,
+    setDeleteConfirmDialogOpen,
+    setTaskComments,
+    setEditCommentsDialogOpen,
+    setNewTask,
     handleEditComments,
-    handleSelectTask,
-    handleStartCleaning,
-    handleCompleteCleaning,
-    openDetailsDialog,
-    openAssignDialog,
-    openProblemDialog,
-    openDeleteDialog,
   } = useCleaning();
-
-  // Cleaning agent list (mock data)
-  const cleaningAgents = [
-    'Marie Lambert',
-    'Lucas Martin',
-    'Sophie Berger',
-    'Thomas Laurent'
-  ];
-
+  
+  // Fonction pour obtenir le badge de statut approprié pour l'affichage
   const getStatusBadge = (status: CleaningStatus) => {
-    switch(status) {
-      case 'todo':
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 rounded-full">À faire</Badge>;
-      case 'inProgress':
-        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 rounded-full">En cours</Badge>;
-      case 'completed':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200 rounded-full">Terminé</Badge>;
-      case 'scheduled':
-        return <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200 rounded-full">Planifié</Badge>;
-      default:
-        return null;
-    }
+    const badgeClass = getStatusBadgeClass(status);
+    const label = getStatusLabel(status);
+    
+    return (
+      <Badge className={`rounded-full ${badgeClass}`}>
+        {label}
+      </Badge>
+    );
   };
-
+  
+  // Liste des agents de ménage (à déplacer vers un service ou un hook plus tard)
+  const cleaningAgents = ["Marie Lambert", "Lucas Martin", "Sophie Dubois", "Thomas Richard"];
+  
   return (
     <>
-      <CleaningAgentAssignDialog
+      <CleaningAgentAssignDialog 
         open={assignDialogOpen}
         onOpenChange={setAssignDialogOpen}
-        currentTask={currentTask}
+        agents={cleaningAgents}
         selectedAgent={selectedAgent}
-        setSelectedAgent={setSelectedAgent}
-        cleaningAgents={cleaningAgents}
+        onSelectAgent={setSelectedAgent}
         onAssign={handleAssignAgent}
       />
-
+      
       <CleaningTaskDetailsDialog
         open={detailsDialogOpen}
         onOpenChange={setDetailsDialogOpen}
         currentTask={currentTask}
         getStatusBadge={getStatusBadge}
         onEditComments={handleEditComments}
+        onUpdateCheckTimes={handleUpdateCheckTimes}
       />
-
+      
       <ProblemReportDialog
         open={problemDialogOpen}
         onOpenChange={setProblemDialogOpen}
-        currentTask={currentTask}
-        problemDescription={problemDescription}
-        setProblemDescription={setProblemDescription}
-        onReport={handleReportProblem}
+        description={problemDescription}
+        onDescriptionChange={setProblemDescription}
+        onSubmit={handleReportProblem}
       />
-
+      
       <CalendarDialog
         open={calendarDialogOpen}
         onOpenChange={setCalendarDialogOpen}
         selectedDate={selectedDate}
-        onDateChange={handleDateChange}
+        onSelect={handleDateChange}
       />
-
+      
       <LabelsDialog
         open={labelsDialogOpen}
         onOpenChange={setLabelsDialogOpen}
-        labelType={labelType}
-        setLabelType={setLabelType}
         selectedTasks={selectedTasks}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        todayCleaningTasks={todayCleaningTasks}
-        tomorrowCleaningTasks={tomorrowCleaningTasks}
-        completedCleaningTasks={completedCleaningTasks}
-        onSelectTask={handleSelectTask}
-        onStartCleaning={handleStartCleaning}
-        onCompleteCleaning={handleCompleteCleaning}
-        onOpenDetails={openDetailsDialog}
-        onAssign={openAssignDialog}
-        onReportProblem={openProblemDialog}
-        onDelete={openDeleteDialog}
-        onPrintLabels={handlePrintLabels}
+        labelType={labelType}
+        onLabelTypeChange={setLabelType}
+        onPrint={handlePrintLabels}
       />
-
+      
       <AddCleaningTaskDialog
         open={addTaskDialogOpen}
         onOpenChange={setAddTaskDialogOpen}
@@ -161,20 +129,20 @@ export const CleaningDialogs = () => {
         cleaningAgents={cleaningAgents}
         onAddTask={handleAddTask}
       />
-
-      <EditCommentsDialog
-        open={editCommentsDialogOpen}
-        onOpenChange={setEditCommentsDialogOpen}
-        currentTask={currentTask}
-        taskComments={taskComments}
-        setTaskComments={setTaskComments}
-        onSaveComments={handleSaveComments}
-      />
-
+      
       <DeleteConfirmDialog
         open={deleteConfirmDialogOpen}
         onOpenChange={setDeleteConfirmDialogOpen}
         onDelete={handleDeleteTask}
+        taskName={currentTask?.property || ""}
+      />
+      
+      <EditCommentsDialog
+        open={editCommentsDialogOpen}
+        onOpenChange={setEditCommentsDialogOpen}
+        comments={taskComments}
+        onCommentsChange={setTaskComments}
+        onSave={handleSaveComments}
       />
     </>
   );

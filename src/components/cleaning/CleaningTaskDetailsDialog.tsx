@@ -3,6 +3,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CleaningTask } from "@/types/cleaning";
+import { Input } from "@/components/ui/input";
+import { Edit2, Check, X } from "lucide-react";
+import { useState } from "react";
 
 interface CleaningTaskDetailsDialogProps {
   open: boolean;
@@ -10,6 +13,7 @@ interface CleaningTaskDetailsDialogProps {
   currentTask: CleaningTask | null;
   getStatusBadge: (status: string) => JSX.Element | null;
   onEditComments: () => void;
+  onUpdateCheckTimes: (checkoutTime: string, checkinTime: string) => void;
 }
 
 export const CleaningTaskDetailsDialog = ({
@@ -17,8 +21,40 @@ export const CleaningTaskDetailsDialog = ({
   onOpenChange,
   currentTask,
   getStatusBadge,
-  onEditComments
+  onEditComments,
+  onUpdateCheckTimes
 }: CleaningTaskDetailsDialogProps) => {
+  const [isEditingTimes, setIsEditingTimes] = useState(false);
+  const [checkoutTime, setCheckoutTime] = useState("");
+  const [checkinTime, setCheckinTime] = useState("");
+
+  // Initialize editing state when dialog opens with a new task
+  if (currentTask && open && (checkoutTime !== currentTask.checkoutTime || checkinTime !== currentTask.checkinTime)) {
+    setCheckoutTime(currentTask.checkoutTime || "");
+    setCheckinTime(currentTask.checkinTime || "");
+  }
+
+  const handleStartEditingTimes = () => {
+    if (currentTask) {
+      setCheckoutTime(currentTask.checkoutTime || "");
+      setCheckinTime(currentTask.checkinTime || "");
+      setIsEditingTimes(true);
+    }
+  };
+
+  const handleSaveTimes = () => {
+    onUpdateCheckTimes(checkoutTime, checkinTime);
+    setIsEditingTimes(false);
+  };
+
+  const handleCancelEditingTimes = () => {
+    if (currentTask) {
+      setCheckoutTime(currentTask.checkoutTime || "");
+      setCheckinTime(currentTask.checkinTime || "");
+    }
+    setIsEditingTimes(false);
+  };
+
   if (!currentTask) return null;
 
   return (
@@ -39,14 +75,67 @@ export const CleaningTaskDetailsDialog = ({
                 <span className="text-muted-foreground">Statut:</span>
                 <span>{getStatusBadge(currentTask.status)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Check-out:</span>
-                <span>{currentTask.checkoutTime}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Check-in:</span>
-                <span>{currentTask.checkinTime}</span>
-              </div>
+              
+              {!isEditingTimes ? (
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Heures:</span>
+                  <div className="flex items-center gap-2">
+                    <span>Check-out: {currentTask.checkoutTime}</span>
+                    <span>•</span>
+                    <span>Check-in: {currentTask.checkinTime}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="ml-2 h-7 w-7 p-0"
+                      onClick={handleStartEditingTimes}
+                    >
+                      <Edit2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Check-out:</span>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="time"
+                        value={checkoutTime}
+                        onChange={(e) => setCheckoutTime(e.target.value)}
+                        className="w-32 h-8"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Check-in:</span>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="time"
+                        value={checkinTime}
+                        onChange={(e) => setCheckinTime(e.target.value)}
+                        className="w-32 h-8"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 text-green-600"
+                        onClick={handleSaveTimes}
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 text-red-600"
+                        onClick={handleCancelEditingTimes}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Agent:</span>
                 <span>{currentTask.cleaningAgent || "Non assigné"}</span>
