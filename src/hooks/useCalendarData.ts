@@ -3,4 +3,4 @@
 import { useCalendarData } from './calendar/useCalendarData';
 
 export { useCalendarData };
-export { Property, Booking } from './calendar/types';
+export type { Property, Booking } from './calendar/types';

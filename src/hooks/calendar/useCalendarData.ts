@@ -1,72 +1,80 @@
 
-import { useState } from 'react';
-import { Booking, Property, CalendarContext } from './types';
-import { properties, bookingsData } from './mockData';
-import { useBookingsFilter } from './useBookingsFilter';
+import { useState, useEffect } from 'react';
+import { getBookingsForMonth } from './mockData';
 import { useCalendarNavigation } from './useCalendarNavigation';
+import { useBookingsFilter } from './useBookingsFilter';
 import { usePropertyAvailability } from './usePropertyAvailability';
+import type { CalendarContext, Property, Booking, DateRange } from './types';
 
-export { Property, Booking } from './types';
-
-export const useCalendarData = (): CalendarContext => {
-  // State for managing bookings data
-  const [bookings, setBookings] = useState<Booking[]>(bookingsData);
+// Create the hook that combines all the functionality
+export function useCalendarData(): CalendarContext {
+  // Get the current month's bookings from the mock data
+  const [properties, setProperties] = useState<Property[]>([
+    { id: 1, name: 'Appartement Bellecour', capacity: 4, pricePerNight: 150 },
+    { id: 2, name: 'Loft Croix-Rousse', capacity: 2, pricePerNight: 120 },
+    { id: 3, name: 'Studio Part-Dieu', capacity: 2, pricePerNight: 95 },
+    { id: 4, name: 'Villa Confluence', capacity: 6, pricePerNight: 250 },
+    { id: 5, name: 'Maison Vieux Lyon', capacity: 8, pricePerNight: 320 }
+  ]);
   
-  // Re-usable hooks
+  // Get the calendar navigation state
   const { 
     currentDate, 
     setCurrentDate, 
-    currentMonthDays, 
-    navigateMonth 
+    currentMonthDays,
+    navigateMonth
   } = useCalendarNavigation();
   
-  const { 
-    selectedProperty, 
-    setSelectedProperty, 
-    searchQuery, 
-    setSearchQuery, 
-    filteredBookings 
+  // Initialize bookings state
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  
+  // Get bookings filter state
+  const {
+    selectedProperty,
+    setSelectedProperty,
+    searchQuery,
+    setSearchQuery,
+    filteredBookings
   } = useBookingsFilter(bookings, properties);
   
-  const { 
-    dateRange, 
-    setDateRange, 
-    availableProperties, 
-    findAvailableProperties 
+  // Get property availability state
+  const {
+    dateRange,
+    setDateRange,
+    availableProperties,
+    findAvailableProperties
   } = usePropertyAvailability(properties, bookings);
-
+  
+  // Fetch bookings when the current month changes
+  useEffect(() => {
+    const newBookings = getBookingsForMonth(currentDate, properties);
+    setBookings(newBookings);
+  }, [currentDate, properties]);
+  
   // Add a new booking
-  const addBooking = (newBooking: Booking) => {
-    setBookings(prev => [newBooking, ...prev]);
+  const addBooking = (booking: Booking) => {
+    setBookings([...bookings, booking]);
   };
-
+  
   return {
-    // Calendar navigation
     currentDate,
     setCurrentDate,
-    currentMonthDays,
-    navigateMonth,
-    
-    // Properties data
     properties,
-    
-    // Bookings data management
     bookings,
-    setBookings,
-    bookingsData,
-    addBooking,
-    
-    // Filtering
     filteredBookings,
     selectedProperty,
     setSelectedProperty,
     searchQuery,
     setSearchQuery,
-    
-    // Availability
+    currentMonthDays,
     dateRange,
     setDateRange,
     availableProperties,
-    findAvailableProperties
+    findAvailableProperties,
+    navigateMonth,
+    addBooking,
+    setBookings
   };
-};
+}
+
+export type { Property, Booking };
