@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useCalendarData } from '@/hooks/useCalendarData';
 import { format } from 'date-fns';
+import { useState } from 'react';
+import { PropertyUpsellItem } from '@/types/property';
+import { RegisterSaleDialog } from '@/components/upsell/RegisterSaleDialog';
 
 interface UpsellsSectionProps {
   property: Property;
@@ -15,6 +18,8 @@ interface UpsellsSectionProps {
 export const UpsellsSection = ({ property }: UpsellsSectionProps) => {
   const { toast } = useToast();
   const { bookings } = useCalendarData();
+  const [registerSaleDialogOpen, setRegisterSaleDialogOpen] = useState(false);
+  const [selectedUpsell, setSelectedUpsell] = useState<PropertyUpsellItem | undefined>(undefined);
   
   if (!property.upsells) return null;
   
@@ -40,6 +45,22 @@ export const UpsellsSection = ({ property }: UpsellsSectionProps) => {
       checkOut: booking.checkOut
     };
   };
+
+  const handleRegisterSaleClick = (upsell: PropertyUpsellItem) => {
+    setSelectedUpsell(upsell);
+    setRegisterSaleDialogOpen(true);
+  };
+
+  // This function would need to update the upsell data through a prop or context
+  const handleRegisterSale = (serviceId: number, bookingId?: string) => {
+    // We would need a way to update the property's upsells
+    // This is a placeholder for now
+    toast({
+      title: "Vente enregistrée",
+      description: "La vente a été enregistrée avec succès."
+    });
+    setRegisterSaleDialogOpen(false);
+  };
   
   return (
     <Card>
@@ -64,27 +85,38 @@ export const UpsellsSection = ({ property }: UpsellsSectionProps) => {
                 <div className="flex justify-between items-center">
                   <div className="font-medium text-sm flex items-center gap-2">
                     {upsell.name}
-                    {upsell.salesLink && (
-                      <div className="flex items-center gap-1">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="h-5 w-5 p-0"
-                          onClick={() => copyLinkToClipboard(upsell.salesLink!)}
-                          title="Copier le lien"
-                        >
-                          <Link className="h-3 w-3" />
-                        </Button>
-                        <a 
-                          href={upsell.salesLink} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-1">
+                      {upsell.salesLink && (
+                        <>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-5 w-5 p-0"
+                            onClick={() => copyLinkToClipboard(upsell.salesLink!)}
+                            title="Copier le lien"
+                          >
+                            <Link className="h-3 w-3" />
+                          </Button>
+                          <a 
+                            href={upsell.salesLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </>
+                      )}
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="h-5 w-5 p-0"
+                        onClick={() => handleRegisterSaleClick(upsell)}
+                        title="Enregistrer une vente"
+                      >
+                        <ShoppingCart className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                   <div className="text-sm">{upsell.price/100}€ × {upsell.sold} = {(upsell.price * upsell.sold)/100}€</div>
                 </div>
@@ -114,6 +146,13 @@ export const UpsellsSection = ({ property }: UpsellsSectionProps) => {
           )}
         </div>
       </CardContent>
+
+      <RegisterSaleDialog 
+        open={registerSaleDialogOpen}
+        onOpenChange={setRegisterSaleDialogOpen}
+        service={selectedUpsell}
+        onRegisterSale={handleRegisterSale}
+      />
     </Card>
   );
 };

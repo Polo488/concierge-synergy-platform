@@ -27,6 +27,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { useCalendarData } from '@/hooks/useCalendarData';
 import { format } from 'date-fns';
+import { RegisterSaleDialog } from './RegisterSaleDialog';
 
 interface UpsellServiceManagerProps {
   services: PropertyUpsellItem[];
@@ -38,6 +39,7 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
   const { properties, bookings } = useCalendarData();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [registerSaleDialogOpen, setRegisterSaleDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<PropertyUpsellItem | undefined>(undefined);
 
   const handleAddClick = () => {
@@ -53,6 +55,11 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
   const handleDeleteClick = (service: PropertyUpsellItem) => {
     setSelectedService(service);
     setDeleteDialogOpen(true);
+  };
+
+  const handleRegisterSaleClick = (service: PropertyUpsellItem) => {
+    setSelectedService(service);
+    setRegisterSaleDialogOpen(true);
   };
 
   const handleSaveService = (updatedService: PropertyUpsellItem) => {
@@ -93,12 +100,13 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
     setDeleteDialogOpen(false);
   };
 
-  const handleRegisterSale = (serviceId: number) => {
+  const handleRegisterSale = (serviceId: number, bookingId?: string) => {
     const updatedServices = services.map(service => {
       if (service.id === serviceId) {
         return {
           ...service,
-          sold: service.sold + 1
+          sold: service.sold + 1,
+          bookingId: bookingId || service.bookingId
         };
       }
       return service;
@@ -113,6 +121,8 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
         description: `Une vente du service "${service.name}" a été enregistrée.`,
       });
     }
+    
+    setRegisterSaleDialogOpen(false);
   };
   
   const copyLinkToClipboard = (service: PropertyUpsellItem) => {
@@ -226,7 +236,7 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => handleRegisterSale(service.id)}
+                          onClick={() => handleRegisterSaleClick(service)}
                           title="Enregistrer une vente"
                         >
                           <ShoppingCart className="h-4 w-4" />
@@ -266,6 +276,12 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSave={handleSaveService}
+        service={selectedService}
+      />
+
+      <RegisterSaleDialog
+        open={registerSaleDialogOpen}
+        onOpenChange={setRegisterSaleDialogOpen}
         service={selectedService}
         onRegisterSale={handleRegisterSale}
       />
