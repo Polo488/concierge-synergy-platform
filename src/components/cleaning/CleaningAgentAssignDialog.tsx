@@ -33,11 +33,12 @@ export const CleaningAgentAssignDialog = ({
           </DialogDescription>
         </DialogHeader>
         
-        <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+        <Select value={selectedAgent || "non_assigne"} onValueChange={setSelectedAgent}>
           <SelectTrigger>
             <SelectValue placeholder="Sélectionner un agent" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="non_assigne">Non assigné</SelectItem>
             {cleaningAgents.map((agent) => (
               <SelectItem key={agent} value={agent}>
                 {agent}

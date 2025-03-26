@@ -244,7 +244,10 @@ const Cleaning = () => {
     const updateTask = (tasks: CleaningTask[], taskId: number) => {
       return tasks.map(t => {
         if (t.id === taskId) {
-          return { ...t, cleaningAgent: selectedAgent };
+          return { 
+            ...t, 
+            cleaningAgent: selectedAgent === "non_assigne" ? null : selectedAgent 
+          };
         }
         return t;
       });
@@ -259,7 +262,7 @@ const Cleaning = () => {
     setAssignDialogOpen(false);
     
     toast("Agent assigné", {
-      description: `${selectedAgent} a été assigné au ménage pour ${currentTask.property}.`
+      description: `${selectedAgent === "non_assigne" ? "Aucun agent" : selectedAgent} a été assigné au ménage pour ${currentTask.property}.`
     });
   };
 
@@ -332,7 +335,6 @@ const Cleaning = () => {
     });
   };
 
-  // Ajouter une tâche
   const handleAddTask = () => {
     const allTasks = [...todayCleaningTasks, ...tomorrowCleaningTasks, ...completedCleaningTasks];
     const id = getNextId(allTasks);
@@ -340,7 +342,7 @@ const Cleaning = () => {
     const taskToAdd: CleaningTask = {
       ...newTask,
       id,
-      cleaningAgent: newTask.cleaningAgent === '' ? null : newTask.cleaningAgent,
+      cleaningAgent: newTask.cleaningAgent === '' || newTask.cleaningAgent === 'non_assigne' ? null : newTask.cleaningAgent,
       startTime: '',
       endTime: ''
     };

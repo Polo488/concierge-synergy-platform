@@ -1,7 +1,8 @@
 
+import { BookingForm, SelectOption } from "../moyenne-duree/types";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { NewCleaningTask } from "@/types/cleaning";
 
@@ -98,7 +99,7 @@ export const AddCleaningTaskDialog = ({
                   <SelectValue placeholder="Sélectionner un agent" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Non assigné</SelectItem>
+                  <SelectItem value="non_assigne">Non assigné</SelectItem>
                   {cleaningAgents.map((agent) => (
                     <SelectItem key={agent} value={agent}>{agent}</SelectItem>
                   ))}
