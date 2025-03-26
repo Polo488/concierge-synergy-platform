@@ -4,6 +4,7 @@ import { MaintenanceTask } from './maintenance';
 export type PropertyType = 'T1' | 'T2' | 'T3' | 'T4' | 'T5' | 'T6+';
 export type PropertyClassification = 'Appartement' | 'Studio' | 'Loft' | 'Maison' | 'Villa' | '';
 export type UrgencyLevel = 'low' | 'medium' | 'high' | 'critical';
+export type ResidenceType = 'principale' | 'secondaire';
 
 export interface PropertyOwner {
   name: string;
@@ -74,4 +75,7 @@ export interface Property {
   floor: string;
   agentNotes: string;
   attachments: PropertyAttachment[];
+  residenceType: ResidenceType;
+  nightsCount: number;
+  nightsLimit: number;
 }

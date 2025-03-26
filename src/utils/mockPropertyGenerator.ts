@@ -1,5 +1,4 @@
-
-import { Property, PropertyType, PropertyClassification } from '@/types/property';
+import { Property, PropertyType, PropertyClassification, ResidenceType } from '@/types/property';
 
 export const generateProperties = (): Property[] => {
   const propertyTypes: PropertyType[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6+'];
@@ -25,6 +24,15 @@ export const generateProperties = (): Property[] => {
     const commission = Math.floor(Math.random() * 10) + 10;
     const bathrooms = Math.floor(Math.random() * 3) + 1;
     const size = Math.floor(Math.random() * 100) + 30;
+    
+    // Determine residence type - 30% principale, 70% secondaire
+    const residenceType: ResidenceType = Math.random() < 0.3 ? 'principale' : 'secondaire';
+    
+    // For résidences principales, generate a random number of nights used
+    const nightsLimit = residenceType === 'principale' ? 120 : 365;
+    const nightsCount = residenceType === 'principale' 
+      ? Math.floor(Math.random() * nightsLimit) 
+      : Math.floor(Math.random() * 250); // For secondaires, just a random number for demo
     
     // Generate bed sizes
     const bedSizes = [];
@@ -71,7 +79,6 @@ export const generateProperties = (): Property[] => {
       ].slice(0, Math.floor(Math.random() * 3) + 2)
     };
     
-    // Update linens with bed size info
     const linens = {
       bedding: [
         `${bedrooms} jeux de draps`, 
@@ -104,7 +111,6 @@ export const generateProperties = (): Property[] => {
       };
     });
     
-    // Initialize empty upsells statistics
     const upsells = {
       available: [
         { id: 1, name: 'Ménage supplémentaire', price: 50, sold: Math.floor(Math.random() * 10) },
@@ -146,7 +152,10 @@ export const generateProperties = (): Property[] => {
       attachments: [
         { id: 1, name: 'Manuel du four', url: 'https://example.com/manuel_four.pdf', type: 'manual' },
         { id: 2, name: 'Contrat de location', url: 'https://example.com/contrat.pdf', type: 'contract' }
-      ]
+      ],
+      residenceType,
+      nightsCount,
+      nightsLimit
     };
   });
 };

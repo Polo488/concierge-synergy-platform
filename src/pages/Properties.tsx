@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Grid3X3, Home, List, PlusCircle, Building, BedDouble } from 'lucide-react';
+import { Grid3X3, Home, List, PlusCircle, Building, BedDouble, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
@@ -39,6 +39,10 @@ const Properties = () => {
     setSelectedProperty(null);
   };
 
+  // Calculer les statistiques de résidence
+  const principalCount = properties.filter(p => p.residenceType === 'principale').length;
+  const secondaryCount = properties.filter(p => p.residenceType === 'secondaire').length;
+
   return (
     <div className="space-y-8">
       <div>
@@ -48,7 +52,7 @@ const Properties = () => {
         </p>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard 
           title="Total logements" 
           value={properties.length.toString()} 
@@ -72,6 +76,18 @@ const Properties = () => {
           value={properties.filter(p => p.classification === 'Studio').length.toString()} 
           icon={<BedDouble className="h-5 w-5" />}
           className="stagger-4"
+        />
+        <StatCard 
+          title="Rés. principales" 
+          value={principalCount.toString()} 
+          icon={<Calendar className="h-5 w-5" />}
+          className="stagger-5"
+        />
+        <StatCard 
+          title="Rés. secondaires" 
+          value={secondaryCount.toString()} 
+          icon={<Home className="h-5 w-5" />}
+          className="stagger-6"
         />
       </div>
       

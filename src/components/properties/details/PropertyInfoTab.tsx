@@ -8,6 +8,7 @@ import { LinenConsumablesSection } from './sections/LinenConsumablesSection';
 import { AmenitiesSection } from './sections/AmenitiesSection';
 import { BedSizesSection } from './sections/BedSizesSection';
 import { UpsellsSection } from './sections/UpsellsSection';
+import { ResidenceTypeSection } from './sections/ResidenceTypeSection';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 
@@ -56,6 +57,12 @@ export const PropertyInfoTab = ({ property }: PropertyInfoTabProps) => {
           </CardContent>
         </Card>
       </div>
+      
+      <Card>
+        <CardContent className="pt-6">
+          <ResidenceTypeSection property={property} />
+        </CardContent>
+      </Card>
       
       <BedSizesSection 
         bedSizes={bedSizes}

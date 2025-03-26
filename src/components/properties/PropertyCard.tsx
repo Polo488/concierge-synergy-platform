@@ -1,9 +1,10 @@
 
-import { Building, BedDouble, Home, MapPin } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Property } from '@/utils/propertyUtils';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { MapPin, Home, Building, Calendar, AlertCircle } from 'lucide-react';
 import { PropertyAmenityBadge } from './PropertyAmenityBadge';
+import { Progress } from '@/components/ui/progress';
 
 interface PropertyCardProps {
   property: Property;
@@ -12,71 +13,107 @@ interface PropertyCardProps {
 }
 
 export const PropertyCard = ({ property, index, onClick }: PropertyCardProps) => {
+  const staggerDelay = (index % 9) * 0.05;
+  
+  // Get the first photo or a placeholder
+  const coverPhoto = property.photos.length > 0
+    ? property.photos[0].url
+    : 'https://placehold.co/600x400/eee/999/png?text=No+Photo';
+  
+  // Calculate percentage for progress bar (for résidence principale only)
+  const isResidencePrincipale = property.residenceType === 'principale';
+  const percentage = isResidencePrincipale 
+    ? Math.min(100, (property.nightsCount / property.nightsLimit) * 100)
+    : 0;
+  const isNearLimit = isResidencePrincipale && percentage >= 90;
+  
   return (
     <Card 
-      key={property.id} 
-      className={`animate-slide-up stagger-${(index % 5) + 1} border border-border/40 overflow-hidden card-hover`}
+      className="overflow-hidden transition-all hover:shadow-md cursor-pointer animate-fadeIn"
+      style={{ animationDelay: `${staggerDelay}s` }}
       onClick={() => onClick(property)}
     >
-      <div className="h-48 bg-muted relative">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Home className="h-12 w-12 text-muted-foreground/30" />
-        </div>
-        <div className="absolute top-2 left-2 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full font-medium">
-          N°{property.number}
+      <div className="relative h-40 overflow-hidden">
+        <img 
+          src={coverPhoto} 
+          alt={property.name} 
+          className="w-full h-full object-cover transition-transform hover:scale-105"
+        />
+        
+        <div className="absolute top-2 right-2 flex gap-1">
+          <Badge variant="secondary" className="text-xs">
+            {property.type}
+          </Badge>
         </div>
       </div>
       
-      <CardContent className="p-5">
+      <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
-            <div className="flex flex-wrap gap-2 mb-2">
-              <Badge className="rounded-full">{property.type}</Badge>
-              {property.classification && (
-                <Badge variant="outline" className="rounded-full">{property.classification}</Badge>
-              )}
+            <h3 className="font-semibold truncate">
+              {property.name}
+            </h3>
+            <div className="text-muted-foreground text-xs flex items-center mt-1">
+              <MapPin className="h-3 w-3 mr-1" />
+              <span className="truncate">{property.address}</span>
             </div>
-            <h3 className="font-semibold text-lg">{property.name}</h3>
-            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-              <MapPin className="h-3.5 w-3.5" />
-              {property.address}
-            </p>
+          </div>
+          <Badge 
+            variant={property.residenceType === 'principale' ? 'outline' : 'secondary'}
+            className={`text-xs flex items-center gap-1 ${
+              property.residenceType === 'principale' ? 'border-blue-400 text-blue-700' : 'bg-green-100 text-green-800'
+            }`}
+          >
+            <Calendar className="h-3 w-3" />
+            {property.residenceType === 'principale' ? 'Principale' : 'Secondaire'}
+          </Badge>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="pb-2">
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="flex items-center gap-1 text-muted-foreground">
+            <Building className="h-4 w-4" />
+            {property.classification}
+          </div>
+          <div className="flex items-center gap-1 text-muted-foreground">
+            <Home className="h-4 w-4" />
+            {property.size} m²
           </div>
         </div>
         
-        <div className="flex gap-3 mt-3 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <BedDouble className="h-4 w-4" />
-            {property.bedrooms} {property.bedrooms > 1 ? 'chambres' : 'chambre'}
-          </div>
-          <div>|</div>
-          <div>{property.size} m²</div>
-        </div>
-        
-        <div className="mt-3">
-          <p className="text-xs font-medium mb-1.5">Équipements:</p>
-          <div className="flex flex-wrap gap-1.5">
-            {property.amenities.slice(0, 3).map((amenity, i) => (
-              <PropertyAmenityBadge key={i} amenity={amenity} />
-            ))}
-            {property.amenities.length > 3 && (
-              <Badge variant="outline" className="text-xs rounded-full">
-                +{property.amenities.length - 3}
-              </Badge>
+        {isResidencePrincipale && (
+          <div className="mt-3">
+            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+              <span>Nuits utilisées</span>
+              <span className={isNearLimit ? 'text-red-500 font-medium' : ''}>
+                {property.nightsCount} / {property.nightsLimit}
+              </span>
+            </div>
+            <Progress 
+              value={percentage} 
+              className={`h-1.5 ${isNearLimit ? 'bg-red-200' : 'bg-gray-200'}`} 
+            />
+            {isNearLimit && (
+              <div className="flex items-center gap-1 text-xs text-red-500 mt-1">
+                <AlertCircle className="h-3 w-3" />
+                <span>Proche de la limite légale</span>
+              </div>
             )}
           </div>
-        </div>
-        
-        <div className="flex justify-between items-center mt-4 pt-4 border-t border-border/30">
-          <div className="text-sm">
-            <span className="text-muted-foreground">Propriétaire:</span>{' '}
-            <span className="font-medium">{property.owner.name}</span>
-          </div>
-          <div className="text-sm font-medium">
-            Commission: {property.commission}%
-          </div>
-        </div>
+        )}
       </CardContent>
+      
+      <CardFooter className="flex flex-wrap gap-1 pt-0">
+        {property.amenities.slice(0, 3).map((amenity, i) => (
+          <PropertyAmenityBadge key={i} amenity={amenity} />
+        ))}
+        {property.amenities.length > 3 && (
+          <Badge variant="outline" className="text-xs">
+            +{property.amenities.length - 3}
+          </Badge>
+        )}
+      </CardFooter>
     </Card>
   );
 };
