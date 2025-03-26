@@ -1,8 +1,8 @@
 import { MaintenanceTask, UrgencyLevel } from '@/types/maintenance';
 
 export const generateProperties = () => {
-  const propertyTypes = ['Appartement', 'Studio', 'Loft', 'Maison', 'Villa'];
-  const propertyClassifications = ['T1', 'T2', 'T3', 'T4', 'T5'];
+  const propertyTypes = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6+'];
+  const propertyClassifications = ['Appartement', 'Studio', 'Loft', 'Maison', 'Villa'];
   const ownerNames = [
     'Thomas Dubois', 'Marie Lefevre', 'Jean Martin', 'Sophie Bernard', 'Pierre Durand',
     'Isabelle Moreau', 'Michel Lambert', 'Anne Rousseau', 'Philippe Girard', 'Julie Leroy'
@@ -11,18 +11,14 @@ export const generateProperties = () => {
   return Array.from({ length: 400 }, (_, i) => {
     const id = (i + 1).toString();
     const number = id.padStart(2, '0');
-    const type = propertyTypes[Math.floor(Math.random() * propertyTypes.length)];
     
-    // Assign classification based on type and bedrooms
+    // Assign type (T1-T6+) based on bedroom count
     const bedrooms = Math.floor(Math.random() * 5) + 1;
-    let classification = '';
+    const type = `T${Math.min(bedrooms, 6)}${bedrooms >= 6 ? '+' : ''}`;
     
-    if (type === 'Studio') {
-      classification = 'T1';
-    } else if (type === 'Appartement' || type === 'Loft') {
-      // T1 to T5 based on bedroom count
-      classification = `T${Math.min(bedrooms, 5)}`;
-    }
+    // Assign classification
+    const classificationIndex = Math.floor(Math.random() * propertyClassifications.length);
+    const classification = propertyClassifications[classificationIndex];
     
     const ownerName = ownerNames[Math.floor(Math.random() * ownerNames.length)];
     const commission = Math.floor(Math.random() * 10) + 10;

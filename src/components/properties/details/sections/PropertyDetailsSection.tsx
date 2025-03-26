@@ -68,11 +68,12 @@ export const PropertyDetailsSection = ({
                   <SelectValue placeholder="Type de bien" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Appartement">Appartement</SelectItem>
-                  <SelectItem value="Studio">Studio</SelectItem>
-                  <SelectItem value="Loft">Loft</SelectItem>
-                  <SelectItem value="Maison">Maison</SelectItem>
-                  <SelectItem value="Villa">Villa</SelectItem>
+                  <SelectItem value="T1">T1</SelectItem>
+                  <SelectItem value="T2">T2</SelectItem>
+                  <SelectItem value="T3">T3</SelectItem>
+                  <SelectItem value="T4">T4</SelectItem>
+                  <SelectItem value="T5">T5</SelectItem>
+                  <SelectItem value="T6+">T6+</SelectItem>
                 </SelectContent>
               </Select>
             </dd>
@@ -88,11 +89,11 @@ export const PropertyDetailsSection = ({
                   <SelectValue placeholder="Classification" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="T1">T1</SelectItem>
-                  <SelectItem value="T2">T2</SelectItem>
-                  <SelectItem value="T3">T3</SelectItem>
-                  <SelectItem value="T4">T4</SelectItem>
-                  <SelectItem value="T5">T5</SelectItem>
+                  <SelectItem value="Appartement">Appartement</SelectItem>
+                  <SelectItem value="Studio">Studio</SelectItem>
+                  <SelectItem value="Loft">Loft</SelectItem>
+                  <SelectItem value="Maison">Maison</SelectItem>
+                  <SelectItem value="Villa">Villa</SelectItem>
                   <SelectItem value="">Non spécifié</SelectItem>
                 </SelectContent>
               </Select>
