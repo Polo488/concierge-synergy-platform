@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { 
   Home, PlusCircle, Search, Filter, 
   Building, User, MapPin, BedDouble, List, Grid3X3, SlidersHorizontal,
   ChevronRight, Camera, Thermometer, Wifi, Radio, Tv, Car, 
   Wind, CigaretteOff, Waves, UtensilsCrossed, Globe, ExternalLink,
-  Wrench, Clock, CheckCircle, AlertTriangle
+  Wrench, Clock, CheckCircle, AlertTriangle, Key, FileText, Video, StickyNote, Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -123,7 +122,17 @@ const generateProperties = () => {
         name: ownerName,
         email: `${ownerName.toLowerCase().replace(' ', '.')}@example.com`,
         phone: `+33 ${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)} ${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)} ${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)} ${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)} ${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}`
-      }
+      },
+      bacCode: Math.random().toString(36).substring(2, 7).toUpperCase(),
+      digicode: Math.floor(Math.random() * 9000 + 1000).toString(),
+      wifiCode: `WIFI-${Math.floor(Math.random() * 1000)}`,
+      youtubeLink: `https://www.youtube.com/watch?v=dQw4w9WgXcQ`,
+      floor: `${Math.floor(Math.random() * 10) + 1}ème étage`,
+      agentNotes: `Parking gratuit à 50m. Four à micro-ondes Samsung ref. M1234.`,
+      attachments: [
+        { id: 1, name: 'Manuel du four', url: 'https://example.com/manuel_four.pdf', type: 'manual' },
+        { id: 2, name: 'Contrat de location', url: 'https://example.com/contrat.pdf', type: 'contract' }
+      ]
     };
   });
 };
@@ -515,9 +524,12 @@ const Properties = () => {
             </DialogHeader>
 
             <Tabs defaultValue="info" className="mt-4">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="info">Informations</TabsTrigger>
                 <TabsTrigger value="equipment">Équipements</TabsTrigger>
+                <TabsTrigger value="access" className="flex items-center gap-1">
+                  <Key className="h-4 w-4" /> Accès
+                </TabsTrigger>
                 <TabsTrigger value="photos">Photos</TabsTrigger>
                 <TabsTrigger value="platforms">Plateformes</TabsTrigger>
                 <TabsTrigger value="maintenance" className="flex items-center gap-1">
@@ -662,128 +674,50 @@ const Properties = () => {
                 </Card>
               </TabsContent>
               
-              <TabsContent value="photos" className="space-y-4 mt-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-medium">Photos du logement</h3>
-                  <Select value={selectedPhotoCategory} onValueChange={setSelectedPhotoCategory}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Filtrer par catégorie" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Toutes">Toutes les photos</SelectItem>
-                      <SelectItem value="Extérieur">Extérieur</SelectItem>
-                      <SelectItem value="Salon">Salon</SelectItem>
-                      <SelectItem value="Cuisine">Cuisine</SelectItem>
-                      <SelectItem value="Chambre">Chambre</SelectItem>
-                      <SelectItem value="Salle de bain">Salle de bain</SelectItem>
-                      <SelectItem value="Chauffage">Chauffage</SelectItem>
-                      <SelectItem value="Radiateur">Radiateur</SelectItem>
-                      <SelectItem value="Équipement">Équipement</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-                  {filteredPhotos.map((photo) => (
-                    <Card key={photo.id} className="overflow-hidden">
-                      <div className="relative aspect-video bg-muted">
-                        <img 
-                          src={photo.url} 
-                          alt={photo.caption} 
-                          className="object-cover w-full h-full" 
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/60 text-white">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">{photo.caption}</span>
-                            <Badge variant="outline" className="text-xs bg-black/20 text-white border-white/20">
-                              {photo.category}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="platforms" className="space-y-4 mt-4">
+              {/* Nouvel onglet Accès */}
+              <TabsContent value="access" className="space-y-4 mt-4">
                 <Card>
                   <CardContent className="pt-6">
-                    <h3 className="font-medium text-lg mb-4">Liens vers les plateformes</h3>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {platformLinks.map((platform, index) => (
-                        <a 
-                          key={index}
-                          href={platform.url(selectedProperty.id)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                        >
-                          <div className="flex items-center gap-2">
-                            {platform.icon}
-                            <span className="font-medium">{platform.name}</span>
-                          </div>
-                          <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                        </a>
-                      ))}
+                    <h3 className="font-medium text-lg mb-4">Informations d'accès</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <Key className="h-5 w-5 text-primary mt-0.5" />
+                        <div>
+                          <p className="font-medium">Code BAC</p>
+                          <p className="text-muted-foreground font-mono">
+                            {selectedProperty.bacCode || "Non renseigné"}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <Lock className="h-5 w-5 text-primary mt-0.5" />
+                        <div>
+                          <p className="font-medium">Digicode</p>
+                          <p className="text-muted-foreground font-mono">
+                            {selectedProperty.digicode || "Non renseigné"}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <Wifi className="h-5 w-5 text-primary mt-0.5" />
+                        <div>
+                          <p className="font-medium">Code Wi-Fi</p>
+                          <p className="text-muted-foreground font-mono">
+                            {selectedProperty.wifiCode || "Non renseigné"}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
-              
-              <TabsContent value="maintenance" className="space-y-4 mt-4">
+                
                 <Card>
                   <CardContent className="pt-6">
-                    <h3 className="font-medium text-lg mb-4">Historique des interventions</h3>
-                    
-                    {getPropertyMaintenanceHistory(selectedProperty.id).length > 0 ? (
-                      <div className="rounded-md border">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Date</TableHead>
-                              <TableHead>Type</TableHead>
-                              <TableHead>Urgence</TableHead>
-                              <TableHead>Statut</TableHead>
-                              <TableHead>Technicien</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {getPropertyMaintenanceHistory(selectedProperty.id)
-                              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                              .map((task) => (
-                                <TableRow key={task.id}>
-                                  <TableCell>{new Date(task.createdAt).toLocaleDateString()}</TableCell>
-                                  <TableCell>{task.title}</TableCell>
-                                  <TableCell>{getUrgencyBadge(task.urgency)}</TableCell>
-                                  <TableCell className="flex items-center gap-1">
-                                    {getStatusIcon(task)}
-                                    {getStatusText(task)}
-                                  </TableCell>
-                                  <TableCell>{task.technician || '-'}</TableCell>
-                                </TableRow>
-                              ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    ) : (
-                      <div className="text-center p-8 bg-muted/30 rounded-lg">
-                        <Wrench className="h-8 w-8 text-muted-foreground/60 mx-auto mb-2" />
-                        <h4 className="text-lg font-medium mb-1">Aucune intervention</h4>
-                        <p className="text-muted-foreground">
-                          Ce logement n'a pas encore d'historique d'interventions de maintenance.
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
-  );
-};
-
-export default Properties;
+                    <h3 className="font-medium text-lg mb-4">Emplacement</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <Video className="h-5 w-5 text-primary mt-0.5" />
+                        <div>
+                          <p className="font-medium">Vidéo de présentation</
