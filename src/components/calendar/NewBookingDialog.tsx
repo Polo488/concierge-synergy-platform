@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from '@/components/ui/textarea';
 import { Property } from '@/hooks/useCalendarData';
 import { useForm } from 'react-hook-form';
-import { Key, Wifi, Layers, Video, NoteText } from 'lucide-react';
+import { Key, Wifi, Layers, Video, StickyNote } from 'lucide-react';
 
 interface NewBookingFormData {
   propertyId: string;
@@ -319,7 +319,7 @@ export const NewBookingDialog = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-1">
-                        <NoteText className="h-4 w-4" />
+                        <StickyNote className="h-4 w-4" />
                         Notes pour les agents
                       </FormLabel>
                       <FormControl>

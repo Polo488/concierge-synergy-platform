@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Property } from '@/hooks/useCalendarData';
-import { Key, Wifi, Layers, Video, NoteText, FileText } from 'lucide-react';
+import { Key, Wifi, Layers, Video, FileText, StickyNote } from 'lucide-react';
 
 interface BookingDetailsDialogProps {
   open: boolean;
@@ -133,7 +133,7 @@ export const BookingDetailsDialog = ({
           <TabsContent value="notes" className="space-y-4">
             {property?.agentNotes ? (
               <div className="flex items-start gap-3">
-                <NoteText className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
+                <StickyNote className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="font-medium text-sm">Notes des agents</p>
                   <p className="mt-1 whitespace-pre-wrap text-sm">{property.agentNotes}</p>
