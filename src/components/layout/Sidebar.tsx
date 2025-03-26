@@ -13,7 +13,8 @@ import {
   X,
   ChevronRight,
   Calendar as CalendarIcon,
-  Clock
+  Clock,
+  ShoppingCart
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -31,6 +32,7 @@ const navItems: NavItem[] = [
   { name: 'Calendrier', path: '/calendar', icon: CalendarIcon },
   { name: 'Logements', path: '/properties', icon: Home },
   { name: 'Moyenne Durée', path: '/moyenne-duree', icon: Clock },
+  { name: 'Upsell', path: '/upsell', icon: ShoppingCart },
   { name: 'Facturation', path: '/billing', icon: Receipt },
 ];
 
