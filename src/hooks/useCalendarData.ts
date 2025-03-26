@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   startOfMonth, 
@@ -16,6 +15,15 @@ export interface Property {
   name: string;
   capacity: number;
   pricePerNight: number;
+  // Ajout de champs pour les informations d'accès
+  bacCode?: string;
+  wifiCode?: string;
+  floor?: string;
+  youtubeLink?: string;
+  // Ajout de champs pour les notes des agents
+  agentNotes?: string;
+  // Fichiers liés (manuels, etc.)
+  attachments?: Array<{id: number, name: string, url: string, type: string}>;
 }
 
 export interface Booking {
@@ -30,13 +38,80 @@ export interface Booking {
 
 // Sample data
 const properties: Property[] = [
-  { id: 1, name: 'Appartement 12 Rue du Port', capacity: 4, pricePerNight: 95 },
-  { id: 2, name: 'Studio 8 Avenue des Fleurs', capacity: 2, pricePerNight: 65 },
-  { id: 3, name: 'Loft 72 Rue des Arts', capacity: 3, pricePerNight: 85 },
-  { id: 4, name: 'Maison 23 Rue de la Paix', capacity: 6, pricePerNight: 120 },
-  { id: 5, name: 'Appartement 45 Boulevard Central', capacity: 4, pricePerNight: 90 },
-  { id: 6, name: 'Studio 15 Rue des Lilas', capacity: 2, pricePerNight: 70 },
-  { id: 7, name: 'Appartement 28 Avenue Victor Hugo', capacity: 5, pricePerNight: 110 },
+  { 
+    id: 1, 
+    name: 'Appartement 12 Rue du Port', 
+    capacity: 4, 
+    pricePerNight: 95,
+    bacCode: 'A1234',
+    wifiCode: 'WIFI-PORT-2024',
+    floor: '3ème étage',
+    youtubeLink: 'https://youtu.be/sample1',
+    agentNotes: 'Parking à 100m sur la droite. Four Whirlpool référence XYZ123. Le volet de la cuisine est parfois difficile à manœuvrer.'
+  },
+  { 
+    id: 2, 
+    name: 'Studio 8 Avenue des Fleurs', 
+    capacity: 2, 
+    pricePerNight: 65,
+    bacCode: 'B5678',
+    wifiCode: 'FLEURS-WIFI',
+    floor: 'Rez-de-chaussée',
+    agentNotes: 'Clés à récupérer chez le gardien si le client arrive après 20h.'
+  },
+  { 
+    id: 3, 
+    name: 'Loft 72 Rue des Arts', 
+    capacity: 3, 
+    pricePerNight: 85,
+    bacCode: 'C9012',
+    wifiCode: 'ARTS-WIFI-SECURE',
+    floor: '5ème étage',
+    youtubeLink: 'https://youtu.be/sample2',
+    agentNotes: 'La balnéo peut prendre jusqu\'à 30min pour chauffer. Pression d\'eau parfois faible en soirée.'
+  },
+  { 
+    id: 4, 
+    name: 'Maison 23 Rue de la Paix', 
+    capacity: 6, 
+    pricePerNight: 120,
+    bacCode: 'D3456',
+    wifiCode: 'PAIX-NET-2024',
+    floor: 'Maison sur 2 niveaux',
+    agentNotes: 'Jardin à entretenir en été. Voisin sensible au bruit après 22h.'
+  },
+  { 
+    id: 5, 
+    name: 'Appartement 45 Boulevard Central', 
+    capacity: 4, 
+    pricePerNight: 90,
+    bacCode: 'E7890',
+    wifiCode: 'CENTRAL-WIFI',
+    floor: '2ème étage',
+    youtubeLink: 'https://youtu.be/sample3',
+    agentNotes: 'Chauffage à régler manuellement en hiver. Thermostat dans l\'entrée.'
+  },
+  { 
+    id: 6, 
+    name: 'Studio 15 Rue des Lilas', 
+    capacity: 2, 
+    pricePerNight: 70,
+    bacCode: 'F1234',
+    wifiCode: 'LILAS-NET',
+    floor: '1er étage',
+    agentNotes: 'Interphone parfois capricieux, demander aux clients de nous appeler en cas de problème d\'accès.'
+  },
+  { 
+    id: 7, 
+    name: 'Appartement 28 Avenue Victor Hugo', 
+    capacity: 5, 
+    pricePerNight: 110,
+    bacCode: 'G5678',
+    wifiCode: 'HUGO-WIFI-2024',
+    floor: '4ème étage avec ascenseur',
+    youtubeLink: 'https://youtu.be/sample4',
+    agentNotes: 'Local à vélos au sous-sol. Code: 1289. Cuisine équipée avec robot multifonction (mode d\'emploi dans le tiroir).'
+  },
 ];
 
 const bookingsData: Booking[] = [
