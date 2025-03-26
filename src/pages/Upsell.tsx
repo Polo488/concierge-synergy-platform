@@ -135,7 +135,7 @@ const Upsell = () => {
                   ))}
                 </Pie>
                 <Tooltip 
-                  formatter={(value) => [`${(value / 100).toLocaleString('fr-FR')} €`, 'Revenus']}
+                  formatter={(value: number) => [`${(value / 100).toLocaleString('fr-FR')} €`, 'Revenus']}
                   contentStyle={{ background: 'white', border: '1px solid #f0f0f0', borderRadius: '8px' }}
                 />
               </PieChart>
