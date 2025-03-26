@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { 
   Home, PlusCircle, Search, Filter, 
@@ -720,4 +721,194 @@ const Properties = () => {
                       <div className="flex items-start gap-3">
                         <Video className="h-5 w-5 text-primary mt-0.5" />
                         <div>
-                          <p className="font-medium">Vidéo de présentation</
+                          <p className="font-medium">Vidéo de présentation</p>
+                          <p className="text-muted-foreground">
+                            <a 
+                              href={selectedProperty.youtubeLink} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-primary hover:underline"
+                            >
+                              Voir la vidéo <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <Home className="h-5 w-5 text-primary mt-0.5" />
+                        <div>
+                          <p className="font-medium">Étage</p>
+                          <p className="text-muted-foreground">
+                            {selectedProperty.floor || "Non renseigné"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="pt-6">
+                    <h3 className="font-medium text-lg mb-4">Notes de l'agent</h3>
+                    <div className="flex items-start gap-3">
+                      <StickyNote className="h-5 w-5 text-primary mt-0.5" />
+                      <div>
+                        <p className="text-muted-foreground whitespace-pre-line">
+                          {selectedProperty.agentNotes || "Aucune note disponible"}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="pt-6">
+                    <h3 className="font-medium text-lg mb-4">Documents</h3>
+                    <ul className="space-y-3">
+                      {selectedProperty.attachments && selectedProperty.attachments.length > 0 ? (
+                        selectedProperty.attachments.map((doc, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <FileText className="h-5 w-5 text-primary mt-0.5" />
+                            <div>
+                              <p className="font-medium">{doc.name}</p>
+                              <p className="text-muted-foreground">
+                                <a 
+                                  href={doc.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-primary hover:underline"
+                                >
+                                  Télécharger <ExternalLink className="h-3 w-3" />
+                                </a>
+                              </p>
+                            </div>
+                          </li>
+                        ))
+                      ) : (
+                        <li className="text-muted-foreground">Aucun document disponible</li>
+                      )}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="photos" className="space-y-4 mt-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-medium text-lg">Photos</h3>
+                  <Select 
+                    value={selectedPhotoCategory} 
+                    onValueChange={setSelectedPhotoCategory}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Toutes les catégories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Toutes">Toutes les catégories</SelectItem>
+                      {Array.from(new Set(selectedProperty.photos.map(p => p.category))).map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                  {filteredPhotos.map((photo) => (
+                    <Card key={photo.id} className="overflow-hidden">
+                      <div className="aspect-video relative bg-muted">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Camera className="h-8 w-8 text-muted-foreground/30" />
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm p-2 text-xs">
+                          {photo.caption}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="platforms" className="space-y-4 mt-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <h3 className="font-medium text-lg mb-4">Plateformes de location</h3>
+                    <div className="space-y-4">
+                      {platformLinks.map((platform, index) => (
+                        <div key={index} className="flex items-start gap-3">
+                          {platform.icon}
+                          <div>
+                            <p className="font-medium">{platform.name}</p>
+                            <p className="text-muted-foreground">
+                              <a 
+                                href={platform.url(selectedProperty.id)} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-primary hover:underline"
+                              >
+                                Voir l'annonce <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="maintenance" className="space-y-4 mt-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <h3 className="font-medium text-lg mb-4">Historique de maintenance</h3>
+                    {(() => {
+                      const propertyMaintenance = getPropertyMaintenanceHistory(selectedProperty.id);
+                      return propertyMaintenance.length > 0 ? (
+                        <div className="space-y-4">
+                          {propertyMaintenance.map((task) => (
+                            <div key={task.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                              <div className="flex items-start justify-between">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    {getStatusIcon(task)}
+                                    <h4 className="font-medium">{task.title}</h4>
+                                    {getUrgencyBadge(task.urgency)}
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">
+                                    {task.description}
+                                  </p>
+                                </div>
+                                <div className="text-right text-sm space-y-1">
+                                  <div>{getStatusText(task)}</div>
+                                  <div className="text-muted-foreground">Créé le {task.createdAt}</div>
+                                  {task.completedAt && <div className="text-green-600">Terminé le {task.completedAt}</div>}
+                                </div>
+                              </div>
+                              {task.technician && (
+                                <div className="mt-3 pt-3 border-t border-border/50">
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <User className="h-4 w-4 text-muted-foreground" />
+                                    <span>Technicien: <span className="font-medium">{task.technician}</span></span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground">Aucun historique de maintenance pour ce logement.</p>
+                      );
+                    })()}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+};
+
+export default Properties;
