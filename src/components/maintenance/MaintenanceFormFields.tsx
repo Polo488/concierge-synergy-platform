@@ -10,6 +10,7 @@ import { FormMessage } from "@/components/ui/form";
 interface MaintenanceFormFieldsProps {
   title: string;
   property: string;
+  internalName?: string;
   urgency: UrgencyLevel;
   description: string;
   onFieldChange: (field: string, value: string) => void;
@@ -25,6 +26,7 @@ interface MaintenanceFormFieldsProps {
 export const MaintenanceFormFields: React.FC<MaintenanceFormFieldsProps> = ({
   title,
   property,
+  internalName = "",
   urgency,
   description,
   onFieldChange,
@@ -68,6 +70,16 @@ export const MaintenanceFormFields: React.FC<MaintenanceFormFieldsProps> = ({
         {errors.property && (
           <FormMessage>{errors.property}</FormMessage>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="internalName">Nom interne du logement (optionnel)</Label>
+        <Input
+          id="internalName"
+          placeholder="Ex: Apt12-RDC"
+          value={internalName}
+          onChange={(e) => onFieldChange("internalName", e.target.value)}
+        />
       </div>
       
       <div className="space-y-2">
