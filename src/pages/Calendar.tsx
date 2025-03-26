@@ -7,9 +7,23 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Building, 
-  Check
+  Check,
+  CalendarRange
 } from 'lucide-react';
-import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithinInterval, addDays } from 'date-fns';
+import { 
+  format, 
+  addMonths, 
+  startOfMonth, 
+  endOfMonth, 
+  eachDayOfInterval, 
+  isSameDay, 
+  isWithinInterval, 
+  addDays,
+  differenceInDays,
+  isAfter,
+  isBefore,
+  parseISO
+} from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +51,8 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { DateRange } from 'react-day-picker';
+import { CalendarDialog } from '@/components/cleaning/CalendarDialog';
 
 // Données fictives pour les logements
 const properties = [
@@ -124,6 +140,12 @@ const Calendar = () => {
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [bookingDetailsOpen, setBookingDetailsOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'month' | 'property'>('month');
+  
+  // New state for date range selection
+  const [rangeSelectorOpen, setRangeSelectorOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange>();
+  const [availableProperties, setAvailableProperties] = useState<typeof properties>([]);
+  const [showAvailabilityDialog, setShowAvailabilityDialog] = useState(false);
 
   useEffect(() => {
     document.title = 'Calendrier - GESTION BNB LYON';
@@ -150,6 +172,40 @@ const Calendar = () => {
     
     setFilteredBookings(filtered);
   }, [selectedProperty, searchQuery]);
+
+  // New function to find available properties in a date range
+  const findAvailableProperties = (range: DateRange) => {
+    if (!range.from || !range.to) return;
+    
+    // Get all bookings that overlap with the selected date range
+    const overlappingBookings = bookingsData.filter(booking => {
+      const bookingStart = booking.checkIn;
+      const bookingEnd = booking.checkOut;
+      
+      return (
+        (isAfter(bookingStart, range.from) && isBefore(bookingStart, range.to)) ||
+        (isAfter(bookingEnd, range.from) && isBefore(bookingEnd, range.to)) ||
+        (isBefore(bookingStart, range.from) && isAfter(bookingEnd, range.to))
+      );
+    });
+    
+    // Get the IDs of properties that are booked in this period
+    const bookedPropertyIds = new Set(overlappingBookings.map(b => b.propertyId));
+    
+    // Filter out the properties that are booked
+    const available = properties.filter(p => !bookedPropertyIds.has(p.id));
+    
+    setAvailableProperties(available);
+    setShowAvailabilityDialog(true);
+  };
+
+  const handleRangeSelect = (range: DateRange | undefined) => {
+    setDateRange(range);
+    if (range?.from && range?.to) {
+      findAvailableProperties(range);
+    }
+    setRangeSelectorOpen(false);
+  };
 
   const navigateMonth = (direction: 'prev' | 'next') => {
     if (direction === 'prev') {
@@ -345,6 +401,15 @@ const Calendar = () => {
         title="Calendrier des réservations"
         actions={
           <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="gap-1" 
+              onClick={() => setRangeSelectorOpen(true)}
+            >
+              <CalendarRange className="h-4 w-4" />
+              Voir disponibilités
+            </Button>
             <Button size="sm" variant="outline" className="gap-1" onClick={handleExport}>
               <Download className="h-4 w-4" />
               Exporter
@@ -477,6 +542,58 @@ const Calendar = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Nouveau dialogue pour afficher les logements disponibles */}
+      <Dialog open={showAvailabilityDialog} onOpenChange={setShowAvailabilityDialog}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Logements disponibles</DialogTitle>
+          </DialogHeader>
+          
+          {dateRange?.from && dateRange?.to && (
+            <div className="py-2">
+              <p className="text-sm text-muted-foreground mb-4">
+                Période sélectionnée: {format(dateRange.from, 'dd/MM/yyyy')} au {format(dateRange.to, 'dd/MM/yyyy')} 
+                ({differenceInDays(dateRange.to, dateRange.from)} nuits)
+              </p>
+              
+              {availableProperties.length > 0 ? (
+                <div className="space-y-2">
+                  {availableProperties.map(property => (
+                    <div 
+                      key={property.id} 
+                      className="p-3 border rounded-md flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Building className="h-5 w-5 text-gray-500" />
+                        <span>{property.name}</span>
+                      </div>
+                      <Badge className="bg-green-100 text-green-800">Disponible</Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-8 text-center">
+                  <p className="text-muted-foreground">Aucun logement disponible pour cette période</p>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button onClick={() => setShowAvailabilityDialog(false)}>Fermer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialogue de sélection de période */}
+      <CalendarDialog
+        open={rangeSelectorOpen}
+        onOpenChange={setRangeSelectorOpen}
+        selectedDateRange={dateRange}
+        mode="range"
+        onRangeSelect={handleRangeSelect}
+      />
     </div>
   );
 };
