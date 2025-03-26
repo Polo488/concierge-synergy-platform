@@ -1,8 +1,8 @@
-
 import { MaintenanceTask, UrgencyLevel } from '@/types/maintenance';
 
 export const generateProperties = () => {
   const propertyTypes = ['Appartement', 'Studio', 'Loft', 'Maison', 'Villa'];
+  const propertyClassifications = ['T1', 'T2', 'T3', 'T4', 'T5'];
   const ownerNames = [
     'Thomas Dubois', 'Marie Lefevre', 'Jean Martin', 'Sophie Bernard', 'Pierre Durand',
     'Isabelle Moreau', 'Michel Lambert', 'Anne Rousseau', 'Philippe Girard', 'Julie Leroy'
@@ -12,11 +12,31 @@ export const generateProperties = () => {
     const id = (i + 1).toString();
     const number = id.padStart(2, '0');
     const type = propertyTypes[Math.floor(Math.random() * propertyTypes.length)];
+    
+    // Assign classification based on type and bedrooms
+    const bedrooms = Math.floor(Math.random() * 5) + 1;
+    let classification = '';
+    
+    if (type === 'Studio') {
+      classification = 'T1';
+    } else if (type === 'Appartement' || type === 'Loft') {
+      // T1 to T5 based on bedroom count
+      classification = `T${Math.min(bedrooms, 5)}`;
+    }
+    
     const ownerName = ownerNames[Math.floor(Math.random() * ownerNames.length)];
     const commission = Math.floor(Math.random() * 10) + 10;
-    const bedrooms = Math.floor(Math.random() * 5) + 1;
     const bathrooms = Math.floor(Math.random() * 3) + 1;
     const size = Math.floor(Math.random() * 100) + 30;
+    
+    // Generate bed sizes
+    const bedSizes = [];
+    const possibleBedSizes = ['90x190', '140x190', '160x200', '180x200', '90x190 (superposé)'];
+    
+    for (let j = 0; j < bedrooms; j++) {
+      const randomSize = possibleBedSizes[Math.floor(Math.random() * possibleBedSizes.length)];
+      bedSizes.push(randomSize);
+    }
     
     const possibleAmenities = [
       'Wifi', 'Climatisation', 'Parking', 'Télévision', 'Vue mer', 
@@ -54,6 +74,7 @@ export const generateProperties = () => {
       ].slice(0, Math.floor(Math.random() * 3) + 2)
     };
     
+    // Update linens with bed size info
     const linens = {
       bedding: [
         `${bedrooms} jeux de draps`, 
@@ -86,20 +107,34 @@ export const generateProperties = () => {
       };
     });
     
+    // Initialize empty upsells statistics
+    const upsells = {
+      available: [
+        { id: 1, name: 'Ménage supplémentaire', price: 50, sold: Math.floor(Math.random() * 10) },
+        { id: 2, name: 'Petit-déjeuner', price: 15, sold: Math.floor(Math.random() * 20) },
+        { id: 3, name: 'Transfert aéroport', price: 35, sold: Math.floor(Math.random() * 5) },
+        { id: 4, name: 'Lit bébé', price: 10, sold: Math.floor(Math.random() * 3) }
+      ],
+      totalRevenue: Math.floor(Math.random() * 500)
+    };
+    
     return {
       id,
       number,
       name: `Logement ${number}`,
       type,
+      classification,
       address,
       size,
       bedrooms,
+      bedSizes,
       bathrooms,
       amenities,
       commission,
       photos,
       equipment: equipmentItems,
       linens,
+      upsells,
       owner: {
         name: ownerName,
         email: `${ownerName.toLowerCase().replace(' ', '.')}@example.com`,

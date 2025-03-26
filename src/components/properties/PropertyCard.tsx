@@ -30,7 +30,12 @@ export const PropertyCard = ({ property, index, onClick }: PropertyCardProps) =>
       <CardContent className="p-5">
         <div className="flex justify-between items-start">
           <div>
-            <Badge className="mb-2 rounded-full">{property.type}</Badge>
+            <div className="flex flex-wrap gap-2 mb-2">
+              <Badge className="rounded-full">{property.type}</Badge>
+              {property.classification && (
+                <Badge variant="outline" className="rounded-full">{property.classification}</Badge>
+              )}
+            </div>
             <h3 className="font-semibold text-lg">{property.name}</h3>
             <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
               <MapPin className="h-3.5 w-3.5" />

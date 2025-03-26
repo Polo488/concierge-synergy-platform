@@ -37,6 +37,7 @@ export const PropertyDetailsSection = ({
   const handleCancel = () => {
     setEditedProperty({
       type: property.type,
+      classification: property.classification,
       size: property.size,
       bedrooms: property.bedrooms,
       bathrooms: property.bathrooms,
@@ -72,6 +73,27 @@ export const PropertyDetailsSection = ({
                   <SelectItem value="Loft">Loft</SelectItem>
                   <SelectItem value="Maison">Maison</SelectItem>
                   <SelectItem value="Villa">Villa</SelectItem>
+                </SelectContent>
+              </Select>
+            </dd>
+          </div>
+          <div className="flex justify-between items-center">
+            <dt className="text-muted-foreground">Classification</dt>
+            <dd className="font-medium w-1/2">
+              <Select 
+                value={editedProperty.classification || ''} 
+                onValueChange={(value) => handleInputChange('classification', value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Classification" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="T1">T1</SelectItem>
+                  <SelectItem value="T2">T2</SelectItem>
+                  <SelectItem value="T3">T3</SelectItem>
+                  <SelectItem value="T4">T4</SelectItem>
+                  <SelectItem value="T5">T5</SelectItem>
+                  <SelectItem value="">Non spécifié</SelectItem>
                 </SelectContent>
               </Select>
             </dd>
@@ -134,6 +156,12 @@ export const PropertyDetailsSection = ({
             <dt className="text-muted-foreground">Type</dt>
             <dd className="font-medium">{property.type}</dd>
           </div>
+          {property.classification && (
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Classification</dt>
+              <dd className="font-medium">{property.classification}</dd>
+            </div>
+          )}
           <div className="flex justify-between">
             <dt className="text-muted-foreground">Surface</dt>
             <dd className="font-medium">{property.size} m²</dd>
