@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { CalendarRange, Download } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
 import { toast } from '@/components/ui/use-toast';
 import { CalendarDialog } from '@/components/cleaning/CalendarDialog';
