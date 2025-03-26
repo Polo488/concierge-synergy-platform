@@ -1,4 +1,5 @@
 
+// Define types for the calendar functionality
 export interface Property {
   id: number;
   name: string;
@@ -45,7 +46,7 @@ export interface CalendarContext {
   setBookings: (bookings: Booking[]) => void;
 }
 
-// React Day Picker type
+// Match the DateRange type from react-day-picker
 export interface DateRange {
   from?: Date;
   to?: Date;

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Calendar as CalendarIcon, MapPin, Plus } from "lucide-react"
 
@@ -20,7 +21,7 @@ import { BookingDialog } from '@/components/calendar/BookingDialog';
 import { BookingDetailsDialog } from '@/components/calendar/BookingDetailsDialog';
 import { AvailabilityDialog } from '@/components/calendar/AvailabilityDialog';
 import { useCalendarData } from '@/hooks/useCalendarData';
-import { DateRange } from '@/hooks/calendar/types';
+import { Booking, DateRange } from '@/hooks/calendar/types';
 
 const CalendarPage = () => {
   const {
@@ -54,34 +55,34 @@ const CalendarPage = () => {
   };
 
   // Function to handle booking click
-  const handleBookingClick = (booking: any) => {
+  const handleBookingClick = (booking: Booking) => {
     setSelectedBooking(booking);
     setIsBookingDetailsDialogOpen(true);
   };
 
   // Function to handle editing a booking
-  const handleEditBooking = (booking: any) => {
+  const handleEditBooking = (booking: Booking) => {
     setSelectedBooking(booking);
     setIsBookingDialogOpen(true);
   };
 
   // Function to handle deleting a booking
-  const handleDeleteBooking = (booking: any) => {
+  const handleDeleteBooking = (booking: Booking) => {
     // Implement your delete logic here
     console.log('Delete booking', booking);
   };
 
   // Handle date range change for availability check
   const handleDateRangeChange = (range: { from: Date; to?: Date }) => {
-    const dateRange: DateRange = {
+    const newDateRange: DateRange = {
       from: range.from,
       to: range.to
     };
     
-    setDateRange(dateRange);
+    setDateRange(newDateRange);
     
-    if (dateRange.from && dateRange.to) {
-      findAvailableProperties(dateRange as DateRange);
+    if (newDateRange.from && newDateRange.to) {
+      findAvailableProperties(newDateRange);
     }
   };
   
@@ -172,7 +173,7 @@ const CalendarPage = () => {
                 <Calendar
                   mode="range"
                   defaultMonth={currentDate}
-                  onSelect={handleDateRangeChange}
+                  onSelect={(range: any) => handleDateRangeChange(range || {})}
                   numberOfMonths={2}
                 />
               </PopoverContent>
@@ -195,6 +196,7 @@ const CalendarPage = () => {
             <DailyCalendar
               bookings={filteredBookings}
               days={currentMonthDays}
+              properties={properties}
               onBookingClick={handleBookingClick}
             />
           </CardContent>
@@ -206,10 +208,12 @@ const CalendarPage = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   {property.name}
-                  <Badge variant="secondary">
-                    <MapPin className="mr-1 h-3 w-3" />
-                    {property.address}
-                  </Badge>
+                  {property.floor && (
+                    <Badge variant="secondary">
+                      <MapPin className="mr-1 h-3 w-3" />
+                      {property.floor}
+                    </Badge>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -231,11 +235,11 @@ const CalendarPage = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
-                <Button size="sm" onClick={() => handleEditBooking(property)}>
-                  Modifier
+                <Button size="sm" onClick={() => handleAddBooking()}>
+                  Réserver
                 </Button>
-                <Button size="sm" variant="destructive" onClick={() => handleDeleteBooking(property)}>
-                  Supprimer
+                <Button size="sm" variant="outline">
+                  Détails
                 </Button>
               </CardFooter>
             </Card>
@@ -254,7 +258,7 @@ const CalendarPage = () => {
       <BookingDetailsDialog
         open={isBookingDetailsDialogOpen}
         onOpenChange={setIsBookingDetailsDialogOpen}
-        booking={selectedBooking}
+        selectedBooking={selectedBooking}
       />
 
       <AvailabilityDialog

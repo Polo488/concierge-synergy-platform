@@ -145,3 +145,10 @@ export const bookingsData: Booking[] = [
     color: '#4CAF50'
   },
 ];
+
+// Function to get bookings for a specific month (not implemented fully)
+export const getBookingsForMonth = (date: Date, properties: Property[]): Booking[] => {
+  // For this demo, we'll just return all bookings
+  // In a real implementation, this would filter by the selected month
+  return bookingsData;
+};

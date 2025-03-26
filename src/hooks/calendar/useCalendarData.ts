@@ -1,21 +1,22 @@
 
 import { useState, useEffect } from 'react';
-import { getBookingsForMonth } from './mockData';
+import { bookingsData, properties as mockProperties } from './mockData';
 import { useCalendarNavigation } from './useCalendarNavigation';
 import { useBookingsFilter } from './useBookingsFilter';
 import { usePropertyAvailability } from './usePropertyAvailability';
 import type { CalendarContext, Property, Booking, DateRange } from './types';
 
+// Function to get bookings for a specific month
+const getBookingsForMonth = (date: Date, properties: Property[]): Booking[] => {
+  // For now, we'll just return all bookings from the mock data
+  // In a real app, this would filter by the month
+  return bookingsData;
+};
+
 // Create the hook that combines all the functionality
 export function useCalendarData(): CalendarContext {
   // Get the current month's bookings from the mock data
-  const [properties, setProperties] = useState<Property[]>([
-    { id: 1, name: 'Appartement Bellecour', capacity: 4, pricePerNight: 150 },
-    { id: 2, name: 'Loft Croix-Rousse', capacity: 2, pricePerNight: 120 },
-    { id: 3, name: 'Studio Part-Dieu', capacity: 2, pricePerNight: 95 },
-    { id: 4, name: 'Villa Confluence', capacity: 6, pricePerNight: 250 },
-    { id: 5, name: 'Maison Vieux Lyon', capacity: 8, pricePerNight: 320 }
-  ]);
+  const [properties, setProperties] = useState<Property[]>(mockProperties);
   
   // Get the calendar navigation state
   const { 
@@ -76,5 +77,3 @@ export function useCalendarData(): CalendarContext {
     setBookings
   };
 }
-
-export type { Property, Booking };
