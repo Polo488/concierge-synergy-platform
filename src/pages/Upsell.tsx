@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
 import { 
   Badge, ShoppingCart, TrendingUp, ArrowUpRight, 
@@ -11,14 +11,16 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, 
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
+import { PropertyUpsellItem } from '@/types/property';
+import { UpsellServiceManager } from '@/components/upsell/UpsellServiceManager';
 
 // Mock data for upsell products
-const upsellProducts = [
-  { name: 'Petit-déjeuner', value: 4200, percentage: 35 },
-  { name: 'Transport aéroport', value: 3100, percentage: 26 },
-  { name: 'Soins et massages', value: 2400, percentage: 20 },
-  { name: 'Late check-out', value: 1500, percentage: 12 },
-  { name: 'Autres', value: 800, percentage: 7 }
+const initialUpsellProducts = [
+  { id: 1, name: 'Petit-déjeuner', price: 4200, sold: 35 },
+  { id: 2, name: 'Transport aéroport', price: 3100, sold: 26 },
+  { id: 3, name: 'Soins et massages', price: 2400, sold: 20 },
+  { id: 4, name: 'Late check-out', price: 1500, sold: 12 },
+  { id: 5, name: 'Autres', price: 800, sold: 7 }
 ];
 
 // Monthly revenue data
@@ -45,12 +47,25 @@ const topProperties = [
 const COLORS = ['#8B5CF6', '#EC4899', '#F97316', '#10B981', '#6B7280'];
 
 const Upsell = () => {
+  const [upsellProducts, setUpsellProducts] = useState<PropertyUpsellItem[]>(initialUpsellProducts);
+  
   useEffect(() => {
     document.title = 'Upsell - GESTION BNB LYON';
   }, []);
 
   // Calculate total revenue
-  const totalRevenue = upsellProducts.reduce((sum, item) => sum + item.value, 0);
+  const totalRevenue = upsellProducts.reduce((sum, item) => sum + item.price, 0);
+  
+  // Prepare data for pie chart with percentages
+  const pieChartData = upsellProducts.map(item => ({
+    ...item,
+    value: item.price,
+    percentage: Math.round((item.price / totalRevenue) * 100)
+  }));
+
+  const handleServicesUpdate = (updatedServices: PropertyUpsellItem[]) => {
+    setUpsellProducts(updatedServices);
+  };
   
   return (
     <div className="space-y-8">
@@ -72,7 +87,7 @@ const Upsell = () => {
         />
         <StatCard 
           title="Service le plus vendu" 
-          value="Petit-déjeuner"
+          value={upsellProducts.length > 0 ? upsellProducts.sort((a, b) => b.sold - a.sold)[0].name : "Aucun"}
           icon={<Package className="h-5 w-5" />}
           change={{ value: 35, type: 'increase', label: "des ventes" }}
         />
@@ -90,6 +105,12 @@ const Upsell = () => {
           change={{ value: 8, type: 'increase' }}
         />
       </div>
+
+      {/* Service Management */}
+      <UpsellServiceManager 
+        services={upsellProducts}
+        onServiceUpdate={handleServicesUpdate}
+      />
       
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">
@@ -121,7 +142,7 @@ const Upsell = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={upsellProducts}
+                  data={pieChartData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -130,7 +151,7 @@ const Upsell = () => {
                   dataKey="value"
                   label={({ name, percentage }) => `${name}: ${percentage}%`}
                 >
-                  {upsellProducts.map((entry, index) => (
+                  {pieChartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
