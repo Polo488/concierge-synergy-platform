@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { fr } from "date-fns/locale";
 import { DateRange } from "react-day-picker";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface CalendarDialogProps {
   open: boolean;
@@ -14,6 +14,7 @@ interface CalendarDialogProps {
   mode?: "single" | "range" | "multiple";
   onSelect?: (date: Date | undefined) => void;
   onRangeSelect?: (range: DateRange | undefined) => void;
+  autoApply?: boolean;
 }
 
 export const CalendarDialog = ({
@@ -23,16 +24,30 @@ export const CalendarDialog = ({
   selectedDateRange,
   mode = "single",
   onSelect,
-  onRangeSelect
+  onRangeSelect,
+  autoApply = false
 }: CalendarDialogProps) => {
   const [internalRange, setInternalRange] = useState<DateRange | undefined>(selectedDateRange);
+  
+  useEffect(() => {
+    // Update internal state when prop changes
+    setInternalRange(selectedDateRange);
+  }, [selectedDateRange]);
   
   const handleSelect = (value: Date | DateRange | undefined) => {
     if (mode === "single" && onSelect && value instanceof Date) {
       onSelect(value);
+      if (autoApply) {
+        onOpenChange(false);
+      }
     } else if (mode === "range" && onRangeSelect && !(value instanceof Date)) {
       setInternalRange(value);
-      onRangeSelect(value);
+      
+      // Auto-apply if both from and to dates are selected
+      if (autoApply && value?.from && value?.to) {
+        onRangeSelect(value);
+        onOpenChange(false);
+      }
     }
   };
 
@@ -79,7 +94,7 @@ export const CalendarDialog = ({
         
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
-          {mode === "range" && (
+          {mode === "range" && !autoApply && (
             <Button 
               onClick={() => {
                 if (onRangeSelect && internalRange?.from && internalRange?.to) {

@@ -8,7 +8,9 @@ import {
   ChevronRight, 
   Building, 
   Check,
-  CalendarRange
+  CalendarRange,
+  Users,
+  Euro
 } from 'lucide-react';
 import { 
   format, 
@@ -30,7 +32,6 @@ import { Input } from '@/components/ui/input';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
 import { toast } from '@/components/ui/use-toast';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { 
   Select, 
   SelectContent, 
@@ -54,15 +55,15 @@ import { cn } from '@/lib/utils';
 import { DateRange } from 'react-day-picker';
 import { CalendarDialog } from '@/components/cleaning/CalendarDialog';
 
-// Données fictives pour les logements
+// Données fictives pour les logements avec capacité et prix
 const properties = [
-  { id: 1, name: 'Appartement 12 Rue du Port' },
-  { id: 2, name: 'Studio 8 Avenue des Fleurs' },
-  { id: 3, name: 'Loft 72 Rue des Arts' },
-  { id: 4, name: 'Maison 23 Rue de la Paix' },
-  { id: 5, name: 'Appartement 45 Boulevard Central' },
-  { id: 6, name: 'Studio 15 Rue des Lilas' },
-  { id: 7, name: 'Appartement 28 Avenue Victor Hugo' },
+  { id: 1, name: 'Appartement 12 Rue du Port', capacity: 4, pricePerNight: 95 },
+  { id: 2, name: 'Studio 8 Avenue des Fleurs', capacity: 2, pricePerNight: 65 },
+  { id: 3, name: 'Loft 72 Rue des Arts', capacity: 3, pricePerNight: 85 },
+  { id: 4, name: 'Maison 23 Rue de la Paix', capacity: 6, pricePerNight: 120 },
+  { id: 5, name: 'Appartement 45 Boulevard Central', capacity: 4, pricePerNight: 90 },
+  { id: 6, name: 'Studio 15 Rue des Lilas', capacity: 2, pricePerNight: 70 },
+  { id: 7, name: 'Appartement 28 Avenue Victor Hugo', capacity: 5, pricePerNight: 110 },
 ];
 
 // Données fictives pour les réservations
@@ -173,7 +174,7 @@ const Calendar = () => {
     setFilteredBookings(filtered);
   }, [selectedProperty, searchQuery]);
 
-  // New function to find available properties in a date range
+  // Find available properties in a date range
   const findAvailableProperties = (range: DateRange) => {
     if (!range.from || !range.to) return;
     
@@ -204,7 +205,6 @@ const Calendar = () => {
     if (range?.from && range?.to) {
       findAvailableProperties(range);
     }
-    setRangeSelectorOpen(false);
   };
 
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -543,7 +543,7 @@ const Calendar = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Nouveau dialogue pour afficher les logements disponibles */}
+      {/* Dialogue pour afficher les logements disponibles */}
       <Dialog open={showAvailabilityDialog} onOpenChange={setShowAvailabilityDialog}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -566,7 +566,19 @@ const Calendar = () => {
                     >
                       <div className="flex items-center gap-2">
                         <Building className="h-5 w-5 text-gray-500" />
-                        <span>{property.name}</span>
+                        <div>
+                          <span className="font-medium">{property.name}</span>
+                          <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
+                            <div className="flex items-center gap-1">
+                              <Users className="h-3.5 w-3.5" />
+                              <span>{property.capacity} pers.</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Euro className="h-3.5 w-3.5" />
+                              <span>{property.pricePerNight}€/nuit</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                       <Badge className="bg-green-100 text-green-800">Disponible</Badge>
                     </div>
@@ -593,6 +605,7 @@ const Calendar = () => {
         selectedDateRange={dateRange}
         mode="range"
         onRangeSelect={handleRangeSelect}
+        autoApply={true}
       />
     </div>
   );
