@@ -1,10 +1,12 @@
 
 import { Card, CardContent } from '@/components/ui/card';
-import { ShoppingCart, TrendingUp, ExternalLink, Link } from 'lucide-react';
+import { ShoppingCart, TrendingUp, ExternalLink, Link, Home, Calendar } from 'lucide-react';
 import { Property } from '@/utils/propertyUtils';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { useCalendarData } from '@/hooks/useCalendarData';
+import { format } from 'date-fns';
 
 interface UpsellsSectionProps {
   property: Property;
@@ -12,6 +14,7 @@ interface UpsellsSectionProps {
 
 export const UpsellsSection = ({ property }: UpsellsSectionProps) => {
   const { toast } = useToast();
+  const { bookings } = useCalendarData();
   
   if (!property.upsells) return null;
   
@@ -24,6 +27,18 @@ export const UpsellsSection = ({ property }: UpsellsSectionProps) => {
       title: "Lien copié",
       description: "Le lien de vente a été copié dans le presse-papier."
     });
+  };
+
+  // Helper function to get booking details
+  const getBookingDetails = (bookingId?: string) => {
+    if (!bookingId) return null;
+    const booking = bookings.find(b => b.id.toString() === bookingId);
+    if (!booking) return null;
+    return {
+      guestName: booking.guestName,
+      checkIn: booking.checkIn,
+      checkOut: booking.checkOut
+    };
   };
   
   return (
@@ -42,6 +57,8 @@ export const UpsellsSection = ({ property }: UpsellsSectionProps) => {
         <div className="space-y-4">
           {available.map((upsell) => {
             const percentage = totalSold ? Math.round((upsell.sold / totalSold) * 100) : 0;
+            const bookingDetails = getBookingDetails(upsell.bookingId);
+            
             return (
               <div key={upsell.id} className="space-y-1">
                 <div className="flex justify-between items-center">
@@ -69,8 +86,18 @@ export const UpsellsSection = ({ property }: UpsellsSectionProps) => {
                       </div>
                     )}
                   </div>
-                  <div className="text-sm">{upsell.price}€ × {upsell.sold} = {upsell.price * upsell.sold}€</div>
+                  <div className="text-sm">{upsell.price/100}€ × {upsell.sold} = {(upsell.price * upsell.sold)/100}€</div>
                 </div>
+                
+                {bookingDetails && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Calendar className="h-3 w-3" />
+                    <span title={`${format(bookingDetails.checkIn, 'dd/MM/yyyy')} - ${format(bookingDetails.checkOut, 'dd/MM/yyyy')}`}>
+                      {bookingDetails.guestName}
+                    </span>
+                  </div>
+                )}
+                
                 <div className="flex items-center gap-2">
                   <Progress value={percentage} className="h-2" />
                   <span className="text-xs text-muted-foreground w-10">{percentage}%</span>

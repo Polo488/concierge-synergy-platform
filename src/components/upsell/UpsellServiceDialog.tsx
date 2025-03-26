@@ -6,7 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PropertyUpsellItem } from '@/types/property';
 import { useToast } from '@/components/ui/use-toast';
-import { Link as LinkIcon } from 'lucide-react';
+import { Link as LinkIcon, Briefcase, Calendar } from 'lucide-react';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useCalendarData } from '@/hooks/useCalendarData';
+import { format } from 'date-fns';
 
 interface UpsellServiceDialogProps {
   open: boolean;
@@ -24,22 +27,45 @@ export function UpsellServiceDialog({
   onRegisterSale 
 }: UpsellServiceDialogProps) {
   const { toast } = useToast();
+  const { properties, bookings } = useCalendarData();
+  
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [salesLink, setSalesLink] = useState('');
+  const [propertyId, setPropertyId] = useState<string>('');
+  const [bookingId, setBookingId] = useState<string>('');
   const isEditing = !!service;
+
+  // Get filtered bookings based on selected property
+  const filteredBookings = bookings.filter(b => 
+    !propertyId || b.propertyId.toString() === propertyId
+  );
 
   useEffect(() => {
     if (service) {
       setName(service.name);
       setPrice((service.price / 100).toString());
       setSalesLink(service.salesLink || '');
+      setPropertyId(service.propertyId || '');
+      setBookingId(service.bookingId || '');
     } else {
       setName('');
       setPrice('');
       setSalesLink('');
+      setPropertyId('');
+      setBookingId('');
     }
   }, [service, open]);
+
+  // Reset booking selection when property changes
+  useEffect(() => {
+    if (propertyId && bookingId) {
+      const bookingExists = filteredBookings.some(b => b.id.toString() === bookingId);
+      if (!bookingExists) {
+        setBookingId('');
+      }
+    }
+  }, [propertyId, filteredBookings, bookingId]);
 
   const handleSave = () => {
     if (!name.trim()) {
@@ -66,7 +92,9 @@ export function UpsellServiceDialog({
       name: name.trim(),
       price: Math.round(priceValue * 100),
       sold: service?.sold || 0,
-      salesLink: salesLink.trim() || undefined
+      salesLink: salesLink.trim() || undefined,
+      propertyId: propertyId || undefined,
+      bookingId: bookingId || undefined
     };
 
     onSave(updatedService);
@@ -78,6 +106,18 @@ export function UpsellServiceDialog({
       onRegisterSale(service.id);
       onOpenChange(false);
     }
+  };
+
+  // Helper function to get property name by id
+  const getPropertyName = (id: string) => {
+    const property = properties.find(p => p.id.toString() === id);
+    return property ? property.name : 'Inconnu';
+  };
+
+  // Helper function to format booking details
+  const formatBookingDetails = (booking: any) => {
+    if (!booking) return 'Inconnu';
+    return `${booking.guestName} (${format(booking.checkIn, 'dd/MM/yyyy')} - ${format(booking.checkOut, 'dd/MM/yyyy')})`;
   };
 
   return (
@@ -108,6 +148,44 @@ export function UpsellServiceDialog({
               step="0.01"
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="property">Logement associé</Label>
+            <Select value={propertyId} onValueChange={setPropertyId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner un logement" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Aucun</SelectItem>
+                {properties.map((property) => (
+                  <SelectItem key={property.id} value={property.id.toString()}>
+                    {property.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="booking">Réservation associée</Label>
+            <Select 
+              value={bookingId} 
+              onValueChange={setBookingId}
+              disabled={!propertyId}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={propertyId ? "Sélectionner une réservation" : "Sélectionnez d'abord un logement"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Aucune</SelectItem>
+                {filteredBookings.map((booking) => (
+                  <SelectItem key={booking.id} value={booking.id.toString()}>
+                    {booking.guestName} ({format(booking.checkIn, 'dd/MM/yyyy')})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
           <div className="space-y-2">
             <Label htmlFor="salesLink">Lien de vente</Label>
             <div className="flex items-center space-x-2">

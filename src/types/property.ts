@@ -1,3 +1,4 @@
+
 import { MaintenanceTask } from './maintenance';
 
 export type PropertyType = 'T1' | 'T2' | 'T3' | 'T4' | 'T5' | 'T6+';
@@ -36,6 +37,8 @@ export interface PropertyUpsellItem {
   price: number;
   sold: number;
   salesLink?: string;
+  propertyId?: string;
+  bookingId?: string;
 }
 
 export interface PropertyUpsells {

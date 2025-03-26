@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { PropertyUpsellItem } from '@/types/property';
 import { Button } from '@/components/ui/button';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
-import { Plus, Pencil, Trash2, Link, ExternalLink, ShoppingCart } from 'lucide-react';
+import { Plus, Pencil, Trash2, Link, ExternalLink, ShoppingCart, Home, Calendar } from 'lucide-react';
 import { UpsellServiceDialog } from './UpsellServiceDialog';
 import {
   Table,
@@ -24,6 +24,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/components/ui/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { useCalendarData } from '@/hooks/useCalendarData';
+import { format } from 'date-fns';
 
 interface UpsellServiceManagerProps {
   services: PropertyUpsellItem[];
@@ -32,6 +35,7 @@ interface UpsellServiceManagerProps {
 
 export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServiceManagerProps) {
   const { toast } = useToast();
+  const { properties, bookings } = useCalendarData();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<PropertyUpsellItem | undefined>(undefined);
@@ -121,6 +125,25 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
     }
   };
 
+  // Helper function to get property name
+  const getPropertyName = (propertyId?: string) => {
+    if (!propertyId) return null;
+    const property = properties.find(p => p.id.toString() === propertyId);
+    return property ? property.name : null;
+  };
+
+  // Helper function to get booking details
+  const getBookingDetails = (bookingId?: string) => {
+    if (!bookingId) return null;
+    const booking = bookings.find(b => b.id.toString() === bookingId);
+    if (!booking) return null;
+    return {
+      guestName: booking.guestName,
+      checkIn: booking.checkIn,
+      checkOut: booking.checkOut
+    };
+  };
+
   return (
     <>
       <DashboardCard 
@@ -137,73 +160,100 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
               <TableHead>Nom du service</TableHead>
               <TableHead>Prix</TableHead>
               <TableHead>Vendu</TableHead>
+              <TableHead>Logement / Réservation</TableHead>
               <TableHead>Lien de vente</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {services.length > 0 ? (
-              services.map((service) => (
-                <TableRow key={service.id}>
-                  <TableCell className="font-medium">{service.name}</TableCell>
-                  <TableCell>{(service.price / 100).toLocaleString('fr-FR')} €</TableCell>
-                  <TableCell>{service.sold} fois</TableCell>
-                  <TableCell>
-                    {service.salesLink ? (
-                      <div className="flex items-center gap-2">
+              services.map((service) => {
+                const propertyName = getPropertyName(service.propertyId);
+                const bookingDetails = getBookingDetails(service.bookingId);
+                
+                return (
+                  <TableRow key={service.id}>
+                    <TableCell className="font-medium">{service.name}</TableCell>
+                    <TableCell>{(service.price / 100).toLocaleString('fr-FR')} €</TableCell>
+                    <TableCell>{service.sold} fois</TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        {propertyName && (
+                          <div className="flex items-center gap-1 text-sm">
+                            <Home className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span>{propertyName}</span>
+                          </div>
+                        )}
+                        {bookingDetails && (
+                          <div className="flex items-center gap-1 text-sm">
+                            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span title={`${format(bookingDetails.checkIn, 'dd/MM/yyyy')} - ${format(bookingDetails.checkOut, 'dd/MM/yyyy')}`}>
+                              {bookingDetails.guestName}
+                            </span>
+                          </div>
+                        )}
+                        {!propertyName && !bookingDetails && (
+                          <span className="text-muted-foreground text-sm">Non assigné</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {service.salesLink ? (
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => copyLinkToClipboard(service)}
+                            title="Copier le lien"
+                          >
+                            <Link className="h-4 w-4 mr-1" />
+                          </Button>
+                          <a 
+                            href={service.salesLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">Aucun lien</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => copyLinkToClipboard(service)}
-                          title="Copier le lien"
+                          onClick={() => handleRegisterSale(service.id)}
+                          title="Enregistrer une vente"
                         >
-                          <Link className="h-4 w-4 mr-1" />
+                          <ShoppingCart className="h-4 w-4" />
                         </Button>
-                        <a 
-                          href={service.salesLink} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleEditClick(service)}
                         >
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="text-destructive hover:text-destructive/80 hover:bg-destructive/10"
+                          onClick={() => handleDeleteClick(service)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">Aucun lien</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleRegisterSale(service.id)}
-                        title="Enregistrer une vente"
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => handleEditClick(service)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="text-destructive hover:text-destructive/80 hover:bg-destructive/10"
-                        onClick={() => handleDeleteClick(service)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
                   Aucun service disponible. Cliquez sur "Ajouter un service" pour commencer.
                 </TableCell>
               </TableRow>
