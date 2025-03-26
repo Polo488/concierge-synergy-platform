@@ -97,7 +97,7 @@ export function RegisterSaleDialog({
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Aucune réservation</SelectItem>
+                <SelectItem value="none">Aucune réservation</SelectItem>
                 {filteredBookings.map((booking) => (
                   <SelectItem key={booking.id} value={booking.id.toString()}>
                     {booking.guestName} ({format(booking.checkIn, 'dd/MM/yyyy')})

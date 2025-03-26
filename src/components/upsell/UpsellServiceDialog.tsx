@@ -155,7 +155,7 @@ export function UpsellServiceDialog({
                 <SelectValue placeholder="Sélectionner un logement" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Aucun</SelectItem>
+                <SelectItem value="none">Aucun</SelectItem>
                 {properties.map((property) => (
                   <SelectItem key={property.id} value={property.id.toString()}>
                     {property.name}
@@ -176,7 +176,7 @@ export function UpsellServiceDialog({
                 <SelectValue placeholder={propertyId ? "Sélectionner une réservation" : "Sélectionnez d'abord un logement"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Aucune</SelectItem>
+                <SelectItem value="none">Aucune</SelectItem>
                 {filteredBookings.map((booking) => (
                   <SelectItem key={booking.id} value={booking.id.toString()}>
                     {booking.guestName} ({format(booking.checkIn, 'dd/MM/yyyy')})
