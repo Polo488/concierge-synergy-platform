@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
 import { 
@@ -16,10 +15,10 @@ import { UpsellServiceManager } from '@/components/upsell/UpsellServiceManager';
 
 // Mock data for upsell products
 const initialUpsellProducts = [
-  { id: 1, name: 'Petit-déjeuner', price: 4200, sold: 35 },
-  { id: 2, name: 'Transport aéroport', price: 3100, sold: 26 },
-  { id: 3, name: 'Soins et massages', price: 2400, sold: 20 },
-  { id: 4, name: 'Late check-out', price: 1500, sold: 12 },
+  { id: 1, name: 'Petit-déjeuner', price: 4200, sold: 35, salesLink: 'https://example.com/petit-dejeuner' },
+  { id: 2, name: 'Transport aéroport', price: 3100, sold: 26, salesLink: 'https://example.com/transport' },
+  { id: 3, name: 'Soins et massages', price: 2400, sold: 20, salesLink: 'https://example.com/spa' },
+  { id: 4, name: 'Late check-out', price: 1500, sold: 12, salesLink: 'https://example.com/late-checkout' },
   { id: 5, name: 'Autres', price: 800, sold: 7 }
 ];
 
@@ -54,13 +53,13 @@ const Upsell = () => {
   }, []);
 
   // Calculate total revenue
-  const totalRevenue = upsellProducts.reduce((sum, item) => sum + item.price, 0);
+  const totalRevenue = upsellProducts.reduce((sum, item) => sum + item.price * item.sold, 0);
   
   // Prepare data for pie chart with percentages
   const pieChartData = upsellProducts.map(item => ({
     ...item,
-    value: item.price,
-    percentage: Math.round((item.price / totalRevenue) * 100)
+    value: item.price * item.sold,
+    percentage: Math.round(((item.price * item.sold) / totalRevenue) * 100)
   }));
 
   const handleServicesUpdate = (updatedServices: PropertyUpsellItem[]) => {

@@ -6,27 +6,38 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PropertyUpsellItem } from '@/types/property';
 import { useToast } from '@/components/ui/use-toast';
+import { Link as LinkIcon } from 'lucide-react';
 
 interface UpsellServiceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (service: PropertyUpsellItem) => void;
   service?: PropertyUpsellItem;
+  onRegisterSale?: (serviceId: number) => void;
 }
 
-export function UpsellServiceDialog({ open, onOpenChange, onSave, service }: UpsellServiceDialogProps) {
+export function UpsellServiceDialog({ 
+  open, 
+  onOpenChange, 
+  onSave, 
+  service, 
+  onRegisterSale 
+}: UpsellServiceDialogProps) {
   const { toast } = useToast();
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
+  const [salesLink, setSalesLink] = useState('');
   const isEditing = !!service;
 
   useEffect(() => {
     if (service) {
       setName(service.name);
       setPrice((service.price / 100).toString());
+      setSalesLink(service.salesLink || '');
     } else {
       setName('');
       setPrice('');
+      setSalesLink('');
     }
   }, [service, open]);
 
@@ -54,11 +65,19 @@ export function UpsellServiceDialog({ open, onOpenChange, onSave, service }: Ups
       id: service?.id || Math.floor(Math.random() * 10000),
       name: name.trim(),
       price: Math.round(priceValue * 100),
-      sold: service?.sold || 0
+      sold: service?.sold || 0,
+      salesLink: salesLink.trim() || undefined
     };
 
     onSave(updatedService);
     onOpenChange(false);
+  };
+
+  const handleRegisterSale = () => {
+    if (service && onRegisterSale) {
+      onRegisterSale(service.id);
+      onOpenChange(false);
+    }
   };
 
   return (
@@ -89,8 +108,39 @@ export function UpsellServiceDialog({ open, onOpenChange, onSave, service }: Ups
               step="0.01"
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="salesLink">Lien de vente</Label>
+            <div className="flex items-center space-x-2">
+              <Input
+                id="salesLink"
+                value={salesLink}
+                onChange={(e) => setSalesLink(e.target.value)}
+                placeholder="https://..."
+                className="flex-1"
+              />
+              {salesLink && (
+                <a 
+                  href={salesLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-md border bg-transparent hover:bg-secondary text-muted-foreground"
+                >
+                  <LinkIcon className="h-4 w-4" />
+                </a>
+              )}
+            </div>
+          </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex flex-col sm:flex-row gap-2">
+          {isEditing && onRegisterSale && (
+            <Button 
+              variant="outline" 
+              onClick={handleRegisterSale}
+              className="sm:mr-auto"
+            >
+              Enregistrer une vente
+            </Button>
+          )}
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Annuler
           </Button>

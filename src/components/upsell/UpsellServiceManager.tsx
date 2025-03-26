@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { PropertyUpsellItem } from '@/types/property';
 import { Button } from '@/components/ui/button';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Link, ExternalLink, ShoppingCart } from 'lucide-react';
 import { UpsellServiceDialog } from './UpsellServiceDialog';
 import {
   Table,
@@ -89,6 +89,38 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
     setDeleteDialogOpen(false);
   };
 
+  const handleRegisterSale = (serviceId: number) => {
+    const updatedServices = services.map(service => {
+      if (service.id === serviceId) {
+        return {
+          ...service,
+          sold: service.sold + 1
+        };
+      }
+      return service;
+    });
+    
+    onServiceUpdate(updatedServices);
+    
+    const service = services.find(s => s.id === serviceId);
+    if (service) {
+      toast({
+        title: "Vente enregistrée",
+        description: `Une vente du service "${service.name}" a été enregistrée.`,
+      });
+    }
+  };
+  
+  const copyLinkToClipboard = (service: PropertyUpsellItem) => {
+    if (service.salesLink) {
+      navigator.clipboard.writeText(service.salesLink);
+      toast({
+        title: "Lien copié",
+        description: "Le lien de vente a été copié dans le presse-papier."
+      });
+    }
+  };
+
   return (
     <>
       <DashboardCard 
@@ -105,6 +137,7 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
               <TableHead>Nom du service</TableHead>
               <TableHead>Prix</TableHead>
               <TableHead>Vendu</TableHead>
+              <TableHead>Lien de vente</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -115,8 +148,40 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
                   <TableCell className="font-medium">{service.name}</TableCell>
                   <TableCell>{(service.price / 100).toLocaleString('fr-FR')} €</TableCell>
                   <TableCell>{service.sold} fois</TableCell>
+                  <TableCell>
+                    {service.salesLink ? (
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => copyLinkToClipboard(service)}
+                          title="Copier le lien"
+                        >
+                          <Link className="h-4 w-4 mr-1" />
+                        </Button>
+                        <a 
+                          href={service.salesLink} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">Aucun lien</span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleRegisterSale(service.id)}
+                        title="Enregistrer une vente"
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                      </Button>
                       <Button 
                         variant="ghost" 
                         size="sm" 
@@ -138,7 +203,7 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
                   Aucun service disponible. Cliquez sur "Ajouter un service" pour commencer.
                 </TableCell>
               </TableRow>
@@ -152,6 +217,7 @@ export function UpsellServiceManager({ services, onServiceUpdate }: UpsellServic
         onOpenChange={setDialogOpen}
         onSave={handleSaveService}
         service={selectedService}
+        onRegisterSale={handleRegisterSale}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
