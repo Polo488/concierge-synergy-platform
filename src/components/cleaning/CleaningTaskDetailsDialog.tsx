@@ -97,25 +97,12 @@ export const CleaningTaskDetailsDialog = ({
           <div>
             <h3 className="font-medium mb-2">Détails</h3>
             <div className="space-y-3">
-              {currentTask.items && currentTask.items.length > 0 && (
+              {currentTask.linens && currentTask.linens.length > 0 && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Linge à prévoir:</p>
+                  <p className="text-sm text-muted-foreground mb-1">Linge et literie:</p>
                   <div className="flex flex-wrap gap-1">
-                    {currentTask.items.map((item: string, i: number) => (
+                    {currentTask.linens.map((item: string, i: number) => (
                       <Badge key={i} variant="outline" className="rounded-full">
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {currentTask.bedding && currentTask.bedding.length > 0 && (
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Housses et taies:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {currentTask.bedding.map((item: string, i: number) => (
-                      <Badge key={i} variant="outline" className="rounded-full bg-blue-50">
                         {item}
                       </Badge>
                     ))}

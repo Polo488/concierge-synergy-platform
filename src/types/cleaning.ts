@@ -11,9 +11,8 @@ export interface CleaningTask {
   startTime: string;
   endTime: string;
   date?: string;
-  items: string[];
+  linens: string[]; // Nouvelle catégorie regroupée
   consumables: string[];
-  bedding: string[];
   comments: string;
 }
 
@@ -24,8 +23,7 @@ export interface NewCleaningTask {
   status: CleaningStatus;
   cleaningAgent: string;
   date: string;
-  items: string[];
+  linens: string[]; // Nouvelle catégorie regroupée
   consumables: string[];
-  bedding: string[];
   comments: string;
 }

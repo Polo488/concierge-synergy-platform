@@ -115,9 +115,9 @@ export const generateLabelsPrintWindow = (tasks: CleaningTask[]): void => {
             ${task.date ? `Date: ${task.date}` : `Check-out: ${task.checkoutTime || 'N/A'} • Check-in: ${task.checkinTime || 'N/A'}`}
           </div>
           <div class="info">Agent: ${task.cleaningAgent || 'Non assigné'}</div>
-          ${task.items.length > 0 ? `
+          ${task.linens.length > 0 ? `
             <div class="items">
-              ${task.items.map(item => `<span class="item">${item}</span>`).join('')}
+              ${task.linens.map(item => `<span class="item">${item}</span>`).join('')}
             </div>
           ` : ''}
           ${task.consumables.length > 0 ? `

@@ -110,21 +110,15 @@ export const AddCleaningTaskDialog = ({
           
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Linge à prévoir</label>
+              <label className="text-sm font-medium">Linge et literie</label>
               <Input
-                value={newTask.items.join(', ')}
-                onChange={(e) => setNewTask({...newTask, items: e.target.value.split(', ')})}
-                placeholder="Serviettes bain x2, Serviettes main x2"
+                value={newTask.linens.join(', ')}
+                onChange={(e) => setNewTask({...newTask, linens: e.target.value.split(', ')})}
+                placeholder="Serviettes bain x2, Housse de couette queen x1, Taies d'oreiller x2"
               />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Housses et taies</label>
-              <Input
-                value={newTask.bedding.join(', ')}
-                onChange={(e) => setNewTask({...newTask, bedding: e.target.value.split(', ')})}
-                placeholder="Housse de couette queen x1, Taies d'oreiller x2"
-              />
+              <p className="text-xs text-muted-foreground">
+                Comprend tout type de linge: draps, serviettes, housses, taies, etc.
+              </p>
             </div>
             
             <div className="space-y-2">

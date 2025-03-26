@@ -59,9 +59,8 @@ const Cleaning = () => {
       cleaningAgent: null,
       startTime: '',
       endTime: '',
-      items: ['Draps king size x1', 'Serviettes bain x2', 'Serviettes main x2'],
+      linens: ['Draps king size x1', 'Serviettes bain x2', 'Serviettes main x2', 'Housse de couette king size x1', 'Taies d\'oreiller x2'],
       consumables: ['Capsules café x4', 'Sachets thé x2', 'Gel douche x1', 'Shampoing x1'],
-      bedding: ['Housse de couette king size x1', 'Taies d\'oreiller x2'],
       comments: 'Attention aux taches sur le canapé'
     },
     {
@@ -73,9 +72,8 @@ const Cleaning = () => {
       cleaningAgent: 'Marie Lambert',
       startTime: '10:30',
       endTime: '',
-      items: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1'],
+      linens: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1', 'Housse de couette simple x1', 'Taie d\'oreiller x1'],
       consumables: ['Capsules café x2', 'Sachets thé x2', 'Gel douche x1'],
-      bedding: ['Housse de couette simple x1', 'Taie d\'oreiller x1'],
       comments: ''
     },
     {
@@ -87,9 +85,8 @@ const Cleaning = () => {
       cleaningAgent: 'Lucas Martin',
       startTime: '',
       endTime: '',
-      items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2', 'Peignoirs x2'],
+      linens: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2', 'Peignoirs x2', 'Housse de couette queen x1', 'Taies d\'oreiller x2'],
       consumables: ['Capsules café x4', 'Sachets thé x4', 'Gel douche x2', 'Shampoing x2'],
-      bedding: ['Housse de couette queen x1', 'Taies d\'oreiller x2'],
       comments: 'Vérifier l\'état du four'
     }
   ]);
@@ -104,9 +101,8 @@ const Cleaning = () => {
       cleaningAgent: null,
       startTime: '',
       endTime: '',
-      items: ['Draps king size x2', 'Serviettes bain x4', 'Serviettes main x4', 'Peignoirs x2'],
+      linens: ['Draps king size x2', 'Serviettes bain x4', 'Serviettes main x4', 'Peignoirs x2', 'Housse de couette king size x2', 'Taies d\'oreiller x4'],
       consumables: ['Capsules café x6', 'Sachets thé x4', 'Gel douche x2', 'Shampoing x2'],
-      bedding: ['Housse de couette king size x2', 'Taies d\'oreiller x4'],
       comments: ''
     },
     {
@@ -118,9 +114,8 @@ const Cleaning = () => {
       cleaningAgent: 'Marie Lambert',
       startTime: '',
       endTime: '',
-      items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2'],
+      linens: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2', 'Housse de couette queen x1', 'Taies d\'oreiller x2'],
       consumables: ['Capsules café x4', 'Sachets thé x2', 'Gel douche x1', 'Shampoing x1'],
-      bedding: ['Housse de couette queen x1', 'Taies d\'oreiller x2'],
       comments: ''
     }
   ]);
@@ -134,9 +129,8 @@ const Cleaning = () => {
       cleaningAgent: 'Lucas Martin',
       startTime: '10:30',
       endTime: '11:45',
-      items: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1'],
+      linens: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1', 'Housse de couette simple x1', 'Taie d\'oreiller x1'],
       consumables: ['Capsules café x2', 'Sachets thé x2', 'Gel douche x1'],
-      bedding: ['Housse de couette simple x1', 'Taie d\'oreiller x1'],
       comments: ''
     },
     {
@@ -147,9 +141,8 @@ const Cleaning = () => {
       cleaningAgent: 'Marie Lambert',
       startTime: '13:00',
       endTime: '14:30',
-      items: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2'],
+      linens: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2', 'Housse de couette queen x1', 'Taies d\'oreiller x2'],
       consumables: ['Capsules café x4', 'Sachets thé x2', 'Gel douche x1', 'Shampoing x1'],
-      bedding: ['Housse de couette queen x1', 'Taies d\'oreiller x2'],
       comments: ''
     }
   ]);
@@ -184,9 +177,8 @@ const Cleaning = () => {
     status: 'todo',
     cleaningAgent: '',
     date: format(new Date(), 'yyyy-MM-dd'),
-    items: ['Serviettes bain x2', 'Serviettes main x2'],
+    linens: ['Serviettes bain x2', 'Serviettes main x2', 'Housse de couette queen x1', 'Taies d\'oreiller x2'],
     consumables: ['Capsules café x4', 'Sachets thé x2'],
-    bedding: ['Housse de couette queen x1', 'Taies d\'oreiller x2'],
     comments: ''
   });
 
@@ -380,9 +372,8 @@ const Cleaning = () => {
       status: 'todo',
       cleaningAgent: '',
       date: format(new Date(), 'yyyy-MM-dd'),
-      items: ['Serviettes bain x2', 'Serviettes main x2'],
+      linens: ['Serviettes bain x2', 'Serviettes main x2', 'Housse de couette queen x1', 'Taies d\'oreiller x2'],
       consumables: ['Capsules café x4', 'Sachets thé x2'],
-      bedding: ['Housse de couette queen x1', 'Taies d\'oreiller x2'],
       comments: ''
     });
     

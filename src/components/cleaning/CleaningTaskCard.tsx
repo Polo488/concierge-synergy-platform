@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -135,25 +134,12 @@ export const CleaningTaskCard = ({
                 )}
                 
                 <div className="space-y-2">
-                  {task.items?.length > 0 && (
+                  {task.linens?.length > 0 && (
                     <div>
-                      <p className="text-sm font-medium mb-1">Linge à prévoir:</p>
+                      <p className="text-sm font-medium mb-1">Linge et literie:</p>
                       <div className="flex flex-wrap gap-2">
-                        {task.items.map((item: string, i: number) => (
+                        {task.linens.map((item: string, i: number) => (
                           <Badge key={i} variant="outline" className="rounded-full">
-                            {item}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {task.bedding?.length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium mb-1">Housses et taies:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {task.bedding.map((item: string, i: number) => (
-                          <Badge key={i} variant="outline" className="rounded-full bg-blue-50">
                             {item}
                           </Badge>
                         ))}
