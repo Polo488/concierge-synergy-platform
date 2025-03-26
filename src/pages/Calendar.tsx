@@ -73,7 +73,13 @@ const CalendarPage = () => {
   };
 
   // Handle date range change for availability check
-  const handleDateRangeChange = (range: { from: Date; to?: Date }) => {
+  const handleDateRangeChange = (range: { from?: Date; to?: Date } | undefined) => {
+    if (!range || !range.from) {
+      setDateRange(undefined);
+      return;
+    }
+    
+    // Create DateRange with required 'from' property
     const newDateRange: DateRange = {
       from: range.from,
       to: range.to

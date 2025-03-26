@@ -46,8 +46,8 @@ export interface CalendarContext {
   setBookings: (bookings: Booking[]) => void;
 }
 
-// Match the DateRange type from react-day-picker
+// Make our DateRange type match the one from react-day-picker
 export interface DateRange {
-  from?: Date;
+  from: Date; // Changed from optional to required
   to?: Date;
 }

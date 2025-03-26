@@ -10,7 +10,8 @@ export const usePropertyAvailability = (
   properties: Property[],
   bookings: Booking[]
 ) => {
-  const [dateRange, setDateRange] = useState<DateRange>();
+  // Initialize with undefined to match the type (it's safe since we check for presence of from and to)
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [availableProperties, setAvailableProperties] = useState<Property[]>([]);
   
   // Find available properties in a date range

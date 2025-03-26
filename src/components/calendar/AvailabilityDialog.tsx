@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Building, Users, Euro } from 'lucide-react';
-import { DateRange } from 'react-day-picker';
+import { DateRange } from '@/hooks/calendar/types';
 
 interface AvailabilityDialogProps {
   open: boolean;
