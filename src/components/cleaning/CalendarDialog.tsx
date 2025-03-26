@@ -8,14 +8,14 @@ interface CalendarDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedDate: Date;
-  onDateChange: (date: Date | undefined) => void;
+  onSelect: (date: Date | undefined) => void; // Changed from onDateChange to onSelect
 }
 
 export const CalendarDialog = ({
   open,
   onOpenChange,
   selectedDate,
-  onDateChange
+  onSelect
 }: CalendarDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -30,7 +30,7 @@ export const CalendarDialog = ({
         <Calendar
           mode="single"
           selected={selectedDate}
-          onSelect={onDateChange}
+          onSelect={onSelect}
           locale={fr}
           className="mx-auto"
         />

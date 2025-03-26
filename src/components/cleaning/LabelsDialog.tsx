@@ -2,51 +2,25 @@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Printer } from "lucide-react";
 import { CleaningTask } from "@/types/cleaning";
-import { CleaningTaskList } from "./CleaningTaskList";
 
 interface LabelsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   labelType: "standard" | "detailed" | "qrcode";
-  setLabelType: (type: "standard" | "detailed" | "qrcode") => void;
+  onLabelTypeChange: (type: "standard" | "detailed" | "qrcode") => void; // Added onLabelTypeChange
   selectedTasks: CleaningTask[];
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  todayCleaningTasks: CleaningTask[];
-  tomorrowCleaningTasks: CleaningTask[];
-  completedCleaningTasks: CleaningTask[];
-  onSelectTask: (task: CleaningTask) => void;
-  onStartCleaning: (task: CleaningTask) => void;
-  onCompleteCleaning: (task: CleaningTask) => void;
-  onOpenDetails: (task: CleaningTask) => void;
-  onAssign: (task: CleaningTask) => void;
-  onReportProblem: (task: CleaningTask) => void;
-  onDelete: (task: CleaningTask) => void;
-  onPrintLabels: () => void;
+  onPrint: () => void;
 }
 
 export const LabelsDialog = ({
   open,
   onOpenChange,
   labelType,
-  setLabelType,
+  onLabelTypeChange,
   selectedTasks,
-  activeTab,
-  setActiveTab,
-  todayCleaningTasks,
-  tomorrowCleaningTasks,
-  completedCleaningTasks,
-  onSelectTask,
-  onStartCleaning,
-  onCompleteCleaning,
-  onOpenDetails,
-  onAssign,
-  onReportProblem,
-  onDelete,
-  onPrintLabels
+  onPrint
 }: LabelsDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -61,7 +35,7 @@ export const LabelsDialog = ({
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Type d'étiquette</label>
-            <Select value={labelType} onValueChange={(value: any) => setLabelType(value)}>
+            <Select value={labelType} onValueChange={(value: any) => onLabelTypeChange(value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un type" />
               </SelectTrigger>
@@ -75,75 +49,33 @@ export const LabelsDialog = ({
           
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-medium">Ménages</label>
+              <label className="text-sm font-medium">Ménages sélectionnés</label>
               <span className="text-xs text-muted-foreground">
                 {selectedTasks.length} sélectionné(s)
               </span>
             </div>
             
             <div className="border rounded-md h-64 overflow-y-auto p-2">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid grid-cols-3 w-full">
-                  <TabsTrigger value="today">Aujourd'hui</TabsTrigger>
-                  <TabsTrigger value="tomorrow">Demain</TabsTrigger>
-                  <TabsTrigger value="completed">Complétés</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="today" className="mt-2 space-y-2">
-                  <CleaningTaskList
-                    tasks={todayCleaningTasks}
-                    emptyMessage="Aucun ménage prévu pour aujourd'hui"
-                    labelsDialogOpen={true}
-                    selectedTasks={selectedTasks}
-                    onSelectTask={onSelectTask}
-                    onStartCleaning={onStartCleaning}
-                    onCompleteCleaning={onCompleteCleaning}
-                    onOpenDetails={onOpenDetails}
-                    onAssign={onAssign}
-                    onReportProblem={onReportProblem}
-                    onDelete={onDelete}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="tomorrow" className="mt-2 space-y-2">
-                  <CleaningTaskList
-                    tasks={tomorrowCleaningTasks}
-                    emptyMessage="Aucun ménage prévu pour demain"
-                    labelsDialogOpen={true}
-                    selectedTasks={selectedTasks}
-                    onSelectTask={onSelectTask}
-                    onStartCleaning={onStartCleaning}
-                    onCompleteCleaning={onCompleteCleaning}
-                    onOpenDetails={onOpenDetails}
-                    onAssign={onAssign}
-                    onReportProblem={onReportProblem}
-                    onDelete={onDelete}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="completed" className="mt-2 space-y-2">
-                  <CleaningTaskList
-                    tasks={completedCleaningTasks}
-                    emptyMessage="Aucun ménage complété"
-                    labelsDialogOpen={true}
-                    selectedTasks={selectedTasks}
-                    onSelectTask={onSelectTask}
-                    onStartCleaning={onStartCleaning}
-                    onCompleteCleaning={onCompleteCleaning}
-                    onOpenDetails={onOpenDetails}
-                    onAssign={onAssign}
-                    onReportProblem={onReportProblem}
-                    onDelete={onDelete}
-                  />
-                </TabsContent>
-              </Tabs>
+              {selectedTasks.length > 0 ? (
+                <ul className="space-y-1">
+                  {selectedTasks.map((task) => (
+                    <li key={task.id} className="text-sm py-1 px-2 border-b last:border-b-0">
+                      {task.property}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                  Aucun ménage sélectionné
+                </div>
+              )}
             </div>
           </div>
         </div>
         
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
-          <Button onClick={onPrintLabels} className="gap-1">
+          <Button onClick={onPrint} className="gap-1" disabled={selectedTasks.length === 0}>
             <Printer className="h-4 w-4" />
             Imprimer
           </Button>

@@ -7,20 +7,18 @@ import { CleaningTask } from "@/types/cleaning";
 interface CleaningAgentAssignDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  currentTask: CleaningTask | null;
   selectedAgent: string;
-  setSelectedAgent: (value: string) => void;
-  cleaningAgents: string[];
+  onSelectAgent: (value: string) => void; // Changed from setSelectedAgent
+  agents: string[]; // Added agents prop
   onAssign: () => void;
 }
 
 export const CleaningAgentAssignDialog = ({
   open,
   onOpenChange,
-  currentTask,
   selectedAgent,
-  setSelectedAgent,
-  cleaningAgents,
+  onSelectAgent,
+  agents,
   onAssign
 }: CleaningAgentAssignDialogProps) => {
   return (
@@ -29,17 +27,17 @@ export const CleaningAgentAssignDialog = ({
         <DialogHeader>
           <DialogTitle>Assigner un agent</DialogTitle>
           <DialogDescription>
-            Choisissez un agent de ménage pour {currentTask?.property}
+            Choisissez un agent de ménage pour cette propriété
           </DialogDescription>
         </DialogHeader>
         
-        <Select value={selectedAgent || "non_assigne"} onValueChange={setSelectedAgent}>
+        <Select value={selectedAgent || "non_assigne"} onValueChange={onSelectAgent}>
           <SelectTrigger>
             <SelectValue placeholder="Sélectionner un agent" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="non_assigne">Non assigné</SelectItem>
-            {cleaningAgents.map((agent) => (
+            {agents.map((agent) => (
               <SelectItem key={agent} value={agent}>
                 {agent}
               </SelectItem>
