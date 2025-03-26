@@ -74,12 +74,16 @@ const CalendarPage = () => {
 
   // Handle date range change for availability check
   const handleDateRangeChange = (range: { from?: Date; to?: Date } | undefined) => {
-    if (!range || !range.from) {
+    if (!range) {
       setDateRange(undefined);
       return;
     }
     
-    // Create DateRange with required 'from' property
+    if (!range.from) {
+      setDateRange(undefined);
+      return;
+    }
+    
     const newDateRange: DateRange = {
       from: range.from,
       to: range.to
@@ -179,6 +183,7 @@ const CalendarPage = () => {
                 <Calendar
                   mode="range"
                   defaultMonth={currentDate}
+                  selected={dateRange ? { from: dateRange.from, to: dateRange.to } : undefined}
                   onSelect={handleDateRangeChange}
                   numberOfMonths={2}
                   className="pointer-events-auto"

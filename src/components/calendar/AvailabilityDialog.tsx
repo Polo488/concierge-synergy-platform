@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { format, differenceInDays } from 'date-fns';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Building, Users, Euro } from 'lucide-react';
@@ -25,9 +25,12 @@ export const AvailabilityDialog = ({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Logements disponibles</DialogTitle>
+          <DialogDescription>
+            Voici les logements disponibles pour la période sélectionnée
+          </DialogDescription>
         </DialogHeader>
         
-        {dateRange?.from && dateRange?.to && (
+        {dateRange?.from && dateRange?.to ? (
           <div className="py-2">
             <p className="text-sm text-muted-foreground mb-4">
               Période sélectionnée: {format(dateRange.from, 'dd/MM/yyyy')} au {format(dateRange.to, 'dd/MM/yyyy')} 
@@ -66,6 +69,10 @@ export const AvailabilityDialog = ({
                 <p className="text-muted-foreground">Aucun logement disponible pour cette période</p>
               </div>
             )}
+          </div>
+        ) : (
+          <div className="py-8 text-center">
+            <p className="text-muted-foreground">Veuillez sélectionner une plage de dates complète</p>
           </div>
         )}
         
