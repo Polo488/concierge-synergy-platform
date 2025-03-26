@@ -179,8 +179,9 @@ const CalendarPage = () => {
                 <Calendar
                   mode="range"
                   defaultMonth={currentDate}
-                  onSelect={(range: any) => handleDateRangeChange(range || {})}
+                  onSelect={handleDateRangeChange}
                   numberOfMonths={2}
+                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
