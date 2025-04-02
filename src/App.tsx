@@ -15,30 +15,33 @@ import Billing from "./pages/Billing";
 import MoyenneDuree from "./pages/MoyenneDuree";
 import Upsell from "./pages/Upsell";
 import NotFound from "./pages/NotFound";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/maintenance" element={<Maintenance />} />
-            <Route path="/cleaning" element={<Cleaning />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/properties" element={<Properties />} />
-            <Route path="/billing" element={<Billing />} />
-            <Route path="/moyenne-duree" element={<MoyenneDuree />} />
-            <Route path="/upsell" element={<Upsell />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
-      </BrowserRouter>
+      <LanguageProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/inventory" element={<Inventory />} />
+              <Route path="/maintenance" element={<Maintenance />} />
+              <Route path="/cleaning" element={<Cleaning />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/properties" element={<Properties />} />
+              <Route path="/billing" element={<Billing />} />
+              <Route path="/moyenne-duree" element={<MoyenneDuree />} />
+              <Route path="/upsell" element={<Upsell />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Layout>
+        </BrowserRouter>
+      </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

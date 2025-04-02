@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Building, Users, Euro } from 'lucide-react';
 import { DateRange } from '@/hooks/calendar/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AvailabilityDialogProps {
   open: boolean;
@@ -20,21 +21,23 @@ export const AvailabilityDialog = ({
   dateRange,
   availableProperties
 }: AvailabilityDialogProps) => {
+  const { t } = useLanguage();
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Logements disponibles</DialogTitle>
+          <DialogTitle>{t('availability.title')}</DialogTitle>
           <DialogDescription>
-            Voici les logements disponibles pour la période sélectionnée
+            {t('availability.description')}
           </DialogDescription>
         </DialogHeader>
         
         {dateRange?.from && dateRange?.to ? (
           <div className="py-2">
             <p className="text-sm text-muted-foreground mb-4">
-              Période sélectionnée: {format(dateRange.from, 'dd/MM/yyyy')} au {format(dateRange.to, 'dd/MM/yyyy')} 
-              ({differenceInDays(dateRange.to, dateRange.from)} nuits)
+              {t('availability.period')} {format(dateRange.from, 'dd/MM/yyyy')} au {format(dateRange.to, 'dd/MM/yyyy')} 
+              ({differenceInDays(dateRange.to, dateRange.from)} {t('availability.nights')})
             </p>
             
             {availableProperties.length > 0 ? (
@@ -51,7 +54,7 @@ export const AvailabilityDialog = ({
                         <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
                           <div className="flex items-center gap-1">
                             <Users className="h-3.5 w-3.5" />
-                            <span>{property.capacity} pers.</span>
+                            <span>{property.capacity} {t('property.persons')}.</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Euro className="h-3.5 w-3.5" />
@@ -60,24 +63,24 @@ export const AvailabilityDialog = ({
                         </div>
                       </div>
                     </div>
-                    <Badge className="bg-green-100 text-green-800">Disponible</Badge>
+                    <Badge className="bg-green-100 text-green-800">{t('availability.available')}</Badge>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="py-8 text-center">
-                <p className="text-muted-foreground">Aucun logement disponible pour cette période</p>
+                <p className="text-muted-foreground">{t('availability.no.properties')}</p>
               </div>
             )}
           </div>
         ) : (
           <div className="py-8 text-center">
-            <p className="text-muted-foreground">Veuillez sélectionner une plage de dates complète</p>
+            <p className="text-muted-foreground">{t('availability.select.date.range')}</p>
           </div>
         )}
         
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>Fermer</Button>
+          <Button onClick={() => onOpenChange(false)}>{t('close')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
