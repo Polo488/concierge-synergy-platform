@@ -6,11 +6,14 @@ import { CleaningStats } from '@/components/cleaning/CleaningStats';
 import { CleaningActions } from '@/components/cleaning/CleaningActions';
 import { CleaningTabs } from '@/components/cleaning/CleaningTabs';
 import { CleaningDialogs } from '@/components/cleaning/CleaningDialogs';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Cleaning = () => {
+  const { t } = useLanguage();
+  
   useEffect(() => {
-    document.title = 'Ménage - GESTION BNB LYON';
-  }, []);
+    document.title = t('cleaning.page.title');
+  }, [t]);
 
   return (
     <CleaningProvider>
@@ -19,7 +22,7 @@ const Cleaning = () => {
         
         <CleaningStats />
         
-        <DashboardCard title="Planification des ménages">
+        <DashboardCard title={t('cleaning.planning.title')}>
           <CleaningTabs />
         </DashboardCard>
 

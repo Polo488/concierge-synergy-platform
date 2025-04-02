@@ -4,6 +4,7 @@ import { fr } from 'date-fns/locale';
 import { toast } from "sonner";
 import { CleaningTask, CleaningStatus, NewCleaningTask } from '@/types/cleaning';
 import { getNextId, sortTasksByDateTime } from '@/utils/cleaningUtils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CleaningContextType {
   // Task collections
@@ -200,6 +201,9 @@ const initialNewTask: NewCleaningTask = {
 const CleaningContext = createContext<CleaningContextType | undefined>(undefined);
 
 export const CleaningProvider = ({ children }: CleaningProviderProps) => {
+  const { language, t } = useLanguage();
+  const dateLocale = language === 'fr' ? fr : undefined;
+  
   // Tasks data state
   const [todayCleaningTasks, setTodayCleaningTasks] = useState<CleaningTask[]>(initialTodayTasks);
   const [tomorrowCleaningTasks, setTomorrowCleaningTasks] = useState<CleaningTask[]>(initialTomorrowTasks);
@@ -243,8 +247,8 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     
     setTodayCleaningTasks(updatedTasks);
     
-    toast("Ménage commencé", {
-      description: `Le ménage pour ${task.property} a débuté.`
+    toast(t('cleaning.toast.started.title'), {
+      description: t('cleaning.toast.started.description', { property: task.property })
     });
   };
 
@@ -262,8 +266,8 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     
     setCompletedCleaningTasks([completedTask, ...completedCleaningTasks]);
     
-    toast("Ménage terminé", {
-      description: `Le ménage pour ${task.property} a été complété avec succès.`
+    toast(t('cleaning.toast.completed.title'), {
+      description: t('cleaning.toast.completed.description', { property: task.property })
     });
   };
 
@@ -296,8 +300,11 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
 
     setAssignDialogOpen(false);
     
-    toast("Agent assigné", {
-      description: `${selectedAgent === "non_assigne" ? "Aucun agent" : selectedAgent} a été assigné au ménage pour ${currentTask.property}.`
+    toast(t('cleaning.toast.agent.title'), {
+      description: t('cleaning.toast.agent.description', {
+        agent: selectedAgent === "non_assigne" ? t('cleaning.no.agent') : selectedAgent,
+        property: currentTask.property
+      })
     });
   };
 
@@ -313,21 +320,21 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
   };
 
   const handleReportProblem = () => {
-    toast.error("Problème signalé", {
-      description: `Un problème a été signalé pour ${currentTask?.property}. L'équipe de support a été notifiée.`
+    toast.error(t('cleaning.toast.problem.title'), {
+      description: t('cleaning.toast.problem.description', { property: currentTask?.property || '' })
     });
     setProblemDialogOpen(false);
   };
 
   const handleExport = () => {
-    toast("Exportation réussie", {
-      description: "Les données de ménage ont été exportées avec succès."
+    toast(t('cleaning.toast.export.title'), {
+      description: t('cleaning.toast.export.description')
     });
   };
 
   const handleSync = () => {
-    toast("Synchronisation réussie", {
-      description: "Les données de ménage ont été synchronisées avec succès."
+    toast(t('cleaning.toast.sync.title'), {
+      description: t('cleaning.toast.sync.description')
     });
   };
 
@@ -344,8 +351,10 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
       } else if (isSameDay(date, addDays(new Date(), 1))) {
         setActiveTab("tomorrow");
       } else {
-        toast("Date sélectionnée", {
-          description: `Vous avez sélectionné le ${format(date, 'dd MMMM yyyy', { locale: fr })}`
+        toast(t('cleaning.toast.date.title'), {
+          description: t('cleaning.toast.date.description', {
+            date: format(date, 'dd MMMM yyyy', { locale: dateLocale })
+          })
         });
       }
       
@@ -412,8 +421,8 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     
     setAddTaskDialogOpen(false);
     
-    toast("Ménage ajouté", {
-      description: `Un nouveau ménage pour ${taskToAdd.property} a été ajouté.`
+    toast(t('cleaning.toast.added.title'), {
+      description: t('cleaning.toast.added.description', { property: taskToAdd.property })
     });
   };
 
@@ -436,15 +445,15 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     
     setDeleteConfirmDialogOpen(false);
     
-    toast.error("Ménage supprimé", {
-      description: `Le ménage pour ${currentTask.property} a été supprimé.`
+    toast.error(t('cleaning.toast.deleted.title'), {
+      description: t('cleaning.toast.deleted.description', { property: currentTask.property })
     });
   };
 
   const handlePrintLabels = () => {
     if (selectedTasks.length === 0) {
-      toast.error("Sélection requise", {
-        description: "Veuillez sélectionner au moins un ménage pour générer des étiquettes."
+      toast.error(t('cleaning.toast.labels.error.title'), {
+        description: t('cleaning.toast.labels.error.description')
       });
       return;
     }
@@ -452,8 +461,8 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     import('@/utils/cleaningUtils').then(({ generateLabelsPrintWindow }) => {
       generateLabelsPrintWindow(selectedTasks);
       
-      toast("Étiquettes générées", {
-        description: `${selectedTasks.length} étiquette(s) prête(s) à imprimer.`
+      toast(t('cleaning.toast.labels.success.title'), {
+        description: t('cleaning.toast.labels.success.description', { count: selectedTasks.length })
       });
       
       setLabelsDialogOpen(false);
@@ -486,14 +495,13 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
       ));
     }
     
-    toast("Commentaires modifiés", {
-      description: `Les commentaires pour ${currentTask.property} ont été mis à jour.`
+    toast(t('cleaning.toast.comments.title'), {
+      description: t('cleaning.toast.comments.description', { property: currentTask.property })
     });
     
     setEditCommentsDialogOpen(false);
   };
 
-  // Nouvel handler pour la mise à jour des heures de check-in/check-out
   const handleUpdateCheckTimes = (checkoutTime: string, checkinTime: string) => {
     if (!currentTask) return;
     
@@ -526,8 +534,8 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
       checkinTime
     });
     
-    toast("Horaires mis à jour", {
-      description: `Les horaires de check-in/check-out pour ${currentTask.property} ont été mis à jour.`
+    toast(t('cleaning.toast.times.title'), {
+      description: t('cleaning.toast.times.description', { property: currentTask.property })
     });
   };
 

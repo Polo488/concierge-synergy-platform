@@ -5,9 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { CleaningTaskList } from '@/components/cleaning/CleaningTaskList';
 import { useCleaning } from '@/contexts/CleaningContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const CleaningTabs = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const { t } = useLanguage();
   
   const { 
     activeTab, 
@@ -38,9 +40,9 @@ export const CleaningTabs = () => {
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2">
       <TabsList className="grid grid-cols-3 w-full max-w-md">
-        <TabsTrigger value="today">Aujourd'hui</TabsTrigger>
-        <TabsTrigger value="tomorrow">Demain</TabsTrigger>
-        <TabsTrigger value="completed">Complétés</TabsTrigger>
+        <TabsTrigger value="today">{t('cleaning.tabs.today')}</TabsTrigger>
+        <TabsTrigger value="tomorrow">{t('cleaning.tabs.tomorrow')}</TabsTrigger>
+        <TabsTrigger value="completed">{t('cleaning.tabs.completed')}</TabsTrigger>
       </TabsList>
       
       <div className="my-4">
@@ -48,7 +50,7 @@ export const CleaningTabs = () => {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Rechercher un appartement, un agent..."
+            placeholder={t('cleaning.search.placeholder')}
             className="pl-8"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -59,7 +61,7 @@ export const CleaningTabs = () => {
       <TabsContent value="today" className="space-y-4">
         <CleaningTaskList
           tasks={filterTasks(todayCleaningTasks)}
-          emptyMessage="Aucun ménage prévu pour aujourd'hui"
+          emptyMessage={t('cleaning.empty.today')}
           labelsDialogOpen={false}
           selectedTasks={selectedTasks}
           onSelectTask={handleSelectTask}
@@ -75,7 +77,7 @@ export const CleaningTabs = () => {
       <TabsContent value="tomorrow" className="space-y-4">
         <CleaningTaskList
           tasks={filterTasks(tomorrowCleaningTasks)}
-          emptyMessage="Aucun ménage prévu pour demain"
+          emptyMessage={t('cleaning.empty.tomorrow')}
           labelsDialogOpen={false}
           selectedTasks={selectedTasks}
           onSelectTask={handleSelectTask}
@@ -91,7 +93,7 @@ export const CleaningTabs = () => {
       <TabsContent value="completed" className="space-y-4">
         <CleaningTaskList
           tasks={filterTasks(completedCleaningTasks)}
-          emptyMessage="Aucun ménage complété"
+          emptyMessage={t('cleaning.empty.completed')}
           labelsDialogOpen={false}
           selectedTasks={selectedTasks}
           onSelectTask={handleSelectTask}

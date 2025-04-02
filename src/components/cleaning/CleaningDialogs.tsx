@@ -11,8 +11,11 @@ import { EditCommentsDialog } from './EditCommentsDialog';
 import { getStatusBadgeClass, getStatusLabel } from '@/utils/cleaningUtils';
 import { Badge } from '@/components/ui/badge';
 import { CleaningStatus } from '@/types/cleaning';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const CleaningDialogs = () => {
+  const { t } = useLanguage();
+  
   const {
     // Dialog states
     assignDialogOpen,
@@ -65,7 +68,7 @@ export const CleaningDialogs = () => {
   // Fonction pour obtenir le badge de statut approprié pour l'affichage
   const getStatusBadge = (status: CleaningStatus) => {
     const badgeClass = getStatusBadgeClass(status);
-    const label = getStatusLabel(status);
+    const label = t(`status.${status}`);
     
     return (
       <Badge className={`rounded-full ${badgeClass}`}>
