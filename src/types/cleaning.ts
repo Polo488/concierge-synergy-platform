@@ -11,10 +11,10 @@ export interface CleaningTask {
   startTime: string;
   endTime: string;
   date?: string;
-  linens: string[]; // Nouvelle catégorie regroupée
+  linens: string[];
   consumables: string[];
   comments: string;
-  problems?: string[]; // Add missing problems property
+  problems: string[];
 }
 
 export interface NewCleaningTask {
@@ -24,7 +24,7 @@ export interface NewCleaningTask {
   status: CleaningStatus;
   cleaningAgent: string;
   date: string;
-  linens: string[]; // Nouvelle catégorie regroupée
+  linens: string[];
   consumables: string[];
   comments: string;
 }
