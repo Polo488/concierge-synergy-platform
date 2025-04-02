@@ -4,6 +4,7 @@ import { Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CalendarFiltersProps {
   searchQuery: string;
@@ -24,12 +25,14 @@ export const CalendarFilters = ({
   setCurrentView,
   properties
 }: CalendarFiltersProps) => {
+  const { t } = useLanguage();
+  
   return (
     <div className="flex flex-wrap gap-3 items-center justify-between">
       <div className="flex items-center gap-2 max-w-sm flex-1">
         <Search className="h-4 w-4 text-muted-foreground" />
         <Input 
-          placeholder="Rechercher un logement ou client..." 
+          placeholder={t('calendar.search.placeholder')}
           className="h-9" 
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -39,10 +42,10 @@ export const CalendarFilters = ({
       <div className="flex items-center gap-2 flex-wrap">
         <Select value={selectedProperty} onValueChange={setSelectedProperty}>
           <SelectTrigger className="w-[180px] h-9">
-            <SelectValue placeholder="Tous les logements" />
+            <SelectValue placeholder={t('calendar.all.properties')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tous les logements</SelectItem>
+            <SelectItem value="all">{t('calendar.all.properties')}</SelectItem>
             {properties.map(property => (
               <SelectItem key={property.id} value={property.id.toString()}>
                 {property.name}
@@ -58,7 +61,7 @@ export const CalendarFilters = ({
             className="h-7"
             onClick={() => setCurrentView('month')}
           >
-            Mois
+            {t('calendar.view.month')}
           </Button>
           <Button 
             size="sm" 
@@ -66,7 +69,7 @@ export const CalendarFilters = ({
             className="h-7"
             onClick={() => setCurrentView('property')}
           >
-            Logements
+            {t('calendar.view.properties')}
           </Button>
         </div>
       </div>

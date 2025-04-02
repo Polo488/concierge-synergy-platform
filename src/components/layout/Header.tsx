@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell, Search, User, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,12 +16,15 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const { language, setLanguage, t } = useLanguage();
 
-  // Add scroll event listener
-  if (typeof window !== 'undefined') {
-    window.addEventListener('scroll', () => {
+  // Add scroll event listener with cleanup
+  useEffect(() => {
+    const handleScroll = () => {
       setScrolled(window.scrollY > 10);
-    });
-  }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <header className={cn(

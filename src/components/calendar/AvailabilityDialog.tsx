@@ -36,7 +36,7 @@ export const AvailabilityDialog = ({
         {dateRange?.from && dateRange?.to ? (
           <div className="py-2">
             <p className="text-sm text-muted-foreground mb-4">
-              {t('availability.period')} {format(dateRange.from, 'dd/MM/yyyy')} au {format(dateRange.to, 'dd/MM/yyyy')} 
+              {t('availability.period')} {format(dateRange.from, 'dd/MM/yyyy')} {t('language') === 'fr' ? 'au' : 'to'} {format(dateRange.to, 'dd/MM/yyyy')} 
               ({differenceInDays(dateRange.to, dateRange.from)} {t('availability.nights')})
             </p>
             
@@ -54,11 +54,11 @@ export const AvailabilityDialog = ({
                         <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
                           <div className="flex items-center gap-1">
                             <Users className="h-3.5 w-3.5" />
-                            <span>{property.capacity} {t('property.persons')}.</span>
+                            <span>{property.capacity} {t('property.persons')}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Euro className="h-3.5 w-3.5" />
-                            <span>{property.pricePerNight}€/nuit</span>
+                            <span>{property.pricePerNight}€/{t('language') === 'fr' ? 'nuit' : 'night'}</span>
                           </div>
                         </div>
                       </div>

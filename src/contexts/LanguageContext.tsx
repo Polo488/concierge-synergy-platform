@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 type Language = 'fr' | 'en';
 
@@ -40,6 +40,7 @@ const translations: Record<Language, Record<string, string>> = {
     'calendar.book': 'Réserver',
     'calendar.details': 'Détails',
     'calendar.no.bookings': 'Aucune réservation pour cette propriété.',
+    'calendar.today': 'Aujourd\'hui',
     // Availability dialog
     'availability.title': 'Logements disponibles',
     'availability.description': 'Voici les logements disponibles pour la période sélectionnée',
@@ -52,6 +53,17 @@ const translations: Record<Language, Record<string, string>> = {
     'property.capacity': 'Capacité:',
     'property.price': 'Prix par nuit:',
     'property.persons': 'personnes',
+    // Calendar status
+    'status.confirmed': 'Confirmé',
+    'status.pending': 'En attente',
+    'status.completed': 'Terminé',
+    // Booking details
+    'booking.details': 'Détails de la réservation',
+    'booking.client': 'Client:',
+    'booking.arrival': 'Arrivée:',
+    'booking.departure': 'Départ:',
+    'booking.duration': 'Durée:',
+    'booking.nights': 'nuits',
   },
   en: {
     // Header
@@ -83,6 +95,7 @@ const translations: Record<Language, Record<string, string>> = {
     'calendar.book': 'Book',
     'calendar.details': 'Details',
     'calendar.no.bookings': 'No bookings for this property.',
+    'calendar.today': 'Today',
     // Availability dialog
     'availability.title': 'Available Accommodations',
     'availability.description': 'Here are the available accommodations for the selected period',
@@ -95,6 +108,17 @@ const translations: Record<Language, Record<string, string>> = {
     'property.capacity': 'Capacity:',
     'property.price': 'Price per night:',
     'property.persons': 'people',
+    // Calendar status
+    'status.confirmed': 'Confirmed',
+    'status.pending': 'Pending',
+    'status.completed': 'Completed',
+    // Booking details
+    'booking.details': 'Booking Details',
+    'booking.client': 'Client:',
+    'booking.arrival': 'Arrival:',
+    'booking.departure': 'Departure:',
+    'booking.duration': 'Duration:',
+    'booking.nights': 'nights',
   }
 };
 
@@ -107,7 +131,17 @@ const LanguageContext = createContext<LanguageContextType>({
 export const useLanguage = () => useContext(LanguageContext);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>('fr');
+  const [language, setLanguage] = useState<Language>(() => {
+    // Get stored language preference or default to French
+    const storedLanguage = localStorage.getItem('language');
+    return (storedLanguage as Language) || 'fr';
+  });
+
+  // Save language preference when it changes
+  useEffect(() => {
+    localStorage.setItem('language', language);
+    document.documentElement.lang = language;
+  }, [language]);
 
   const t = (key: string): string => {
     return translations[language][key] || key;
