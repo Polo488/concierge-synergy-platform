@@ -1,20 +1,18 @@
 
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-export function Layout({ children }: LayoutProps) {
+export function Layout() {
   const location = useLocation();
   const isMobile = useIsMobile();
   const { language } = useLanguage();
+  const { user } = useAuth();
   
   // Scroll to top on route change
   useEffect(() => {
@@ -37,7 +35,7 @@ export function Layout({ children }: LayoutProps) {
         <Header />
         
         <div className="container py-6 px-4 animate-fade-in">
-          {children}
+          <Outlet />
         </div>
       </main>
     </div>

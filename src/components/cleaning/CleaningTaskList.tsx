@@ -7,13 +7,14 @@ interface CleaningTaskListProps {
   emptyMessage: string;
   labelsDialogOpen: boolean;
   selectedTasks: CleaningTask[];
-  onSelectTask: (task: CleaningTask) => void;
+  onSelectTask?: (task: CleaningTask) => void;
   onStartCleaning: (task: CleaningTask) => void;
   onCompleteCleaning: (task: CleaningTask) => void;
   onOpenDetails: (task: CleaningTask) => void;
-  onAssign: (task: CleaningTask) => void;
+  onAssign?: (task: CleaningTask) => void;
   onReportProblem: (task: CleaningTask) => void;
-  onDelete: (task: CleaningTask) => void;
+  onDelete?: (task: CleaningTask) => void;
+  isCleaningAgent?: boolean;
 }
 
 export const CleaningTaskList = ({
@@ -27,7 +28,8 @@ export const CleaningTaskList = ({
   onOpenDetails,
   onAssign,
   onReportProblem,
-  onDelete
+  onDelete,
+  isCleaningAgent = false
 }: CleaningTaskListProps) => {
   return (
     <div className="space-y-2">
@@ -44,6 +46,7 @@ export const CleaningTaskList = ({
           onAssign={onAssign}
           onReportProblem={onReportProblem}
           onDelete={onDelete}
+          isCleaningAgent={isCleaningAgent}
         />
       ))}
       

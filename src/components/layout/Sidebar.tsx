@@ -14,32 +14,44 @@ import {
   ChevronRight,
   Calendar as CalendarIcon,
   Clock,
-  ShoppingCart
+  ShoppingCart,
+  Users,
+  LogOut
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type NavItem = {
   name: string;
   path: string;
   icon: React.ElementType;
+  permission: string;
 };
-
-const navItems: NavItem[] = [
-  { name: 'Tableau de bord', path: '/', icon: LayoutDashboard },
-  { name: 'Entrepôt', path: '/inventory', icon: Package },
-  { name: 'Maintenance', path: '/maintenance', icon: Wrench },
-  { name: 'Ménage', path: '/cleaning', icon: Sparkles },
-  { name: 'Calendrier', path: '/calendar', icon: CalendarIcon },
-  { name: 'Logements', path: '/properties', icon: Home },
-  { name: 'Moyenne Durée', path: '/moyenne-duree', icon: Clock },
-  { name: 'Upsell', path: '/upsell', icon: ShoppingCart },
-  { name: 'Facturation', path: '/billing', icon: Receipt },
-];
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { hasPermission, logout, user } = useAuth();
+  const { t } = useLanguage();
+  
+  const navItems: NavItem[] = [
+    { name: t('sidebar.dashboard'), path: '/', icon: LayoutDashboard, permission: 'properties' },
+    { name: t('sidebar.inventory'), path: '/inventory', icon: Package, permission: 'inventory' },
+    { name: t('sidebar.maintenance'), path: '/maintenance', icon: Wrench, permission: 'maintenance' },
+    { name: t('sidebar.cleaning'), path: '/cleaning', icon: Sparkles, permission: 'cleaning' },
+    { name: t('sidebar.calendar'), path: '/calendar', icon: CalendarIcon, permission: 'calendar' },
+    { name: t('sidebar.properties'), path: '/properties', icon: Home, permission: 'properties' },
+    { name: t('sidebar.averageDuration'), path: '/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
+    { name: t('sidebar.upsell'), path: '/upsell', icon: ShoppingCart, permission: 'upsell' },
+    { name: t('sidebar.billing'), path: '/billing', icon: Receipt, permission: 'billing' },
+  ];
+  
+  // Add users management if user has permission
+  if (hasPermission('users')) {
+    navItems.push({ name: 'Utilisateurs', path: '/users', icon: Users, permission: 'users' });
+  }
   
   // Close sidebar on mobile by default
   useEffect(() => {
@@ -56,6 +68,9 @@ export function Sidebar() {
       setIsOpen(false);
     }
   }, [location.pathname, isMobile]);
+
+  // Filter nav items based on user permissions
+  const filteredNavItems = navItems.filter(item => hasPermission(item.permission as any));
 
   return (
     <>
@@ -107,9 +122,37 @@ export function Sidebar() {
           )}
         </div>
         
+        {/* User info */}
+        {user && (
+          <div className={cn(
+            "py-3 px-4 border-b border-border/30",
+            !isOpen && "md:flex md:justify-center md:py-3"
+          )}>
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+                {user.avatar ? (
+                  <img 
+                    src={user.avatar}
+                    alt={user.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="font-medium text-primary">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div className={cn("flex-1 truncate", !isOpen && "md:hidden")}>
+                <p className="text-sm font-medium">{user.name}</p>
+                <p className="text-xs text-muted-foreground">{user.role}</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Navigation items */}
-        <nav className="flex-1 py-6 px-4 space-y-1">
-          {navItems.map((item, index) => {
+        <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
+          {filteredNavItems.map((item, index) => {
             const isActive = location.pathname === item.path;
             
             return (
@@ -145,6 +188,25 @@ export function Sidebar() {
             );
           })}
         </nav>
+        
+        {/* Logout button */}
+        <div className="px-4 pb-4">
+          <button
+            onClick={logout}
+            className={cn(
+              "flex items-center w-full px-2 py-3 rounded-lg transition-all duration-200",
+              "text-red-500 hover:bg-red-50 hover:text-red-600"
+            )}
+          >
+            <LogOut size={20} />
+            <span className={cn(
+              "ml-3 font-medium text-sm",
+              !isOpen && "md:hidden"
+            )}>
+              Déconnexion
+            </span>
+          </button>
+        </div>
         
         {/* Collapse button (desktop only) */}
         <div className="hidden md:flex border-t border-border/30 p-4 justify-center">
