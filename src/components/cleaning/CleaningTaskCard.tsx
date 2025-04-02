@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +13,14 @@ interface CleaningTaskCardProps {
   task: CleaningTask;
   labelsDialogOpen: boolean;
   isTaskSelected: boolean;
-  onSelectTask: (task: CleaningTask) => void;
+  onSelectTask?: (task: CleaningTask) => void;
   onStartCleaning: (task: CleaningTask) => void;
   onCompleteCleaning: (task: CleaningTask) => void;
   onOpenDetails: (task: CleaningTask) => void;
-  onAssign: (task: CleaningTask) => void;
+  onAssign?: (task: CleaningTask) => void;
   onReportProblem: (task: CleaningTask) => void;
-  onDelete: (task: CleaningTask) => void;
+  onDelete?: (task: CleaningTask) => void;
+  isCleaningAgent?: boolean; // Add the missing property
 }
 
 export const CleaningTaskCard = ({
@@ -31,7 +33,8 @@ export const CleaningTaskCard = ({
   onOpenDetails,
   onAssign,
   onReportProblem,
-  onDelete
+  onDelete,
+  isCleaningAgent = false
 }: CleaningTaskCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   

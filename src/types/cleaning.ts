@@ -14,6 +14,7 @@ export interface CleaningTask {
   linens: string[]; // Nouvelle catégorie regroupée
   consumables: string[];
   comments: string;
+  problems?: string[]; // Add missing problems property
 }
 
 export interface NewCleaningTask {

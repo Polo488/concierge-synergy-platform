@@ -27,7 +27,7 @@ const Cleaning = () => {
         
         <DashboardCard 
           title={isCleaningAgent ? t('cleaning.agent.title') : t('cleaning.planning.title')}
-          description={isCleaningAgent ? t('cleaning.agent.description') : undefined}
+          subtitle={isCleaningAgent ? t('cleaning.agent.description') : undefined}
         >
           <CleaningTabs initialTab={isCleaningAgent ? 'today' : undefined} />
         </DashboardCard>

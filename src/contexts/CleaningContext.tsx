@@ -247,7 +247,7 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     
     setTodayCleaningTasks(updatedTasks);
     
-    toast(t('cleaning.toast.started.title'), {
+    toast.success(t('cleaning.toast.started.title'), {
       description: t('cleaning.toast.started.description', { property: task.property })
     });
   };
@@ -266,7 +266,7 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     
     setCompletedCleaningTasks([completedTask, ...completedCleaningTasks]);
     
-    toast(t('cleaning.toast.completed.title'), {
+    toast.success(t('cleaning.toast.completed.title'), {
       description: t('cleaning.toast.completed.description', { property: task.property })
     });
   };
@@ -300,7 +300,7 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
 
     setAssignDialogOpen(false);
     
-    toast(t('cleaning.toast.agent.title'), {
+    toast.success(t('cleaning.toast.agent.title'), {
       description: t('cleaning.toast.agent.description', {
         agent: selectedAgent === "non_assigne" ? t('cleaning.no.agent') : selectedAgent,
         property: currentTask.property
@@ -327,13 +327,13 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
   };
 
   const handleExport = () => {
-    toast(t('cleaning.toast.export.title'), {
+    toast.success(t('cleaning.toast.export.title'), {
       description: t('cleaning.toast.export.description')
     });
   };
 
   const handleSync = () => {
-    toast(t('cleaning.toast.sync.title'), {
+    toast.success(t('cleaning.toast.sync.title'), {
       description: t('cleaning.toast.sync.description')
     });
   };
@@ -351,7 +351,7 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
       } else if (isSameDay(date, addDays(new Date(), 1))) {
         setActiveTab("tomorrow");
       } else {
-        toast(t('cleaning.toast.date.title'), {
+        toast.success(t('cleaning.toast.date.title'), {
           description: t('cleaning.toast.date.description', {
             date: format(date, 'dd MMMM yyyy', { locale: dateLocale })
           })
@@ -421,7 +421,7 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     
     setAddTaskDialogOpen(false);
     
-    toast(t('cleaning.toast.added.title'), {
+    toast.success(t('cleaning.toast.added.title'), {
       description: t('cleaning.toast.added.description', { property: taskToAdd.property })
     });
   };
@@ -461,7 +461,7 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     import('@/utils/cleaningUtils').then(({ generateLabelsPrintWindow }) => {
       generateLabelsPrintWindow(selectedTasks);
       
-      toast(t('cleaning.toast.labels.success.title'), {
+      toast.success(t('cleaning.toast.labels.success.title'), {
         description: t('cleaning.toast.labels.success.description', { count: selectedTasks.length })
       });
       
@@ -495,7 +495,7 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
       ));
     }
     
-    toast(t('cleaning.toast.comments.title'), {
+    toast.success(t('cleaning.toast.comments.title'), {
       description: t('cleaning.toast.comments.description', { property: currentTask.property })
     });
     
@@ -534,7 +534,7 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
       checkinTime
     });
     
-    toast(t('cleaning.toast.times.title'), {
+    toast.success(t('cleaning.toast.times.title'), {
       description: t('cleaning.toast.times.description', { property: currentTask.property })
     });
   };
