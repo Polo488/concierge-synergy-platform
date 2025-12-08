@@ -43,32 +43,36 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   const cellWidth = 40;
   const halfCell = cellWidth / 2;
   
-  // Calculate width and position
-  // visibleDays = number of nights = distance from check-in to check-out
-  // The block spans from middle of check-in cell to middle of check-out cell
-  let width = visibleDays * cellWidth;
+  // visibleDays = number of nights (e.g., 5 nights from Dec 6 to Dec 11)
+  // Block goes from middle of check-in cell to middle of check-out cell
+  // Width calculation:
+  // - Full cells between check-in and check-out: (visibleDays - 1) cells = (visibleDays - 1) * 40px
+  // - Right half of check-in cell: 20px (if visible)
+  // - Left half of check-out cell: 20px (if visible)
+  
+  let width: number;
   let leftOffset = 0;
   
-  // Check-in day: start from right half of cell (shift right by half cell)
-  if (isCheckInDay && !isStartTruncated) {
+  const hasVisibleCheckIn = isCheckInDay && !isStartTruncated;
+  const hasVisibleCheckOut = isCheckOutDay && !isEndTruncated;
+  
+  if (hasVisibleCheckIn && hasVisibleCheckOut) {
+    // Both ends visible: middle to middle
+    // = halfCell + (visibleDays - 1) * cellWidth + halfCell = visibleDays * cellWidth
+    width = visibleDays * cellWidth;
     leftOffset = halfCell;
-    // DON'T reduce width - we just shift the start position
-  }
-  
-  // Check-out day: the width already accounts for reaching the checkout cell
-  // If start is truncated but end is not, we need to add half cell to reach middle of checkout
-  if (isCheckOutDay && !isEndTruncated) {
-    if (isStartTruncated || !isCheckInDay) {
-      // Started from edge (0), need to extend to middle of checkout
-      width += halfCell;
-    }
-    // If check-in is visible, width is already correct (middle to middle)
-  }
-  
-  // If checkout is truncated (extends beyond view), extend to edge
-  if (isEndTruncated && isCheckInDay && !isStartTruncated) {
-    // Started from middle, extend to edge of last visible cell
-    // No adjustment needed - visibleDays already goes to edge
+  } else if (hasVisibleCheckIn && !hasVisibleCheckOut) {
+    // Check-in visible, checkout truncated: middle to right edge
+    width = visibleDays * cellWidth - halfCell;
+    leftOffset = halfCell;
+  } else if (!hasVisibleCheckIn && hasVisibleCheckOut) {
+    // Check-in truncated, checkout visible: left edge to middle
+    width = visibleDays * cellWidth + halfCell;
+    leftOffset = 0;
+  } else {
+    // Both truncated: edge to edge
+    width = visibleDays * cellWidth;
+    leftOffset = 0;
   }
 
   // Determine bevel configuration
