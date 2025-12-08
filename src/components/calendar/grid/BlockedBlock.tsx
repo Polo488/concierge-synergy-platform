@@ -35,50 +35,47 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
     width -= 20;
   }
 
+  const hasLeftBevel = isStartDay && !isStartTruncated;
+  const hasRightBevel = isEndDay && !isEndTruncated;
+
+  const truncateReason = (reason: string | undefined, maxLength: number = 10): string => {
+    const text = reason || 'Bloqué';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength - 1) + '…';
+  };
+
   return (
     <div
       className={cn(
-        "absolute top-1 bottom-1 z-10 flex items-center gap-1.5 px-2",
-        "bg-zinc-700 dark:bg-zinc-600"
+        "absolute top-0.5 bottom-0.5 z-10 flex items-center gap-1 px-1.5",
+        "bg-zinc-500 dark:bg-zinc-600"
       )}
       style={{
-        width: `${Math.max(width - 2, 20)}px`,
-        left: `${leftOffset + 1}px`,
-        clipPath: getBevelClipPath(isStartDay && !isStartTruncated, isEndDay && !isEndTruncated),
-        borderRadius: getBevelBorderRadius(isStartTruncated, isEndTruncated, isStartDay, isEndDay),
+        width: `${Math.max(width, 20)}px`,
+        left: `${leftOffset}px`,
+        clipPath: getBevelClipPath(hasLeftBevel, hasRightBevel),
+        borderRadius: '8px',
       }}
       title={blocked.reason || 'Bloqué'}
     >
       <Ban className="w-3 h-3 text-white/80 flex-shrink-0" />
       <span className="text-xs font-medium text-white/90 truncate">
-        {blocked.reason || 'Bloqué'}
+        {visibleDays > 1 ? truncateReason(blocked.reason) : ''}
       </span>
     </div>
   );
 };
 
 function getBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean): string {
-  const bevelSize = '30%';
+  const bevelPx = '10px';
   
   if (hasLeftBevel && hasRightBevel) {
-    return `polygon(${bevelSize} 0%, 100% 0%, calc(100% - ${bevelSize}) 100%, 0% 100%)`;
+    return `polygon(${bevelPx} 0%, calc(100% - ${bevelPx}) 0%, 100% 50%, calc(100% - ${bevelPx}) 100%, ${bevelPx} 100%, 0% 50%)`;
   } else if (hasLeftBevel) {
-    return `polygon(${bevelSize} 0%, 100% 0%, 100% 100%, 0% 100%)`;
+    return `polygon(${bevelPx} 0%, 100% 0%, 100% 100%, ${bevelPx} 100%, 0% 50%)`;
   } else if (hasRightBevel) {
-    return `polygon(0% 0%, 100% 0%, calc(100% - ${bevelSize}) 100%, 0% 100%)`;
+    return `polygon(0% 0%, calc(100% - ${bevelPx}) 0%, 100% 50%, calc(100% - ${bevelPx}) 100%, 0% 100%)`;
   }
   
   return 'none';
-}
-
-function getBevelBorderRadius(
-  isStartTruncated: boolean, 
-  isEndTruncated: boolean,
-  isStartDay: boolean,
-  isEndDay: boolean
-): string {
-  const leftRadius = isStartTruncated ? '0' : (isStartDay ? '0' : '6px');
-  const rightRadius = isEndTruncated ? '0' : (isEndDay ? '0' : '6px');
-  
-  return `${leftRadius} ${rightRadius} ${rightRadius} ${leftRadius}`;
 }

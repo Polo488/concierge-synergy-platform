@@ -2,7 +2,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import type { CalendarBooking } from '@/types/calendar';
-import { CHANNEL_COLORS } from '@/types/calendar';
 import { ChannelIcon } from './ChannelIcon';
 
 interface BookingBlockProps {
@@ -16,6 +15,18 @@ interface BookingBlockProps {
   onClick: () => void;
 }
 
+// Channel colors for active bookings
+const ACTIVE_CHANNEL_COLORS: Record<string, string> = {
+  airbnb: '#FF5A5F',    // Rouge Airbnb
+  booking: '#003580',   // Bleu Booking
+  vrbo: '#3D67B1',
+  direct: '#10B981',
+  other: '#6B7280',
+};
+
+// Past bookings are gray
+const PAST_COLOR = '#9CA3AF';
+
 export const BookingBlock: React.FC<BookingBlockProps> = ({
   booking,
   visibleDays,
@@ -26,14 +37,10 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   isPast,
   onClick,
 }) => {
-  const channelColor = CHANNEL_COLORS[booking.channel];
+  // Use gray for past bookings, otherwise channel color
+  const backgroundColor = isPast ? PAST_COLOR : (ACTIVE_CHANNEL_COLORS[booking.channel] || ACTIVE_CHANNEL_COLORS.other);
   
   // Calculate width: each full day is 40px
-  // Check-in day starts at half cell (right half) = position at 20px, width starts from there
-  // Check-out day ends at half cell (left half) = width ends at 20px into that day
-  // Full booking width = (visibleDays * 40) - 20 (for check-in half) - 20 (for check-out half) = (visibleDays - 1) * 40
-  // But we need to account for truncation
-  
   let width = visibleDays * 40;
   let leftOffset = 0;
   
@@ -48,6 +55,35 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
     width -= 20;
   }
 
+  // Determine bevel configuration
+  const hasLeftBevel = isCheckInDay && !isStartTruncated;
+  const hasRightBevel = isCheckOutDay && !isEndTruncated;
+
+  // Truncate guest name intelligently
+  const truncateName = (name: string, maxLength: number = 12): string => {
+    if (!name) return '...';
+    if (name.length <= maxLength) return name;
+    return name.substring(0, maxLength - 1) + '…';
+  };
+
+  // Get display name based on available width
+  const getDisplayName = (): string => {
+    if (visibleDays <= 1) {
+      // Very short: just initials
+      const parts = booking.guestName?.split(' ') || [];
+      if (parts.length >= 2) {
+        return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+      }
+      return booking.guestName?.[0]?.toUpperCase() || '?';
+    } else if (visibleDays <= 2) {
+      // Short: truncated name
+      return truncateName(booking.guestName, 8);
+    } else if (visibleDays <= 4) {
+      return truncateName(booking.guestName, 12);
+    }
+    return truncateName(booking.guestName, 18);
+  };
+
   return (
     <div
       onClick={(e) => {
@@ -55,25 +91,23 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
         onClick();
       }}
       className={cn(
-        "absolute top-1 bottom-1 z-10 flex items-center gap-1.5 px-2 cursor-pointer transition-all",
-        "hover:brightness-110 hover:shadow-lg",
-        isPast && "opacity-60"
+        "absolute top-0.5 bottom-0.5 z-10 flex items-center gap-1 px-1.5 cursor-pointer transition-all",
+        "hover:brightness-110 hover:shadow-md"
       )}
       style={{
-        width: `${Math.max(width - 2, 20)}px`,
-        backgroundColor: channelColor,
-        left: `${leftOffset + 1}px`,
-        // Beveled corners for check-in (left bevel) and check-out (right bevel)
-        clipPath: getBevelClipPath(isCheckInDay && !isStartTruncated, isCheckOutDay && !isEndTruncated),
-        borderRadius: getBevelBorderRadius(isStartTruncated, isEndTruncated, isCheckInDay, isCheckOutDay),
+        width: `${Math.max(width, 20)}px`,
+        backgroundColor,
+        left: `${leftOffset}px`,
+        clipPath: getBevelClipPath(hasLeftBevel, hasRightBevel),
+        borderRadius: '8px',
       }}
-      title={`${booking.guestName} - ${booking.nightlyRate}€/nuit`}
+      title={`${booking.guestName} - ${booking.nightlyRate ? `${booking.nightlyRate}€/nuit` : ''}`}
     >
-      <ChannelIcon channel={booking.channel} className="w-4 h-4 flex-shrink-0 text-white/90" />
-      <span className="text-xs font-medium text-white truncate">
-        {booking.guestName}
+      <ChannelIcon channel={booking.channel} className="w-3.5 h-3.5 flex-shrink-0 text-white/90" />
+      <span className="text-xs font-medium text-white truncate flex-1 min-w-0">
+        {getDisplayName()}
       </span>
-      {booking.nightlyRate && visibleDays > 2 && (
+      {booking.nightlyRate && visibleDays > 3 && (
         <span className="text-[10px] text-white/80 flex-shrink-0">
           {booking.nightlyRate}€
         </span>
@@ -84,33 +118,20 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
 
 // Creates a beveled/diagonal clip path for check-in (left bevel) and check-out (right bevel)
 function getBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean): string {
-  // Bevel size as percentage - creates diagonal cut
-  const bevelSize = '30%';
+  // Bevel size in pixels (approximately 8-10px visual effect)
+  const bevelPx = '10px';
   
   if (hasLeftBevel && hasRightBevel) {
     // Both bevels: diagonal on both sides
-    return `polygon(${bevelSize} 0%, 100% 0%, calc(100% - ${bevelSize}) 100%, 0% 100%)`;
+    return `polygon(${bevelPx} 0%, calc(100% - ${bevelPx}) 0%, 100% 50%, calc(100% - ${bevelPx}) 100%, ${bevelPx} 100%, 0% 50%)`;
   } else if (hasLeftBevel) {
-    // Only left bevel (check-in): diagonal on left side
-    return `polygon(${bevelSize} 0%, 100% 0%, 100% 100%, 0% 100%)`;
+    // Only left bevel (check-in): pointed left side
+    return `polygon(${bevelPx} 0%, 100% 0%, 100% 100%, ${bevelPx} 100%, 0% 50%)`;
   } else if (hasRightBevel) {
-    // Only right bevel (check-out): diagonal on right side
-    return `polygon(0% 0%, 100% 0%, calc(100% - ${bevelSize}) 100%, 0% 100%)`;
+    // Only right bevel (check-out): pointed right side
+    return `polygon(0% 0%, calc(100% - ${bevelPx}) 0%, 100% 50%, calc(100% - ${bevelPx}) 100%, 0% 100%)`;
   }
   
-  // No bevel needed
+  // No bevel - straight edges
   return 'none';
-}
-
-function getBevelBorderRadius(
-  isStartTruncated: boolean, 
-  isEndTruncated: boolean,
-  isCheckInDay: boolean,
-  isCheckOutDay: boolean
-): string {
-  // Only add rounded corners when truncated (block extends beyond visible area)
-  const leftRadius = isStartTruncated ? '0' : (isCheckInDay ? '0' : '6px');
-  const rightRadius = isEndTruncated ? '0' : (isCheckOutDay ? '0' : '6px');
-  
-  return `${leftRadius} ${rightRadius} ${rightRadius} ${leftRadius}`;
 }
