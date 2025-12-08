@@ -67,14 +67,14 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
 };
 
 function getBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean): string {
-  const cut = '20px';
+  const cut = '8px';
   
   if (hasLeftBevel && hasRightBevel) {
-    return `polygon(${cut} 0%, calc(100% - ${cut}) 0%, 100% 50%, calc(100% - ${cut}) 100%, ${cut} 100%, 0% 50%)`;
+    return `polygon(${cut} 0%, calc(100% - ${cut}) 0%, 100% 100%, ${cut} 100%)`;
   } else if (hasLeftBevel) {
-    return `polygon(${cut} 0%, 100% 0%, 100% 100%, ${cut} 100%, 0% 50%)`;
+    return `polygon(${cut} 0%, 100% 0%, 100% 100%, 0% 100%)`;
   } else if (hasRightBevel) {
-    return `polygon(0% 0%, calc(100% - ${cut}) 0%, 100% 50%, calc(100% - ${cut}) 100%, 0% 100%)`;
+    return `polygon(0% 0%, calc(100% - ${cut}) 0%, 100% 100%, 0% 100%)`;
   }
   
   return 'none';
