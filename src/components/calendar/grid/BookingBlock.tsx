@@ -119,22 +119,22 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   );
 };
 
-// Creates arrow-shaped diagonal cut for check-in (left) and check-out (right)
+// Creates simple diagonal corner cuts (not arrow/hexagonal)
 function getBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean): string {
-  // Arrow cut size - proportional to half block height for ~45° angle
-  const cut = '20px';
+  // Small corner cut size
+  const cut = '8px';
   
   if (hasLeftBevel && hasRightBevel) {
-    // Both cuts: arrow on both ends (short booking same day)
-    return `polygon(${cut} 0%, calc(100% - ${cut}) 0%, 100% 50%, calc(100% - ${cut}) 100%, ${cut} 100%, 0% 50%)`;
+    // Both corners cut: parallelogram shape
+    return `polygon(${cut} 0%, calc(100% - ${cut}) 0%, 100% 100%, ${cut} 100%)`;
   } else if (hasLeftBevel) {
-    // Only left arrow (check-in): pointed left, straight right
-    return `polygon(${cut} 0%, 100% 0%, 100% 100%, ${cut} 100%, 0% 50%)`;
+    // Left diagonal: top-left corner cut, straight right side
+    return `polygon(${cut} 0%, 100% 0%, 100% 100%, 0% 100%)`;
   } else if (hasRightBevel) {
-    // Only right arrow (check-out): straight left, pointed right
-    return `polygon(0% 0%, calc(100% - ${cut}) 0%, 100% 50%, calc(100% - ${cut}) 100%, 0% 100%)`;
+    // Right diagonal: straight left, top-right corner cut
+    return `polygon(0% 0%, calc(100% - ${cut}) 0%, 100% 100%, 0% 100%)`;
   }
   
-  // No bevel - straight edges (truncated booking spanning outside view)
+  // No bevel - straight rectangle
   return 'none';
 }
