@@ -48,13 +48,13 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
     <div
       className={cn(
         "absolute top-0.5 bottom-0.5 z-10 flex items-center gap-1 px-1.5",
-        "bg-zinc-500 dark:bg-zinc-600"
+        "bg-zinc-400 dark:bg-zinc-500"
       )}
       style={{
         width: `${Math.max(width, 20)}px`,
         left: `${leftOffset}px`,
         clipPath: getBevelClipPath(hasLeftBevel, hasRightBevel),
-        borderRadius: '8px',
+        borderRadius: hasLeftBevel && hasRightBevel ? '0' : hasLeftBevel ? '0 6px 6px 0' : hasRightBevel ? '6px 0 0 6px' : '6px',
       }}
       title={blocked.reason || 'Bloqué'}
     >
@@ -67,7 +67,7 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
 };
 
 function getBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean): string {
-  const cut = '12px';
+  const cut = '20px';
   
   if (hasLeftBevel && hasRightBevel) {
     return `polygon(${cut} 0%, calc(100% - ${cut}) 0%, 100% 50%, calc(100% - ${cut}) 100%, ${cut} 100%, 0% 50%)`;

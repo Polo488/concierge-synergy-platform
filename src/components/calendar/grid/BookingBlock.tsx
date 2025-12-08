@@ -97,7 +97,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
         backgroundColor,
         left: `${leftOffset}px`,
         clipPath: getBevelClipPath(hasLeftBevel, hasRightBevel),
-        borderRadius: '8px',
+        borderRadius: hasLeftBevel && hasRightBevel ? '0' : hasLeftBevel ? '0 6px 6px 0' : hasRightBevel ? '6px 0 0 6px' : '6px',
       }}
       title={`${booking.guestName} - ${booking.nightlyRate ? `${booking.nightlyRate}€/nuit` : ''}`}
     >
@@ -119,22 +119,22 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   );
 };
 
-// Creates sharp diagonal cut for check-in (left) and check-out (right)
+// Creates arrow-shaped diagonal cut for check-in (left) and check-out (right)
 function getBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean): string {
-  // Sharp 45° diagonal cut - approximately half the block height
-  const cut = '12px';
+  // Arrow cut size - proportional to half block height for ~45° angle
+  const cut = '20px';
   
   if (hasLeftBevel && hasRightBevel) {
-    // Both cuts: diagonal on both ends
+    // Both cuts: arrow on both ends (short booking same day)
     return `polygon(${cut} 0%, calc(100% - ${cut}) 0%, 100% 50%, calc(100% - ${cut}) 100%, ${cut} 100%, 0% 50%)`;
   } else if (hasLeftBevel) {
-    // Only left cut (check-in): diagonal left, straight right
+    // Only left arrow (check-in): pointed left, straight right
     return `polygon(${cut} 0%, 100% 0%, 100% 100%, ${cut} 100%, 0% 50%)`;
   } else if (hasRightBevel) {
-    // Only right cut (check-out): straight left, diagonal right
+    // Only right arrow (check-out): straight left, pointed right
     return `polygon(0% 0%, calc(100% - ${cut}) 0%, 100% 50%, calc(100% - ${cut}) 100%, 0% 100%)`;
   }
   
-  // No bevel - straight edges (truncated booking)
+  // No bevel - straight edges (truncated booking spanning outside view)
   return 'none';
 }
