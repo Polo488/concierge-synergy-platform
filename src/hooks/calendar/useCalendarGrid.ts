@@ -20,22 +20,22 @@ const generateMockProperties = (): CalendarProperty[] => [
 const generateMockBookings = (): CalendarBooking[] => {
   const today = startOfDay(new Date());
   
-  // Create specific test dates for December 2024
-  const dec6 = new Date(2024, 11, 6); // December 6, 2024
-  const dec11 = new Date(2024, 11, 11); // December 11, 2024
-  const dec13 = new Date(2024, 11, 13); // December 13, 2024
-  const dec15 = new Date(2024, 11, 15); // December 15, 2024
-  const dec20 = new Date(2024, 11, 20); // December 20, 2024
+  // Create specific test dates for December 2025 - consecutive bookings test
+  const dec6 = new Date(2025, 11, 6); // December 6, 2025
+  const dec11 = new Date(2025, 11, 11); // December 11, 2025
+  const dec13 = new Date(2025, 11, 13); // December 13, 2025
+  const dec15 = new Date(2025, 11, 15); // December 15, 2025
+  const dec20 = new Date(2025, 11, 20); // December 20, 2025
   
   return [
-    // Test consecutive bookings on property 1: Dec 6-11 then Dec 11-13
+    // Test consecutive bookings on property 1: Dec 6-11 then Dec 11-13 (same day checkout/checkin)
     { id: 100, propertyId: 1, guestName: 'Pierre Durand', checkIn: dec6, checkOut: dec11, status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 475 },
     { id: 101, propertyId: 1, guestName: 'Marie Lambert', checkIn: dec11, checkOut: dec13, status: 'confirmed', channel: 'booking', nightlyRate: 95, guestsCount: 3, totalAmount: 190 },
     
-    // More test bookings
+    // Another booking after
     { id: 102, propertyId: 1, guestName: 'Jacques Martin', checkIn: dec15, checkOut: dec20, status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 475 },
     
-    // Other properties
+    // Other properties with relative dates
     { id: 1, propertyId: 2, guestName: 'Martin Dupont', checkIn: addDays(today, -2), checkOut: addDays(today, 3), status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 475 },
     { id: 2, propertyId: 2, guestName: 'Sophie Martin', checkIn: addDays(today, 3), checkOut: addDays(today, 7), status: 'confirmed', channel: 'booking', nightlyRate: 65, guestsCount: 2, totalAmount: 260 },
     { id: 3, propertyId: 3, guestName: 'Jean Durand', checkIn: addDays(today, 4), checkOut: addDays(today, 10), status: 'confirmed', channel: 'airbnb', nightlyRate: 85, guestsCount: 3, totalAmount: 510 },
