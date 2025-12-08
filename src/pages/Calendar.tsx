@@ -1,283 +1,146 @@
 
-import { useState } from 'react';
-import { Calendar as CalendarIcon, MapPin, Plus } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
-import { cn } from "@/lib/utils"
-import { DailyCalendar } from '@/components/calendar/DailyCalendar';
-import { BookingDialog } from '@/components/calendar/BookingDialog';
-import { BookingDetailsDialog } from '@/components/calendar/BookingDetailsDialog';
-import { AvailabilityDialog } from '@/components/calendar/AvailabilityDialog';
-import { useCalendarData } from '@/hooks/useCalendarData';
-import { Booking, DateRange } from '@/hooks/calendar/types';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
+import { useCalendarGrid } from '@/hooks/calendar/useCalendarGrid';
+import { CalendarGrid } from '@/components/calendar/grid/CalendarGrid';
+import { CalendarToolbar } from '@/components/calendar/grid/CalendarToolbar';
+import { BookingDetailsSheet } from '@/components/calendar/dialogs/BookingDetailsSheet';
+import { NewBookingDialog } from '@/components/calendar/dialogs/NewBookingDialog';
+import type { CalendarBooking } from '@/types/calendar';
 
 const CalendarPage = () => {
   const {
     properties,
+    filteredProperties,
     bookings,
-    filteredBookings,
+    blockedPeriods,
+    dailyPrices,
     currentDate,
-    navigateMonth,
-    selectedProperty,
-    setSelectedProperty,
-    searchQuery,
-    setSearchQuery,
-    currentMonthDays,
-    dateRange,
-    setDateRange,
-    availableProperties,
-    findAvailableProperties,
-    addBooking,
-    setBookings
-  } = useCalendarData();
+    visibleDays,
+    navigateWeeks,
+    goToToday,
+    filters,
+    setFilters,
+    getBookingsForProperty,
+    getBlockedForProperty,
+    isSyncing,
+    lastSyncTime,
+    syncData,
+  } = useCalendarGrid(90); // Show 90 days
 
-  const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
-  const [isBookingDetailsDialogOpen, setIsBookingDetailsDialogOpen] = useState(false);
-  const [isAvailabilityDialogOpen, setIsAvailabilityDialogOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [view, setView] = useState<'month' | 'properties'>('month');
+  // Dialog states
+  const [selectedBooking, setSelectedBooking] = useState<CalendarBooking | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isNewBookingOpen, setIsNewBookingOpen] = useState(false);
+  const [preselectedPropertyId, setPreselectedPropertyId] = useState<number | undefined>();
+  const [preselectedDate, setPreselectedDate] = useState<Date | undefined>();
 
-  // Function to handle adding a new booking
+  // Layers state
+  const [layers, setLayers] = useState({
+    showCleaning: false,
+    showMaintenance: false,
+  });
+
+  // Handle booking click
+  const handleBookingClick = (booking: CalendarBooking) => {
+    setSelectedBooking(booking);
+    setIsDetailsOpen(true);
+  };
+
+  // Handle empty cell click - open new booking dialog
+  const handleCellClick = (date: Date, propertyId: number) => {
+    setPreselectedPropertyId(propertyId);
+    setPreselectedDate(date);
+    setIsNewBookingOpen(true);
+  };
+
+  // Handle add booking button
   const handleAddBooking = () => {
-    setIsBookingDialogOpen(true);
+    setPreselectedPropertyId(undefined);
+    setPreselectedDate(undefined);
+    setIsNewBookingOpen(true);
   };
 
-  // Function to handle booking click
-  const handleBookingClick = (booking: Booking) => {
-    setSelectedBooking(booking);
-    setIsBookingDetailsDialogOpen(true);
+  // Handle new booking submit
+  const handleNewBookingSubmit = (bookingData: Omit<CalendarBooking, 'id'>) => {
+    // In a real app, this would call an API
+    console.log('New booking:', bookingData);
+    toast.success('Réservation créée avec succès');
   };
 
-  // Function to handle editing a booking
-  const handleEditBooking = (booking: Booking) => {
-    setSelectedBooking(booking);
-    setIsBookingDialogOpen(true);
+  // Handle sync
+  const handleSync = async () => {
+    await syncData();
+    toast.success('Synchronisation terminée');
   };
 
-  // Function to handle deleting a booking
-  const handleDeleteBooking = (booking: Booking) => {
-    // Implement your delete logic here
-    console.log('Delete booking', booking);
-  };
-
-  // Handle date range change for availability check
-  const handleDateRangeChange = (range: { from?: Date; to?: Date } | undefined) => {
-    if (!range) {
-      setDateRange(undefined);
-      return;
-    }
-    
-    if (!range.from) {
-      setDateRange(undefined);
-      return;
-    }
-    
-    const newDateRange: DateRange = {
-      from: range.from,
-      to: range.to
-    };
-    
-    setDateRange(newDateRange);
-    
-    if (newDateRange.from && newDateRange.to) {
-      findAvailableProperties(newDateRange);
-    }
-  };
-  
-  // Open the availability dialog with date selection
-  const handleCheckAvailability = () => {
-    setIsAvailabilityDialogOpen(true);
-  };
-  
-  // Toggle between month and property views
-  const toggleView = () => {
-    setView(view === 'month' ? 'properties' : 'month');
-  };
+  // Get property for selected booking
+  const selectedProperty = selectedBooking 
+    ? properties.find(p => p.id === selectedBooking.propertyId)
+    : undefined;
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="mb-8 flex items-center justify-between">
-        <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight">Calendrier</h2>
-          <p className="text-sm text-muted-foreground">
-            Suivez les réservations et la disponibilité de vos propriétés.
-          </p>
-        </div>
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" onClick={toggleView}>
-            Basculer vers la vue {view === 'month' ? 'Propriétés' : 'Mois'}
-          </Button>
-          <Button onClick={handleAddBooking}>
-            <Plus className="mr-2 h-4 w-4" />
-            Ajouter une réservation
-          </Button>
-        </div>
+    <div className="h-full flex flex-col gap-6 p-6">
+      {/* Page header */}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight">Planning</h1>
+        <p className="text-muted-foreground">
+          Visualisez et gérez les réservations de tous vos logements
+        </p>
       </div>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Filtres</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <Label htmlFor="property">Propriété</Label>
-            <Select value={selectedProperty} onValueChange={setSelectedProperty}>
-              <SelectTrigger>
-                <SelectValue placeholder="Toutes les propriétés" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les propriétés</SelectItem>
-                {properties.map((property) => (
-                  <SelectItem key={property.id} value={property.id.toString()}>
-                    {property.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="search">Recherche</Label>
-            <Input
-              id="search"
-              placeholder="Rechercher un client..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Disponibilité</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !dateRange?.from && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateRange?.from ? (
-                    dateRange.to ? (
-                      `${format(dateRange.from, "dd/MM/yyyy")} - ${format(dateRange.to, "dd/MM/yyyy")}`
-                    ) : (
-                      format(dateRange.from, "dd/MM/yyyy")
-                    )
-                  ) : (
-                    <span>Sélectionner une date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="center">
-                <Calendar
-                  mode="range"
-                  defaultMonth={currentDate}
-                  selected={dateRange ? { from: dateRange.from, to: dateRange.to } : undefined}
-                  onSelect={handleDateRangeChange}
-                  numberOfMonths={2}
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-            <Button size="sm" className="ml-auto mt-2 block" onClick={handleCheckAvailability}>
-              Vérifier la disponibilité
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Toolbar */}
+      <CalendarToolbar
+        currentDate={currentDate}
+        filters={filters}
+        onFiltersChange={setFilters}
+        onNavigate={navigateWeeks}
+        onGoToToday={goToToday}
+        onAddBooking={handleAddBooking}
+        onSync={handleSync}
+        isSyncing={isSyncing}
+        lastSyncTime={lastSyncTime}
+        layers={layers}
+        onLayersChange={setLayers}
+      />
 
-      {view === 'month' ? (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Button onClick={() => navigateMonth('prev')} variant="ghost">Précédent</Button>
-            <CardTitle className="text-2xl font-semibold tracking-tight">{format(currentDate, 'MMMM yyyy')}</CardTitle>
-            <Button onClick={() => navigateMonth('next')} variant="ghost">Suivant</Button>
-          </CardHeader>
-          <CardContent className="pl-2 pr-2 relative">
-            <DailyCalendar
-              bookings={filteredBookings}
-              days={currentMonthDays}
-              properties={properties}
-              onBookingClick={handleBookingClick}
-            />
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {properties.map((property) => (
-            <Card key={property.id}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  {property.name}
-                  {property.floor && (
-                    <Badge variant="secondary">
-                      <MapPin className="mr-1 h-3 w-3" />
-                      {property.floor}
-                    </Badge>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <p>Capacité: {property.capacity} personnes</p>
-                  <p>Prix par nuit: {property.pricePerNight}€</p>
-                  {filteredBookings.filter(booking => booking.propertyId === property.id).length > 0 ? (
-                    <ul>
-                      {filteredBookings.filter(booking => booking.propertyId === property.id).map(booking => (
-                        <li key={booking.id} className="flex items-center justify-between">
-                          {booking.guestName}
-                          <Badge>{format(booking.checkIn, 'dd/MM')} - {format(booking.checkOut, 'dd/MM')}</Badge>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-muted-foreground">Aucune réservation pour cette propriété.</p>
-                  )}
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button size="sm" onClick={() => handleAddBooking()}>
-                  Réserver
-                </Button>
-                <Button size="sm" variant="outline">
-                  Détails
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      )}
+      {/* Calendar Grid */}
+      <CalendarGrid
+        properties={filteredProperties}
+        days={visibleDays}
+        dailyPrices={dailyPrices}
+        getBookingsForProperty={getBookingsForProperty}
+        getBlockedForProperty={getBlockedForProperty}
+        onBookingClick={handleBookingClick}
+        onCellClick={handleCellClick}
+      />
 
-      <BookingDialog
-        open={isBookingDialogOpen}
-        onOpenChange={setIsBookingDialogOpen}
+      {/* Booking Details Sheet */}
+      <BookingDetailsSheet
+        booking={selectedBooking}
+        property={selectedProperty}
+        open={isDetailsOpen}
+        onOpenChange={setIsDetailsOpen}
+        onEdit={(booking) => {
+          setIsDetailsOpen(false);
+          // Handle edit
+          toast.info('Fonction de modification à venir');
+        }}
+        onDelete={(booking) => {
+          setIsDetailsOpen(false);
+          // Handle delete
+          toast.info('Fonction de suppression à venir');
+        }}
+      />
+
+      {/* New Booking Dialog */}
+      <NewBookingDialog
+        open={isNewBookingOpen}
+        onOpenChange={setIsNewBookingOpen}
         properties={properties}
-        onBookingSubmit={addBooking}
-        selectedBooking={selectedBooking}
-      />
-
-      <BookingDetailsDialog
-        open={isBookingDetailsDialogOpen}
-        onOpenChange={setIsBookingDetailsDialogOpen}
-        selectedBooking={selectedBooking}
-      />
-
-      <AvailabilityDialog
-        open={isAvailabilityDialogOpen}
-        onOpenChange={setIsAvailabilityDialogOpen}
-        availableProperties={availableProperties}
-        dateRange={dateRange}
+        preselectedPropertyId={preselectedPropertyId}
+        preselectedDate={preselectedDate}
+        onSubmit={handleNewBookingSubmit}
       />
     </div>
   );
