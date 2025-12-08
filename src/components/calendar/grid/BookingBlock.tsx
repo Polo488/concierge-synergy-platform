@@ -119,19 +119,20 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   );
 };
 
-// Creates beveled clip path for check-in (left bevel) and check-out (right bevel)
+// Creates sharp diagonal cut for check-in (left) and check-out (right)
 function getBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean): string {
-  const bevelPx = '10px';
+  // Sharp 45° diagonal cut - approximately half the block height
+  const cut = '12px';
   
   if (hasLeftBevel && hasRightBevel) {
-    // Both bevels: diamond-like ends
-    return `polygon(${bevelPx} 0%, calc(100% - ${bevelPx}) 0%, 100% 50%, calc(100% - ${bevelPx}) 100%, ${bevelPx} 100%, 0% 50%)`;
+    // Both cuts: diagonal on both ends
+    return `polygon(${cut} 0%, calc(100% - ${cut}) 0%, 100% 50%, calc(100% - ${cut}) 100%, ${cut} 100%, 0% 50%)`;
   } else if (hasLeftBevel) {
-    // Only left bevel (check-in): pointed left side, flat right
-    return `polygon(${bevelPx} 0%, 100% 0%, 100% 100%, ${bevelPx} 100%, 0% 50%)`;
+    // Only left cut (check-in): diagonal left, straight right
+    return `polygon(${cut} 0%, 100% 0%, 100% 100%, ${cut} 100%, 0% 50%)`;
   } else if (hasRightBevel) {
-    // Only right bevel (check-out): flat left, pointed right side
-    return `polygon(0% 0%, calc(100% - ${bevelPx}) 0%, 100% 50%, calc(100% - ${bevelPx}) 100%, 0% 100%)`;
+    // Only right cut (check-out): straight left, diagonal right
+    return `polygon(0% 0%, calc(100% - ${cut}) 0%, 100% 50%, calc(100% - ${cut}) 100%, 0% 100%)`;
   }
   
   // No bevel - straight edges (truncated booking)
