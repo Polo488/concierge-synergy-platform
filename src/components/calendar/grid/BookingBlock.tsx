@@ -139,20 +139,20 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   );
 };
 
-// Creates simple diagonal corner cuts (not arrow/hexagonal)
+// Creates diagonal bevels on left/right edges
 function getBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean): string {
-  // Small corner cut size
-  const cut = '8px';
+  // Bevel size - diagonal cut across the full height
+  const cut = '10px';
   
   if (hasLeftBevel && hasRightBevel) {
-    // Both corners cut: parallelogram shape
-    return `polygon(${cut} 0%, calc(100% - ${cut}) 0%, 100% 100%, ${cut} 100%)`;
+    // Both sides beveled: parallelogram shape (diagonal left and right)
+    return `polygon(${cut} 0%, 100% 0%, calc(100% - ${cut}) 100%, 0% 100%)`;
   } else if (hasLeftBevel) {
-    // Left diagonal: top-left corner cut, straight right side
+    // Left diagonal only: starts narrow at top-left, full width at bottom
     return `polygon(${cut} 0%, 100% 0%, 100% 100%, 0% 100%)`;
   } else if (hasRightBevel) {
-    // Right diagonal: straight left, top-right corner cut
-    return `polygon(0% 0%, calc(100% - ${cut}) 0%, 100% 100%, 0% 100%)`;
+    // Right diagonal only: full width at top, narrows at bottom-right
+    return `polygon(0% 0%, 100% 0%, calc(100% - ${cut}) 100%, 0% 100%)`;
   }
   
   // No bevel - straight rectangle
