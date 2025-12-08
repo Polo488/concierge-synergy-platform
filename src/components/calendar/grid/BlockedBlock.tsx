@@ -21,18 +21,21 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
   isStartTruncated,
   isEndTruncated,
 }) => {
-  let width = visibleDays * 40;
+  const cellWidth = 40;
+  const halfCell = cellWidth / 2;
+  let width = visibleDays * cellWidth;
   let leftOffset = 0;
   
-  // If this is the actual start day (not truncated), start from right half
+  // Start day: shift right to start from middle
   if (isStartDay && !isStartTruncated) {
-    leftOffset = 20;
-    width -= 20;
+    leftOffset = halfCell;
   }
   
-  // If this is the actual end day (not truncated), end at left half
+  // End day: extend to middle of end cell if start is truncated
   if (isEndDay && !isEndTruncated) {
-    width -= 20;
+    if (isStartTruncated || !isStartDay) {
+      width += halfCell;
+    }
   }
 
   const hasLeftBevel = isStartDay && !isStartTruncated;

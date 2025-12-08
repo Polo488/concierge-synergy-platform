@@ -41,18 +41,34 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   
   // Each day cell is 40px wide
   const cellWidth = 40;
+  const halfCell = cellWidth / 2;
+  
+  // Calculate width and position
+  // visibleDays = number of nights = distance from check-in to check-out
+  // The block spans from middle of check-in cell to middle of check-out cell
   let width = visibleDays * cellWidth;
   let leftOffset = 0;
   
-  // Check-in day: start from right half of cell (20px offset)
+  // Check-in day: start from right half of cell (shift right by half cell)
   if (isCheckInDay && !isStartTruncated) {
-    leftOffset = cellWidth / 2; // 20px
-    width -= cellWidth / 2;
+    leftOffset = halfCell;
+    // DON'T reduce width - we just shift the start position
   }
   
-  // Check-out day: end at left half of cell
+  // Check-out day: the width already accounts for reaching the checkout cell
+  // If start is truncated but end is not, we need to add half cell to reach middle of checkout
   if (isCheckOutDay && !isEndTruncated) {
-    width -= cellWidth / 2;
+    if (isStartTruncated || !isCheckInDay) {
+      // Started from edge (0), need to extend to middle of checkout
+      width += halfCell;
+    }
+    // If check-in is visible, width is already correct (middle to middle)
+  }
+  
+  // If checkout is truncated (extends beyond view), extend to edge
+  if (isEndTruncated && isCheckInDay && !isStartTruncated) {
+    // Started from middle, extend to edge of last visible cell
+    // No adjustment needed - visibleDays already goes to edge
   }
 
   // Determine bevel configuration
