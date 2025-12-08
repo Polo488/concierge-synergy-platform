@@ -19,16 +19,32 @@ const generateMockProperties = (): CalendarProperty[] => [
 
 const generateMockBookings = (): CalendarBooking[] => {
   const today = startOfDay(new Date());
+  
+  // Create specific test dates for December 2024
+  const dec6 = new Date(2024, 11, 6); // December 6, 2024
+  const dec11 = new Date(2024, 11, 11); // December 11, 2024
+  const dec13 = new Date(2024, 11, 13); // December 13, 2024
+  const dec15 = new Date(2024, 11, 15); // December 15, 2024
+  const dec20 = new Date(2024, 11, 20); // December 20, 2024
+  
   return [
-    { id: 1, propertyId: 1, guestName: 'Martin Dupont', checkIn: addDays(today, -2), checkOut: addDays(today, 3), status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 475 },
-    { id: 2, propertyId: 2, guestName: 'Sophie Martin', checkIn: addDays(today, 1), checkOut: addDays(today, 5), status: 'confirmed', channel: 'booking', nightlyRate: 65, guestsCount: 2, totalAmount: 260 },
-    { id: 3, propertyId: 3, guestName: 'Jean Durand', checkIn: addDays(today, 4), checkOut: addDays(today, 10), status: 'confirmed', channel: 'vrbo', nightlyRate: 85, guestsCount: 3, totalAmount: 510 },
-    { id: 4, propertyId: 1, guestName: 'Julie Petit', checkIn: addDays(today, 5), checkOut: addDays(today, 8), status: 'pending', channel: 'direct', nightlyRate: 95, guestsCount: 4, totalAmount: 285 },
+    // Test consecutive bookings on property 1: Dec 6-11 then Dec 11-13
+    { id: 100, propertyId: 1, guestName: 'Pierre Durand', checkIn: dec6, checkOut: dec11, status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 475 },
+    { id: 101, propertyId: 1, guestName: 'Marie Lambert', checkIn: dec11, checkOut: dec13, status: 'confirmed', channel: 'booking', nightlyRate: 95, guestsCount: 3, totalAmount: 190 },
+    
+    // More test bookings
+    { id: 102, propertyId: 1, guestName: 'Jacques Martin', checkIn: dec15, checkOut: dec20, status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 475 },
+    
+    // Other properties
+    { id: 1, propertyId: 2, guestName: 'Martin Dupont', checkIn: addDays(today, -2), checkOut: addDays(today, 3), status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 475 },
+    { id: 2, propertyId: 2, guestName: 'Sophie Martin', checkIn: addDays(today, 3), checkOut: addDays(today, 7), status: 'confirmed', channel: 'booking', nightlyRate: 65, guestsCount: 2, totalAmount: 260 },
+    { id: 3, propertyId: 3, guestName: 'Jean Durand', checkIn: addDays(today, 4), checkOut: addDays(today, 10), status: 'confirmed', channel: 'airbnb', nightlyRate: 85, guestsCount: 3, totalAmount: 510 },
+    { id: 4, propertyId: 4, guestName: 'Julie Petit', checkIn: addDays(today, 5), checkOut: addDays(today, 8), status: 'pending', channel: 'booking', nightlyRate: 95, guestsCount: 4, totalAmount: 285 },
     { id: 5, propertyId: 4, guestName: 'Thomas Bernard', checkIn: addDays(today, -5), checkOut: addDays(today, -1), status: 'completed', channel: 'airbnb', nightlyRate: 120, guestsCount: 5, totalAmount: 480 },
     { id: 6, propertyId: 5, guestName: 'Camille Leroy', checkIn: addDays(today, 8), checkOut: addDays(today, 14), status: 'confirmed', channel: 'booking', nightlyRate: 90, guestsCount: 4, totalAmount: 540 },
     { id: 7, propertyId: 6, guestName: 'Mathieu Roux', checkIn: addDays(today, 2), checkOut: addDays(today, 6), status: 'confirmed', channel: 'airbnb', nightlyRate: 70, guestsCount: 2, totalAmount: 280 },
-    { id: 8, propertyId: 7, guestName: 'Emma Laurent', checkIn: addDays(today, -3), checkOut: addDays(today, 2), status: 'confirmed', channel: 'direct', nightlyRate: 110, guestsCount: 3, totalAmount: 550 },
-    { id: 9, propertyId: 8, guestName: 'Lucas Moreau', checkIn: addDays(today, 10), checkOut: addDays(today, 15), status: 'confirmed', channel: 'vrbo', nightlyRate: 130, guestsCount: 4, totalAmount: 650 },
+    { id: 8, propertyId: 7, guestName: 'Emma Laurent', checkIn: addDays(today, -3), checkOut: addDays(today, 2), status: 'confirmed', channel: 'booking', nightlyRate: 110, guestsCount: 3, totalAmount: 550 },
+    { id: 9, propertyId: 8, guestName: 'Lucas Moreau', checkIn: addDays(today, 10), checkOut: addDays(today, 15), status: 'confirmed', channel: 'airbnb', nightlyRate: 130, guestsCount: 4, totalAmount: 650 },
     { id: 10, propertyId: 9, guestName: 'Léa Girard', checkIn: addDays(today, 0), checkOut: addDays(today, 3), status: 'confirmed', channel: 'booking', nightlyRate: 75, guestsCount: 2, totalAmount: 225 },
     { id: 11, propertyId: 10, guestName: 'Hugo Blanc', checkIn: addDays(today, 6), checkOut: addDays(today, 12), status: 'confirmed', channel: 'airbnb', nightlyRate: 250, guestsCount: 6, totalAmount: 1500 },
   ];
@@ -118,6 +134,7 @@ export function useCalendarGrid(daysToShow: number = 60): UseCalendarGridReturn 
   }, [properties, filters.propertySearch]);
 
   // Get bookings for a specific property and day
+  // Returns all bookings that touch this day (check-in, in-progress, or check-out)
   const getBookingsForProperty = useCallback((propertyId: number, day: Date): CalendarBooking[] => {
     const dayStart = startOfDay(day);
     return bookings.filter(booking => {
@@ -132,9 +149,9 @@ export function useCalendarGrid(daysToShow: number = 60): UseCalendarGridReturn 
       const checkInStart = startOfDay(booking.checkIn);
       const checkOutStart = startOfDay(booking.checkOut);
       
-      // Check if day is within booking range (checkout day is not included)
-      return isWithinInterval(dayStart, { start: checkInStart, end: addDays(checkOutStart, -1) }) ||
-             isSameDay(dayStart, checkInStart);
+      // Include if this is check-in day, check-out day, or any day in between
+      // Check-out day is included for visual purposes (left half shows departure)
+      return (dayStart >= checkInStart && dayStart <= checkOutStart);
     });
   }, [bookings, filters.status, filters.channel]);
 

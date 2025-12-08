@@ -69,51 +69,60 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
           const bookings = getBookingsForProperty(property.id, day);
           const blocked = getBlockedForProperty(property.id, day);
 
-          // Render booking block only on its check-in date (or first visible day if booking started before)
-          let bookingBlock = null;
-          if (bookings.length > 0) {
-            const booking = bookings[0];
+          // Render booking blocks - can have multiple on same day (checkout + checkin)
+          const bookingBlocks: React.ReactNode[] = [];
+          
+          for (const booking of bookings) {
             const bookingCheckIn = startOfDay(booking.checkIn);
             const bookingCheckOut = startOfDay(booking.checkOut);
+            const dayStart = startOfDay(day);
             
-            // Only render once per booking
-            if (!renderedBookingIds.has(booking.id)) {
-              const isCheckInVisible = bookingCheckIn >= firstVisibleDay;
-              const shouldRender = isSameDay(day, bookingCheckIn) || 
-                (!isCheckInVisible && dayIndex === 0 && isSameDay(day, firstVisibleDay));
+            // Determine if this is the check-in day or check-out day for this booking
+            const isThisCheckInDay = isSameDay(dayStart, bookingCheckIn);
+            const isThisCheckOutDay = isSameDay(dayStart, bookingCheckOut);
+            
+            // Only render if we haven't rendered this booking yet
+            if (renderedBookingIds.has(booking.id)) {
+              continue;
+            }
+            
+            // Render on check-in day, OR on first visible day if booking started before
+            const isCheckInVisible = bookingCheckIn >= firstVisibleDay;
+            const shouldRender = isThisCheckInDay || 
+              (!isCheckInVisible && dayIndex === 0 && isSameDay(day, firstVisibleDay));
+            
+            // Also render if this is a checkout-only day (for the left-half visual)
+            const isCheckoutOnlyDay = isThisCheckOutDay && !isThisCheckInDay;
+            
+            if (shouldRender || (isCheckoutOnlyDay && !renderedBookingIds.has(booking.id))) {
+              renderedBookingIds.add(booking.id);
               
-              if (shouldRender) {
-                renderedBookingIds.add(booking.id);
-                
-                // Calculate the visible portion of the booking
-                // Booking occupies nights from checkIn to checkOut-1
-                // Visually: right half of checkIn cell to left half of checkOut cell
-                const visibleStart = bookingCheckIn < firstVisibleDay ? firstVisibleDay : bookingCheckIn;
-                const visibleEnd = bookingCheckOut > addDays(lastVisibleDay, 1) ? addDays(lastVisibleDay, 1) : bookingCheckOut;
-                const visibleDays = differenceInDays(visibleEnd, visibleStart);
-                
-                const isStartTruncated = bookingCheckIn < firstVisibleDay;
-                const isEndTruncated = bookingCheckOut > addDays(lastVisibleDay, 1);
-                
-                // Is this the actual check-in day (for left bevel)?
-                const isCheckInDay = isSameDay(visibleStart, bookingCheckIn);
-                // Is this the actual check-out day (for right bevel)?
-                const isCheckOutDay = isSameDay(visibleEnd, bookingCheckOut);
-                
-                bookingBlock = (
-                  <BookingBlock
-                    key={booking.id}
-                    booking={booking}
-                    visibleDays={visibleDays}
-                    isCheckInDay={isCheckInDay}
-                    isCheckOutDay={isCheckOutDay}
-                    isStartTruncated={isStartTruncated}
-                    isEndTruncated={isEndTruncated}
-                    isPast={booking.checkOut < today}
-                    onClick={() => onBookingClick(booking)}
-                  />
-                );
-              }
+              // Calculate the visible portion of the booking
+              const visibleStart = bookingCheckIn < firstVisibleDay ? firstVisibleDay : bookingCheckIn;
+              const visibleEnd = bookingCheckOut > addDays(lastVisibleDay, 1) ? addDays(lastVisibleDay, 1) : bookingCheckOut;
+              const visibleDays = differenceInDays(visibleEnd, visibleStart);
+              
+              const isStartTruncated = bookingCheckIn < firstVisibleDay;
+              const isEndTruncated = bookingCheckOut > addDays(lastVisibleDay, 1);
+              
+              // Is this the actual check-in day (for left diagonal)?
+              const isCheckInDay = isSameDay(visibleStart, bookingCheckIn);
+              // Is this the actual check-out day (for right diagonal)?
+              const isCheckOutDay = isSameDay(visibleEnd, bookingCheckOut);
+              
+              bookingBlocks.push(
+                <BookingBlock
+                  key={booking.id}
+                  booking={booking}
+                  visibleDays={visibleDays}
+                  isCheckInDay={isCheckInDay}
+                  isCheckOutDay={isCheckOutDay}
+                  isStartTruncated={isStartTruncated}
+                  isEndTruncated={isEndTruncated}
+                  isPast={booking.checkOut < today}
+                  onClick={() => onBookingClick(booking)}
+                />
+              );
             }
           }
 
@@ -154,7 +163,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
             }
           }
 
-          const isEmpty = bookings.length === 0 && !blocked;
+          const isEmpty = bookingBlocks.length === 0 && !blocked;
 
           return (
             <div
@@ -168,7 +177,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               )}
               onClick={() => isEmpty && onCellClick(day, property.id)}
             >
-              {bookingBlock}
+              {bookingBlocks}
               {blockedBlock}
             </div>
           );
