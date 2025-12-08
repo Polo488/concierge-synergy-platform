@@ -117,7 +117,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
         backgroundColor,
         left: `${leftOffset}px`,
         clipPath: getBevelClipPath(hasLeftBevel, hasRightBevel),
-        borderRadius: hasLeftBevel && hasRightBevel ? '0' : hasLeftBevel ? '0 6px 6px 0' : hasRightBevel ? '6px 0 0 6px' : '6px',
+        borderRadius: hasLeftBevel && hasRightBevel ? '2px' : hasLeftBevel ? '2px 4px 4px 2px' : hasRightBevel ? '4px 2px 2px 4px' : '4px',
       }}
       title={`${booking.guestName} - ${booking.nightlyRate ? `${booking.nightlyRate}€/nuit` : ''}`}
     >
