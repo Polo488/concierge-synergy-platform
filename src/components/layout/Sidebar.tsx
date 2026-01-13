@@ -47,7 +47,7 @@ export function Sidebar() {
     { name: t('sidebar.averageDuration'), path: '/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
     { name: t('sidebar.upsell'), path: '/upsell', icon: ShoppingCart, permission: 'upsell' },
     { name: t('sidebar.billing'), path: '/billing', icon: Receipt, permission: 'billing' },
-    { name: 'Insights & Alertes', path: '/insights', icon: Lightbulb, permission: 'properties' },
+    { name: t('sidebar.insights'), path: '/insights', icon: Lightbulb, permission: 'properties' },
   ];
   
   // Add users management if user has permission

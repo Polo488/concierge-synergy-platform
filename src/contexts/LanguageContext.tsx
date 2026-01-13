@@ -13,6 +13,17 @@ const translations: Record<Language, Record<string, string>> = {
   fr: {
     // Header
     'search': 'Rechercher...',
+    // Sidebar
+    'sidebar.dashboard': 'Tableau de bord',
+    'sidebar.inventory': 'Inventaire',
+    'sidebar.maintenance': 'Maintenance',
+    'sidebar.cleaning': 'Ménage',
+    'sidebar.calendar': 'Calendrier',
+    'sidebar.properties': 'Propriétés',
+    'sidebar.averageDuration': 'Moyenne durée',
+    'sidebar.upsell': 'Upsell',
+    'sidebar.billing': 'Facturation',
+    'sidebar.insights': 'Insights & Alertes',
     // Common actions
     'close': 'Fermer',
     'save': 'Enregistrer',
@@ -68,6 +79,17 @@ const translations: Record<Language, Record<string, string>> = {
   en: {
     // Header
     'search': 'Search...',
+    // Sidebar
+    'sidebar.dashboard': 'Dashboard',
+    'sidebar.inventory': 'Inventory',
+    'sidebar.maintenance': 'Maintenance',
+    'sidebar.cleaning': 'Cleaning',
+    'sidebar.calendar': 'Calendar',
+    'sidebar.properties': 'Properties',
+    'sidebar.averageDuration': 'Medium Term',
+    'sidebar.upsell': 'Upsell',
+    'sidebar.billing': 'Billing',
+    'sidebar.insights': 'Insights & Alerts',
     // Common actions
     'close': 'Close',
     'save': 'Save',
