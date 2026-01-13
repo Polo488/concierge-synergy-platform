@@ -13,6 +13,7 @@ interface PropertyRowProps {
   getBlockedForProperty: (propertyId: number, day: Date) => BlockedPeriod | null;
   onBookingClick: (booking: CalendarBooking) => void;
   onCellClick: (date: Date, propertyId: number) => void;
+  onPropertyClick?: (property: CalendarProperty) => void;
 }
 
 export const PropertyRow: React.FC<PropertyRowProps> = ({
@@ -22,6 +23,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   getBlockedForProperty,
   onBookingClick,
   onCellClick,
+  onPropertyClick,
 }) => {
   const today = startOfDay(new Date());
   
@@ -35,7 +37,11 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   return (
     <div className="flex border-b border-border hover:bg-accent/20 transition-colors">
       {/* Property info - fixed left column */}
-      <div className="w-[220px] min-w-[220px] flex items-center gap-3 px-3 py-2 border-r border-border bg-background sticky left-0 z-20">
+      <div 
+        className="w-[220px] min-w-[220px] flex items-center gap-3 px-3 py-2 border-r border-border bg-background sticky left-0 z-20 cursor-pointer hover:bg-accent/40 transition-colors"
+        onClick={() => onPropertyClick?.(property)}
+        title="Cliquez pour voir le calendrier mensuel"
+      >
         <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
           {property.thumbnail ? (
             <img

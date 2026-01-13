@@ -13,6 +13,7 @@ interface CalendarGridProps {
   onBookingClick: (booking: CalendarBooking) => void;
   onCellClick: (date: Date, propertyId: number) => void;
   onDayClick?: (date: Date) => void;
+  onPropertyClick?: (property: CalendarProperty) => void;
 }
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
@@ -24,6 +25,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   onBookingClick,
   onCellClick,
   onDayClick,
+  onPropertyClick,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +68,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 getBlockedForProperty={getBlockedForProperty}
                 onBookingClick={onBookingClick}
                 onCellClick={onCellClick}
+                onPropertyClick={onPropertyClick}
               />
             ))
           )}
