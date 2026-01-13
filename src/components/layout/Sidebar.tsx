@@ -16,7 +16,8 @@ import {
   Clock,
   ShoppingCart,
   Users,
-  LogOut
+  LogOut,
+  Lightbulb
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
