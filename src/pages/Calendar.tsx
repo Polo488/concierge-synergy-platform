@@ -1,15 +1,17 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
+import { startOfMonth } from 'date-fns';
 import { useCalendarGrid } from '@/hooks/calendar/useCalendarGrid';
 import { CalendarGrid } from '@/components/calendar/grid/CalendarGrid';
 import { CalendarToolbar } from '@/components/calendar/grid/CalendarToolbar';
 import { BookingDetailsSheet } from '@/components/calendar/dialogs/BookingDetailsSheet';
 import { NewBookingDialog } from '@/components/calendar/dialogs/NewBookingDialog';
 import { PricingView } from '@/components/calendar/pricing/PricingView';
+import { PropertyMonthView } from '@/components/calendar/PropertyMonthView';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CalendarDays, Euro } from 'lucide-react';
-import type { CalendarBooking } from '@/types/calendar';
+import type { CalendarBooking, CalendarProperty } from '@/types/calendar';
 
 const CalendarPage = () => {
   const {
@@ -33,6 +35,10 @@ const CalendarPage = () => {
 
   // Active tab
   const [activeTab, setActiveTab] = useState<'planning' | 'pricing'>('planning');
+
+  // Property month view state
+  const [selectedPropertyForMonth, setSelectedPropertyForMonth] = useState<CalendarProperty | null>(null);
+  const [monthViewDate, setMonthViewDate] = useState<Date>(startOfMonth(new Date()));
 
   // Dialog states
   const [selectedBooking, setSelectedBooking] = useState<CalendarBooking | null>(null);
@@ -60,6 +66,17 @@ const CalendarPage = () => {
     setIsNewBookingOpen(true);
   };
 
+  // Handle property click - open month view
+  const handlePropertyClick = (property: CalendarProperty) => {
+    setSelectedPropertyForMonth(property);
+    setMonthViewDate(startOfMonth(currentDate));
+  };
+
+  // Close month view
+  const handleCloseMonthView = () => {
+    setSelectedPropertyForMonth(null);
+  };
+
   // Handle add booking button
   const handleAddBooking = () => {
     setPreselectedPropertyId(undefined);
@@ -77,6 +94,13 @@ const CalendarPage = () => {
   const handleSync = async () => {
     await syncData();
     toast.success('Synchronisation terminée');
+  };
+
+  // Get daily price for property month view
+  const getDailyPrice = (propertyId: number, date: Date): number => {
+    const property = properties.find(p => p.id === propertyId);
+    // Could look up in dailyPrices array if available
+    return property?.pricePerNight || 0;
   };
 
   // Get property for selected booking
@@ -126,7 +150,22 @@ const CalendarPage = () => {
             onLayersChange={setLayers}
           />
 
-          {/* Calendar Grid */}
+          {/* Property Month View - shown when a property is selected */}
+          {selectedPropertyForMonth && (
+            <PropertyMonthView
+              property={selectedPropertyForMonth}
+              bookings={bookings}
+              blockedPeriods={blockedPeriods}
+              currentMonth={monthViewDate}
+              onMonthChange={setMonthViewDate}
+              onClose={handleCloseMonthView}
+              onBookingClick={handleBookingClick}
+              onCellClick={handleCellClick}
+              getDailyPrice={getDailyPrice}
+            />
+          )}
+
+          {/* Calendar Grid - always visible */}
           <CalendarGrid
             properties={filteredProperties}
             days={visibleDays}
@@ -135,6 +174,7 @@ const CalendarPage = () => {
             getBlockedForProperty={getBlockedForProperty}
             onBookingClick={handleBookingClick}
             onCellClick={handleCellClick}
+            onPropertyClick={handlePropertyClick}
           />
         </>
       ) : (
