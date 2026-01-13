@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
 import { BookingBlock } from './BookingBlock';
 import { BlockedBlock } from './BlockedBlock';
+import { PropertyInsightBadge } from '@/components/insights/PropertyInsightBadge';
+import { PropertyInsight } from '@/types/insights';
 
 interface PropertyRowProps {
   property: CalendarProperty;
@@ -18,6 +20,9 @@ interface PropertyRowProps {
   isDaySelected?: (propertyId: number, date: Date) => boolean;
   onDayMouseDown?: (propertyId: number, date: Date, event: React.MouseEvent) => void;
   onDayMouseEnter?: (propertyId: number, date: Date) => void;
+  // Insights props
+  propertyInsights?: PropertyInsight[];
+  onInsightClick?: () => void;
 }
 
 export const PropertyRow: React.FC<PropertyRowProps> = ({
@@ -31,6 +36,8 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   isDaySelected,
   onDayMouseDown,
   onDayMouseEnter,
+  propertyInsights = [],
+  onInsightClick,
 }) => {
   const today = startOfDay(new Date());
   
@@ -49,7 +56,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
         onClick={() => onPropertyClick?.(property)}
         title="Cliquez pour voir le calendrier mensuel"
       >
-        <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+        <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0 relative">
           {property.thumbnail ? (
             <img
               src={property.thumbnail}
@@ -61,11 +68,29 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               N/A
             </div>
           )}
+          {/* Insight badge on thumbnail */}
+          {propertyInsights.length > 0 && (
+            <div 
+              className="absolute -top-1 -right-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                onInsightClick?.();
+              }}
+            >
+              <PropertyInsightBadge 
+                insights={propertyInsights} 
+                compact 
+              />
+            </div>
+          )}
+
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-foreground truncate" title={property.name}>
-            {property.name}
-          </p>
+          <div className="flex items-center gap-1">
+            <p className="text-sm font-medium text-foreground truncate" title={property.name}>
+              {property.name}
+            </p>
+          </div>
           <p className="text-xs text-muted-foreground">
             {property.capacity} pers. • {property.pricePerNight}€/nuit
           </p>
