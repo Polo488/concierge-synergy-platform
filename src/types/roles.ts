@@ -11,6 +11,7 @@ export interface PermissionMap {
   moyenneDuree: boolean;
   upsell: boolean;
   users: boolean;
+  pricingRules: boolean;
 }
 
 export interface RoleDefinition {
