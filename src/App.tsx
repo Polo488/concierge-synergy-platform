@@ -18,6 +18,7 @@ import Billing from "./pages/Billing";
 import MoyenneDuree from "./pages/MoyenneDuree";
 import Upsell from "./pages/Upsell";
 import Users from "./pages/Users";
+import InsightsAlerts from "./pages/InsightsAlerts";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -92,6 +93,12 @@ const App = () => (
                   <Route path="/users" element={
                     <RoutePermission permission="users">
                       <Users />
+                    </RoutePermission>
+                  } />
+                  
+                  <Route path="/insights" element={
+                    <RoutePermission permission="properties">
+                      <InsightsAlerts />
                     </RoutePermission>
                   } />
                 </Route>
