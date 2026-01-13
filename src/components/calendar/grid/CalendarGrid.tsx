@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { CalendarGridHeader } from './CalendarGridHeader';
 import { PropertyRow } from './PropertyRow';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod, DailyPrice } from '@/types/calendar';
@@ -14,6 +14,12 @@ interface CalendarGridProps {
   onCellClick: (date: Date, propertyId: number) => void;
   onDayClick?: (date: Date) => void;
   onPropertyClick?: (property: CalendarProperty) => void;
+  // Multi-day selection props
+  isDaySelected?: (propertyId: number, date: Date) => boolean;
+  onDayMouseDown?: (propertyId: number, date: Date, event: React.MouseEvent) => void;
+  onDayMouseEnter?: (propertyId: number, date: Date) => void;
+  onDayMouseUp?: () => void;
+  isSelecting?: boolean;
 }
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
@@ -26,6 +32,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   onCellClick,
   onDayClick,
   onPropertyClick,
+  isDaySelected,
+  onDayMouseDown,
+  onDayMouseEnter,
+  onDayMouseUp,
+  isSelecting,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -40,10 +51,19 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     return map;
   }, [dailyPrices]);
 
+  // Add global mouseup listener to end selection when mouse released anywhere
+  useEffect(() => {
+    if (isSelecting && onDayMouseUp) {
+      const handleGlobalMouseUp = () => onDayMouseUp();
+      window.addEventListener('mouseup', handleGlobalMouseUp);
+      return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
+    }
+  }, [isSelecting, onDayMouseUp]);
+
   return (
     <div 
       ref={scrollContainerRef}
-      className="border border-border rounded-lg overflow-auto bg-background"
+      className="border border-border rounded-lg overflow-auto bg-background select-none"
       style={{ maxHeight: 'calc(100vh - 280px)' }}
     >
       <div className="min-w-max">
@@ -69,6 +89,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 onBookingClick={onBookingClick}
                 onCellClick={onCellClick}
                 onPropertyClick={onPropertyClick}
+                isDaySelected={isDaySelected}
+                onDayMouseDown={onDayMouseDown}
+                onDayMouseEnter={onDayMouseEnter}
               />
             ))
           )}

@@ -1,17 +1,20 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { startOfMonth } from 'date-fns';
+import { startOfMonth, startOfDay } from 'date-fns';
 import { useCalendarGrid } from '@/hooks/calendar/useCalendarGrid';
+import { useMultiDaySelection } from '@/hooks/calendar/useMultiDaySelection';
 import { CalendarGrid } from '@/components/calendar/grid/CalendarGrid';
 import { CalendarToolbar } from '@/components/calendar/grid/CalendarToolbar';
 import { BookingDetailsSheet } from '@/components/calendar/dialogs/BookingDetailsSheet';
 import { NewBookingDialog } from '@/components/calendar/dialogs/NewBookingDialog';
 import { PricingView } from '@/components/calendar/pricing/PricingView';
 import { PropertyMonthView } from '@/components/calendar/PropertyMonthView';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PriceEditModal } from '@/components/calendar/PriceEditModal';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { CalendarDays, Euro } from 'lucide-react';
-import type { CalendarBooking, CalendarProperty } from '@/types/calendar';
+import type { CalendarBooking, CalendarProperty, BookingChannel } from '@/types/calendar';
 
 const CalendarPage = () => {
   const {
@@ -33,6 +36,19 @@ const CalendarPage = () => {
     syncData,
   } = useCalendarGrid(90);
 
+  // Multi-day selection hook for global view
+  const {
+    selectedDays,
+    selectionRange,
+    isSelecting,
+    isDaySelected,
+    handleDayMouseDown,
+    handleDayMouseEnter,
+    handleDayMouseUp,
+    clearSelection,
+    hasSelection,
+  } = useMultiDaySelection();
+
   // Active tab
   const [activeTab, setActiveTab] = useState<'planning' | 'pricing'>('planning');
 
@@ -46,6 +62,15 @@ const CalendarPage = () => {
   const [isNewBookingOpen, setIsNewBookingOpen] = useState(false);
   const [preselectedPropertyId, setPreselectedPropertyId] = useState<number | undefined>();
   const [preselectedDate, setPreselectedDate] = useState<Date | undefined>();
+
+  // Price edit modal state
+  const [isPriceEditOpen, setIsPriceEditOpen] = useState(false);
+  const [priceEditData, setPriceEditData] = useState<{
+    propertyId: number;
+    startDate: Date;
+    endDate: Date;
+    currentPrice: number;
+  } | null>(null);
 
   // Layers state
   const [layers, setLayers] = useState({
@@ -61,6 +86,8 @@ const CalendarPage = () => {
 
   // Handle empty cell click
   const handleCellClick = (date: Date, propertyId: number) => {
+    // Don't open new booking dialog if we're selecting
+    if (isSelecting) return;
     setPreselectedPropertyId(propertyId);
     setPreselectedDate(date);
     setIsNewBookingOpen(true);
@@ -103,9 +130,55 @@ const CalendarPage = () => {
     return property?.pricePerNight || 0;
   };
 
+  // Open price edit modal for global view selection
+  const handleOpenPriceEdit = () => {
+    if (!selectionRange) return;
+    const property = properties.find(p => p.id === selectionRange.propertyId);
+    const currentPrice = property?.pricePerNight || 0;
+    
+    setPriceEditData({
+      propertyId: selectionRange.propertyId,
+      startDate: selectionRange.startDate,
+      endDate: selectionRange.endDate,
+      currentPrice,
+    });
+    setIsPriceEditOpen(true);
+  };
+
+  // Open price edit modal from month view
+  const handleMonthViewPriceEdit = (propertyId: number, startDate: Date, endDate: Date, currentPrice: number) => {
+    setPriceEditData({ propertyId, startDate, endDate, currentPrice });
+    setIsPriceEditOpen(true);
+  };
+
+  // Handle price update submission (would integrate with Channex API)
+  const handlePriceUpdate = async (newPrice: number, channel: BookingChannel | 'all') => {
+    if (!priceEditData) return;
+    
+    // Simulate API call to Channex
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    console.log('Price update:', {
+      propertyId: priceEditData.propertyId,
+      startDate: priceEditData.startDate,
+      endDate: priceEditData.endDate,
+      newPrice,
+      channel,
+    });
+    
+    toast.success(`Prix mis à jour: ${newPrice}€/nuit pour ${channel === 'all' ? 'tous les canaux' : channel}`);
+    clearSelection();
+    setPriceEditData(null);
+  };
+
   // Get property for selected booking
   const selectedProperty = selectedBooking 
     ? properties.find(p => p.id === selectedBooking.propertyId)
+    : undefined;
+
+  // Get property for price edit
+  const priceEditProperty = priceEditData 
+    ? properties.find(p => p.id === priceEditData.propertyId)
     : undefined;
 
   return (
@@ -119,18 +192,36 @@ const CalendarPage = () => {
           </p>
         </div>
         
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'planning' | 'pricing')}>
-          <TabsList>
-            <TabsTrigger value="planning" className="gap-2">
-              <CalendarDays className="w-4 h-4" />
-              Réservations
-            </TabsTrigger>
-            <TabsTrigger value="pricing" className="gap-2">
-              <Euro className="w-4 h-4" />
-              Règles & Pricing
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex items-center gap-4">
+          {/* Selection actions for global view */}
+          {hasSelection && activeTab === 'planning' && !selectedPropertyForMonth && (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/20 rounded-lg animate-in fade-in slide-in-from-right-2">
+              <span className="text-sm font-medium">
+                {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''} sélectionné{selectedDays.length > 1 ? 's' : ''}
+              </span>
+              <Button size="sm" variant="secondary" onClick={handleOpenPriceEdit} className="gap-1">
+                <Euro className="w-3 h-3" />
+                Modifier prix
+              </Button>
+              <Button size="sm" variant="ghost" onClick={clearSelection}>
+                Annuler
+              </Button>
+            </div>
+          )}
+
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'planning' | 'pricing')}>
+            <TabsList>
+              <TabsTrigger value="planning" className="gap-2">
+                <CalendarDays className="w-4 h-4" />
+                Réservations
+              </TabsTrigger>
+              <TabsTrigger value="pricing" className="gap-2">
+                <Euro className="w-4 h-4" />
+                Règles & Pricing
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
 
       {activeTab === 'planning' ? (
@@ -162,6 +253,7 @@ const CalendarPage = () => {
               onBookingClick={handleBookingClick}
               onCellClick={handleCellClick}
               getDailyPrice={getDailyPrice}
+              onPriceEditRequest={handleMonthViewPriceEdit}
             />
           )}
 
@@ -175,6 +267,11 @@ const CalendarPage = () => {
             onBookingClick={handleBookingClick}
             onCellClick={handleCellClick}
             onPropertyClick={handlePropertyClick}
+            isDaySelected={isDaySelected}
+            onDayMouseDown={handleDayMouseDown}
+            onDayMouseEnter={handleDayMouseEnter}
+            onDayMouseUp={handleDayMouseUp}
+            isSelecting={isSelecting}
           />
         </>
       ) : (
@@ -205,6 +302,20 @@ const CalendarPage = () => {
         preselectedPropertyId={preselectedPropertyId}
         preselectedDate={preselectedDate}
         onSubmit={handleNewBookingSubmit}
+      />
+
+      {/* Price Edit Modal */}
+      <PriceEditModal
+        open={isPriceEditOpen}
+        onOpenChange={setIsPriceEditOpen}
+        selectionRange={priceEditData ? {
+          propertyId: priceEditData.propertyId,
+          startDate: priceEditData.startDate,
+          endDate: priceEditData.endDate,
+        } : null}
+        property={priceEditProperty}
+        currentPrice={priceEditData?.currentPrice || 0}
+        onSubmit={handlePriceUpdate}
       />
     </div>
   );
