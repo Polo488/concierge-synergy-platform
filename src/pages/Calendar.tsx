@@ -6,6 +6,9 @@ import { CalendarGrid } from '@/components/calendar/grid/CalendarGrid';
 import { CalendarToolbar } from '@/components/calendar/grid/CalendarToolbar';
 import { BookingDetailsSheet } from '@/components/calendar/dialogs/BookingDetailsSheet';
 import { NewBookingDialog } from '@/components/calendar/dialogs/NewBookingDialog';
+import { PricingView } from '@/components/calendar/pricing/PricingView';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CalendarDays, Euro } from 'lucide-react';
 import type { CalendarBooking } from '@/types/calendar';
 
 const CalendarPage = () => {
@@ -26,7 +29,10 @@ const CalendarPage = () => {
     isSyncing,
     lastSyncTime,
     syncData,
-  } = useCalendarGrid(90); // Show 90 days
+  } = useCalendarGrid(90);
+
+  // Active tab
+  const [activeTab, setActiveTab] = useState<'planning' | 'pricing'>('planning');
 
   // Dialog states
   const [selectedBooking, setSelectedBooking] = useState<CalendarBooking | null>(null);
@@ -47,7 +53,7 @@ const CalendarPage = () => {
     setIsDetailsOpen(true);
   };
 
-  // Handle empty cell click - open new booking dialog
+  // Handle empty cell click
   const handleCellClick = (date: Date, propertyId: number) => {
     setPreselectedPropertyId(propertyId);
     setPreselectedDate(date);
@@ -63,7 +69,6 @@ const CalendarPage = () => {
 
   // Handle new booking submit
   const handleNewBookingSubmit = (bookingData: Omit<CalendarBooking, 'id'>) => {
-    // In a real app, this would call an API
     console.log('New booking:', bookingData);
     toast.success('Réservation créée avec succès');
   };
@@ -80,40 +85,61 @@ const CalendarPage = () => {
     : undefined;
 
   return (
-    <div className="h-full flex flex-col gap-6 p-6">
-      {/* Page header */}
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight">Planning</h1>
-        <p className="text-muted-foreground">
-          Visualisez et gérez les réservations de tous vos logements
-        </p>
+    <div className="h-full flex flex-col gap-4 p-6">
+      {/* Page header with tabs */}
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight">Planning</h1>
+          <p className="text-muted-foreground">
+            Visualisez et gérez les réservations de tous vos logements
+          </p>
+        </div>
+        
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'planning' | 'pricing')}>
+          <TabsList>
+            <TabsTrigger value="planning" className="gap-2">
+              <CalendarDays className="w-4 h-4" />
+              Réservations
+            </TabsTrigger>
+            <TabsTrigger value="pricing" className="gap-2">
+              <Euro className="w-4 h-4" />
+              Règles & Pricing
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
-      {/* Toolbar */}
-      <CalendarToolbar
-        currentDate={currentDate}
-        filters={filters}
-        onFiltersChange={setFilters}
-        onNavigate={navigateWeeks}
-        onGoToToday={goToToday}
-        onAddBooking={handleAddBooking}
-        onSync={handleSync}
-        isSyncing={isSyncing}
-        lastSyncTime={lastSyncTime}
-        layers={layers}
-        onLayersChange={setLayers}
-      />
+      {activeTab === 'planning' ? (
+        <>
+          {/* Toolbar */}
+          <CalendarToolbar
+            currentDate={currentDate}
+            filters={filters}
+            onFiltersChange={setFilters}
+            onNavigate={navigateWeeks}
+            onGoToToday={goToToday}
+            onAddBooking={handleAddBooking}
+            onSync={handleSync}
+            isSyncing={isSyncing}
+            lastSyncTime={lastSyncTime}
+            layers={layers}
+            onLayersChange={setLayers}
+          />
 
-      {/* Calendar Grid */}
-      <CalendarGrid
-        properties={filteredProperties}
-        days={visibleDays}
-        dailyPrices={dailyPrices}
-        getBookingsForProperty={getBookingsForProperty}
-        getBlockedForProperty={getBlockedForProperty}
-        onBookingClick={handleBookingClick}
-        onCellClick={handleCellClick}
-      />
+          {/* Calendar Grid */}
+          <CalendarGrid
+            properties={filteredProperties}
+            days={visibleDays}
+            dailyPrices={dailyPrices}
+            getBookingsForProperty={getBookingsForProperty}
+            getBlockedForProperty={getBlockedForProperty}
+            onBookingClick={handleBookingClick}
+            onCellClick={handleCellClick}
+          />
+        </>
+      ) : (
+        <PricingView properties={filteredProperties} days={visibleDays} />
+      )}
 
       {/* Booking Details Sheet */}
       <BookingDetailsSheet
@@ -123,12 +149,10 @@ const CalendarPage = () => {
         onOpenChange={setIsDetailsOpen}
         onEdit={(booking) => {
           setIsDetailsOpen(false);
-          // Handle edit
           toast.info('Fonction de modification à venir');
         }}
         onDelete={(booking) => {
           setIsDetailsOpen(false);
-          // Handle delete
           toast.info('Fonction de suppression à venir');
         }}
       />
