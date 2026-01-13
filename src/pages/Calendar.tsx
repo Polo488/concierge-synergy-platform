@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { startOfMonth, startOfDay } from 'date-fns';
 import { useCalendarGrid } from '@/hooks/calendar/useCalendarGrid';
 import { useMultiDaySelection } from '@/hooks/calendar/useMultiDaySelection';
+import { useInsights } from '@/hooks/useInsights';
 import { CalendarGrid } from '@/components/calendar/grid/CalendarGrid';
 import { CalendarToolbar } from '@/components/calendar/grid/CalendarToolbar';
 import { BookingDetailsSheet } from '@/components/calendar/dialogs/BookingDetailsSheet';
@@ -11,9 +12,11 @@ import { NewBookingDialog } from '@/components/calendar/dialogs/NewBookingDialog
 import { PricingView } from '@/components/calendar/pricing/PricingView';
 import { PropertyMonthView } from '@/components/calendar/PropertyMonthView';
 import { PriceEditModal } from '@/components/calendar/PriceEditModal';
+import { InsightsPanel } from '@/components/insights/InsightsPanel';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, Euro } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { CalendarDays, Euro, Bell } from 'lucide-react';
 import type { CalendarBooking, CalendarProperty, BookingChannel } from '@/types/calendar';
 
 const CalendarPage = () => {
@@ -49,10 +52,21 @@ const CalendarPage = () => {
     hasSelection,
   } = useMultiDaySelection();
 
-  // Active tab
-  const [activeTab, setActiveTab] = useState<'planning' | 'pricing'>('planning');
+  // Insights hook
+  const {
+    insights,
+    unreadCount,
+    getInsightsForProperty,
+    markAsRead,
+    markAllAsRead,
+    archiveInsight,
+    disabledTypes,
+    toggleTypeEnabled,
+  } = useInsights();
 
-  // Property month view state
+  const [isInsightsPanelOpen, setIsInsightsPanelOpen] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<'planning' | 'pricing'>('planning');
   const [selectedPropertyForMonth, setSelectedPropertyForMonth] = useState<CalendarProperty | null>(null);
   const [monthViewDate, setMonthViewDate] = useState<Date>(startOfMonth(new Date()));
 
@@ -272,11 +286,33 @@ const CalendarPage = () => {
             onDayMouseEnter={handleDayMouseEnter}
             onDayMouseUp={handleDayMouseUp}
             isSelecting={isSelecting}
+            getInsightsForProperty={getInsightsForProperty}
+            onInsightClick={() => setIsInsightsPanelOpen(true)}
           />
         </>
       ) : (
         <PricingView properties={filteredProperties} days={visibleDays} />
       )}
+
+      {/* Insights Panel */}
+      <InsightsPanel
+        open={isInsightsPanelOpen}
+        onOpenChange={setIsInsightsPanelOpen}
+        insights={insights}
+        unreadCount={unreadCount}
+        onMarkAsRead={markAsRead}
+        onMarkAllAsRead={markAllAsRead}
+        onArchive={archiveInsight}
+        onAction={(action, propertyId) => {
+          setIsInsightsPanelOpen(false);
+          if (action === 'open_pricing') {
+            setActiveTab('pricing');
+          }
+        }}
+        disabledTypes={disabledTypes}
+        onToggleType={toggleTypeEnabled}
+      />
+
 
       {/* Booking Details Sheet */}
       <BookingDetailsSheet

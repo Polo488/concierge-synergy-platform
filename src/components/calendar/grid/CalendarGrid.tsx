@@ -3,6 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import { CalendarGridHeader } from './CalendarGridHeader';
 import { PropertyRow } from './PropertyRow';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod, DailyPrice } from '@/types/calendar';
+import { PropertyInsight } from '@/types/insights';
 
 interface CalendarGridProps {
   properties: CalendarProperty[];
@@ -20,6 +21,9 @@ interface CalendarGridProps {
   onDayMouseEnter?: (propertyId: number, date: Date) => void;
   onDayMouseUp?: () => void;
   isSelecting?: boolean;
+  // Insights props
+  getInsightsForProperty?: (propertyId: number) => PropertyInsight[];
+  onInsightClick?: () => void;
 }
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
@@ -37,6 +41,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   onDayMouseEnter,
   onDayMouseUp,
   isSelecting,
+  getInsightsForProperty,
+  onInsightClick,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -92,6 +98,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 isDaySelected={isDaySelected}
                 onDayMouseDown={onDayMouseDown}
                 onDayMouseEnter={onDayMouseEnter}
+                propertyInsights={getInsightsForProperty?.(property.id)}
+                onInsightClick={onInsightClick}
               />
             ))
           )}
