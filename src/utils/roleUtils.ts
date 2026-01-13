@@ -36,7 +36,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           moyenneDuree: true,
           upsell: true,
           users: false,
-          pricingRules: false,
+          pricingRules: true,
         },
         defaultRoute: '/',
         canManageUsers: false,
