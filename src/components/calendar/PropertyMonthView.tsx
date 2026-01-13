@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { 
   startOfMonth, 
   endOfMonth, 
@@ -11,15 +11,16 @@ import {
   format, 
   isWithinInterval,
   addDays,
-  differenceInDays,
-  startOfDay
+  startOfDay,
+  isBefore,
+  isAfter
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Euro } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChannelIcon } from './grid/ChannelIcon';
-import type { CalendarProperty, CalendarBooking, BlockedPeriod, CHANNEL_COLORS } from '@/types/calendar';
+import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
 
 interface PropertyMonthViewProps {
   property: CalendarProperty;
@@ -31,6 +32,8 @@ interface PropertyMonthViewProps {
   onBookingClick: (booking: CalendarBooking) => void;
   onCellClick: (date: Date, propertyId: number) => void;
   getDailyPrice?: (propertyId: number, date: Date) => number;
+  // Multi-day selection callback
+  onPriceEditRequest?: (propertyId: number, startDate: Date, endDate: Date, currentPrice: number) => void;
 }
 
 const CHANNEL_COLORS_MAP: Record<string, string> = {
@@ -43,6 +46,10 @@ const CHANNEL_COLORS_MAP: Record<string, string> = {
 
 const PAST_COLOR = '#9CA3AF';
 
+interface DaySelection {
+  date: Date;
+}
+
 export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
   property,
   bookings,
@@ -53,8 +60,15 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
   onBookingClick,
   onCellClick,
   getDailyPrice,
+  onPriceEditRequest,
 }) => {
   const today = startOfDay(new Date());
+
+  // Multi-day selection state
+  const [selectedDays, setSelectedDays] = useState<DaySelection[]>([]);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const selectionStartRef = useRef<Date | null>(null);
+  const lastClickedRef = useRef<Date | null>(null);
 
   // Generate calendar days for the month grid
   const calendarDays = useMemo(() => {
@@ -150,8 +164,97 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
     return result;
   }, [calendarDays]);
 
+  // Selection helpers
+  const isDaySelected = useCallback((date: Date): boolean => {
+    const dayStart = startOfDay(date);
+    return selectedDays.some(s => isSameDay(startOfDay(s.date), dayStart));
+  }, [selectedDays]);
+
+  const getSelectionRange = useCallback((start: Date, end: Date): DaySelection[] => {
+    const startDate = startOfDay(start);
+    const endDate = startOfDay(end);
+    
+    const [rangeStart, rangeEnd] = isBefore(startDate, endDate) 
+      ? [startDate, endDate] 
+      : [endDate, startDate];
+    
+    const days = eachDayOfInterval({ start: rangeStart, end: rangeEnd });
+    return days.map(date => ({ date }));
+  }, []);
+
+  const handleDayMouseDown = useCallback((day: Date, isEmpty: boolean, event: React.MouseEvent) => {
+    if (!isEmpty) return;
+    event.preventDefault();
+    
+    const dayStart = startOfDay(day);
+    
+    if (!event.shiftKey) {
+      selectionStartRef.current = dayStart;
+      setIsSelecting(true);
+      setSelectedDays([{ date: dayStart }]);
+    }
+  }, []);
+
+  const handleDayMouseEnter = useCallback((day: Date) => {
+    if (!isSelecting || !selectionStartRef.current) return;
+    
+    const dayStart = startOfDay(day);
+    const newSelection = getSelectionRange(selectionStartRef.current, dayStart);
+    setSelectedDays(newSelection);
+  }, [isSelecting, getSelectionRange]);
+
+  const handleDayMouseUp = useCallback(() => {
+    if (isSelecting) {
+      setIsSelecting(false);
+      if (selectedDays.length > 0) {
+        lastClickedRef.current = selectedDays[0].date;
+      }
+    }
+  }, [isSelecting, selectedDays]);
+
+  const handleDayClick = useCallback((day: Date, isEmpty: boolean, event: React.MouseEvent) => {
+    if (!isEmpty) return;
+    
+    const dayStart = startOfDay(day);
+    
+    if (event.shiftKey && lastClickedRef.current) {
+      const rangeSelection = getSelectionRange(lastClickedRef.current, dayStart);
+      setSelectedDays(rangeSelection);
+    } else if (!isSelecting) {
+      setSelectedDays([{ date: dayStart }]);
+      lastClickedRef.current = dayStart;
+    }
+  }, [getSelectionRange, isSelecting]);
+
+  // Global mouseup listener
+  useEffect(() => {
+    if (isSelecting) {
+      const handleGlobalMouseUp = () => handleDayMouseUp();
+      window.addEventListener('mouseup', handleGlobalMouseUp);
+      return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
+    }
+  }, [isSelecting, handleDayMouseUp]);
+
+  // Handle price edit button click
+  const handleEditPrices = () => {
+    if (selectedDays.length === 0 || !onPriceEditRequest) return;
+    
+    const sortedDays = [...selectedDays].sort((a, b) => a.date.getTime() - b.date.getTime());
+    const startDate = sortedDays[0].date;
+    const endDate = sortedDays[sortedDays.length - 1].date;
+    const currentPrice = getDailyPrice ? getDailyPrice(property.id, startDate) : property.pricePerNight;
+    
+    onPriceEditRequest(property.id, startDate, endDate, currentPrice);
+  };
+
+  const clearSelection = () => {
+    setSelectedDays([]);
+    selectionStartRef.current = null;
+    lastClickedRef.current = null;
+  };
+
   return (
-    <div className="bg-primary/5 rounded-lg border border-primary/20">
+    <div className="bg-primary/5 rounded-lg border border-primary/20 select-none">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border bg-primary/10 rounded-t-lg">
         <div className="flex items-center gap-4">
@@ -177,6 +280,22 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Selection info & actions */}
+          {selectedDays.length > 0 && (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/20 rounded-lg">
+              <span className="text-sm font-medium">
+                {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''} sélectionné{selectedDays.length > 1 ? 's' : ''}
+              </span>
+              <Button size="sm" variant="secondary" onClick={handleEditPrices} className="gap-1">
+                <Euro className="w-3 h-3" />
+                Modifier prix
+              </Button>
+              <Button size="sm" variant="ghost" onClick={clearSelection}>
+                Annuler
+              </Button>
+            </div>
+          )}
+
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" onClick={prevMonth}>
               <ChevronLeft className="h-4 w-4" />
@@ -215,10 +334,10 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
             const booking = getBookingForDay(day);
             const blocked = isBlocked(day);
             const isEmpty = !booking && !blocked;
+            const isSelected = isDaySelected(day);
             
             const isCheckIn = booking ? isCheckInDay(day, booking) : false;
             const isCheckOut = booking ? isCheckOutDay(day, booking) : false;
-            const isMiddle = booking && !isCheckIn && !isCheckOut;
             
             const dailyPrice = getDailyPrice ? getDailyPrice(property.id, day) : property.pricePerNight;
 
@@ -246,13 +365,16 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
                   isCurrentMonth ? "bg-background" : "bg-muted/30",
                   isToday && "ring-2 ring-primary",
                   isEmpty && isCurrentMonth && "cursor-pointer hover:bg-accent/30",
-                  !isCurrentMonth && "opacity-50"
+                  !isCurrentMonth && "opacity-50",
+                  isSelected && isEmpty && "ring-2 ring-inset ring-primary bg-primary/20"
                 )}
-                onClick={() => {
+                onMouseDown={(e) => handleDayMouseDown(day, isEmpty && isCurrentMonth, e)}
+                onMouseEnter={() => handleDayMouseEnter(day)}
+                onClick={(e) => {
                   if (booking) {
                     onBookingClick(booking);
                   } else if (isEmpty && isCurrentMonth) {
-                    onCellClick(day, property.id);
+                    handleDayClick(day, true, e);
                   }
                 }}
               >
@@ -336,6 +458,10 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 rounded bg-muted border" />
           <span>Bloqué</span>
+        </div>
+        <div className="flex items-center gap-1 ml-4">
+          <div className="w-3 h-3 rounded ring-2 ring-primary bg-primary/20" />
+          <span>Sélectionné (glisser ou Shift+clic)</span>
         </div>
       </div>
     </div>

@@ -14,6 +14,10 @@ interface PropertyRowProps {
   onBookingClick: (booking: CalendarBooking) => void;
   onCellClick: (date: Date, propertyId: number) => void;
   onPropertyClick?: (property: CalendarProperty) => void;
+  // Multi-day selection props
+  isDaySelected?: (propertyId: number, date: Date) => boolean;
+  onDayMouseDown?: (propertyId: number, date: Date, event: React.MouseEvent) => void;
+  onDayMouseEnter?: (propertyId: number, date: Date) => void;
 }
 
 export const PropertyRow: React.FC<PropertyRowProps> = ({
@@ -24,6 +28,9 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   onBookingClick,
   onCellClick,
   onPropertyClick,
+  isDaySelected,
+  onDayMouseDown,
+  onDayMouseEnter,
 }) => {
   const today = startOfDay(new Date());
   
@@ -71,6 +78,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
           const isToday = isSameDay(day, today);
           const isPast = day < today && !isToday;
           const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+          const isSelected = isDaySelected?.(property.id, day) ?? false;
           
           const bookings = getBookingsForProperty(property.id, day);
           const blocked = getBlockedForProperty(property.id, day);
@@ -179,9 +187,16 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
                 isToday && "bg-primary/5",
                 isPast && !isToday && "bg-muted/20",
                 isWeekend && !isToday && "bg-muted/10",
-                isEmpty && "cursor-pointer hover:bg-accent/30"
+                isEmpty && "cursor-pointer hover:bg-accent/30",
+                isSelected && "ring-2 ring-inset ring-primary bg-primary/20"
               )}
-              onClick={() => isEmpty && onCellClick(day, property.id)}
+              onMouseDown={(e) => isEmpty && onDayMouseDown?.(property.id, day, e)}
+              onMouseEnter={() => onDayMouseEnter?.(property.id, day)}
+              onClick={(e) => {
+                if (isEmpty && !e.defaultPrevented) {
+                  onCellClick(day, property.id);
+                }
+              }}
             >
               {bookingBlocks}
               {blockedBlock}
