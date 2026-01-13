@@ -16,8 +16,7 @@ import {
   Clock,
   ShoppingCart,
   Users,
-  LogOut,
-  CalendarCog
+  LogOut
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -47,7 +46,6 @@ export function Sidebar() {
     { name: t('sidebar.averageDuration'), path: '/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
     { name: t('sidebar.upsell'), path: '/upsell', icon: ShoppingCart, permission: 'upsell' },
     { name: t('sidebar.billing'), path: '/billing', icon: Receipt, permission: 'billing' },
-    { name: 'Tarifs & Règles', path: '/pricing-rules', icon: CalendarCog, permission: 'pricingRules' },
   ];
   
   // Add users management if user has permission
