@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { 
@@ -167,9 +167,10 @@ export function RulesTable({
             const isExpanded = expandedRows.has(rule.id);
             const priorityConfig = PRIORITY_CONFIG[rule.priority];
 
-            return (
-              <Fragment key={rule.id}>
+            return [
+              (
                 <TableRow 
+                  key={rule.id}
                   className={`${!rule.enabled ? 'opacity-60' : ''} hover:bg-muted/30`}
                 >
                   <TableCell>
@@ -282,10 +283,10 @@ export function RulesTable({
                     </DropdownMenu>
                   </TableCell>
                 </TableRow>
-                
-                {/* Expanded row details */}
-                {isExpanded && (
-                  <TableRow className="bg-muted/20">
+              ),
+              /* Expanded row details */
+              isExpanded ? (
+                <TableRow key={`${rule.id}-details`} className="bg-muted/20">
                     <TableCell colSpan={10} className="p-4">
                       <div className="grid grid-cols-3 gap-6">
                         <div>
@@ -367,10 +368,9 @@ export function RulesTable({
                       </div>
                     </TableCell>
                   </TableRow>
-                )}
-              </Fragment>
-            );
-          })}
+                ) : null,
+              ];
+            })}
         </TableBody>
       </Table>
     </div>
