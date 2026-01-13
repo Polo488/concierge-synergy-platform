@@ -14,15 +14,18 @@ interface BookingBlockProps {
   onClick: () => void;
 }
 
-// Channel colors - only Red (Airbnb), Blue (Booking), rest uses default
+// Channel colors - Rouge (Airbnb), Bleu (Booking), Gris pour le reste
 const CHANNEL_COLORS: Record<string, string> = {
-  airbnb: '#FF5A5F',    // Rouge Airbnb
-  booking: '#003580',   // Bleu Booking
+  airbnb: '#EF4444',    // Rouge vif Airbnb
+  booking: '#2563EB',   // Bleu vif Booking.com
+  vrbo: '#6B7280',      // Gris
+  direct: '#6B7280',    // Gris
+  other: '#6B7280',     // Gris
 };
 
-// Past bookings and default are gray
-const PAST_COLOR = '#D1D5DB';
-const DEFAULT_COLOR = '#9CA3AF';
+// Past bookings are gray
+const PAST_COLOR = '#9CA3AF';
+const DEFAULT_COLOR = '#6B7280';
 
 export const BookingBlock: React.FC<BookingBlockProps> = ({
   booking,
@@ -102,6 +105,9 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   // Show price only if there's enough space
   const showPrice = visibleDays >= 2 && booking.nightlyRate && width > 80;
 
+  // Biseau net : check-in = coupe diagonale gauche, check-out = coupe diagonale droite
+  const bevelSize = 12; // Taille du biseau en pixels
+  
   return (
     <div
       onClick={(e) => {
@@ -109,15 +115,15 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
         onClick();
       }}
       className={cn(
-        "absolute top-0.5 bottom-0.5 z-10 flex items-center px-1.5 cursor-pointer transition-all",
-        "hover:brightness-110 hover:shadow-md"
+        "absolute top-1 bottom-1 z-10 flex items-center px-2 cursor-pointer transition-all",
+        "hover:brightness-110 hover:shadow-lg shadow-sm"
       )}
       style={{
-        width: `${Math.max(width, 20)}px`,
+        width: `${Math.max(width, 24)}px`,
         backgroundColor,
         left: `${leftOffset}px`,
-        clipPath: getBevelClipPath(hasLeftBevel, hasRightBevel),
-        borderRadius: hasLeftBevel && hasRightBevel ? '8px' : hasLeftBevel ? '8px 9999px 9999px 8px' : hasRightBevel ? '9999px 8px 8px 9999px' : '9999px',
+        clipPath: getSharpBevelClipPath(hasLeftBevel, hasRightBevel, bevelSize),
+        // Pas de borderRadius pour garder les biseaux nets
       }}
       title={`${booking.guestName} - ${booking.nightlyRate ? `${booking.nightlyRate}€/nuit` : ''}`}
     >
@@ -139,22 +145,23 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   );
 };
 
-// Creates diagonal bevels on left/right edges
-function getBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean): string {
-  // Bevel size - diagonal cut across the full height
-  const cut = '10px';
+// Creates sharp diagonal bevels on left/right edges - biseau net et droit
+function getSharpBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean, bevelSize: number): string {
+  const cut = `${bevelSize}px`;
   
   if (hasLeftBevel && hasRightBevel) {
-    // Both sides beveled: parallelogram shape (diagonal left and right)
-    return `polygon(${cut} 0%, 100% 0%, calc(100% - ${cut}) 100%, 0% 100%)`;
+    // Les deux côtés en biseau: parallélogramme
+    // Check-in (gauche): coupe diagonale de haut-gauche vers bas
+    // Check-out (droite): coupe diagonale de haut vers bas-droite
+    return `polygon(${cut} 0%, calc(100% - ${cut}) 0%, 100% 100%, 0% 100%)`;
   } else if (hasLeftBevel) {
-    // Left diagonal only: starts narrow at top-left, full width at bottom
+    // Biseau gauche uniquement (check-in visible, check-out tronqué)
     return `polygon(${cut} 0%, 100% 0%, 100% 100%, 0% 100%)`;
   } else if (hasRightBevel) {
-    // Right diagonal only: full width at top, narrows at bottom-right
-    return `polygon(0% 0%, 100% 0%, calc(100% - ${cut}) 100%, 0% 100%)`;
+    // Biseau droit uniquement (check-in tronqué, check-out visible)
+    return `polygon(0% 0%, calc(100% - ${cut}) 0%, 100% 100%, 0% 100%)`;
   }
   
-  // No bevel - straight rectangle
+  // Pas de biseau - rectangle simple (les deux extrémités sont tronquées)
   return 'none';
 }
