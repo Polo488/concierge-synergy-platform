@@ -1,12 +1,13 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { fr } from 'date-fns/locale';
-import { CleaningTask, CleaningStatus, NewCleaningTask } from '@/types/cleaning';
+import { CleaningTask, CleaningStatus, NewCleaningTask, CleaningTaskRating } from '@/types/cleaning';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { CleaningContextType, CleaningProviderProps } from './types';
+import { CleaningContextType, CleaningProviderProps, CleaningRatingData } from './types';
 import { createCleaningActions } from './actions';
 import { createCleaningHelpers } from './helpers';
 import { initialTodayTasks, initialTomorrowTasks, initialCompletedTasks, initialNewTask } from './initialState';
+import { toast } from '@/components/ui/use-toast';
 
 const CleaningContext = createContext<CleaningContextType | undefined>(undefined);
 
@@ -38,9 +39,43 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
   const [addTaskDialogOpen, setAddTaskDialogOpen] = useState(false);
   const [deleteConfirmDialogOpen, setDeleteConfirmDialogOpen] = useState(false);
   const [editCommentsDialogOpen, setEditCommentsDialogOpen] = useState(false);
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
+  const [taskToRate, setTaskToRate] = useState<CleaningTask | null>(null);
   
   // New task form state
   const [newTask, setNewTask] = useState<NewCleaningTask>(initialNewTask);
+
+  // Handle rating submission
+  const handleSubmitRating = (ratingData: CleaningRatingData) => {
+    const qualityRating: CleaningTaskRating = {
+      rating: ratingData.rating,
+      comment: ratingData.comment,
+      tags: ratingData.tags,
+      reworkRequired: ratingData.reworkRequired,
+      reworkReason: ratingData.reworkReason,
+      ratedAt: new Date().toISOString(),
+      ratedBy: 'manager', // In real app, use current user
+    };
+
+    // Update the completed task with rating
+    setCompletedCleaningTasks((prev) =>
+      prev.map((task) =>
+        task.id === ratingData.taskId
+          ? { ...task, qualityRating }
+          : task
+      )
+    );
+
+    if (ratingData.rating > 0) {
+      toast({
+        title: 'Note enregistrée',
+        description: `Note de ${ratingData.rating}/5 enregistrée pour ${taskToRate?.property}`,
+      });
+    }
+
+    setRatingDialogOpen(false);
+    setTaskToRate(null);
+  };
 
   // Gather all state variables
   const state = {
@@ -55,7 +90,9 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     selectedTasks,
     labelType,
     taskComments,
-    newTask
+    newTask,
+    ratingDialogOpen,
+    taskToRate
   };
 
   // Gather all state setters
@@ -79,7 +116,9 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     setLabelsDialogOpen,
     setAddTaskDialogOpen,
     setDeleteConfirmDialogOpen,
-    setEditCommentsDialogOpen
+    setEditCommentsDialogOpen,
+    setRatingDialogOpen,
+    setTaskToRate
   };
 
   // Create actions and helpers
@@ -100,6 +139,8 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     labelType,
     taskComments,
     newTask,
+    ratingDialogOpen,
+    taskToRate,
     
     // Dialog states
     assignDialogOpen,
@@ -124,6 +165,8 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     setLabelType,
     setTaskComments,
     setNewTask,
+    setRatingDialogOpen,
+    setTaskToRate,
     
     // Dialog controllers
     setAssignDialogOpen,
@@ -137,6 +180,7 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     
     // Actions
     ...actions,
+    handleSubmitRating,
     
     // Helpers
     ...helpers,
