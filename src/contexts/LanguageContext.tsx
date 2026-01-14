@@ -24,6 +24,7 @@ const translations: Record<Language, Record<string, string>> = {
     'sidebar.upsell': 'Upsell',
     'sidebar.billing': 'Facturation',
     'sidebar.insights': 'Insights & Alertes',
+    'sidebar.qualityStats': 'Qualité & Stats',
     // Common actions
     'close': 'Fermer',
     'save': 'Enregistrer',
@@ -90,6 +91,7 @@ const translations: Record<Language, Record<string, string>> = {
     'sidebar.upsell': 'Upsell',
     'sidebar.billing': 'Billing',
     'sidebar.insights': 'Insights & Alerts',
+    'sidebar.qualityStats': 'Quality & Stats',
     // Common actions
     'close': 'Close',
     'save': 'Save',
