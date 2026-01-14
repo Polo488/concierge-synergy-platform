@@ -1,5 +1,17 @@
 
+import { QualityTag } from './quality';
+
 export type CleaningStatus = 'todo' | 'inProgress' | 'completed' | 'scheduled';
+
+export interface CleaningTaskRating {
+  rating: number;
+  comment: string;
+  tags: QualityTag[];
+  reworkRequired: boolean;
+  reworkReason: string;
+  ratedAt: string;
+  ratedBy: string;
+}
 
 export interface CleaningTask {
   id: number;
@@ -15,6 +27,7 @@ export interface CleaningTask {
   consumables: string[];
   comments: string;
   problems: string[];
+  qualityRating?: CleaningTaskRating;
 }
 
 export interface NewCleaningTask {

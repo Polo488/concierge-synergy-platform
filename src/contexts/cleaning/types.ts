@@ -1,5 +1,15 @@
 
 import { CleaningTask, CleaningStatus, NewCleaningTask } from '@/types/cleaning';
+import { QualityTag } from '@/types/quality';
+
+export interface CleaningRatingData {
+  taskId: number;
+  rating: number;
+  comment: string;
+  tags: QualityTag[];
+  reworkRequired: boolean;
+  reworkReason: string;
+}
 
 export interface CleaningContextType {
   // Task collections
@@ -27,6 +37,8 @@ export interface CleaningContextType {
   addTaskDialogOpen: boolean;
   deleteConfirmDialogOpen: boolean;
   editCommentsDialogOpen: boolean;
+  ratingDialogOpen: boolean;
+  taskToRate: CleaningTask | null;
   
   // Setters
   setTodayCleaningTasks: (tasks: CleaningTask[]) => void;
@@ -51,6 +63,8 @@ export interface CleaningContextType {
   setAddTaskDialogOpen: (open: boolean) => void;
   setDeleteConfirmDialogOpen: (open: boolean) => void;
   setEditCommentsDialogOpen: (open: boolean) => void;
+  setRatingDialogOpen: (open: boolean) => void;
+  setTaskToRate: (task: CleaningTask | null) => void;
   
   // Actions
   handleStartCleaning: (task: CleaningTask) => void;
@@ -65,6 +79,7 @@ export interface CleaningContextType {
   handleDeleteTask: () => void;
   handleSaveComments: () => void;
   handleUpdateCheckTimes: (checkoutTime: string, checkinTime: string) => void;
+  handleSubmitRating: (ratingData: CleaningRatingData) => void;
   
   // Helpers
   openAssignDialog: (task: CleaningTask) => void;

@@ -67,7 +67,11 @@ export const createCleaningActions = (
       endTime: now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
     };
     
-    setCompletedCleaningTasks([completedTask, ...completedCleaningTasks]);
+    setState.setCompletedCleaningTasks([completedTask, ...completedCleaningTasks]);
+    
+    // Open rating dialog after completion
+    setState.setTaskToRate(completedTask);
+    setState.setRatingDialogOpen(true);
     
     toast({
       title: t('cleaning.toast.completed.title'),
