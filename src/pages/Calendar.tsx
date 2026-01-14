@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { startOfMonth, startOfDay } from 'date-fns';
+import { startOfMonth, startOfDay, addDays } from 'date-fns';
 import { useCalendarGrid } from '@/hooks/calendar/useCalendarGrid';
 import { useMultiDaySelection } from '@/hooks/calendar/useMultiDaySelection';
 import { useInsights } from '@/hooks/useInsights';
@@ -9,6 +9,7 @@ import { CalendarGrid } from '@/components/calendar/grid/CalendarGrid';
 import { CalendarToolbar } from '@/components/calendar/grid/CalendarToolbar';
 import { BookingDetailsSheet } from '@/components/calendar/dialogs/BookingDetailsSheet';
 import { NewBookingDialog } from '@/components/calendar/dialogs/NewBookingDialog';
+import { CreateBlockDialog } from '@/components/calendar/dialogs/CreateBlockDialog';
 import { PricingView } from '@/components/calendar/pricing/PricingView';
 import { PropertyMonthView } from '@/components/calendar/PropertyMonthView';
 import { PriceEditModal } from '@/components/calendar/PriceEditModal';
@@ -16,8 +17,8 @@ import { InsightsPanel } from '@/components/insights/InsightsPanel';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CalendarDays, Euro, Bell } from 'lucide-react';
-import type { CalendarBooking, CalendarProperty, BookingChannel } from '@/types/calendar';
+import { CalendarDays, Euro, Bell, Ban } from 'lucide-react';
+import type { CalendarBooking, CalendarProperty, BookingChannel, BlockedPeriod } from '@/types/calendar';
 
 const CalendarPage = () => {
   const {
@@ -77,6 +78,13 @@ const CalendarPage = () => {
   const [preselectedPropertyId, setPreselectedPropertyId] = useState<number | undefined>();
   const [preselectedDate, setPreselectedDate] = useState<Date | undefined>();
 
+  // Block dialog state
+  const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
+  const [blockDialogProperty, setBlockDialogProperty] = useState<CalendarProperty | undefined>();
+  const [blockDialogStartDate, setBlockDialogStartDate] = useState<Date | undefined>();
+  const [blockDialogEndDate, setBlockDialogEndDate] = useState<Date | undefined>();
+  const [editingBlock, setEditingBlock] = useState<BlockedPeriod | undefined>();
+
   // Price edit modal state
   const [isPriceEditOpen, setIsPriceEditOpen] = useState(false);
   const [priceEditData, setPriceEditData] = useState<{
@@ -98,10 +106,12 @@ const CalendarPage = () => {
     setIsDetailsOpen(true);
   };
 
-  // Handle empty cell click
+  // Handle empty cell click - could be booking or block
   const handleCellClick = (date: Date, propertyId: number) => {
-    // Don't open new booking dialog if we're selecting
+    // Don't open dialog if we're selecting
     if (isSelecting) return;
+    
+    // For now, default to new booking - could add menu to choose
     setPreselectedPropertyId(propertyId);
     setPreselectedDate(date);
     setIsNewBookingOpen(true);
@@ -113,11 +123,60 @@ const CalendarPage = () => {
     setMonthViewDate(startOfMonth(currentDate));
   };
 
+  // Handle blocked period click - open block dialog for editing
+  const handleBlockedClick = (blocked: BlockedPeriod) => {
+    const property = properties.find(p => p.id === blocked.propertyId);
+    setBlockDialogProperty(property);
+    setEditingBlock(blocked);
+    setBlockDialogStartDate(blocked.startDate);
+    setBlockDialogEndDate(blocked.endDate);
+    setIsBlockDialogOpen(true);
+  };
+
+  // Open block dialog for creating new block
+  const handleOpenBlockDialog = (property?: CalendarProperty, startDate?: Date, endDate?: Date) => {
+    setBlockDialogProperty(property);
+    setBlockDialogStartDate(startDate || new Date());
+    setBlockDialogEndDate(endDate || startDate || new Date());
+    setEditingBlock(undefined);
+    setIsBlockDialogOpen(true);
+  };
+
+  // Handle block creation/update
+  const handleBlockSubmit = (block: Omit<BlockedPeriod, 'id'>, shouldCreateCleaningTask: boolean) => {
+    if (editingBlock) {
+      // Update existing block
+      console.log('Update block:', { ...block, id: editingBlock.id }, shouldCreateCleaningTask);
+      toast.success('Blocage modifié avec succès');
+    } else {
+      // Create new block
+      console.log('Create block:', block, shouldCreateCleaningTask);
+      toast.success('Période bloquée avec succès');
+    }
+    
+    if (shouldCreateCleaningTask && block.cleaningSchedule?.enabled) {
+      const cleaningDate = block.cleaningSchedule.dateRule === 'last_blocked_day' 
+        ? block.endDate 
+        : addDays(block.endDate, 1);
+      toast.info(`Ménage programmé pour le ${cleaningDate.toLocaleDateString('fr-FR')}`);
+    }
+    
+    setIsBlockDialogOpen(false);
+    setEditingBlock(undefined);
+  };
+
+  // Handle block deletion
+  const handleBlockDelete = (blockId: number, deleteLinkedCleaning: boolean) => {
+    console.log('Delete block:', blockId, 'Delete cleaning:', deleteLinkedCleaning);
+    toast.success('Blocage supprimé');
+    setIsBlockDialogOpen(false);
+    setEditingBlock(undefined);
+  };
+
   // Close month view
   const handleCloseMonthView = () => {
     setSelectedPropertyForMonth(null);
   };
-
   // Handle add booking button
   const handleAddBooking = () => {
     setPreselectedPropertyId(undefined);
@@ -217,6 +276,21 @@ const CalendarPage = () => {
                 <Euro className="w-3 h-3" />
                 Modifier prix
               </Button>
+              <Button 
+                size="sm" 
+                variant="secondary" 
+                onClick={() => {
+                  if (selectionRange) {
+                    const property = properties.find(p => p.id === selectionRange.propertyId);
+                    handleOpenBlockDialog(property, selectionRange.startDate, selectionRange.endDate);
+                    clearSelection();
+                  }
+                }} 
+                className="gap-1"
+              >
+                <Ban className="w-3 h-3" />
+                Bloquer
+              </Button>
               <Button size="sm" variant="ghost" onClick={clearSelection}>
                 Annuler
               </Button>
@@ -281,6 +355,7 @@ const CalendarPage = () => {
             onBookingClick={handleBookingClick}
             onCellClick={handleCellClick}
             onPropertyClick={handlePropertyClick}
+            onBlockedClick={handleBlockedClick}
             isDaySelected={isDaySelected}
             onDayMouseDown={handleDayMouseDown}
             onDayMouseEnter={handleDayMouseEnter}
@@ -352,6 +427,23 @@ const CalendarPage = () => {
         property={priceEditProperty}
         currentPrice={priceEditData?.currentPrice || 0}
         onSubmit={handlePriceUpdate}
+      />
+
+      {/* Create/Edit Block Dialog */}
+      <CreateBlockDialog
+        open={isBlockDialogOpen}
+        onOpenChange={setIsBlockDialogOpen}
+        property={blockDialogProperty}
+        preselectedStartDate={blockDialogStartDate}
+        preselectedEndDate={blockDialogEndDate}
+        existingBlock={editingBlock}
+        cleaningAgents={[
+          { id: '1', name: 'Marie Dubois' },
+          { id: '2', name: 'Jean Martin' },
+          { id: '3', name: 'Sophie Bernard' },
+        ]}
+        onSubmit={handleBlockSubmit}
+        onDelete={handleBlockDelete}
       />
     </div>
   );

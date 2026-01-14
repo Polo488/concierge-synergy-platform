@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Ban } from 'lucide-react';
+import { Ban, Sparkles } from 'lucide-react';
 import type { BlockedPeriod } from '@/types/calendar';
 
 interface BlockedBlockProps {
@@ -11,6 +10,7 @@ interface BlockedBlockProps {
   isEndDay: boolean;
   isStartTruncated: boolean;
   isEndTruncated: boolean;
+  onCleaningIndicatorClick?: () => void;
 }
 
 export const BlockedBlock: React.FC<BlockedBlockProps> = ({
@@ -20,6 +20,7 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
   isEndDay,
   isStartTruncated,
   isEndTruncated,
+  onCleaningIndicatorClick,
 }) => {
   const cellWidth = 40;
   const halfCell = cellWidth / 2;
@@ -40,11 +41,17 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
 
   const hasLeftBevel = isStartDay && !isStartTruncated;
   const hasRightBevel = isEndDay && !isEndTruncated;
+  const hasCleaningScheduled = blocked.cleaningSchedule?.enabled;
 
   const truncateReason = (reason: string | undefined, maxLength: number = 10): string => {
     const text = reason || 'Bloqué';
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength - 1) + '…';
+  };
+
+  const handleCleaningClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onCleaningIndicatorClick?.();
   };
 
   return (
@@ -65,6 +72,22 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
       <span className="text-xs font-medium text-white/90 truncate">
         {visibleDays > 1 ? truncateReason(blocked.reason) : ''}
       </span>
+      
+      {/* Cleaning scheduled indicator - positioned at end of block */}
+      {hasCleaningScheduled && isEndDay && !isEndTruncated && (
+        <div 
+          className={cn(
+            "absolute -right-0.5 top-1/2 -translate-y-1/2 translate-x-1/2",
+            "w-5 h-5 rounded-full bg-primary flex items-center justify-center",
+            "cursor-pointer hover:scale-110 transition-transform",
+            "shadow-md border-2 border-background"
+          )}
+          onClick={handleCleaningClick}
+          title="Ménage programmé"
+        >
+          <Sparkles className="w-3 h-3 text-primary-foreground" />
+        </div>
+      )}
     </div>
   );
 };

@@ -15,6 +15,7 @@ interface CalendarGridProps {
   onCellClick: (date: Date, propertyId: number) => void;
   onDayClick?: (date: Date) => void;
   onPropertyClick?: (property: CalendarProperty) => void;
+  onBlockedClick?: (blocked: BlockedPeriod) => void;
   // Multi-day selection props
   isDaySelected?: (propertyId: number, date: Date) => boolean;
   onDayMouseDown?: (propertyId: number, date: Date, event: React.MouseEvent) => void;
@@ -36,6 +37,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   onCellClick,
   onDayClick,
   onPropertyClick,
+  onBlockedClick,
   isDaySelected,
   onDayMouseDown,
   onDayMouseEnter,
@@ -95,6 +97,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 onBookingClick={onBookingClick}
                 onCellClick={onCellClick}
                 onPropertyClick={onPropertyClick}
+                onBlockedClick={onBlockedClick}
                 isDaySelected={isDaySelected}
                 onDayMouseDown={onDayMouseDown}
                 onDayMouseEnter={onDayMouseEnter}

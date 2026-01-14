@@ -27,13 +27,39 @@ export interface CalendarBooking {
   email?: string;
 }
 
+export type BlockReasonType = 'owner_stay' | 'maintenance' | 'personal_use' | 'renovation' | 'other';
+
+export type CleaningDateRule = 'last_blocked_day' | 'day_after_block';
+
+export interface BlockCleaningSchedule {
+  enabled: boolean;
+  dateRule: CleaningDateRule;
+  startTime?: string;
+  endTime?: string;
+  assignedAgentId?: string;
+  assignedAgentName?: string;
+  notes?: string;
+  linkedCleaningTaskId?: number;
+  manuallyOverridden?: boolean;
+}
+
 export interface BlockedPeriod {
   id: number;
   propertyId: number;
   startDate: Date;
   endDate: Date;
   reason?: string;
+  reasonType?: BlockReasonType;
+  cleaningSchedule?: BlockCleaningSchedule;
 }
+
+export const BLOCK_REASON_LABELS: Record<BlockReasonType, string> = {
+  owner_stay: 'Séjour propriétaire',
+  maintenance: 'Maintenance',
+  personal_use: 'Usage personnel',
+  renovation: 'Travaux',
+  other: 'Autre',
+};
 
 export interface DailyPrice {
   propertyId: number;

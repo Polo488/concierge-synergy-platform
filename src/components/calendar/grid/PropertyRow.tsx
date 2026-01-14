@@ -16,6 +16,7 @@ interface PropertyRowProps {
   onBookingClick: (booking: CalendarBooking) => void;
   onCellClick: (date: Date, propertyId: number) => void;
   onPropertyClick?: (property: CalendarProperty) => void;
+  onBlockedClick?: (blocked: BlockedPeriod) => void;
   // Multi-day selection props
   isDaySelected?: (propertyId: number, date: Date) => boolean;
   onDayMouseDown?: (propertyId: number, date: Date, event: React.MouseEvent) => void;
@@ -33,6 +34,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   onBookingClick,
   onCellClick,
   onPropertyClick,
+  onBlockedClick,
   isDaySelected,
   onDayMouseDown,
   onDayMouseEnter,
@@ -197,6 +199,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
                   isEndDay={isEndDay}
                   isStartTruncated={isStartTruncated}
                   isEndTruncated={isEndTruncated}
+                  onCleaningIndicatorClick={() => onBlockedClick?.(blocked)}
                 />
               );
             }
