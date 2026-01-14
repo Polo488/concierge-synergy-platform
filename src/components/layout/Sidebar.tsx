@@ -159,10 +159,13 @@ export function Sidebar() {
           {filteredNavItems.map((item, index) => {
             const isActive = location.pathname === item.path;
             
+            console.log(`[Sidebar] Rendering nav item: ${item.name} -> ${item.path}, hasPermission: ${hasPermission(item.permission as any)}`);
+            
             return (
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => console.log(`[Sidebar] Clicked on: ${item.name} -> ${item.path}`)}
                 className={cn(
                   "flex items-center px-2 py-3 rounded-lg transition-all duration-200",
                   "group hover:bg-primary/5",
