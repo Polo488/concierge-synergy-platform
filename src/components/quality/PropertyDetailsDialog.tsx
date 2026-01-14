@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PropertyQualityStats, CleaningTaskExtended, QualityTag } from '@/types/quality';
-import { Star, TrendingUp, TrendingDown, Clock, AlertTriangle, User, Calendar, Building } from 'lucide-react';
+import { Star, TrendingUp, TrendingDown, AlertTriangle, User, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -26,8 +26,7 @@ interface AgentPerformanceOnProperty {
   agent_id: string;
   agent_name: string;
   average_rating: number;
-  rework_rate: number;
-  on_time_rate: number;
+  repasse_rate: number;
   tasks_count: number;
 }
 
@@ -106,7 +105,7 @@ export function PropertyDetailsDialog({
         <ScrollArea className="flex-1">
           <div className="space-y-6 pr-4">
             {/* KPIs Section */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <Card>
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2">
@@ -144,20 +143,10 @@ export function PropertyDetailsDialog({
               <Card>
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2">
-                    <AlertTriangle className={cn("h-5 w-5", stats.rework_rate > 10 ? "text-red-500" : "text-green-500")} />
-                    <span className="text-2xl font-bold">{stats.rework_rate.toFixed(1)}%</span>
+                    <AlertTriangle className={cn("h-5 w-5", stats.repasse_rate > 10 ? "text-red-500" : "text-green-500")} />
+                    <span className="text-2xl font-bold">{stats.repasse_rate.toFixed(1)}%</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">Taux de reprise</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2">
-                    <Clock className={cn("h-5 w-5", stats.on_time_rate >= 90 ? "text-green-500" : "text-orange-500")} />
-                    <span className="text-2xl font-bold">{stats.on_time_rate.toFixed(0)}%</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Ponctualité</p>
+                  <p className="text-xs text-muted-foreground mt-1">Taux de repasse</p>
                 </CardContent>
               </Card>
             </div>
@@ -265,8 +254,7 @@ export function PropertyDetailsDialog({
                         <TableRow>
                           <TableHead>Agent</TableHead>
                           <TableHead className="text-center">Note moyenne</TableHead>
-                          <TableHead className="text-center">Reprises</TableHead>
-                          <TableHead className="text-center">Ponctualité</TableHead>
+                          <TableHead className="text-center">Repasse</TableHead>
                           <TableHead className="text-center">Missions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -283,17 +271,9 @@ export function PropertyDetailsDialog({
                               </div>
                             </TableCell>
                             <TableCell className="text-center">
-                              <Badge variant={agent.rework_rate > 15 ? 'destructive' : 'default'}>
-                                {agent.rework_rate.toFixed(1)}%
+                              <Badge variant={agent.repasse_rate > 15 ? 'destructive' : 'default'}>
+                                {agent.repasse_rate.toFixed(1)}%
                               </Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <span className={cn(
-                                "text-sm font-medium",
-                                agent.on_time_rate >= 90 ? "text-green-500" : "text-orange-500"
-                              )}>
-                                {agent.on_time_rate.toFixed(0)}%
-                              </span>
                             </TableCell>
                             <TableCell className="text-center text-muted-foreground">
                               {agent.tasks_count}

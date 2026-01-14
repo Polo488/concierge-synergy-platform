@@ -26,7 +26,7 @@ export function PropertyRankingTable({ properties, onSelectProperty }: PropertyR
     return 'text-red-500';
   };
 
-  const getReworkBadgeVariant = (rate: number): 'default' | 'secondary' | 'destructive' => {
+  const getRepasseBadgeVariant = (rate: number): 'default' | 'secondary' | 'destructive' => {
     if (rate > 15) return 'destructive';
     if (rate > 5) return 'secondary';
     return 'default';
@@ -49,8 +49,7 @@ export function PropertyRankingTable({ properties, onSelectProperty }: PropertyR
                 <TableHead>Propriété</TableHead>
                 <TableHead className="text-center">Note globale</TableHead>
                 <TableHead className="text-center">Note 30j</TableHead>
-                <TableHead className="text-center">Reprises</TableHead>
-                <TableHead className="text-center">Ponctualité</TableHead>
+                <TableHead className="text-center">Repasse</TableHead>
                 <TableHead className="text-center">Problèmes/séjour</TableHead>
                 <TableHead className="w-12"></TableHead>
               </TableRow>
@@ -83,17 +82,9 @@ export function PropertyRankingTable({ properties, onSelectProperty }: PropertyR
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
-                    <Badge variant={getReworkBadgeVariant(property.rework_rate)}>
-                      {property.rework_rate.toFixed(1)}%
+                    <Badge variant={getRepasseBadgeVariant(property.repasse_rate)}>
+                      {property.repasse_rate.toFixed(1)}%
                     </Badge>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span className={cn(
-                      "text-sm font-medium",
-                      property.on_time_rate >= 90 ? "text-green-500" : "text-orange-500"
-                    )}>
-                      {property.on_time_rate.toFixed(0)}%
-                    </span>
                   </TableCell>
                   <TableCell className="text-center">
                     <span className={cn(

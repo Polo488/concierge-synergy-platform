@@ -27,7 +27,7 @@ export function AgentRankingTable({ agents, onSelectAgent }: AgentRankingTablePr
     return 'text-red-500';
   };
 
-  const getReworkBadgeVariant = (rate: number): 'default' | 'secondary' | 'destructive' => {
+  const getRepasseBadgeVariant = (rate: number): 'default' | 'secondary' | 'destructive' => {
     if (rate > 15) return 'destructive';
     if (rate > 5) return 'secondary';
     return 'default';
@@ -50,9 +50,7 @@ export function AgentRankingTable({ agents, onSelectAgent }: AgentRankingTablePr
                 <TableHead>Agent</TableHead>
                 <TableHead className="text-center">Note globale</TableHead>
                 <TableHead className="text-center">Note 30j</TableHead>
-                <TableHead className="text-center">Reprises</TableHead>
-                <TableHead className="text-center">Ponctualité</TableHead>
-                <TableHead className="text-center">Photos</TableHead>
+                <TableHead className="text-center">Repasse</TableHead>
                 <TableHead className="text-center">Tâches</TableHead>
                 <TableHead className="w-12"></TableHead>
               </TableRow>
@@ -94,25 +92,9 @@ export function AgentRankingTable({ agents, onSelectAgent }: AgentRankingTablePr
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
-                    <Badge variant={getReworkBadgeVariant(agent.rework_rate)}>
-                      {agent.rework_rate.toFixed(1)}%
+                    <Badge variant={getRepasseBadgeVariant(agent.repasse_rate)}>
+                      {agent.repasse_rate.toFixed(1)}%
                     </Badge>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span className={cn(
-                      "text-sm font-medium",
-                      agent.on_time_rate >= 90 ? "text-green-500" : "text-orange-500"
-                    )}>
-                      {agent.on_time_rate.toFixed(0)}%
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span className={cn(
-                      "text-sm",
-                      agent.photo_compliance_rate >= 80 ? "text-green-500" : "text-orange-500"
-                    )}>
-                      {agent.photo_compliance_rate.toFixed(0)}%
-                    </span>
                   </TableCell>
                   <TableCell className="text-center text-sm text-muted-foreground">
                     {agent.tasks_completed_total}

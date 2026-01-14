@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { AgentProfile, CleaningTaskExtended, QualityTag } from '@/types/quality';
-import { Star, TrendingUp, TrendingDown, Clock, AlertTriangle, Building, Camera, CheckCircle, User } from 'lucide-react';
+import { Star, AlertTriangle, Building, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -21,8 +21,6 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
-  PieChart,
-  Pie,
   Cell,
 } from 'recharts';
 
@@ -30,8 +28,7 @@ interface PropertyPerformance {
   property_id: string;
   property_name: string;
   average_rating: number;
-  rework_rate: number;
-  on_time_rate: number;
+  repasse_rate: number;
   tasks_count: number;
 }
 
@@ -126,7 +123,7 @@ export function AgentDetailsDialog({
         <ScrollArea className="flex-1">
           <div className="space-y-6 pr-4">
             {/* KPIs Section */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <Card>
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2">
@@ -154,30 +151,10 @@ export function AgentDetailsDialog({
               <Card>
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2">
-                    <AlertTriangle className={cn("h-5 w-5", profile.rework_rate > 10 ? "text-red-500" : "text-green-500")} />
-                    <span className="text-2xl font-bold">{profile.rework_rate.toFixed(1)}%</span>
+                    <AlertTriangle className={cn("h-5 w-5", profile.repasse_rate > 10 ? "text-red-500" : "text-green-500")} />
+                    <span className="text-2xl font-bold">{profile.repasse_rate.toFixed(1)}%</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">Reprises</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2">
-                    <Clock className={cn("h-5 w-5", profile.on_time_rate >= 90 ? "text-green-500" : "text-orange-500")} />
-                    <span className="text-2xl font-bold">{profile.on_time_rate.toFixed(0)}%</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Ponctualité</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2">
-                    <Camera className={cn("h-5 w-5", profile.photo_compliance_rate >= 80 ? "text-green-500" : "text-orange-500")} />
-                    <span className="text-2xl font-bold">{profile.photo_compliance_rate.toFixed(0)}%</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Photos</p>
+                  <p className="text-xs text-muted-foreground mt-1">Repasse</p>
                 </CardContent>
               </Card>
             </div>
@@ -281,8 +258,7 @@ export function AgentDetailsDialog({
                         <TableRow>
                           <TableHead>Propriété</TableHead>
                           <TableHead className="text-center">Note moyenne</TableHead>
-                          <TableHead className="text-center">Reprises</TableHead>
-                          <TableHead className="text-center">Ponctualité</TableHead>
+                          <TableHead className="text-center">Repasse</TableHead>
                           <TableHead className="text-center">Missions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -299,17 +275,9 @@ export function AgentDetailsDialog({
                               </div>
                             </TableCell>
                             <TableCell className="text-center">
-                              <Badge variant={prop.rework_rate > 15 ? 'destructive' : 'default'}>
-                                {prop.rework_rate.toFixed(1)}%
+                              <Badge variant={prop.repasse_rate > 15 ? 'destructive' : 'default'}>
+                                {prop.repasse_rate.toFixed(1)}%
                               </Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <span className={cn(
-                                "text-sm font-medium",
-                                prop.on_time_rate >= 90 ? "text-green-500" : "text-orange-500"
-                              )}>
-                                {prop.on_time_rate.toFixed(0)}%
-                              </span>
                             </TableCell>
                             <TableCell className="text-center text-muted-foreground">
                               {prop.tasks_count}
@@ -335,7 +303,7 @@ export function AgentDetailsDialog({
                           <TableHead>Propriété</TableHead>
                           <TableHead className="text-center">Note</TableHead>
                           <TableHead>Tags</TableHead>
-                          <TableHead className="text-center">Reprise</TableHead>
+                          <TableHead className="text-center">Repasse</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
