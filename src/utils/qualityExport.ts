@@ -42,20 +42,14 @@ export function exportTasksToCSV(tasks: CleaningTaskExtended[]): void {
     'Date',
     'Propriété',
     'Agent',
-    'Heure prévue début',
-    'Heure prévue fin',
-    'Heure réelle début',
-    'Heure réelle fin',
     'Statut',
     'Note manager',
     'Note propriétaire',
     'Note client',
     'Commentaire',
     'Tags qualité',
-    'Reprise requise',
-    'Raison reprise',
-    'Retard (min)',
-    'Photos uploadées',
+    'Repasse requise',
+    'Raison repasse',
     'Problèmes signalés',
     'Canal',
   ];
@@ -64,10 +58,6 @@ export function exportTasksToCSV(tasks: CleaningTaskExtended[]): void {
     format(parseISO(task.scheduled_date), 'yyyy-MM-dd'),
     escapeCSVField(task.property_name),
     escapeCSVField(task.assigned_agent_name),
-    task.scheduled_start_time,
-    task.scheduled_end_time,
-    task.actual_start_time || '',
-    task.actual_end_time || '',
     task.status,
     task.manager_rating?.toString() || '',
     task.owner_rating?.toString() || '',
@@ -76,8 +66,6 @@ export function exportTasksToCSV(tasks: CleaningTaskExtended[]): void {
     escapeCSVField(task.quality_tags.map(t => TAG_LABELS[t]).join('; ')),
     task.rework_required ? 'Oui' : 'Non',
     escapeCSVField(task.rework_reason),
-    task.late_minutes.toString(),
-    task.photos_uploaded_count.toString(),
     task.issues_reported_count.toString(),
     task.channel || '',
   ]);
@@ -97,9 +85,7 @@ export function exportAgentSummaryToCSV(agents: AgentProfile[]): void {
     'Note globale',
     'Note 30 derniers jours',
     'Tâches complétées',
-    'Taux de reprise (%)',
-    'Ponctualité (%)',
-    'Conformité photos (%)',
+    'Taux de repasse (%)',
     'Statut actif',
   ];
 
@@ -108,9 +94,7 @@ export function exportAgentSummaryToCSV(agents: AgentProfile[]): void {
     agent.average_rating_overall.toFixed(2),
     agent.average_rating_last_30_days.toFixed(2),
     agent.tasks_completed_total.toString(),
-    agent.rework_rate.toFixed(1),
-    agent.on_time_rate.toFixed(1),
-    agent.photo_compliance_rate.toFixed(1),
+    agent.repasse_rate.toFixed(1),
     agent.active_status ? 'Oui' : 'Non',
   ]);
 
@@ -129,8 +113,7 @@ export function exportPropertySummaryToCSV(properties: PropertyQualityStats[]): 
     'Note globale',
     'Note 30 derniers jours',
     'Total nettoyages',
-    'Taux de reprise (%)',
-    'Ponctualité (%)',
+    'Taux de repasse (%)',
     'Problèmes par séjour',
   ];
 
@@ -139,8 +122,7 @@ export function exportPropertySummaryToCSV(properties: PropertyQualityStats[]): 
     prop.average_cleaning_rating_overall.toFixed(2),
     prop.average_cleaning_rating_last_30_days.toFixed(2),
     prop.total_cleanings.toString(),
-    prop.rework_rate.toFixed(1),
-    prop.on_time_rate.toFixed(1),
+    prop.repasse_rate.toFixed(1),
     prop.issues_per_stay.toFixed(2),
   ]);
 

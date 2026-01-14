@@ -10,9 +10,8 @@ import {
   TrendDataPoint,
   IssueFrequency,
   QualityTag,
-  CleaningRatingInput
 } from '@/types/quality';
-import { subDays, isWithinInterval, parseISO, format, differenceInMinutes } from 'date-fns';
+import { subDays, isWithinInterval, parseISO, format } from 'date-fns';
 
 // Mock data generator
 const generateMockTasks = (): CleaningTaskExtended[] => {
@@ -47,7 +46,7 @@ const generateMockTasks = (): CleaningTaskExtended[] => {
     const actualVariance = Math.floor(Math.random() * 60) - 20;
     
     const rating = Math.random() > 0.1 ? Math.floor(Math.random() * 3) + 3 : Math.floor(Math.random() * 2) + 1;
-    const reworkRequired = rating <= 2 && Math.random() > 0.5;
+    const repasseRequired = rating <= 2 && Math.random() > 0.5;
     
     const taskTags: QualityTag[] = rating <= 3 
       ? qualityTags.filter(() => Math.random() > 0.7).slice(0, 3)
@@ -72,8 +71,8 @@ const generateMockTasks = (): CleaningTaskExtended[] => {
       rating_comment: rating <= 3 ? 'Quelques points à améliorer' : undefined,
       rating_source: 'manager',
       quality_tags: taskTags,
-      rework_required: reworkRequired,
-      rework_reason: reworkRequired ? 'Nettoyage insuffisant' : undefined,
+      rework_required: repasseRequired,
+      rework_reason: repasseRequired ? 'Nettoyage insuffisant' : undefined,
       late_minutes: Math.max(0, actualVariance),
       early_finish_minutes: Math.max(0, -actualVariance),
       channel: channels[Math.floor(Math.random() * channels.length)],
@@ -101,9 +100,7 @@ const generateAgentProfiles = (tasks: CleaningTaskExtended[]): AgentProfile[] =>
     const recentTasks = data.tasks.filter(t => parseISO(t.scheduled_date) >= thirtyDaysAgo);
     const recentRatings = recentTasks.filter(t => t.manager_rating).map(t => t.manager_rating!);
     
-    const reworkCount = data.tasks.filter(t => t.rework_required).length;
-    const onTimeCount = data.tasks.filter(t => t.late_minutes === 0).length;
-    const photoCompliant = data.tasks.filter(t => t.photos_uploaded_count > 0).length;
+    const repasseCount = data.tasks.filter(t => t.rework_required).length;
     
     profiles.push({
       agent_id: agentId,
@@ -112,9 +109,7 @@ const generateAgentProfiles = (tasks: CleaningTaskExtended[]): AgentProfile[] =>
       average_rating_overall: allRatings.length > 0 ? allRatings.reduce((a, b) => a + b, 0) / allRatings.length : 0,
       average_rating_last_30_days: recentRatings.length > 0 ? recentRatings.reduce((a, b) => a + b, 0) / recentRatings.length : 0,
       tasks_completed_total: data.tasks.length,
-      rework_rate: data.tasks.length > 0 ? (reworkCount / data.tasks.length) * 100 : 0,
-      on_time_rate: data.tasks.length > 0 ? (onTimeCount / data.tasks.length) * 100 : 0,
-      photo_compliance_rate: data.tasks.length > 0 ? (photoCompliant / data.tasks.length) * 100 : 0,
+      repasse_rate: data.tasks.length > 0 ? (repasseCount / data.tasks.length) * 100 : 0,
     });
   });
   
@@ -139,8 +134,7 @@ const generatePropertyStats = (tasks: CleaningTaskExtended[]): PropertyQualitySt
     const recentTasks = data.tasks.filter(t => parseISO(t.scheduled_date) >= thirtyDaysAgo);
     const recentRatings = recentTasks.filter(t => t.manager_rating).map(t => t.manager_rating!);
     
-    const reworkCount = data.tasks.filter(t => t.rework_required).length;
-    const onTimeCount = data.tasks.filter(t => t.late_minutes === 0).length;
+    const repasseCount = data.tasks.filter(t => t.rework_required).length;
     const totalIssues = data.tasks.reduce((sum, t) => sum + t.issues_reported_count, 0);
     
     stats.push({
@@ -148,8 +142,7 @@ const generatePropertyStats = (tasks: CleaningTaskExtended[]): PropertyQualitySt
       property_name: data.name,
       average_cleaning_rating_overall: allRatings.length > 0 ? allRatings.reduce((a, b) => a + b, 0) / allRatings.length : 0,
       average_cleaning_rating_last_30_days: recentRatings.length > 0 ? recentRatings.reduce((a, b) => a + b, 0) / recentRatings.length : 0,
-      rework_rate: data.tasks.length > 0 ? (reworkCount / data.tasks.length) * 100 : 0,
-      on_time_rate: data.tasks.length > 0 ? (onTimeCount / data.tasks.length) * 100 : 0,
+      repasse_rate: data.tasks.length > 0 ? (repasseCount / data.tasks.length) * 100 : 0,
       issues_per_stay: data.tasks.length > 0 ? totalIssues / data.tasks.length : 0,
       total_cleanings: data.tasks.length,
     });
@@ -170,7 +163,7 @@ export function useQualityStats() {
     ratingSource: 'all',
     status: 'completed',
     channel: 'all',
-    includeReworkFollowups: true,
+    includeRepasseFollowups: true,
   });
 
   const filteredTasks = useMemo(() => {
@@ -202,8 +195,8 @@ export function useQualityStats() {
         return false;
       }
       
-      // Rework followups filter
-      if (!filters.includeReworkFollowups && task.rework_followup_task_id) {
+      // Repasse followups filter
+      if (!filters.includeRepasseFollowups && task.rework_followup_task_id) {
         return false;
       }
       
@@ -222,37 +215,14 @@ export function useQualityStats() {
     const recentTasks = filteredTasks.filter(t => parseISO(t.scheduled_date) >= thirtyDaysAgo);
     const recentRatings = recentTasks.filter(t => t.manager_rating).map(t => t.manager_rating!);
     
-    const reworkCount = filteredTasks.filter(t => t.rework_required).length;
-    const onTimeCount = filteredTasks.filter(t => t.late_minutes === 0).length;
-    const photoCompliant = filteredTasks.filter(t => t.photos_uploaded_count > 0).length;
+    const repasseCount = filteredTasks.filter(t => t.rework_required).length;
     const totalIssues = filteredTasks.reduce((sum, t) => sum + t.issues_reported_count, 0);
-    
-    // Calculate average duration
-    const durationsMinutes = filteredTasks
-      .filter(t => t.actual_start_time && t.actual_end_time)
-      .map(t => {
-        const [startH, startM] = t.actual_start_time!.split(':').map(Number);
-        const [endH, endM] = t.actual_end_time!.split(':').map(Number);
-        return (endH * 60 + endM) - (startH * 60 + startM);
-      });
-    
-    const avgDuration = durationsMinutes.length > 0 
-      ? durationsMinutes.reduce((a, b) => a + b, 0) / durationsMinutes.length 
-      : 0;
-    
-    const avgVariance = filteredTasks.length > 0
-      ? filteredTasks.reduce((sum, t) => sum + t.late_minutes, 0) / filteredTasks.length
-      : 0;
     
     return {
       average_rating_overall: allRatings.length > 0 ? allRatings.reduce((a, b) => a + b, 0) / allRatings.length : 0,
       average_rating_last_30_days: recentRatings.length > 0 ? recentRatings.reduce((a, b) => a + b, 0) / recentRatings.length : 0,
-      rework_rate: filteredTasks.length > 0 ? (reworkCount / filteredTasks.length) * 100 : 0,
-      on_time_rate: filteredTasks.length > 0 ? (onTimeCount / filteredTasks.length) * 100 : 0,
-      average_cleaning_duration_minutes: avgDuration,
-      average_variance_minutes: avgVariance,
+      repasse_rate: filteredTasks.length > 0 ? (repasseCount / filteredTasks.length) * 100 : 0,
       issues_per_task: filteredTasks.length > 0 ? totalIssues / filteredTasks.length : 0,
-      photo_compliance_rate: filteredTasks.length > 0 ? (photoCompliant / filteredTasks.length) * 100 : 0,
       tasks_completed: filteredTasks.length,
     };
   }, [filteredTasks]);
@@ -291,46 +261,24 @@ export function useQualityStats() {
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [filteredTasks]);
 
-  const reworkTrend = useMemo((): TrendDataPoint[] => {
-    const trendMap = new Map<string, { total: number, rework: number }>();
+  const repasseTrend = useMemo((): TrendDataPoint[] => {
+    const trendMap = new Map<string, { total: number, repasse: number }>();
     
     filteredTasks.forEach(task => {
       const date = task.scheduled_date;
       if (!trendMap.has(date)) {
-        trendMap.set(date, { total: 0, rework: 0 });
+        trendMap.set(date, { total: 0, repasse: 0 });
       }
       trendMap.get(date)!.total++;
       if (task.rework_required) {
-        trendMap.get(date)!.rework++;
+        trendMap.get(date)!.repasse++;
       }
     });
     
     return Array.from(trendMap.entries())
       .map(([date, data]) => ({
         date,
-        value: data.total > 0 ? (data.rework / data.total) * 100 : 0,
-      }))
-      .sort((a, b) => a.date.localeCompare(b.date));
-  }, [filteredTasks]);
-
-  const onTimeTrend = useMemo((): TrendDataPoint[] => {
-    const trendMap = new Map<string, { total: number, onTime: number }>();
-    
-    filteredTasks.forEach(task => {
-      const date = task.scheduled_date;
-      if (!trendMap.has(date)) {
-        trendMap.set(date, { total: 0, onTime: 0 });
-      }
-      trendMap.get(date)!.total++;
-      if (task.late_minutes === 0) {
-        trendMap.get(date)!.onTime++;
-      }
-    });
-    
-    return Array.from(trendMap.entries())
-      .map(([date, data]) => ({
-        date,
-        value: data.total > 0 ? (data.onTime / data.total) * 100 : 0,
+        value: data.total > 0 ? (data.repasse / data.total) * 100 : 0,
       }))
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [filteredTasks]);
@@ -368,19 +316,18 @@ export function useQualityStats() {
     const stats = propertyStats.find(p => p.property_id === propertyId);
     
     // Get agents who cleaned this property
-    const agentPerformance = new Map<string, { ratings: number[], reworks: number, onTime: number, total: number, name: string }>();
+    const agentPerformance = new Map<string, { ratings: number[], repasses: number, total: number, name: string }>();
     
     propertyTasks.forEach(task => {
       if (!agentPerformance.has(task.assigned_agent_id)) {
         agentPerformance.set(task.assigned_agent_id, { 
-          ratings: [], reworks: 0, onTime: 0, total: 0, name: task.assigned_agent_name 
+          ratings: [], repasses: 0, total: 0, name: task.assigned_agent_name 
         });
       }
       const perf = agentPerformance.get(task.assigned_agent_id)!;
       perf.total++;
       if (task.manager_rating) perf.ratings.push(task.manager_rating);
-      if (task.rework_required) perf.reworks++;
-      if (task.late_minutes === 0) perf.onTime++;
+      if (task.rework_required) perf.repasses++;
     });
     
     return {
@@ -390,8 +337,7 @@ export function useQualityStats() {
         agent_id: id,
         agent_name: data.name,
         average_rating: data.ratings.length > 0 ? data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length : 0,
-        rework_rate: data.total > 0 ? (data.reworks / data.total) * 100 : 0,
-        on_time_rate: data.total > 0 ? (data.onTime / data.total) * 100 : 0,
+        repasse_rate: data.total > 0 ? (data.repasses / data.total) * 100 : 0,
         tasks_count: data.total,
       })),
     };
@@ -402,19 +348,18 @@ export function useQualityStats() {
     const profile = agentProfiles.find(a => a.agent_id === agentId);
     
     // Get performance by property
-    const propertyPerformance = new Map<string, { ratings: number[], reworks: number, onTime: number, total: number, name: string }>();
+    const propertyPerformance = new Map<string, { ratings: number[], repasses: number, total: number, name: string }>();
     
     agentTasks.forEach(task => {
       if (!propertyPerformance.has(task.property_id)) {
         propertyPerformance.set(task.property_id, { 
-          ratings: [], reworks: 0, onTime: 0, total: 0, name: task.property_name 
+          ratings: [], repasses: 0, total: 0, name: task.property_name 
         });
       }
       const perf = propertyPerformance.get(task.property_id)!;
       perf.total++;
       if (task.manager_rating) perf.ratings.push(task.manager_rating);
-      if (task.rework_required) perf.reworks++;
-      if (task.late_minutes === 0) perf.onTime++;
+      if (task.rework_required) perf.repasses++;
     });
     
     return {
@@ -424,8 +369,7 @@ export function useQualityStats() {
         property_id: id,
         property_name: data.name,
         average_rating: data.ratings.length > 0 ? data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length : 0,
-        rework_rate: data.total > 0 ? (data.reworks / data.total) * 100 : 0,
-        on_time_rate: data.total > 0 ? (data.onTime / data.total) * 100 : 0,
+        repasse_rate: data.total > 0 ? (data.repasses / data.total) * 100 : 0,
         tasks_count: data.total,
       })),
     };
@@ -464,8 +408,7 @@ export function useQualityStats() {
     kpis,
     ratingDistribution,
     ratingTrend,
-    reworkTrend,
-    onTimeTrend,
+    repasseTrend,
     issueFrequency,
     portfolioAverageRating,
     

@@ -259,11 +259,11 @@ export function QualityFilters({
 
         <div className="flex items-center gap-2">
           <Switch
-            id="include-rework"
-            checked={filters.includeReworkFollowups}
-            onCheckedChange={(checked) => onFiltersChange({ includeReworkFollowups: checked })}
+            id="include-repasse"
+            checked={filters.includeRepasseFollowups}
+            onCheckedChange={(checked) => onFiltersChange({ includeRepasseFollowups: checked })}
           />
-          <Label htmlFor="include-rework" className="text-sm">Inclure reprises</Label>
+          <Label htmlFor="include-repasse" className="text-sm">Inclure repasses</Label>
         </div>
 
         {hasActiveFilters && (

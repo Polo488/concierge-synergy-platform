@@ -54,9 +54,7 @@ export interface AgentProfile {
   average_rating_overall: number;
   average_rating_last_30_days: number;
   tasks_completed_total: number;
-  rework_rate: number; // percentage
-  on_time_rate: number; // percentage
-  photo_compliance_rate: number; // percentage
+  repasse_rate: number; // percentage
 }
 
 export interface PropertyQualityStats {
@@ -64,8 +62,7 @@ export interface PropertyQualityStats {
   property_name: string;
   average_cleaning_rating_overall: number;
   average_cleaning_rating_last_30_days: number;
-  rework_rate: number;
-  on_time_rate: number;
+  repasse_rate: number;
   issues_per_stay: number;
   total_cleanings: number;
 }
@@ -73,12 +70,8 @@ export interface PropertyQualityStats {
 export interface QualityKPIs {
   average_rating_overall: number;
   average_rating_last_30_days: number;
-  rework_rate: number;
-  on_time_rate: number;
-  average_cleaning_duration_minutes: number;
-  average_variance_minutes: number;
+  repasse_rate: number;
   issues_per_task: number;
-  photo_compliance_rate: number;
   tasks_completed: number;
 }
 
@@ -108,7 +101,7 @@ export interface QualityFilters {
   ratingSource: RatingSource | 'all';
   status: CleaningTaskStatus | 'all';
   channel: string | 'all';
-  includeReworkFollowups: boolean;
+  includeRepasseFollowups: boolean;
 }
 
 export interface CleaningRatingInput {
@@ -116,7 +109,7 @@ export interface CleaningRatingInput {
   rating: number;
   comment?: string;
   tags: QualityTag[];
-  rework_required: boolean;
-  rework_reason?: string;
+  repasse_required: boolean;
+  repasse_reason?: string;
   source: RatingSource;
 }

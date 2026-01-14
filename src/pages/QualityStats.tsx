@@ -20,7 +20,7 @@ const QualityStats = () => {
 
   const {
     tasks,
-    kpis, ratingDistribution, ratingTrend, reworkTrend, onTimeTrend, issueFrequency,
+    kpis, ratingDistribution, ratingTrend, repasseTrend, issueFrequency,
     propertyStats, agentProfiles, filters, updateFilters,
     availableProperties, availableAgents, availableChannels,
     getPropertyDetails, getAgentDetails, portfolioAverageRating,
@@ -78,8 +78,7 @@ const QualityStats = () => {
           <QualityCharts
             ratingDistribution={ratingDistribution}
             ratingTrend={ratingTrend}
-            reworkTrend={reworkTrend}
-            onTimeTrend={onTimeTrend}
+            repasseTrend={repasseTrend}
             issueFrequency={issueFrequency}
           />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
