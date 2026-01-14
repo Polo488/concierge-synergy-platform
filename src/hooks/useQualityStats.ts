@@ -313,6 +313,28 @@ export function useQualityStats() {
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [filteredTasks]);
 
+  const onTimeTrend = useMemo((): TrendDataPoint[] => {
+    const trendMap = new Map<string, { total: number, onTime: number }>();
+    
+    filteredTasks.forEach(task => {
+      const date = task.scheduled_date;
+      if (!trendMap.has(date)) {
+        trendMap.set(date, { total: 0, onTime: 0 });
+      }
+      trendMap.get(date)!.total++;
+      if (task.late_minutes === 0) {
+        trendMap.get(date)!.onTime++;
+      }
+    });
+    
+    return Array.from(trendMap.entries())
+      .map(([date, data]) => ({
+        date,
+        value: data.total > 0 ? (data.onTime / data.total) * 100 : 0,
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }, [filteredTasks]);
+
   const issueFrequency = useMemo((): IssueFrequency[] => {
     const tagCount: Record<QualityTag, number> = {
       dust: 0, bathroom: 0, linen: 0, kitchen: 0, smell: 0, 
@@ -428,6 +450,12 @@ export function useQualityStats() {
     return Array.from(channels);
   }, [tasks]);
 
+  // Calculate portfolio average for benchmarking
+  const portfolioAverageRating = useMemo(() => {
+    const allRatings = filteredTasks.filter(t => t.manager_rating).map(t => t.manager_rating!);
+    return allRatings.length > 0 ? allRatings.reduce((a, b) => a + b, 0) / allRatings.length : 0;
+  }, [filteredTasks]);
+
   return {
     // Data
     tasks: filteredTasks,
@@ -437,7 +465,9 @@ export function useQualityStats() {
     ratingDistribution,
     ratingTrend,
     reworkTrend,
+    onTimeTrend,
     issueFrequency,
+    portfolioAverageRating,
     
     // Filters
     filters,

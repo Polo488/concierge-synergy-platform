@@ -6,11 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { CalendarIcon, X, Download } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { CalendarIcon, X, Download, FileSpreadsheet, Users, Building } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { QualityFilters as FiltersType } from '@/types/quality';
+import { QualityFilters as FiltersType, CleaningTaskExtended, AgentProfile, PropertyQualityStats } from '@/types/quality';
 import { cn } from '@/lib/utils';
+import { exportTasksToCSV, exportAgentSummaryToCSV, exportPropertySummaryToCSV } from '@/utils/qualityExport';
+import { toast } from 'sonner';
 
 interface QualityFiltersProps {
   filters: FiltersType;
@@ -18,7 +21,9 @@ interface QualityFiltersProps {
   availableProperties: { id: string; name: string }[];
   availableAgents: { id: string; name: string }[];
   availableChannels: string[];
-  onExport: () => void;
+  tasks: CleaningTaskExtended[];
+  agentProfiles: AgentProfile[];
+  propertyStats: PropertyQualityStats[];
 }
 
 export function QualityFilters({
@@ -27,7 +32,9 @@ export function QualityFilters({
   availableProperties,
   availableAgents,
   availableChannels,
-  onExport,
+  tasks,
+  agentProfiles,
+  propertyStats,
 }: QualityFiltersProps) {
   const presetRanges = [
     { label: '7 jours', days: 7 },
@@ -67,6 +74,33 @@ export function QualityFilters({
       status: 'completed',
       channel: 'all',
     });
+  };
+
+  const handleExportTasks = () => {
+    if (tasks.length === 0) {
+      toast.error('Aucune tâche à exporter');
+      return;
+    }
+    exportTasksToCSV(tasks);
+    toast.success(`${tasks.length} tâches exportées`);
+  };
+
+  const handleExportAgents = () => {
+    if (agentProfiles.length === 0) {
+      toast.error('Aucun agent à exporter');
+      return;
+    }
+    exportAgentSummaryToCSV(agentProfiles);
+    toast.success(`${agentProfiles.length} agents exportés`);
+  };
+
+  const handleExportProperties = () => {
+    if (propertyStats.length === 0) {
+      toast.error('Aucune propriété à exporter');
+      return;
+    }
+    exportPropertySummaryToCSV(propertyStats);
+    toast.success(`${propertyStats.length} propriétés exportées`);
   };
 
   const hasActiveFilters = filters.properties.length > 0 || 
@@ -244,15 +278,32 @@ export function QualityFilters({
           </Button>
         )}
 
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={onExport}
-          className="h-8 ml-auto"
-        >
-          <Download className="h-4 w-4 mr-2" />
-          Exporter
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-8 ml-auto"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Exporter
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handleExportTasks}>
+              <FileSpreadsheet className="h-4 w-4 mr-2" />
+              Tâches + notes ({tasks.length})
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportAgents}>
+              <Users className="h-4 w-4 mr-2" />
+              Résumé agents ({agentProfiles.length})
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportProperties}>
+              <Building className="h-4 w-4 mr-2" />
+              Résumé propriétés ({propertyStats.length})
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

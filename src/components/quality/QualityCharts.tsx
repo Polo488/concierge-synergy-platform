@@ -23,6 +23,7 @@ interface QualityChartsProps {
   ratingDistribution: RatingDistribution[];
   ratingTrend: TrendDataPoint[];
   reworkTrend: TrendDataPoint[];
+  onTimeTrend: TrendDataPoint[];
   issueFrequency: IssueFrequency[];
 }
 
@@ -46,6 +47,7 @@ export function QualityCharts({
   ratingDistribution,
   ratingTrend,
   reworkTrend,
+  onTimeTrend,
   issueFrequency,
 }: QualityChartsProps) {
   // Format trend data
@@ -59,8 +61,13 @@ export function QualityCharts({
     formattedDate: format(parseISO(point.date), 'dd/MM', { locale: fr }),
   }));
 
+  const formattedOnTimeTrend = onTimeTrend.slice(-14).map(point => ({
+    ...point,
+    formattedDate: format(parseISO(point.date), 'dd/MM', { locale: fr }),
+  }));
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
       {/* Rating Trend */}
       <Card>
         <CardHeader className="pb-2">
@@ -178,8 +185,48 @@ export function QualityCharts({
         </CardContent>
       </Card>
 
-      {/* Issue Frequency */}
+      {/* On-Time Trend */}
       <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-medium">Évolution de la ponctualité</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[250px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={formattedOnTimeTrend}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis 
+                  dataKey="formattedDate" 
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `${value}%`}
+                  domain={[0, 100]}
+                />
+                <Tooltip 
+                  formatter={(value: number) => [`${value.toFixed(1)}%`, 'Ponctualité']}
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke="#22c55e" 
+                  strokeWidth={2}
+                  dot={{ fill: '#22c55e' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Issue Frequency */}
+      <Card className="lg:col-span-2">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-medium">Problèmes fréquents</CardTitle>
         </CardHeader>

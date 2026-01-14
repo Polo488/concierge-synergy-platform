@@ -7,30 +7,37 @@ import { KPICards } from '@/components/quality/KPICards';
 import { QualityCharts } from '@/components/quality/QualityCharts';
 import { PropertyRankingTable } from '@/components/quality/PropertyRankingTable';
 import { AgentRankingTable } from '@/components/quality/AgentRankingTable';
+import { PropertyDetailsDialog } from '@/components/quality/PropertyDetailsDialog';
+import { AgentDetailsDialog } from '@/components/quality/AgentDetailsDialog';
 import { BarChart3, Building, Users } from 'lucide-react';
-import { toast } from 'sonner';
 
 const QualityStats = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [propertyDialogOpen, setPropertyDialogOpen] = useState(false);
+  const [agentDialogOpen, setAgentDialogOpen] = useState(false);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
+
   const {
-    kpis, ratingDistribution, ratingTrend, reworkTrend, issueFrequency,
+    tasks,
+    kpis, ratingDistribution, ratingTrend, reworkTrend, onTimeTrend, issueFrequency,
     propertyStats, agentProfiles, filters, updateFilters,
     availableProperties, availableAgents, availableChannels,
+    getPropertyDetails, getAgentDetails, portfolioAverageRating,
   } = useQualityStats();
 
-  const handleExport = () => {
-    toast.success('Export CSV en cours de préparation...');
-  };
-
   const handleSelectProperty = (propertyId: string) => {
-    updateFilters({ properties: [propertyId] });
-    setActiveTab('properties');
+    setSelectedPropertyId(propertyId);
+    setPropertyDialogOpen(true);
   };
 
   const handleSelectAgent = (agentId: string) => {
-    updateFilters({ agents: [agentId] });
-    setActiveTab('agents');
+    setSelectedAgentId(agentId);
+    setAgentDialogOpen(true);
   };
+
+  const selectedPropertyDetails = selectedPropertyId ? getPropertyDetails(selectedPropertyId) : null;
+  const selectedAgentDetails = selectedAgentId ? getAgentDetails(selectedAgentId) : null;
 
   return (
     <div className="space-y-6">
@@ -45,7 +52,9 @@ const QualityStats = () => {
         availableProperties={availableProperties}
         availableAgents={availableAgents}
         availableChannels={availableChannels}
-        onExport={handleExport}
+        tasks={tasks}
+        agentProfiles={agentProfiles}
+        propertyStats={propertyStats}
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -70,6 +79,7 @@ const QualityStats = () => {
             ratingDistribution={ratingDistribution}
             ratingTrend={ratingTrend}
             reworkTrend={reworkTrend}
+            onTimeTrend={onTimeTrend}
             issueFrequency={issueFrequency}
           />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -86,6 +96,25 @@ const QualityStats = () => {
           <AgentRankingTable agents={agentProfiles} onSelectAgent={handleSelectAgent} />
         </TabsContent>
       </Tabs>
+
+      {/* Property Details Dialog */}
+      <PropertyDetailsDialog
+        open={propertyDialogOpen}
+        onOpenChange={setPropertyDialogOpen}
+        stats={selectedPropertyDetails?.stats}
+        tasks={selectedPropertyDetails?.tasks || []}
+        agentPerformance={selectedPropertyDetails?.agentPerformance || []}
+        portfolioAverageRating={portfolioAverageRating}
+      />
+
+      {/* Agent Details Dialog */}
+      <AgentDetailsDialog
+        open={agentDialogOpen}
+        onOpenChange={setAgentDialogOpen}
+        profile={selectedAgentDetails?.profile}
+        tasks={selectedAgentDetails?.tasks || []}
+        propertyPerformance={selectedAgentDetails?.propertyPerformance || []}
+      />
     </div>
   );
 };
