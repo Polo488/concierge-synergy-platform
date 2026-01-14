@@ -1,5 +1,5 @@
 
-import { CleaningTask, CleaningStatus, NewCleaningTask } from '@/types/cleaning';
+import { CleaningTask, CleaningStatus, NewCleaningTask, CleaningIssue } from '@/types/cleaning';
 import { QualityTag } from '@/types/quality';
 
 export interface CleaningRatingData {
@@ -16,6 +16,9 @@ export interface CleaningContextType {
   todayCleaningTasks: CleaningTask[];
   tomorrowCleaningTasks: CleaningTask[];
   completedCleaningTasks: CleaningTask[];
+  
+  // Issues
+  cleaningIssues: CleaningIssue[];
   
   // Dialog states
   currentTask: CleaningTask | null;
@@ -39,11 +42,14 @@ export interface CleaningContextType {
   editCommentsDialogOpen: boolean;
   ratingDialogOpen: boolean;
   taskToRate: CleaningTask | null;
+  issueDialogOpen: boolean;
+  issueDialogTask: CleaningTask | null;
   
   // Setters
   setTodayCleaningTasks: (tasks: CleaningTask[]) => void;
   setTomorrowCleaningTasks: (tasks: CleaningTask[]) => void;
   setCompletedCleaningTasks: (tasks: CleaningTask[]) => void;
+  setCleaningIssues: (issues: CleaningIssue[]) => void;
   setCurrentTask: (task: CleaningTask | null) => void;
   setSelectedAgent: (agent: string) => void;
   setProblemDescription: (description: string) => void;
@@ -65,6 +71,8 @@ export interface CleaningContextType {
   setEditCommentsDialogOpen: (open: boolean) => void;
   setRatingDialogOpen: (open: boolean) => void;
   setTaskToRate: (task: CleaningTask | null) => void;
+  setIssueDialogOpen: (open: boolean) => void;
+  setIssueDialogTask: (task: CleaningTask | null) => void;
   
   // Actions
   handleStartCleaning: (task: CleaningTask) => void;
@@ -80,6 +88,9 @@ export interface CleaningContextType {
   handleSaveComments: () => void;
   handleUpdateCheckTimes: (checkoutTime: string, checkinTime: string) => void;
   handleSubmitRating: (ratingData: CleaningRatingData) => void;
+  handleCreateIssue: (issue: Omit<CleaningIssue, 'id' | 'createdAt' | 'repasseTaskId'>) => void;
+  handleResolveIssue: (issueId: number) => void;
+  openIssueDialog: (task?: CleaningTask | null) => void;
   
   // Helpers
   openAssignDialog: (task: CleaningTask) => void;

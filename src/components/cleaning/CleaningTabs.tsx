@@ -2,14 +2,16 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Search, AlertTriangle, Plus } from 'lucide-react';
 import { CleaningTaskList } from '@/components/cleaning/CleaningTaskList';
+import { CleaningIssuesList } from '@/components/cleaning/CleaningIssuesList';
 import { useCleaning } from '@/contexts/CleaningContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface CleaningTabsProps {
-  initialTab?: 'today' | 'tomorrow' | 'completed';
+  initialTab?: 'today' | 'tomorrow' | 'completed' | 'issues';
 }
 
 export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
@@ -24,6 +26,7 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
     todayCleaningTasks,
     tomorrowCleaningTasks,
     completedCleaningTasks,
+    cleaningIssues,
     selectedTasks,
     handleSelectTask,
     handleStartCleaning,
@@ -31,7 +34,9 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
     openDetailsDialog,
     openAssignDialog,
     openProblemDialog,
-    openDeleteDialog
+    openDeleteDialog,
+    openIssueDialog,
+    handleResolveIssue,
   } = useCleaning();
 
   const filterTasks = (tasks) => {
@@ -55,17 +60,25 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
     return filterTasks(filterTasksByRole(tasks));
   };
 
+  const openIssuesCount = cleaningIssues.filter(i => i.status === 'open').length;
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2" defaultValue={initialTab}>
-      <TabsList className="grid grid-cols-3 w-full max-w-md">
+      <TabsList className="grid grid-cols-4 w-full max-w-lg">
         <TabsTrigger value="today">{t('cleaning.tabs.today')}</TabsTrigger>
         {!isCleaningAgent && (
           <TabsTrigger value="tomorrow">{t('cleaning.tabs.tomorrow')}</TabsTrigger>
         )}
         <TabsTrigger value="completed">{t('cleaning.tabs.completed')}</TabsTrigger>
-        {isCleaningAgent && (
-          <TabsTrigger value="problems">{t('cleaning.tabs.problems')}</TabsTrigger>
-        )}
+        <TabsTrigger value="issues" className="flex items-center gap-1.5">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          Problèmes
+          {openIssuesCount > 0 && (
+            <span className="ml-1 bg-destructive text-destructive-foreground text-xs px-1.5 py-0.5 rounded-full">
+              {openIssuesCount}
+            </span>
+          )}
+        </TabsTrigger>
       </TabsList>
       
       <div className="my-4">
@@ -134,24 +147,27 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
         />
       </TabsContent>
 
-      {isCleaningAgent && (
-        <TabsContent value="problems" className="space-y-4">
-          <CleaningTaskList
-            tasks={getFilteredTasks(todayCleaningTasks.filter(task => task.problems && task.problems.length > 0))}
-            emptyMessage={t('cleaning.empty.problems')}
-            labelsDialogOpen={false}
-            selectedTasks={selectedTasks}
-            onSelectTask={undefined}
-            onStartCleaning={handleStartCleaning}
-            onCompleteCleaning={handleCompleteCleaning}
-            onOpenDetails={openDetailsDialog}
-            onAssign={undefined}
-            onReportProblem={openProblemDialog}
-            onDelete={undefined}
-            isCleaningAgent={true}
-          />
-        </TabsContent>
-      )}
+      <TabsContent value="issues" className="space-y-4">
+        <div className="flex justify-between items-center">
+          <p className="text-sm text-muted-foreground">
+            Signalements de problèmes de ménage avec suivi et repasses
+          </p>
+          {!isCleaningAgent && (
+            <Button onClick={() => openIssueDialog()} size="sm">
+              <Plus className="h-4 w-4 mr-1" />
+              Signaler un problème
+            </Button>
+          )}
+        </div>
+        <CleaningIssuesList
+          issues={cleaningIssues}
+          onResolve={!isCleaningAgent ? handleResolveIssue : undefined}
+          onViewRepasseTask={(taskId) => {
+            const task = todayCleaningTasks.find(t => t.id === taskId);
+            if (task) openDetailsDialog(task);
+          }}
+        />
+      </TabsContent>
     </Tabs>
   );
 };
