@@ -19,6 +19,7 @@ import MoyenneDuree from "./pages/MoyenneDuree";
 import Upsell from "./pages/Upsell";
 import Users from "./pages/Users";
 import InsightsAlerts from "./pages/InsightsAlerts";
+import QualityStats from "./pages/QualityStats";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -63,6 +64,12 @@ const App = () => (
                   <Route path="/cleaning" element={
                     <RoutePermission permission="cleaning">
                       <Cleaning />
+                    </RoutePermission>
+                  } />
+                  
+                  <Route path="/quality-stats" element={
+                    <RoutePermission permission="cleaning">
+                      <QualityStats />
                     </RoutePermission>
                   } />
                   

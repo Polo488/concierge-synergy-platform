@@ -17,7 +17,8 @@ import {
   ShoppingCart,
   Users,
   LogOut,
-  Lightbulb
+  Lightbulb,
+  BarChart3
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -42,6 +43,7 @@ export function Sidebar() {
     { name: t('sidebar.inventory'), path: '/inventory', icon: Package, permission: 'inventory' },
     { name: t('sidebar.maintenance'), path: '/maintenance', icon: Wrench, permission: 'maintenance' },
     { name: t('sidebar.cleaning'), path: '/cleaning', icon: Sparkles, permission: 'cleaning' },
+    { name: t('sidebar.qualityStats'), path: '/quality-stats', icon: BarChart3, permission: 'cleaning' },
     { name: t('sidebar.calendar'), path: '/calendar', icon: CalendarIcon, permission: 'calendar' },
     { name: t('sidebar.properties'), path: '/properties', icon: Home, permission: 'properties' },
     { name: t('sidebar.averageDuration'), path: '/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
