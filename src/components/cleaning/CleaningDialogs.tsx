@@ -9,6 +9,7 @@ import { AddCleaningTaskDialog } from './AddCleaningTaskDialog';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { EditCommentsDialog } from './EditCommentsDialog';
 import { CleaningRatingDialog } from './CleaningRatingDialog';
+import { CleaningIssueDialog } from './CleaningIssueDialog';
 import { getStatusBadgeClass, getStatusLabel } from '@/utils/cleaningUtils';
 import { Badge } from '@/components/ui/badge';
 import { CleaningStatus } from '@/types/cleaning';
@@ -29,6 +30,8 @@ export const CleaningDialogs = () => {
     editCommentsDialogOpen,
     ratingDialogOpen,
     taskToRate,
+    issueDialogOpen,
+    issueDialogTask,
     
     // Data
     currentTask,
@@ -50,6 +53,7 @@ export const CleaningDialogs = () => {
     handleSaveComments,
     handleUpdateCheckTimes,
     handleSubmitRating,
+    handleCreateIssue,
     
     // Setters and handlers
     setSelectedAgent,
@@ -67,6 +71,7 @@ export const CleaningDialogs = () => {
     setEditCommentsDialogOpen,
     setNewTask,
     setRatingDialogOpen,
+    setIssueDialogOpen,
     handleEditComments,
   } = useCleaning();
   
@@ -158,6 +163,14 @@ export const CleaningDialogs = () => {
         onOpenChange={setRatingDialogOpen}
         task={taskToRate}
         onSubmit={handleSubmitRating}
+      />
+      
+      <CleaningIssueDialog
+        open={issueDialogOpen}
+        onOpenChange={setIssueDialogOpen}
+        linkedTask={issueDialogTask}
+        source={issueDialogTask ? 'cleaning_task' : undefined}
+        onSubmit={handleCreateIssue}
       />
     </>
   );

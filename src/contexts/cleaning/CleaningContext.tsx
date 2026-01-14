@@ -1,13 +1,14 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { fr } from 'date-fns/locale';
-import { CleaningTask, CleaningStatus, NewCleaningTask, CleaningTaskRating } from '@/types/cleaning';
+import { CleaningTask, CleaningStatus, NewCleaningTask, CleaningTaskRating, CleaningIssue } from '@/types/cleaning';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { CleaningContextType, CleaningProviderProps, CleaningRatingData } from './types';
 import { createCleaningActions } from './actions';
 import { createCleaningHelpers } from './helpers';
 import { initialTodayTasks, initialTomorrowTasks, initialCompletedTasks, initialNewTask } from './initialState';
 import { toast } from '@/components/ui/use-toast';
+import { getNextId } from '@/utils/cleaningUtils';
 
 const CleaningContext = createContext<CleaningContextType | undefined>(undefined);
 
@@ -19,6 +20,9 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
   const [todayCleaningTasks, setTodayCleaningTasks] = useState<CleaningTask[]>(initialTodayTasks);
   const [tomorrowCleaningTasks, setTomorrowCleaningTasks] = useState<CleaningTask[]>(initialTomorrowTasks);
   const [completedCleaningTasks, setCompletedCleaningTasks] = useState<CleaningTask[]>(initialCompletedTasks);
+  
+  // Issues state
+  const [cleaningIssues, setCleaningIssues] = useState<CleaningIssue[]>([]);
   
   // UI state
   const [currentTask, setCurrentTask] = useState<CleaningTask | null>(null);
@@ -41,6 +45,8 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
   const [editCommentsDialogOpen, setEditCommentsDialogOpen] = useState(false);
   const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
   const [taskToRate, setTaskToRate] = useState<CleaningTask | null>(null);
+  const [issueDialogOpen, setIssueDialogOpen] = useState(false);
+  const [issueDialogTask, setIssueDialogTask] = useState<CleaningTask | null>(null);
   
   // New task form state
   const [newTask, setNewTask] = useState<NewCleaningTask>(initialNewTask);
@@ -51,8 +57,8 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
       rating: ratingData.rating,
       comment: ratingData.comment,
       tags: ratingData.tags,
-      reworkRequired: ratingData.reworkRequired,
-      reworkReason: ratingData.reworkReason,
+      repasseRequired: ratingData.reworkRequired,
+      repasseReason: ratingData.reworkReason,
       ratedAt: new Date().toISOString(),
       ratedBy: 'manager', // In real app, use current user
     };
@@ -75,6 +81,82 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
 
     setRatingDialogOpen(false);
     setTaskToRate(null);
+  };
+
+  // Handle issue creation with automatic repasse task
+  const handleCreateIssue = (issueData: Omit<CleaningIssue, 'id' | 'createdAt' | 'repasseTaskId'>) => {
+    const allTasks = [...todayCleaningTasks, ...tomorrowCleaningTasks, ...completedCleaningTasks];
+    const issueId = cleaningIssues.length > 0 ? Math.max(...cleaningIssues.map(i => i.id)) + 1 : 1;
+    
+    let repasseTaskId: number | undefined;
+    
+    // If repasse is required, create a new cleaning task
+    if (issueData.repasseRequired) {
+      const taskId = getNextId(allTasks);
+      const today = new Date();
+      
+      const repasseTask: CleaningTask = {
+        id: taskId,
+        property: issueData.propertyName,
+        checkoutTime: undefined,
+        checkinTime: undefined,
+        status: 'todo',
+        cleaningAgent: issueData.linkedAgentName || null,
+        startTime: '',
+        endTime: '',
+        date: today.toISOString().split('T')[0],
+        linens: [],
+        consumables: [],
+        comments: `Repasse suite au problème #${issueId}: ${issueData.description}`,
+        problems: [],
+        taskType: 'repasse',
+        linkedIssueId: issueId,
+        originalTaskId: issueData.linkedTaskId,
+      };
+      
+      setTodayCleaningTasks(prev => [...prev, repasseTask]);
+      repasseTaskId = taskId;
+      
+      toast({
+        title: 'Tâche de repasse créée',
+        description: `Une repasse a été planifiée pour ${issueData.propertyName}`,
+      });
+    }
+    
+    const newIssue: CleaningIssue = {
+      ...issueData,
+      id: issueId,
+      createdAt: new Date().toISOString(),
+      repasseTaskId,
+    };
+    
+    setCleaningIssues(prev => [newIssue, ...prev]);
+    
+    toast({
+      title: 'Problème signalé',
+      description: `Problème enregistré pour ${issueData.propertyName}`,
+      variant: 'destructive',
+    });
+  };
+
+  // Handle issue resolution
+  const handleResolveIssue = (issueId: number) => {
+    setCleaningIssues(prev => prev.map(issue => 
+      issue.id === issueId 
+        ? { ...issue, status: 'resolved' as const, resolvedAt: new Date().toISOString() }
+        : issue
+    ));
+    
+    toast({
+      title: 'Problème résolu',
+      description: 'Le signalement a été marqué comme résolu',
+    });
+  };
+
+  // Open issue dialog
+  const openIssueDialog = (task?: CleaningTask | null) => {
+    setIssueDialogTask(task || null);
+    setIssueDialogOpen(true);
   };
 
   // Gather all state variables
@@ -130,6 +212,7 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     todayCleaningTasks,
     tomorrowCleaningTasks,
     completedCleaningTasks,
+    cleaningIssues,
     currentTask,
     selectedAgent,
     problemDescription,
@@ -151,11 +234,14 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     addTaskDialogOpen,
     deleteConfirmDialogOpen,
     editCommentsDialogOpen,
+    issueDialogOpen,
+    issueDialogTask,
     
     // Setters
     setTodayCleaningTasks,
     setTomorrowCleaningTasks,
     setCompletedCleaningTasks,
+    setCleaningIssues,
     setCurrentTask,
     setSelectedAgent,
     setProblemDescription,
@@ -167,6 +253,8 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     setNewTask,
     setRatingDialogOpen,
     setTaskToRate,
+    setIssueDialogOpen,
+    setIssueDialogTask,
     
     // Dialog controllers
     setAssignDialogOpen,
@@ -181,6 +269,9 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     // Actions
     ...actions,
     handleSubmitRating,
+    handleCreateIssue,
+    handleResolveIssue,
+    openIssueDialog,
     
     // Helpers
     ...helpers,
