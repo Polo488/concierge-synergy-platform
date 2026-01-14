@@ -1,10 +1,9 @@
-
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CleaningTask } from "@/types/cleaning";
 import { Input } from "@/components/ui/input";
-import { Edit2, Check, X } from "lucide-react";
+import { Edit2, Check, X, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 
 interface CleaningTaskDetailsDialogProps {
@@ -14,6 +13,7 @@ interface CleaningTaskDetailsDialogProps {
   getStatusBadge: (status: string) => JSX.Element | null;
   onEditComments: () => void;
   onUpdateCheckTimes: (checkoutTime: string, checkinTime: string) => void;
+  onReportIssue?: (task: CleaningTask) => void;
 }
 
 export const CleaningTaskDetailsDialog = ({
@@ -22,7 +22,8 @@ export const CleaningTaskDetailsDialog = ({
   currentTask,
   getStatusBadge,
   onEditComments,
-  onUpdateCheckTimes
+  onUpdateCheckTimes,
+  onReportIssue
 }: CleaningTaskDetailsDialogProps) => {
   const [isEditingTimes, setIsEditingTimes] = useState(false);
   const [checkoutTime, setCheckoutTime] = useState("");
@@ -215,7 +216,20 @@ export const CleaningTaskDetailsDialog = ({
           </div>
         </div>
         
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:gap-0">
+          {currentTask.status === 'completed' && onReportIssue && (
+            <Button 
+              variant="destructive"
+              className="mr-auto"
+              onClick={() => {
+                onReportIssue(currentTask);
+                onOpenChange(false);
+              }}
+            >
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Signaler un problème
+            </Button>
+          )}
           <Button variant="outline" onClick={() => onOpenChange(false)}>Fermer</Button>
         </DialogFooter>
       </DialogContent>

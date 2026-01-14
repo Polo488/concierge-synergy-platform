@@ -106,6 +106,7 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
           onOpenDetails={openDetailsDialog}
           onAssign={isCleaningAgent ? undefined : openAssignDialog}
           onReportProblem={openProblemDialog}
+          onReportIssue={!isCleaningAgent ? openIssueDialog : undefined}
           onDelete={isCleaningAgent ? undefined : openDeleteDialog}
           isCleaningAgent={isCleaningAgent}
         />
@@ -124,6 +125,7 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
             onOpenDetails={openDetailsDialog}
             onAssign={openAssignDialog}
             onReportProblem={openProblemDialog}
+            onReportIssue={openIssueDialog}
             onDelete={openDeleteDialog}
             isCleaningAgent={false}
           />
@@ -142,6 +144,7 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
           onOpenDetails={openDetailsDialog}
           onAssign={isCleaningAgent ? undefined : openAssignDialog}
           onReportProblem={isCleaningAgent ? undefined : openProblemDialog}
+          onReportIssue={!isCleaningAgent ? openIssueDialog : undefined}
           onDelete={isCleaningAgent ? undefined : openDeleteDialog}
           isCleaningAgent={isCleaningAgent}
         />

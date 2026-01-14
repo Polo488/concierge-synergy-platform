@@ -54,6 +54,7 @@ export const CleaningDialogs = () => {
     handleUpdateCheckTimes,
     handleSubmitRating,
     handleCreateIssue,
+    openIssueDialog,
     
     // Setters and handlers
     setSelectedAgent,
@@ -108,6 +109,10 @@ export const CleaningDialogs = () => {
         getStatusBadge={getStatusBadge}
         onEditComments={handleEditComments}
         onUpdateCheckTimes={handleUpdateCheckTimes}
+        onReportIssue={(task) => {
+          openIssueDialog(task);
+          setDetailsDialogOpen(false);
+        }}
       />
       
       <ProblemReportDialog

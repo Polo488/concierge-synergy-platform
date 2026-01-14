@@ -1,11 +1,10 @@
-
 import { useState } from 'react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Eye, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Eye, Trash2, AlertTriangle } from 'lucide-react';
 import { CleaningTask, CleaningStatus } from '@/types/cleaning';
 import { getStatusLabel, getStatusBadgeClass } from '@/utils/cleaningUtils';
 
@@ -19,8 +18,9 @@ interface CleaningTaskCardProps {
   onOpenDetails: (task: CleaningTask) => void;
   onAssign?: (task: CleaningTask) => void;
   onReportProblem: (task: CleaningTask) => void;
+  onReportIssue?: (task: CleaningTask) => void;
   onDelete?: (task: CleaningTask) => void;
-  isCleaningAgent?: boolean; // Add the missing property
+  isCleaningAgent?: boolean;
 }
 
 export const CleaningTaskCard = ({
@@ -33,6 +33,7 @@ export const CleaningTaskCard = ({
   onOpenDetails,
   onAssign,
   onReportProblem,
+  onReportIssue,
   onDelete,
   isCleaningAgent = false
 }: CleaningTaskCardProps) => {
@@ -178,6 +179,17 @@ export const CleaningTaskCard = ({
                   {task.status === 'inProgress' && (
                     <Button size="sm" variant="outline" className="py-1 px-2 h-8" onClick={() => onReportProblem(task)}>
                       Problème
+                    </Button>
+                  )}
+                  {task.status === 'completed' && onReportIssue && (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="py-1 px-2 h-8 text-destructive hover:bg-destructive/10" 
+                      onClick={() => onReportIssue(task)}
+                    >
+                      <AlertTriangle className="h-3 w-3 mr-1" />
+                      Signaler un problème
                     </Button>
                   )}
                   {/* Bouton de suppression pour toutes les tâches */}

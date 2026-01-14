@@ -106,22 +106,28 @@ export const CleaningIssueDialog = ({
         </DialogHeader>
 
         <div className="space-y-5 py-4">
-          {/* Source */}
+          {/* Source - locked when coming from task */}
           <div className="space-y-2">
             <Label>Source du signalement</Label>
-            <Select value={issueSource} onValueChange={(v) => setIssueSource(v as CleaningIssueSource)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(SOURCE_LABELS).map(([value, { label }]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            {linkedTask ? (
+              <div className="p-3 bg-muted rounded-md text-sm font-medium flex items-center gap-2">
+                <SourceIcon className="h-4 w-4 text-muted-foreground" />
+                {SOURCE_LABELS[issueSource].label}
+              </div>
+            ) : (
+              <Select value={issueSource} onValueChange={(v) => setIssueSource(v as CleaningIssueSource)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(SOURCE_LABELS).map(([value, { label }]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}</div>
 
           {/* Property */}
           <div className="space-y-2">

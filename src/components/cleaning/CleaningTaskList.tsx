@@ -13,6 +13,7 @@ interface CleaningTaskListProps {
   onOpenDetails: (task: CleaningTask) => void;
   onAssign?: (task: CleaningTask) => void;
   onReportProblem: (task: CleaningTask) => void;
+  onReportIssue?: (task: CleaningTask) => void;
   onDelete?: (task: CleaningTask) => void;
   isCleaningAgent?: boolean;
 }
@@ -28,6 +29,7 @@ export const CleaningTaskList = ({
   onOpenDetails,
   onAssign,
   onReportProblem,
+  onReportIssue,
   onDelete,
   isCleaningAgent = false
 }: CleaningTaskListProps) => {
@@ -45,6 +47,7 @@ export const CleaningTaskList = ({
           onOpenDetails={onOpenDetails}
           onAssign={onAssign}
           onReportProblem={onReportProblem}
+          onReportIssue={onReportIssue}
           onDelete={onDelete}
           isCleaningAgent={isCleaningAgent}
         />
