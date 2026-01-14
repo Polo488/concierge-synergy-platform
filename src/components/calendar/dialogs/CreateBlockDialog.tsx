@@ -361,12 +361,12 @@ export const CreateBlockDialog: React.FC<CreateBlockDialogProps> = ({
                       <User className="w-3 h-3" />
                       Assigner un agent (optionnel)
                     </Label>
-                    <Select value={assignedAgent} onValueChange={setAssignedAgent}>
+                    <Select value={assignedAgent || "non_assigne"} onValueChange={(v) => setAssignedAgent(v === "non_assigne" ? "" : v)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Non assigné" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Non assigné</SelectItem>
+                        <SelectItem value="non_assigne">Non assigné</SelectItem>
                         {cleaningAgents.map(agent => (
                           <SelectItem key={agent.id} value={agent.id}>
                             {agent.name}
