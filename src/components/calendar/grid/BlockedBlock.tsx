@@ -10,6 +10,7 @@ interface BlockedBlockProps {
   isEndDay: boolean;
   isStartTruncated: boolean;
   isEndTruncated: boolean;
+  onClick?: () => void;
   onCleaningIndicatorClick?: () => void;
 }
 
@@ -20,6 +21,7 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
   isEndDay,
   isStartTruncated,
   isEndTruncated,
+  onClick,
   onCleaningIndicatorClick,
 }) => {
   const cellWidth = 40;
@@ -54,11 +56,17 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
     onCleaningIndicatorClick?.();
   };
 
+  const handleBlockClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClick?.();
+  };
+
   return (
     <div
       className={cn(
         "absolute top-0.5 bottom-0.5 z-10 flex items-center gap-1 px-1.5",
-        "bg-zinc-400 dark:bg-zinc-500"
+        "bg-zinc-400 dark:bg-zinc-500",
+        onClick && "cursor-pointer hover:bg-zinc-500 dark:hover:bg-zinc-400 transition-colors"
       )}
       style={{
         width: `${Math.max(width, 20)}px`,
@@ -66,7 +74,8 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
         clipPath: getBevelClipPath(hasLeftBevel, hasRightBevel),
         borderRadius: hasLeftBevel && hasRightBevel ? '0' : hasLeftBevel ? '0 6px 6px 0' : hasRightBevel ? '6px 0 0 6px' : '6px',
       }}
-      title={blocked.reason || 'Bloqué'}
+      title={blocked.reason || 'Bloqué - Cliquez pour modifier'}
+      onClick={handleBlockClick}
     >
       <Ban className="w-3 h-3 text-white/80 flex-shrink-0" />
       <span className="text-xs font-medium text-white/90 truncate">

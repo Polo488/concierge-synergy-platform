@@ -199,6 +199,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
                   isEndDay={isEndDay}
                   isStartTruncated={isStartTruncated}
                   isEndTruncated={isEndTruncated}
+                  onClick={() => onBlockedClick?.(blocked)}
                   onCleaningIndicatorClick={() => onBlockedClick?.(blocked)}
                 />
               );
