@@ -8,24 +8,32 @@ import {
 } from '@/components/ui/tabs';
 import { Property } from '@/utils/propertyUtils';
 import { MaintenanceTask } from '@/types/maintenance';
-import { MapPin, Home, Key, Camera, Wrench } from 'lucide-react';
+import { CleaningTask, CleaningIssue } from '@/types/cleaning';
+import { MapPin, Home, Key, Camera, Wrench, Sparkles } from 'lucide-react';
 import { PropertyInfoTab } from './details/PropertyInfoTab';
 import { PropertyEquipmentTab } from './details/PropertyEquipmentTab';
 import { PropertyAccessTab } from './details/PropertyAccessTab';
 import { PropertyPhotosTab } from './details/PropertyPhotosTab';
 import { PropertyPlatformsTab } from './details/PropertyPlatformsTab';
 import { PropertyMaintenanceTab } from './details/PropertyMaintenanceTab';
+import { PropertyRepasseTab, RepasseEvent } from './details/PropertyRepasseTab';
 
 interface PropertyDetailsDialogProps {
   property: Property | null;
   maintenanceHistory: MaintenanceTask[];
+  repasseEvents?: RepasseEvent[];
   onClose: () => void;
+  onViewTask?: (task: CleaningTask) => void;
+  onViewIssue?: (issue: CleaningIssue) => void;
 }
 
 export const PropertyDetailsDialog = ({ 
   property, 
   maintenanceHistory, 
-  onClose 
+  repasseEvents = [],
+  onClose,
+  onViewTask,
+  onViewIssue,
 }: PropertyDetailsDialogProps) => {
   const [selectedPhotoCategory, setSelectedPhotoCategory] = useState('Toutes');
   
@@ -34,6 +42,11 @@ export const PropertyDetailsDialog = ({
   // Filter maintenance tasks for this property
   const getPropertyMaintenanceHistory = () => {
     return maintenanceHistory.filter(task => task.propertyId === property.id);
+  };
+
+  // Filter repasse events for this property
+  const getPropertyRepasseEvents = (): RepasseEvent[] => {
+    return repasseEvents.filter(event => event.task.property === property.id || event.task.property === property.name);
   };
 
   // Filter photos by category
@@ -60,7 +73,7 @@ export const PropertyDetailsDialog = ({
         </DialogHeader>
 
         <Tabs defaultValue="info" className="mt-4">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="info">Informations</TabsTrigger>
             <TabsTrigger value="equipment">Équipements</TabsTrigger>
             <TabsTrigger value="access" className="flex items-center gap-1">
@@ -70,6 +83,9 @@ export const PropertyDetailsDialog = ({
             <TabsTrigger value="platforms">Plateformes</TabsTrigger>
             <TabsTrigger value="maintenance" className="flex items-center gap-1">
               <Wrench className="h-4 w-4" /> Maintenance
+            </TabsTrigger>
+            <TabsTrigger value="repasse" className="flex items-center gap-1">
+              <Sparkles className="h-4 w-4" /> Repasse
             </TabsTrigger>
           </TabsList>
           
@@ -84,6 +100,12 @@ export const PropertyDetailsDialog = ({
           />
           <PropertyPlatformsTab property={property} />
           <PropertyMaintenanceTab maintenance={getPropertyMaintenanceHistory()} />
+          <PropertyRepasseTab 
+            propertyId={property.id}
+            repasseEvents={getPropertyRepasseEvents()}
+            onViewTask={onViewTask}
+            onViewIssue={onViewIssue}
+          />
         </Tabs>
       </DialogContent>
     </Dialog>
