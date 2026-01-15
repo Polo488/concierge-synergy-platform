@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Grid3X3, Home, List, PlusCircle, Building, BedDouble, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/dashboard/StatCard';
@@ -9,6 +9,8 @@ import { PropertySearchFilters } from '@/components/properties/PropertySearchFil
 import { PropertyList } from '@/components/properties/PropertyList';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { PropertyDetailsDialog } from '@/components/properties/PropertyDetailsDialog';
+import { RepasseEvent } from '@/components/properties/details/PropertyRepasseTab';
+import { CleaningTask, CleaningIssue } from '@/types/cleaning';
 
 const Properties = () => {
   const [properties] = useState(generateProperties);
@@ -17,6 +19,109 @@ const Properties = () => {
   const [filterType, setFilterType] = useState('all');
   const [viewMode, setViewMode] = useState('list');
   const [selectedProperty, setSelectedProperty] = useState(null);
+
+  // Generate mock repasse events for demo
+  const repasseEvents = useMemo<RepasseEvent[]>(() => {
+    const events: RepasseEvent[] = [];
+    
+    // Create some mock repasse events for different properties
+    properties.slice(0, 5).forEach((property, pIndex) => {
+      const issueTypes: CleaningIssue['issueType'][] = ['dust', 'bathroom', 'linen', 'kitchen', 'floors'];
+      const agents = ['Marie Dubois', 'Jean Martin', 'Sophie Bernard', 'Lucas Petit'];
+      const statuses: CleaningTask['status'][] = ['completed', 'inProgress', 'todo', 'scheduled'];
+      
+      // Add 1-3 repasse events per property
+      const numEvents = Math.floor(Math.random() * 3) + 1;
+      for (let i = 0; i < numEvents; i++) {
+        const taskId = pIndex * 10 + i + 1000;
+        const issueId = pIndex * 10 + i + 2000;
+        const originalTaskId = pIndex * 10 + i + 3000;
+        
+        const daysAgo = Math.floor(Math.random() * 60);
+        const date = new Date();
+        date.setDate(date.getDate() - daysAgo);
+        
+        const issueType = issueTypes[Math.floor(Math.random() * issueTypes.length)];
+        const agent = agents[Math.floor(Math.random() * agents.length)];
+        const status = statuses[Math.floor(Math.random() * statuses.length)];
+        
+        const issue: CleaningIssue = {
+          id: issueId,
+          propertyId: property.id,
+          propertyName: property.name,
+          linkedTaskId: originalTaskId,
+          linkedAgentId: agent,
+          linkedAgentName: agent,
+          source: 'cleaning_task',
+          issueType,
+          description: getIssueDescription(issueType),
+          photos: Math.random() > 0.5 ? [
+            'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=200',
+            'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=200',
+          ] : [],
+          repasseRequired: true,
+          repasseTaskId: taskId,
+          status: status === 'completed' ? 'resolved' : 'open',
+          createdAt: date.toISOString(),
+          createdBy: agent,
+        };
+        
+        const task: CleaningTask = {
+          id: taskId,
+          property: property.name,
+          status,
+          cleaningAgent: agent,
+          startTime: '09:00',
+          endTime: '11:00',
+          date: date.toISOString().split('T')[0],
+          linens: [],
+          consumables: [],
+          comments: '',
+          problems: [],
+          taskType: 'repasse',
+          linkedIssueId: issueId,
+          originalTaskId,
+        };
+        
+        const originalTask: CleaningTask = {
+          id: originalTaskId,
+          property: property.name,
+          status: 'completed',
+          cleaningAgent: agent,
+          startTime: '10:00',
+          endTime: '12:00',
+          date: new Date(date.getTime() - 86400000).toISOString().split('T')[0],
+          linens: [],
+          consumables: [],
+          comments: '',
+          problems: [],
+          taskType: 'standard',
+        };
+        
+        events.push({ task, issue, originalTask });
+      }
+    });
+    
+    return events;
+  }, [properties]);
+
+  function getIssueDescription(type: CleaningIssue['issueType']): string {
+    const descriptions: Record<CleaningIssue['issueType'], string> = {
+      dust: 'Poussière visible sur les surfaces hautes et les plinthes. Le client a signalé des traces sur les meubles.',
+      bathroom: 'Traces de calcaire dans la douche et autour du lavabo. Joints à nettoyer.',
+      linen: 'Taches sur les draps du lit principal. Serviettes avec odeur.',
+      kitchen: 'Plan de travail pas assez propre. Intérieur du micro-ondes à nettoyer.',
+      smell: 'Odeur persistante dans la chambre. Possible humidité.',
+      floors: 'Sols collants dans la cuisine. Traces de pas dans le couloir.',
+      missing_items: 'Manque des serviettes et du papier toilette.',
+      windows: 'Vitres avec traces. Pas nettoyées depuis longtemps.',
+      appliances: 'Intérieur du réfrigérateur sale. Four à nettoyer.',
+      damage: 'Rayures sur le parquet. Trou dans le mur de la chambre.',
+      guest_complaint: 'Le client a signalé un problème de propreté général.',
+      other: 'Problème de nettoyage non catégorisé.',
+    };
+    return descriptions[type];
+  }
   
   useEffect(() => {
     document.title = 'Logements - GESTION BNB LYON';
@@ -142,7 +247,10 @@ const Properties = () => {
       <PropertyDetailsDialog 
         property={selectedProperty}
         maintenanceHistory={maintenanceHistory}
+        repasseEvents={repasseEvents}
         onClose={handleClosePropertyDetails}
+        onViewTask={(task) => console.log('View task:', task)}
+        onViewIssue={(issue) => console.log('View issue:', issue)}
       />
     </div>
   );
