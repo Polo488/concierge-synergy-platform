@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Calendar, Euro, FileText, Send, Download, Check } from "lucide-react";
+import { toast } from "sonner";
 import { Booking, RentCall } from "../types";
 import { formatMonth, getDocumentStatusInfo } from "../hooks/useRentDocuments";
+import { generateRentCallPDF, downloadPDF } from "../utils/pdfGenerator";
 
 interface RentCallDialogProps {
   open: boolean;
@@ -106,7 +108,15 @@ export const RentCallDialog = ({
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" className="flex-1">
+          <Button 
+            variant="outline" 
+            className="flex-1"
+            onClick={() => {
+              const doc = generateRentCallPDF(rentCall, booking);
+              downloadPDF(doc, `appel-loyer-${rentCall.month}`);
+              toast.success("PDF téléchargé");
+            }}
+          >
             <Download className="h-4 w-4 mr-2" />
             Télécharger PDF
           </Button>

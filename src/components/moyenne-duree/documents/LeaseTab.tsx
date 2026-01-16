@@ -32,6 +32,7 @@ import {
   getLeaseTypeLabel,
   getTemplateVariables
 } from "../hooks/useLeases";
+import { generateLeasePDF, downloadPDF } from "../utils/pdfGenerator";
 import { LeaseEditorDialog } from "./LeaseEditorDialog";
 import { LeaseVersionsDialog } from "./LeaseVersionsDialog";
 
@@ -102,7 +103,12 @@ export const LeaseTab = ({ booking, formatter }: LeaseTabProps) => {
   };
 
   const handleDownload = () => {
-    toast.info("Téléchargement du PDF...");
+    if (lease) {
+      const doc = generateLeasePDF(lease, booking);
+      const filename = `bail-${booking.property.replace(/\s+/g, "-")}-${booking.tenant.replace(/\s+/g, "-")}`;
+      downloadPDF(doc, filename);
+      toast.success("PDF téléchargé avec succès");
+    }
   };
 
   const handleDelete = () => {

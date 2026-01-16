@@ -40,6 +40,7 @@ import {
   getDocumentStatusInfo,
   getBookingMonths 
 } from "../hooks/useRentDocuments";
+import { generateRentCallPDF, downloadPDF } from "../utils/pdfGenerator";
 import { RentCallDialog } from "./RentCallDialog";
 
 interface RentCallsTabProps {
@@ -107,8 +108,10 @@ export const RentCallsTab = ({ booking, formatter }: RentCallsTabProps) => {
   };
 
   const handleDownload = (rentCall: RentCall) => {
-    // In a real app, this would generate and download a PDF
-    toast.info("Téléchargement du PDF...");
+    const doc = generateRentCallPDF(rentCall, booking);
+    const filename = `appel-loyer-${booking.property.replace(/\s+/g, "-")}-${rentCall.month}`;
+    downloadPDF(doc, filename);
+    toast.success("PDF téléchargé avec succès");
   };
 
   const handleDelete = (rentCall: RentCall) => {

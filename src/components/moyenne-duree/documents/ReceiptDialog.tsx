@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { FileCheck, Send, Download } from "lucide-react";
+import { toast } from "sonner";
 import { Booking, RentReceipt } from "../types";
 import { formatMonth, getDocumentStatusInfo } from "../hooks/useRentDocuments";
+import { generateReceiptPDF, downloadPDF } from "../utils/pdfGenerator";
 
 interface ReceiptDialogProps {
   open: boolean;
@@ -108,7 +110,15 @@ export const ReceiptDialog = ({
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" className="flex-1">
+          <Button 
+            variant="outline" 
+            className="flex-1"
+            onClick={() => {
+              const doc = generateReceiptPDF(receipt, booking);
+              downloadPDF(doc, `quittance-${receipt.month}`);
+              toast.success("PDF téléchargé");
+            }}
+          >
             <Download className="h-4 w-4 mr-2" />
             Télécharger PDF
           </Button>
