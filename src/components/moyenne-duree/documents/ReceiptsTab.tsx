@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import jsPDF from "jspdf";
 import { 
   FileCheck, 
   Send, 
@@ -8,7 +9,8 @@ import {
   MoreHorizontal,
   Calendar,
   Euro,
-  AlertCircle
+  AlertCircle,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +45,7 @@ import {
 } from "../hooks/useRentDocuments";
 import { generateReceiptPDF, downloadPDF } from "../utils/pdfGenerator";
 import { ReceiptDialog } from "./ReceiptDialog";
+import { PDFPreviewModal } from "./PDFPreviewModal";
 
 interface ReceiptsTabProps {
   booking: Booking;
@@ -64,6 +67,9 @@ export const ReceiptsTab = ({ booking, formatter }: ReceiptsTabProps) => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<RentReceipt | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewPdf, setPreviewPdf] = useState<jsPDF | null>(null);
+  const [previewFilename, setPreviewFilename] = useState("");
 
   const receipts = getReceiptsForBooking(booking.id);
   const rentCalls = getRentCallsForBooking(booking.id);
@@ -84,6 +90,14 @@ export const ReceiptsTab = ({ booking, formatter }: ReceiptsTabProps) => {
   const handleSend = (receipt: RentReceipt) => {
     markAsSent(receipt.id);
     toast.success(`Quittance envoyée pour ${formatMonth(receipt.month)}`);
+  };
+
+  const handlePreview = (receipt: RentReceipt) => {
+    const doc = generateReceiptPDF(receipt, booking);
+    const filename = `quittance-${booking.property.replace(/\s+/g, "-")}-${receipt.month}`;
+    setPreviewPdf(doc);
+    setPreviewFilename(filename);
+    setPreviewOpen(true);
   };
 
   const handleDownload = (receipt: RentReceipt) => {
@@ -196,6 +210,10 @@ export const ReceiptsTab = ({ booking, formatter }: ReceiptsTabProps) => {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handlePreview(receipt)}>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  Aperçu PDF
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleDownload(receipt)}>
                                   <Download className="h-4 w-4 mr-2" />
                                   Télécharger PDF
@@ -260,6 +278,14 @@ export const ReceiptsTab = ({ booking, formatter }: ReceiptsTabProps) => {
         receipt={selectedReceipt}
         booking={booking}
         formatter={formatter}
+      />
+
+      <PDFPreviewModal
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        pdf={previewPdf}
+        title={`Quittance de loyer - ${booking.property}`}
+        filename={previewFilename}
       />
     </div>
   );

@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import jsPDF from "jspdf";
 import { 
   FileText, 
   Edit, 
@@ -35,6 +36,7 @@ import {
 import { generateLeasePDF, downloadPDF } from "../utils/pdfGenerator";
 import { LeaseEditorDialog } from "./LeaseEditorDialog";
 import { LeaseVersionsDialog } from "./LeaseVersionsDialog";
+import { PDFPreviewModal } from "./PDFPreviewModal";
 
 interface LeaseTabProps {
   booking: Booking;
@@ -61,6 +63,9 @@ export const LeaseTab = ({ booking, formatter }: LeaseTabProps) => {
     getDefaultTemplate()?.id || ""
   );
   const [versionsDialogOpen, setVersionsDialogOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewPdf, setPreviewPdf] = useState<jsPDF | null>(null);
+  const [previewFilename, setPreviewFilename] = useState("");
 
   const lease = getLeaseForBooking(booking.id);
 
@@ -99,6 +104,16 @@ export const LeaseTab = ({ booking, formatter }: LeaseTabProps) => {
     if (lease) {
       uploadSignedPdf(lease.id, "/signed-lease.pdf");
       toast.success("Bail signé téléchargé");
+    }
+  };
+
+  const handlePreview = () => {
+    if (lease) {
+      const doc = generateLeasePDF(lease, booking);
+      const filename = `bail-${booking.property.replace(/\s+/g, "-")}-${booking.tenant.replace(/\s+/g, "-")}`;
+      setPreviewPdf(doc);
+      setPreviewFilename(filename);
+      setPreviewOpen(true);
     }
   };
 
@@ -240,6 +255,10 @@ export const LeaseTab = ({ booking, formatter }: LeaseTabProps) => {
 
           {/* Actions */}
           <div className="flex flex-wrap gap-3">
+            <Button variant="outline" onClick={handlePreview}>
+              <Eye className="h-4 w-4 mr-2" />
+              Aperçu PDF
+            </Button>
             <Button variant="outline" onClick={handleDownload}>
               <Download className="h-4 w-4 mr-2" />
               Télécharger PDF
@@ -304,6 +323,15 @@ export const LeaseTab = ({ booking, formatter }: LeaseTabProps) => {
         onOpenChange={setVersionsDialogOpen}
         lease={lease}
         formatter={formatter}
+      />
+
+      {/* PDF Preview Modal */}
+      <PDFPreviewModal
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        pdf={previewPdf}
+        title={`Bail - ${booking.property}`}
+        filename={previewFilename}
       />
     </div>
   );
