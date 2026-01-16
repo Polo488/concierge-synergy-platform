@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  ChevronDown,
   Calendar as CalendarIcon,
   Clock,
   ShoppingCart,
@@ -19,11 +20,20 @@ import {
   Lightbulb,
   BarChart3,
   MessageSquare,
-  Shield
+  Shield,
+  TrendingUp,
+  Users,
+  Gauge,
+  Heart
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 
 type NavItem = {
   name: string;
@@ -32,32 +42,90 @@ type NavItem = {
   permission: string;
 };
 
+type NavSection = {
+  id: string;
+  title: string;
+  colorClass: string;
+  activeClass: string;
+  bgClass: string;
+  iconBgClass: string;
+  items: NavItem[];
+};
+
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
+  const [expandedSections, setExpandedSections] = useState<string[]>(['pilotage', 'operations']);
   const location = useLocation();
   const isMobile = useIsMobile();
   const { hasPermission, logout, user } = useAuth();
   const { t } = useLanguage();
   
-  const navItems: NavItem[] = [
-    { name: t('sidebar.dashboard'), path: '/', icon: LayoutDashboard, permission: 'properties' },
-    { name: t('sidebar.inventory'), path: '/inventory', icon: Package, permission: 'inventory' },
-    { name: t('sidebar.maintenance'), path: '/maintenance', icon: Wrench, permission: 'maintenance' },
-    { name: t('sidebar.cleaning'), path: '/cleaning', icon: Sparkles, permission: 'cleaning' },
-    { name: t('sidebar.qualityStats'), path: '/quality-stats', icon: BarChart3, permission: 'cleaning' },
-    { name: t('sidebar.calendar'), path: '/calendar', icon: CalendarIcon, permission: 'calendar' },
-    { name: t('sidebar.properties'), path: '/properties', icon: Home, permission: 'properties' },
-    { name: t('sidebar.averageDuration'), path: '/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
-    { name: t('sidebar.upsell'), path: '/upsell', icon: ShoppingCart, permission: 'upsell' },
-    { name: 'Communication Intelligente', path: '/guest-experience', icon: MessageSquare, permission: 'guestExperience' },
-    { name: t('sidebar.billing'), path: '/billing', icon: Receipt, permission: 'billing' },
-    { name: t('sidebar.insights'), path: '/insights', icon: Lightbulb, permission: 'properties' },
+  // Define navigation sections with color system
+  const navSections: NavSection[] = [
+    {
+      id: 'pilotage',
+      title: 'PILOTAGE & ANALYSE',
+      colorClass: 'text-nav-pilotage',
+      activeClass: 'bg-nav-pilotage-light text-nav-pilotage border-l-nav-pilotage',
+      bgClass: 'bg-nav-pilotage/10',
+      iconBgClass: 'bg-nav-pilotage/15 text-nav-pilotage',
+      items: [
+        { name: t('sidebar.dashboard'), path: '/', icon: Gauge, permission: 'properties' },
+        { name: t('sidebar.qualityStats'), path: '/quality-stats', icon: BarChart3, permission: 'cleaning' },
+        { name: t('sidebar.insights'), path: '/insights', icon: Lightbulb, permission: 'properties' },
+      ]
+    },
+    {
+      id: 'operations',
+      title: 'OPÉRATIONS',
+      colorClass: 'text-nav-operations',
+      activeClass: 'bg-nav-operations-light text-nav-operations border-l-nav-operations',
+      bgClass: 'bg-nav-operations/10',
+      iconBgClass: 'bg-nav-operations/15 text-nav-operations',
+      items: [
+        { name: t('sidebar.calendar'), path: '/calendar', icon: CalendarIcon, permission: 'calendar' },
+        { name: t('sidebar.cleaning'), path: '/cleaning', icon: Sparkles, permission: 'cleaning' },
+        { name: t('sidebar.maintenance'), path: '/maintenance', icon: Wrench, permission: 'maintenance' },
+        { name: t('sidebar.inventory'), path: '/inventory', icon: Package, permission: 'inventory' },
+        { name: t('sidebar.properties'), path: '/properties', icon: Home, permission: 'properties' },
+      ]
+    },
+    {
+      id: 'revenus',
+      title: 'REVENUS',
+      colorClass: 'text-nav-revenus',
+      activeClass: 'bg-nav-revenus-light text-nav-revenus border-l-nav-revenus',
+      bgClass: 'bg-nav-revenus/10',
+      iconBgClass: 'bg-nav-revenus/15 text-nav-revenus',
+      items: [
+        { name: t('sidebar.averageDuration'), path: '/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
+        { name: t('sidebar.billing'), path: '/billing', icon: Receipt, permission: 'billing' },
+        { name: t('sidebar.upsell'), path: '/upsell', icon: ShoppingCart, permission: 'upsell' },
+      ]
+    },
+    {
+      id: 'experience',
+      title: 'EXPÉRIENCE VOYAGEUR',
+      colorClass: 'text-nav-experience',
+      activeClass: 'bg-nav-experience-light text-nav-experience border-l-nav-experience',
+      bgClass: 'bg-nav-experience/10',
+      iconBgClass: 'bg-nav-experience/15 text-nav-experience',
+      items: [
+        { name: 'Communication Intelligente', path: '/guest-experience', icon: MessageSquare, permission: 'guestExperience' },
+      ]
+    },
+    {
+      id: 'organisation',
+      title: 'ORGANISATION',
+      colorClass: 'text-nav-organisation',
+      activeClass: 'bg-nav-organisation-light text-nav-organisation border-l-nav-organisation',
+      bgClass: 'bg-nav-organisation/10',
+      iconBgClass: 'bg-nav-organisation/15 text-nav-organisation',
+      items: [
+        { name: 'Gestion des utilisateurs', path: '/user-management', icon: Users, permission: 'users' },
+      ]
+    }
   ];
-  
-  // Add users management if user has permission
-  if (hasPermission('users')) {
-    navItems.push({ name: 'Gestion des utilisateurs', path: '/user-management', icon: Shield, permission: 'users' });
-  }
   
   // Close sidebar on mobile by default
   useEffect(() => {
@@ -75,8 +143,31 @@ export function Sidebar() {
     }
   }, [location.pathname, isMobile]);
 
-  // Filter nav items based on user permissions
-  const filteredNavItems = navItems.filter(item => hasPermission(item.permission as any));
+  // Auto-expand section containing active route
+  useEffect(() => {
+    const activeSection = navSections.find(section => 
+      section.items.some(item => item.path === location.pathname)
+    );
+    if (activeSection && !expandedSections.includes(activeSection.id)) {
+      setExpandedSections(prev => [...prev, activeSection.id]);
+    }
+  }, [location.pathname]);
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => 
+      prev.includes(sectionId) 
+        ? prev.filter(id => id !== sectionId)
+        : [...prev, sectionId]
+    );
+  };
+
+  // Filter sections based on permissions
+  const visibleSections = navSections
+    .map(section => ({
+      ...section,
+      items: section.items.filter(item => hasPermission(item.permission as any))
+    }))
+    .filter(section => section.items.length > 0);
 
   return (
     <>
@@ -156,57 +247,121 @@ export function Sidebar() {
           </div>
         )}
         
-        {/* Navigation items */}
-        <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
-          {filteredNavItems.map((item, index) => {
-            const isActive = location.pathname === item.path;
+        {/* Navigation sections */}
+        <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-2">
+          {visibleSections.map((section) => {
+            const isExpanded = expandedSections.includes(section.id);
+            const hasActiveItem = section.items.some(item => item.path === location.pathname);
             
             return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "flex items-center px-2 py-3 rounded-lg transition-all duration-200",
-                  "group hover:bg-primary/5",
-                  isActive ? "bg-primary/10 text-primary" : "text-foreground/80",
-                  "animate-slide-in",
-                  `stagger-${index + 1}`
-                )}
+              <Collapsible
+                key={section.id}
+                open={isExpanded}
+                onOpenChange={() => toggleSection(section.id)}
               >
-                <item.icon className={cn(
-                  "flex-shrink-0",
-                  isActive ? "text-primary" : "text-foreground/70 group-hover:text-primary/80"
-                )} 
-                size={20} 
-                />
-                
-                <span className={cn(
-                  "ml-3 font-medium text-sm",
+                <CollapsibleTrigger className={cn(
+                  "flex items-center justify-between w-full px-2 py-2 rounded-lg",
+                  "text-xs font-semibold tracking-wider",
+                  "hover:bg-muted/50 transition-colors",
+                  section.colorClass,
+                  hasActiveItem && section.bgClass,
                   !isOpen && "md:hidden"
                 )}>
-                  {item.name}
-                </span>
+                  <span>{section.title}</span>
+                  <ChevronDown 
+                    size={14} 
+                    className={cn(
+                      "transition-transform duration-200",
+                      isExpanded && "rotate-180"
+                    )}
+                  />
+                </CollapsibleTrigger>
                 
-                {isActive && !isOpen && (
-                  <div className="hidden md:block absolute right-0 w-1 h-8 bg-primary rounded-l-md" />
+                <CollapsibleContent className="space-y-0.5 mt-1">
+                  {section.items.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        className={cn(
+                          "flex items-center gap-3 px-2 py-2.5 rounded-lg transition-all duration-200",
+                          "group hover:bg-muted/50 border-l-2 border-transparent ml-1",
+                          isActive && section.activeClass,
+                          !isOpen && "md:ml-0 md:justify-center"
+                        )}
+                      >
+                        <div className={cn(
+                          "flex-shrink-0 p-1.5 rounded-md transition-colors",
+                          isActive ? section.iconBgClass : "bg-muted/50 text-muted-foreground group-hover:bg-muted"
+                        )}>
+                          <item.icon size={16} />
+                        </div>
+                        
+                        <span className={cn(
+                          "font-medium text-sm",
+                          !isOpen && "md:hidden",
+                          !isActive && "text-foreground/80"
+                        )}>
+                          {item.name}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </CollapsibleContent>
+                
+                {/* Collapsed state - show only icons */}
+                {!isOpen && (
+                  <div className="hidden md:flex flex-col items-center gap-1 py-1">
+                    {section.items.map((item) => {
+                      const isActive = location.pathname === item.path;
+                      
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          title={item.name}
+                          className={cn(
+                            "relative p-2 rounded-lg transition-all duration-200",
+                            "hover:bg-muted/50",
+                            isActive && section.iconBgClass
+                          )}
+                        >
+                          <item.icon size={18} />
+                          {isActive && (
+                            <div 
+                              className={cn(
+                                "absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-l-md",
+                                section.colorClass.replace('text-', 'bg-')
+                              )} 
+                            />
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </div>
                 )}
-              </Link>
+              </Collapsible>
             );
           })}
         </nav>
         
         {/* Logout button */}
-        <div className="px-4 pb-4">
+        <div className="px-3 pb-3">
           <button
             onClick={logout}
             className={cn(
-              "flex items-center w-full px-2 py-3 rounded-lg transition-all duration-200",
-              "text-red-500 hover:bg-red-50 hover:text-red-600"
+              "flex items-center w-full gap-3 px-2 py-2.5 rounded-lg transition-all duration-200",
+              "text-destructive hover:bg-destructive/10",
+              !isOpen && "md:justify-center"
             )}
           >
-            <LogOut size={20} />
+            <div className="p-1.5 rounded-md bg-destructive/10">
+              <LogOut size={16} />
+            </div>
             <span className={cn(
-              "ml-3 font-medium text-sm",
+              "font-medium text-sm",
               !isOpen && "md:hidden"
             )}>
               Déconnexion
@@ -215,13 +370,13 @@ export function Sidebar() {
         </div>
         
         {/* Collapse button (desktop only) */}
-        <div className="hidden md:flex border-t border-border/30 p-4 justify-center">
+        <div className="hidden md:flex border-t border-border/30 p-3 justify-center">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted/50"
           >
             <ChevronRight 
-              size={20} 
+              size={18} 
               className={cn(
                 "transition-transform duration-300",
                 !isOpen && "rotate-180"

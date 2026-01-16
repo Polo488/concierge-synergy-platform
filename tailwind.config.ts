@@ -53,6 +53,29 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))'
         },
+        // Navigation section colors
+        nav: {
+          pilotage: {
+            DEFAULT: 'hsl(var(--nav-pilotage))',
+            light: 'hsl(var(--nav-pilotage-light))'
+          },
+          operations: {
+            DEFAULT: 'hsl(var(--nav-operations))',
+            light: 'hsl(var(--nav-operations-light))'
+          },
+          revenus: {
+            DEFAULT: 'hsl(var(--nav-revenus))',
+            light: 'hsl(var(--nav-revenus-light))'
+          },
+          experience: {
+            DEFAULT: 'hsl(var(--nav-experience))',
+            light: 'hsl(var(--nav-experience-light))'
+          },
+          organisation: {
+            DEFAULT: 'hsl(var(--nav-organisation))',
+            light: 'hsl(var(--nav-organisation-light))'
+          }
+        }
       },
       borderRadius: {
         lg: 'var(--radius)',
