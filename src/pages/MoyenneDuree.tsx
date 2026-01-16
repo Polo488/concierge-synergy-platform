@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { Plus, TrendingUp, ChartBar } from "lucide-react";
+import { Plus, TrendingUp, ChartBar, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -19,6 +19,8 @@ import { BookingsList } from "@/components/moyenne-duree/bookings/BookingsList";
 import { BookingFormDialog } from "@/components/moyenne-duree/bookings/BookingFormDialog";
 import { BookingDetailsDialog } from "@/components/moyenne-duree/bookings/BookingDetailsDialog";
 import { PaymentScheduleDialog } from "@/components/moyenne-duree/payments/PaymentScheduleDialog";
+import { BookingDetailsSheet } from "@/components/moyenne-duree/documents/BookingDetailsSheet";
+import { LeaseTemplatesManager } from "@/components/moyenne-duree/documents/LeaseTemplatesManager";
 import { 
   useMandats, 
   useBookings,
@@ -420,9 +422,13 @@ const MoyenneDuree = () => {
         onValueChange={setActiveTab}
         className="w-full"
       >
-        <TabsList className="grid grid-cols-2 w-[400px] mb-4">
+        <TabsList className="grid grid-cols-3 w-[500px] mb-4">
           <TabsTrigger value="mandats">Mandats</TabsTrigger>
           <TabsTrigger value="locations">Locations</TabsTrigger>
+          <TabsTrigger value="templates" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Modèles de baux
+          </TabsTrigger>
         </TabsList>
 
         {/* Mandats Tab */}
@@ -562,8 +568,8 @@ const MoyenneDuree = () => {
             bookingSources={bookingSources}
           />
 
-          {/* Booking Details Dialog */}
-          <BookingDetailsDialog
+          {/* Booking Details Sheet with Tabs */}
+          <BookingDetailsSheet
             open={bookingDetailsDialogOpen}
             onOpenChange={setBookingDetailsDialogOpen}
             booking={selectedBooking}
@@ -602,6 +608,14 @@ const MoyenneDuree = () => {
               }
             }}
           />
+        </TabsContent>
+
+        {/* Lease Templates Tab */}
+        <TabsContent value="templates" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold">Modèles de baux</h2>
+          </div>
+          <LeaseTemplatesManager />
         </TabsContent>
       </Tabs>
 
