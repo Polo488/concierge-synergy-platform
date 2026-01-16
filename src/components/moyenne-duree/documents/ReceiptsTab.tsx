@@ -41,6 +41,7 @@ import {
   formatMonth, 
   getDocumentStatusInfo 
 } from "../hooks/useRentDocuments";
+import { generateReceiptPDF, downloadPDF } from "../utils/pdfGenerator";
 import { ReceiptDialog } from "./ReceiptDialog";
 
 interface ReceiptsTabProps {
@@ -86,7 +87,10 @@ export const ReceiptsTab = ({ booking, formatter }: ReceiptsTabProps) => {
   };
 
   const handleDownload = (receipt: RentReceipt) => {
-    toast.info("Téléchargement du PDF...");
+    const doc = generateReceiptPDF(receipt, booking);
+    const filename = `quittance-${booking.property.replace(/\s+/g, "-")}-${receipt.month}`;
+    downloadPDF(doc, filename);
+    toast.success("PDF téléchargé avec succès");
   };
 
   const handleDelete = (receipt: RentReceipt) => {
