@@ -48,6 +48,7 @@ export function Sidebar() {
     { name: t('sidebar.properties'), path: '/properties', icon: Home, permission: 'properties' },
     { name: t('sidebar.averageDuration'), path: '/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
     { name: t('sidebar.upsell'), path: '/upsell', icon: ShoppingCart, permission: 'upsell' },
+    { name: 'Guest Experience', path: '/guest-experience', icon: Users, permission: 'guestExperience' },
     { name: t('sidebar.billing'), path: '/billing', icon: Receipt, permission: 'billing' },
     { name: t('sidebar.insights'), path: '/insights', icon: Lightbulb, permission: 'properties' },
   ];

@@ -20,6 +20,7 @@ import Upsell from "./pages/Upsell";
 import Users from "./pages/Users";
 import InsightsAlerts from "./pages/InsightsAlerts";
 import QualityStats from "./pages/QualityStats";
+import GuestExperience from "./pages/GuestExperience";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -106,6 +107,12 @@ const App = () => (
                   <Route path="/insights" element={
                     <RoutePermission permission="properties">
                       <InsightsAlerts />
+                    </RoutePermission>
+                  } />
+                  
+                  <Route path="/guest-experience" element={
+                    <RoutePermission permission="guestExperience">
+                      <GuestExperience />
                     </RoutePermission>
                   } />
                 </Route>
