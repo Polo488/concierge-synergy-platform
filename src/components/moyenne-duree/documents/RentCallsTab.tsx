@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
+import jsPDF from "jspdf";
 import { 
   FileText, 
   Send, 
@@ -12,7 +13,8 @@ import {
   Mail,
   Calendar,
   Euro,
-  Clock
+  Clock,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +44,7 @@ import {
 } from "../hooks/useRentDocuments";
 import { generateRentCallPDF, downloadPDF } from "../utils/pdfGenerator";
 import { RentCallDialog } from "./RentCallDialog";
+import { PDFPreviewModal } from "./PDFPreviewModal";
 
 interface RentCallsTabProps {
   booking: Booking;
@@ -63,6 +66,9 @@ export const RentCallsTab = ({ booking, formatter }: RentCallsTabProps) => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedRentCall, setSelectedRentCall] = useState<RentCall | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewPdf, setPreviewPdf] = useState<jsPDF | null>(null);
+  const [previewFilename, setPreviewFilename] = useState("");
 
   const rentCalls = getRentCallsForBooking(booking.id);
   const bookingMonths = getBookingMonths(booking.startDate, booking.endDate);
@@ -105,6 +111,14 @@ export const RentCallsTab = ({ booking, formatter }: RentCallsTabProps) => {
   const handleMarkPaid = (rentCall: RentCall) => {
     markAsPaid(rentCall.id);
     toast.success(`Loyer marqué comme payé pour ${formatMonth(rentCall.month)}`);
+  };
+
+  const handlePreview = (rentCall: RentCall) => {
+    const doc = generateRentCallPDF(rentCall, booking);
+    const filename = `appel-loyer-${booking.property.replace(/\s+/g, "-")}-${rentCall.month}`;
+    setPreviewPdf(doc);
+    setPreviewFilename(filename);
+    setPreviewOpen(true);
   };
 
   const handleDownload = (rentCall: RentCall) => {
@@ -201,6 +215,10 @@ export const RentCallsTab = ({ booking, formatter }: RentCallsTabProps) => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handlePreview(rentCall)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              Aperçu PDF
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleDownload(rentCall)}>
                               <Download className="h-4 w-4 mr-2" />
                               Télécharger PDF
@@ -299,6 +317,14 @@ export const RentCallsTab = ({ booking, formatter }: RentCallsTabProps) => {
         rentCall={selectedRentCall}
         booking={booking}
         formatter={formatter}
+      />
+
+      <PDFPreviewModal
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        pdf={previewPdf}
+        title={`Appel de loyer - ${booking.property}`}
+        filename={previewFilename}
       />
     </div>
   );
