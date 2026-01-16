@@ -22,9 +22,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Mock users for demonstration
 const MOCK_USERS: User[] = [
   { id: '1', name: 'Admin User', email: 'admin@example.com', role: 'admin', avatar: 'https://i.pravatar.cc/150?u=1' },
-  { id: '2', name: 'Employee User', email: 'employee@example.com', role: 'employee', avatar: 'https://i.pravatar.cc/150?u=2' },
-  { id: '3', name: 'Maintenance Agent', email: 'maintenance@example.com', role: 'maintenance', avatar: 'https://i.pravatar.cc/150?u=3' },
-  { id: '4', name: 'Cleaning Agent', email: 'cleaning@example.com', role: 'cleaning', avatar: 'https://i.pravatar.cc/150?u=4' },
+  { id: '2', name: 'Marie Dupont', email: 'supervisor@example.com', role: 'supervisor', avatar: 'https://i.pravatar.cc/150?u=2' },
+  { id: '3', name: 'Jean Martin', email: 'citymanager@example.com', role: 'cityManager', avatar: 'https://i.pravatar.cc/150?u=3' },
+  { id: '4', name: 'Employee User', email: 'employee@example.com', role: 'employee', avatar: 'https://i.pravatar.cc/150?u=4' },
+  { id: '5', name: 'Maintenance Agent', email: 'maintenance@example.com', role: 'maintenance', avatar: 'https://i.pravatar.cc/150?u=5' },
+  { id: '6', name: 'Cleaning Agent', email: 'cleaning@example.com', role: 'cleaning', avatar: 'https://i.pravatar.cc/150?u=6' },
 ];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -61,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (key === 'billing' && currentPath === '/billing') return true;
           if (key === 'moyenneDuree' && currentPath === '/moyenne-duree') return true;
           if (key === 'upsell' && currentPath === '/upsell') return true;
-          if (key === 'users' && currentPath === '/users') return true;
+          if (key === 'users' && (currentPath === '/users' || currentPath === '/user-management')) return true;
           if (key === 'guestExperience' && currentPath === '/guest-experience') return true;
           
           return currentPath === '/';

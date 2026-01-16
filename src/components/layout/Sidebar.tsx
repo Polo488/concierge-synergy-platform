@@ -15,10 +15,11 @@ import {
   Calendar as CalendarIcon,
   Clock,
   ShoppingCart,
-  Users,
   LogOut,
   Lightbulb,
-  BarChart3
+  BarChart3,
+  MessageSquare,
+  Shield
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -48,14 +49,14 @@ export function Sidebar() {
     { name: t('sidebar.properties'), path: '/properties', icon: Home, permission: 'properties' },
     { name: t('sidebar.averageDuration'), path: '/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
     { name: t('sidebar.upsell'), path: '/upsell', icon: ShoppingCart, permission: 'upsell' },
-    { name: 'Communication Intelligente', path: '/guest-experience', icon: Users, permission: 'guestExperience' },
+    { name: 'Communication Intelligente', path: '/guest-experience', icon: MessageSquare, permission: 'guestExperience' },
     { name: t('sidebar.billing'), path: '/billing', icon: Receipt, permission: 'billing' },
     { name: t('sidebar.insights'), path: '/insights', icon: Lightbulb, permission: 'properties' },
   ];
   
   // Add users management if user has permission
   if (hasPermission('users')) {
-    navItems.push({ name: 'Utilisateurs', path: '/users', icon: Users, permission: 'users' });
+    navItems.push({ name: 'Gestion des utilisateurs', path: '/user-management', icon: Shield, permission: 'users' });
   }
   
   // Close sidebar on mobile by default
