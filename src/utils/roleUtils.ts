@@ -23,6 +23,44 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
         canManageUsers: true,
       };
     
+    case 'supervisor':
+      return {
+        name: 'Superviseur',
+        permissions: {
+          properties: true,
+          inventory: true,
+          maintenance: true,
+          cleaning: true,
+          calendar: true,
+          billing: false,
+          moyenneDuree: true,
+          upsell: true,
+          users: true,
+          guestExperience: true,
+        },
+        defaultRoute: '/',
+        canManageUsers: true,
+      };
+
+    case 'cityManager':
+      return {
+        name: 'City Manager',
+        permissions: {
+          properties: true,
+          inventory: true,
+          maintenance: true,
+          cleaning: true,
+          calendar: true,
+          billing: false,
+          moyenneDuree: true,
+          upsell: true,
+          users: false,
+          guestExperience: true,
+        },
+        defaultRoute: '/',
+        canManageUsers: false,
+      };
+    
     case 'employee':
       return {
         name: 'Employé',

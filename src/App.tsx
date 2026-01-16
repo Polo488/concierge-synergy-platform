@@ -17,7 +17,7 @@ import Properties from "./pages/Properties";
 import Billing from "./pages/Billing";
 import MoyenneDuree from "./pages/MoyenneDuree";
 import Upsell from "./pages/Upsell";
-import Users from "./pages/Users";
+import UserManagement from "./pages/UserManagement";
 import InsightsAlerts from "./pages/InsightsAlerts";
 import QualityStats from "./pages/QualityStats";
 import GuestExperience from "./pages/GuestExperience";
@@ -98,9 +98,9 @@ const App = () => (
                     </RoutePermission>
                   } />
                   
-                  <Route path="/users" element={
+                  <Route path="/user-management" element={
                     <RoutePermission permission="users">
-                      <Users />
+                      <UserManagement />
                     </RoutePermission>
                   } />
                   

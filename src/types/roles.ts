@@ -1,5 +1,5 @@
 
-export type UserRole = 'admin' | 'employee' | 'maintenance' | 'cleaning';
+export type UserRole = 'admin' | 'supervisor' | 'cityManager' | 'employee' | 'maintenance' | 'cleaning';
 
 export interface PermissionMap {
   properties: boolean;
