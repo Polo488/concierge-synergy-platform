@@ -1,7 +1,24 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import {
   LayoutDashboard,
   Package,
@@ -12,7 +29,6 @@ import {
   Menu,
   X,
   ChevronRight,
-  ChevronDown,
   Calendar as CalendarIcon,
   Clock,
   ShoppingCart,
@@ -20,20 +36,15 @@ import {
   Lightbulb,
   BarChart3,
   MessageSquare,
-  Shield,
-  TrendingUp,
   Users,
   Gauge,
-  Heart
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { useMenuOrder } from '@/hooks/useMenuOrder';
+import { SortableSection } from './SortableSection';
+import { toast } from 'sonner';
 
 type NavItem = {
   name: string;
@@ -55,13 +66,27 @@ type NavSection = {
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
   const [expandedSections, setExpandedSections] = useState<string[]>(['pilotage', 'operations']);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const location = useLocation();
   const isMobile = useIsMobile();
   const { hasPermission, logout, user } = useAuth();
   const { t } = useLanguage();
+  const { sectionOrder, updateOrder, getOrderedSections, isLoaded } = useMenuOrder();
+  
+  // Sensors for drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
   
   // Define navigation sections with color system
-  const navSections: NavSection[] = [
+  const navSections: NavSection[] = useMemo(() => [
     {
       id: 'pilotage',
       title: 'PILOTAGE & ANALYSE',
@@ -125,7 +150,13 @@ export function Sidebar() {
         { name: 'Gestion des utilisateurs', path: '/user-management', icon: Users, permission: 'users' },
       ]
     }
-  ];
+  ], [t]);
+  
+  // Get ordered sections
+  const orderedSections = useMemo(() => 
+    getOrderedSections(navSections), 
+    [navSections, getOrderedSections, sectionOrder]
+  );
   
   // Close sidebar on mobile by default
   useEffect(() => {
@@ -151,7 +182,7 @@ export function Sidebar() {
     if (activeSection && !expandedSections.includes(activeSection.id)) {
       setExpandedSections(prev => [...prev, activeSection.id]);
     }
-  }, [location.pathname]);
+  }, [location.pathname, navSections]);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev => 
@@ -161,13 +192,45 @@ export function Sidebar() {
     );
   };
 
-  // Filter sections based on permissions
-  const visibleSections = navSections
-    .map(section => ({
-      ...section,
-      items: section.items.filter(item => hasPermission(item.permission as any))
-    }))
-    .filter(section => section.items.length > 0);
+  // Filter sections based on permissions (but keep order for hidden sections)
+  const visibleSections = useMemo(() => 
+    orderedSections
+      .map(section => ({
+        ...section,
+        items: section.items.filter(item => hasPermission(item.permission as any))
+      }))
+      .filter(section => section.items.length > 0),
+    [orderedSections, hasPermission]
+  );
+
+  // Drag handlers
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (over && active.id !== over.id) {
+      const oldIndex = sectionOrder.indexOf(active.id as string);
+      const newIndex = sectionOrder.indexOf(over.id as string);
+      
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(sectionOrder, oldIndex, newIndex);
+        updateOrder(newOrder);
+        toast.success("Ordre du menu mis à jour");
+      }
+    }
+  };
+
+  const activeSection = activeId 
+    ? visibleSections.find(s => s.id === activeId) 
+    : null;
+
+  if (!isLoaded) {
+    return null; // Or a skeleton loader
+  }
 
   return (
     <>
@@ -247,104 +310,43 @@ export function Sidebar() {
           </div>
         )}
         
-        {/* Navigation sections */}
+        {/* Navigation sections with drag and drop */}
         <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-2">
-          {visibleSections.map((section) => {
-            const isExpanded = expandedSections.includes(section.id);
-            const hasActiveItem = section.items.some(item => item.path === location.pathname);
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={visibleSections.map(s => s.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {visibleSections.map((section) => (
+                <SortableSection
+                  key={section.id}
+                  section={section}
+                  isExpanded={expandedSections.includes(section.id)}
+                  isOpen={isOpen}
+                  onToggle={() => toggleSection(section.id)}
+                />
+              ))}
+            </SortableContext>
             
-            return (
-              <Collapsible
-                key={section.id}
-                open={isExpanded}
-                onOpenChange={() => toggleSection(section.id)}
-              >
-                <CollapsibleTrigger className={cn(
-                  "flex items-center justify-between w-full px-2 py-2 rounded-lg",
+            {/* Drag overlay for visual feedback */}
+            <DragOverlay>
+              {activeSection ? (
+                <div className={cn(
+                  "flex items-center gap-2 px-3 py-2 rounded-lg",
+                  "bg-card shadow-lg border border-border",
                   "text-xs font-semibold tracking-wider",
-                  "hover:bg-muted/50 transition-colors",
-                  section.colorClass,
-                  hasActiveItem && section.bgClass,
-                  !isOpen && "md:hidden"
+                  activeSection.colorClass
                 )}>
-                  <span>{section.title}</span>
-                  <ChevronDown 
-                    size={14} 
-                    className={cn(
-                      "transition-transform duration-200",
-                      isExpanded && "rotate-180"
-                    )}
-                  />
-                </CollapsibleTrigger>
-                
-                <CollapsibleContent className="space-y-0.5 mt-1">
-                  {section.items.map((item) => {
-                    const isActive = location.pathname === item.path;
-                    
-                    return (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        className={cn(
-                          "flex items-center gap-3 px-2 py-2.5 rounded-lg transition-all duration-200",
-                          "group hover:bg-muted/50 border-l-2 border-transparent ml-1",
-                          isActive && section.activeClass,
-                          !isOpen && "md:ml-0 md:justify-center"
-                        )}
-                      >
-                        <div className={cn(
-                          "flex-shrink-0 p-1.5 rounded-md transition-colors",
-                          isActive ? section.iconBgClass : "bg-muted/50 text-muted-foreground group-hover:bg-muted"
-                        )}>
-                          <item.icon size={16} />
-                        </div>
-                        
-                        <span className={cn(
-                          "font-medium text-sm",
-                          !isOpen && "md:hidden",
-                          !isActive && "text-foreground/80"
-                        )}>
-                          {item.name}
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </CollapsibleContent>
-                
-                {/* Collapsed state - show only icons */}
-                {!isOpen && (
-                  <div className="hidden md:flex flex-col items-center gap-1 py-1">
-                    {section.items.map((item) => {
-                      const isActive = location.pathname === item.path;
-                      
-                      return (
-                        <Link
-                          key={item.path}
-                          to={item.path}
-                          title={item.name}
-                          className={cn(
-                            "relative p-2 rounded-lg transition-all duration-200",
-                            "hover:bg-muted/50",
-                            isActive && section.iconBgClass
-                          )}
-                        >
-                          <item.icon size={18} />
-                          {isActive && (
-                            <div 
-                              className={cn(
-                                "absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-l-md",
-                                section.colorClass.replace('text-', 'bg-')
-                              )} 
-                            />
-                          )}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </Collapsible>
-            );
-          })}
+                  <span>{activeSection.title}</span>
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
         </nav>
         
         {/* Logout button */}
