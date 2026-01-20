@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription 
 } from '@/components/ui/dialog';
@@ -40,6 +40,11 @@ export const PropertyDetailsDialog = ({
 }: PropertyDetailsDialogProps) => {
   const [selectedPhotoCategory, setSelectedPhotoCategory] = useState('Toutes');
   const [localProperty, setLocalProperty] = useState<Property | null>(property);
+  
+  // Sync local state when property prop changes
+  useEffect(() => {
+    setLocalProperty(property);
+  }, [property]);
   
   if (!property || !localProperty) return null;
 
