@@ -81,4 +81,7 @@ export interface Property {
   residenceType: ResidenceType;
   nightsCount: number;
   nightsLimit: number;
+  internalBannerNote?: string;
+  internalBannerNoteUpdatedAt?: string;
+  internalBannerNoteUpdatedBy?: string;
 }
