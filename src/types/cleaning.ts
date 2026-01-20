@@ -31,7 +31,8 @@ export interface CleaningIssue {
   linkedAgentName?: string;
   linkedReservationId?: string;
   source: CleaningIssueSource;
-  issueType: CleaningIssueType;
+  issueType: CleaningIssueType; // Primary issue type (for backwards compatibility)
+  issueTypes?: CleaningIssueType[]; // Multiple issue types
   description: string;
   photos: string[];
   repasseRequired: boolean;
