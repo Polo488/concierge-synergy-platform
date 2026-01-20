@@ -13,6 +13,7 @@ export interface PermissionMap {
   users: boolean;
   guestExperience: boolean;
   agenda: boolean;
+  messaging: boolean;
 }
 
 export interface RoleDefinition {
