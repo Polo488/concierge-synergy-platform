@@ -77,6 +77,15 @@ export interface LinkedTask {
   createdAt: Date;
 }
 
+export type SLAStatus = 'ok' | 'warning' | 'critical';
+
+export interface SLAInfo {
+  status: SLAStatus;
+  minutesSinceLastGuestMessage: number | null;
+  lastGuestMessageAt: Date | null;
+  isAwaitingResponse: boolean;
+}
+
 export interface Conversation {
   id: string;
   guestId: string;
@@ -93,6 +102,7 @@ export interface Conversation {
   lastMessageAt: Date;
   lastMessagePreview: string;
   linkedTasks: LinkedTask[];
+  sla?: SLAInfo;
   createdAt: Date;
   updatedAt: Date;
 }

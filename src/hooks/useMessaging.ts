@@ -1,5 +1,5 @@
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { 
   Conversation, 
   Message, 
@@ -8,9 +8,63 @@ import {
   ConversationTag,
   QuickReplyTemplate,
   MessageChannel,
-  LinkedTask
+  LinkedTask,
+  SLAInfo,
+  SLAStatus
 } from '@/types/messaging';
-import { addDays, subDays } from 'date-fns';
+import { addDays, subDays, differenceInMinutes } from 'date-fns';
+
+// SLA thresholds in minutes
+const SLA_WARNING_THRESHOLD = 15; // Warning after 15 minutes
+const SLA_CRITICAL_THRESHOLD = 30; // Critical after 30 minutes
+
+// Calculate SLA status for a conversation
+const calculateSLA = (messages: Message[]): SLAInfo => {
+  // Find the last guest message
+  const guestMessages = messages.filter(m => m.sender === 'guest' && !m.isInternal);
+  const teamMessages = messages.filter(m => m.sender === 'team' && !m.isInternal);
+  
+  if (guestMessages.length === 0) {
+    return {
+      status: 'ok',
+      minutesSinceLastGuestMessage: null,
+      lastGuestMessageAt: null,
+      isAwaitingResponse: false,
+    };
+  }
+  
+  const lastGuestMessage = guestMessages[guestMessages.length - 1];
+  const lastTeamMessage = teamMessages.length > 0 ? teamMessages[teamMessages.length - 1] : null;
+  
+  // Check if team has responded after the last guest message
+  const isAwaitingResponse = !lastTeamMessage || 
+    lastTeamMessage.timestamp.getTime() < lastGuestMessage.timestamp.getTime();
+  
+  if (!isAwaitingResponse) {
+    return {
+      status: 'ok',
+      minutesSinceLastGuestMessage: null,
+      lastGuestMessageAt: lastGuestMessage.timestamp,
+      isAwaitingResponse: false,
+    };
+  }
+  
+  const minutesSince = differenceInMinutes(new Date(), lastGuestMessage.timestamp);
+  
+  let status: SLAStatus = 'ok';
+  if (minutesSince >= SLA_CRITICAL_THRESHOLD) {
+    status = 'critical';
+  } else if (minutesSince >= SLA_WARNING_THRESHOLD) {
+    status = 'warning';
+  }
+  
+  return {
+    status,
+    minutesSinceLastGuestMessage: minutesSince,
+    lastGuestMessageAt: lastGuestMessage.timestamp,
+    isAwaitingResponse: true,
+  };
+};
 
 // Mock data for conversations
 const generateMockConversations = (): Conversation[] => {
@@ -461,6 +515,23 @@ export const useMessaging = () => {
 
   const quickReplies = mockQuickReplies;
 
+  // Update SLA status every 30 seconds
+  useEffect(() => {
+    const updateSLA = () => {
+      setConversations(prev => prev.map(conv => ({
+        ...conv,
+        sla: calculateSLA(conv.messages),
+      })));
+    };
+    
+    // Initial SLA calculation
+    updateSLA();
+    
+    // Update every 30 seconds
+    const interval = setInterval(updateSLA, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Get unique properties from conversations
   const properties = useMemo(() => {
     const propertyMap = new Map<string, { id: string; name: string }>();
@@ -508,7 +579,12 @@ export const useMessaging = () => {
 
       return true;
     }).sort((a, b) => {
-      // Priority first, then by last message date
+      // SLA critical first, then warning, then priority, then by last message date
+      const slaOrder = { critical: 0, warning: 1, ok: 2 };
+      const aSlaOrder = slaOrder[a.sla?.status || 'ok'];
+      const bSlaOrder = slaOrder[b.sla?.status || 'ok'];
+      if (aSlaOrder !== bSlaOrder) return aSlaOrder - bSlaOrder;
+      
       if (a.isPriority && !b.isPriority) return -1;
       if (!a.isPriority && b.isPriority) return 1;
       return b.lastMessageAt.getTime() - a.lastMessageAt.getTime();
@@ -528,6 +604,8 @@ export const useMessaging = () => {
     pending: conversations.filter(c => c.status === 'pending').length,
     resolved: conversations.filter(c => c.status === 'resolved').length,
     priority: conversations.filter(c => c.isPriority).length,
+    slaCritical: conversations.filter(c => c.sla?.status === 'critical').length,
+    slaWarning: conversations.filter(c => c.sla?.status === 'warning').length,
   }), [conversations]);
 
   // Actions
