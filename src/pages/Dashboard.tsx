@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { 
   LayoutDashboard, Package, Wrench, Sparkles, 
@@ -6,6 +5,9 @@ import {
 } from 'lucide-react';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
 import { StatCard } from '@/components/dashboard/StatCard';
+import { DailyKPICards } from '@/components/dashboard/DailyKPICards';
+import { DailyActivityTabs } from '@/components/dashboard/DailyActivityTabs';
+import { useDashboardData } from '@/hooks/useDashboardData';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, 
   Tooltip, ResponsiveContainer, LineChart, Line
@@ -34,6 +36,8 @@ const propertiesData = [
 ];
 
 const Dashboard = () => {
+  const { checkIns, checkOuts, tasks, stats } = useDashboardData();
+
   useEffect(() => {
     document.title = 'Tableau de bord - GESTION BNB LYON';
   }, []);
@@ -43,40 +47,19 @@ const Dashboard = () => {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Tableau de bord</h1>
         <p className="text-muted-foreground mt-1">
-          Bienvenue sur votre plateforme de gestion de conciergerie
+          Vue opérationnelle de votre activité du jour
         </p>
       </div>
       
-      {/* Statistics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard 
-          title="Total Logements" 
-          value="15" 
-          icon={<Home className="h-5 w-5" />}
-          change={{ value: 12, type: 'increase' }}
-          className="stagger-1"
-        />
-        <StatCard 
-          title="Interventions en cours" 
-          value="7" 
-          icon={<Wrench className="h-5 w-5" />}
-          change={{ value: 3, type: 'decrease' }}
-          className="stagger-2"
-        />
-        <StatCard 
-          title="Ménages planifiés" 
-          value="12" 
-          icon={<Sparkles className="h-5 w-5" />}
-          className="stagger-3"
-        />
-        <StatCard 
-          title="Alertes stock" 
-          value="4" 
-          icon={<Package className="h-5 w-5" />}
-          change={{ value: 2, type: 'increase' }}
-          className="stagger-4"
-        />
-      </div>
+      {/* Daily KPI Cards */}
+      <DailyKPICards stats={stats} />
+
+      {/* Daily Activity Tabs */}
+      <DailyActivityTabs 
+        checkIns={checkIns} 
+        checkOuts={checkOuts} 
+        tasks={tasks} 
+      />
       
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">
