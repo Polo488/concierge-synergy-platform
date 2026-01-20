@@ -12,6 +12,7 @@ export interface PermissionMap {
   upsell: boolean;
   users: boolean;
   guestExperience: boolean;
+  agenda: boolean;
 }
 
 export interface RoleDefinition {

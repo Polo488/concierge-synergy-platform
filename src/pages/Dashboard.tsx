@@ -1,14 +1,13 @@
 import { useEffect } from 'react';
 import { 
-  LayoutDashboard, Package, Wrench, Sparkles, 
-  Home, Receipt, BarChart3, Clock
+  Package, Wrench, Sparkles, Clock
 } from 'lucide-react';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
-import { StatCard } from '@/components/dashboard/StatCard';
 import { DailyKPICards } from '@/components/dashboard/DailyKPICards';
 import { DailyActivityTabs } from '@/components/dashboard/DailyActivityTabs';
-import { DailyTimeline } from '@/components/dashboard/DailyTimeline';
+import { AgendaPreviewWidget } from '@/components/dashboard/AgendaPreviewWidget';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { useAgenda } from '@/hooks/useAgenda';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, 
   Tooltip, ResponsiveContainer, LineChart, Line
@@ -38,6 +37,7 @@ const propertiesData = [
 
 const Dashboard = () => {
   const { checkIns, checkOuts, tasks, stats } = useDashboardData();
+  const { todayEntries, tomorrowEntries, properties } = useAgenda();
 
   useEffect(() => {
     document.title = 'Tableau de bord - GESTION BNB LYON';
@@ -55,17 +55,17 @@ const Dashboard = () => {
       {/* Daily KPI Cards */}
       <DailyKPICards stats={stats} />
 
-      {/* Daily Activity: Tabs and Timeline side by side */}
+      {/* Daily Activity: Tabs and Agenda preview side by side */}
       <div className="grid gap-6 lg:grid-cols-2">
         <DailyActivityTabs 
           checkIns={checkIns} 
           checkOuts={checkOuts} 
           tasks={tasks} 
         />
-        <DailyTimeline 
-          checkIns={checkIns} 
-          checkOuts={checkOuts} 
-          tasks={tasks} 
+        <AgendaPreviewWidget 
+          todayEntries={todayEntries}
+          tomorrowEntries={tomorrowEntries}
+          properties={properties}
         />
       </div>
       
