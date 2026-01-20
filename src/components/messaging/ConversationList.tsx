@@ -17,7 +17,9 @@ import {
   Bell, 
   Clock,
   MessageCircle,
-  AlertCircle
+  AlertCircle,
+  AlertTriangle,
+  Timer
 } from 'lucide-react';
 import { 
   Conversation, 
@@ -57,6 +59,8 @@ interface ConversationListProps {
     pending: number;
     resolved: number;
     priority: number;
+    slaCritical?: number;
+    slaWarning?: number;
   };
 }
 
@@ -94,6 +98,12 @@ export const ConversationList: React.FC<ConversationListProps> = ({
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Conversations</h2>
           <div className="flex items-center gap-2">
+            {(stats.slaCritical ?? 0) > 0 && (
+              <Badge variant="destructive" className="rounded-full animate-pulse">
+                <AlertTriangle className="h-3 w-3 mr-1" />
+                {stats.slaCritical} SLA
+              </Badge>
+            )}
             {stats.unread > 0 && (
               <Badge variant="destructive" className="rounded-full">
                 {stats.unread}
@@ -101,6 +111,24 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             )}
           </div>
         </div>
+
+        {/* SLA Alert Banner */}
+        {((stats.slaCritical ?? 0) > 0 || (stats.slaWarning ?? 0) > 0) && (
+          <div className={cn(
+            "flex items-center gap-2 p-2 rounded-lg text-xs",
+            (stats.slaCritical ?? 0) > 0 
+              ? "bg-destructive/10 text-destructive border border-destructive/20"
+              : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+          )}>
+            <Timer className="h-4 w-4" />
+            <span>
+              {(stats.slaCritical ?? 0) > 0 
+                ? `${stats.slaCritical} message${(stats.slaCritical ?? 0) > 1 ? 's' : ''} sans réponse depuis +30 min`
+                : `${stats.slaWarning} message${(stats.slaWarning ?? 0) > 1 ? 's' : ''} sans réponse depuis +15 min`
+              }
+            </span>
+          </div>
+        )}
 
         {/* Quick stats */}
         <div className="flex gap-2 text-xs">
@@ -254,7 +282,31 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   isSelected,
   onClick,
 }) => {
-  const { guest, reservation, lastMessagePreview, lastMessageAt, isUnread, isPriority, tags, status } = conversation;
+  const { guest, reservation, lastMessagePreview, lastMessageAt, isUnread, isPriority, tags, sla } = conversation;
+
+  const getSLAIndicator = () => {
+    if (!sla?.isAwaitingResponse) return null;
+    
+    if (sla.status === 'critical') {
+      return (
+        <div className="flex items-center gap-1 text-destructive animate-pulse">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          <span className="text-[10px] font-medium">{sla.minutesSinceLastGuestMessage}min</span>
+        </div>
+      );
+    }
+    
+    if (sla.status === 'warning') {
+      return (
+        <div className="flex items-center gap-1 text-amber-500">
+          <Timer className="h-3.5 w-3.5" />
+          <span className="text-[10px] font-medium">{sla.minutesSinceLastGuestMessage}min</span>
+        </div>
+      );
+    }
+    
+    return null;
+  };
 
   return (
     <div
@@ -262,14 +314,18 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       className={cn(
         'p-3 cursor-pointer transition-colors hover:bg-muted/50',
         isSelected && 'bg-muted',
-        isUnread && 'bg-primary/5'
+        isUnread && 'bg-primary/5',
+        sla?.status === 'critical' && 'border-l-2 border-l-destructive bg-destructive/5',
+        sla?.status === 'warning' && !sla?.status && 'border-l-2 border-l-amber-500 bg-amber-50/50'
       )}
     >
       <div className="flex items-start gap-3">
-        {/* Channel icon */}
+        {/* Channel icon with SLA ring */}
         <div className={cn(
-          'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm border',
-          CHANNEL_COLORS[reservation.channel]
+          'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm border relative',
+          CHANNEL_COLORS[reservation.channel],
+          sla?.status === 'critical' && 'ring-2 ring-destructive ring-offset-1',
+          sla?.status === 'warning' && 'ring-2 ring-amber-500 ring-offset-1'
         )}>
           {CHANNEL_ICONS[reservation.channel]}
         </div>
@@ -291,9 +347,12 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
                 <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
               )}
             </div>
-            <span className="text-xs text-muted-foreground flex-shrink-0">
-              {formatDistanceToNow(lastMessageAt, { addSuffix: false, locale: fr })}
-            </span>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {getSLAIndicator()}
+              <span className="text-xs text-muted-foreground">
+                {formatDistanceToNow(lastMessageAt, { addSuffix: false, locale: fr })}
+              </span>
+            </div>
           </div>
 
           {/* Property name */}
