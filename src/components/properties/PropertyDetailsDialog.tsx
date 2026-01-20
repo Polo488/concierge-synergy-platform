@@ -17,6 +17,7 @@ import { PropertyPhotosTab } from './details/PropertyPhotosTab';
 import { PropertyPlatformsTab } from './details/PropertyPlatformsTab';
 import { PropertyMaintenanceTab } from './details/PropertyMaintenanceTab';
 import { PropertyRepasseTab, RepasseEvent } from './details/PropertyRepasseTab';
+import { PropertyBannerNote } from './details/PropertyBannerNote';
 
 interface PropertyDetailsDialogProps {
   property: Property | null;
@@ -25,6 +26,7 @@ interface PropertyDetailsDialogProps {
   onClose: () => void;
   onViewTask?: (task: CleaningTask) => void;
   onViewIssue?: (issue: CleaningIssue) => void;
+  onUpdateProperty?: (property: Property) => void;
 }
 
 export const PropertyDetailsDialog = ({ 
@@ -34,10 +36,23 @@ export const PropertyDetailsDialog = ({
   onClose,
   onViewTask,
   onViewIssue,
+  onUpdateProperty,
 }: PropertyDetailsDialogProps) => {
   const [selectedPhotoCategory, setSelectedPhotoCategory] = useState('Toutes');
+  const [localProperty, setLocalProperty] = useState<Property | null>(property);
   
-  if (!property) return null;
+  if (!property || !localProperty) return null;
+
+  const handleBannerNoteSave = (note: string) => {
+    const updatedProperty = {
+      ...localProperty,
+      internalBannerNote: note,
+      internalBannerNoteUpdatedAt: new Date().toISOString(),
+      internalBannerNoteUpdatedBy: 'Utilisateur actuel', // In real app, get from auth context
+    };
+    setLocalProperty(updatedProperty);
+    onUpdateProperty?.(updatedProperty);
+  };
   
   // Filter maintenance tasks for this property
   const getPropertyMaintenanceHistory = () => {
@@ -71,6 +86,14 @@ export const PropertyDetailsDialog = ({
             </div>
           </DialogDescription>
         </DialogHeader>
+
+        <PropertyBannerNote
+          note={localProperty.internalBannerNote}
+          updatedAt={localProperty.internalBannerNoteUpdatedAt}
+          updatedBy={localProperty.internalBannerNoteUpdatedBy}
+          onSave={handleBannerNoteSave}
+          canEdit={true}
+        />
 
         <Tabs defaultValue="info" className="mt-4">
           <TabsList className="grid w-full grid-cols-7">

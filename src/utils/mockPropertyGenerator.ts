@@ -155,7 +155,11 @@ export const generateProperties = (): Property[] => {
       ],
       residenceType,
       nightsCount,
-      nightsLimit
+      nightsLimit,
+      // Add some sample banner notes for demo
+      internalBannerNote: i % 5 === 0 ? 'Attention: Le propriétaire sera présent du 15 au 20 du mois. Contacter avant toute intervention.' : undefined,
+      internalBannerNoteUpdatedAt: i % 5 === 0 ? new Date().toISOString() : undefined,
+      internalBannerNoteUpdatedBy: i % 5 === 0 ? 'Marie Dupont' : undefined,
     };
   });
 };
