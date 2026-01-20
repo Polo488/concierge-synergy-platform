@@ -28,8 +28,8 @@ export const generateProperties = (): Property[] => {
     // Determine residence type - 30% principale, 70% secondaire
     const residenceType: ResidenceType = Math.random() < 0.3 ? 'principale' : 'secondaire';
     
-    // For résidences principales, generate a random number of nights used
-    const nightsLimit = residenceType === 'principale' ? 120 : 365;
+    // For résidences principales, generate a random number of nights used (limit 90)
+    const nightsLimit = residenceType === 'principale' ? 90 : 365;
     const nightsCount = residenceType === 'principale' 
       ? Math.floor(Math.random() * nightsLimit) 
       : Math.floor(Math.random() * 250); // For secondaires, just a random number for demo
