@@ -22,6 +22,7 @@ import InsightsAlerts from "./pages/InsightsAlerts";
 import QualityStats from "./pages/QualityStats";
 import GuestExperience from "./pages/GuestExperience";
 import Agenda from "./pages/Agenda";
+import Messaging from "./pages/Messaging";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -120,6 +121,12 @@ const App = () => (
                   <Route path="/agenda" element={
                     <RoutePermission permission="agenda">
                       <Agenda />
+                    </RoutePermission>
+                  } />
+                  
+                  <Route path="/messaging" element={
+                    <RoutePermission permission="messaging">
+                      <Messaging />
                     </RoutePermission>
                   } />
                 </Route>
