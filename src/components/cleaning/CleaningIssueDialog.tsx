@@ -48,7 +48,7 @@ export const CleaningIssueDialog = ({
   onSubmit,
 }: CleaningIssueDialogProps) => {
   const [issueSource, setIssueSource] = useState<CleaningIssueSource>(source);
-  const [issueType, setIssueType] = useState<CleaningIssueType>('general' as CleaningIssueType);
+  const [issueTypes, setIssueTypes] = useState<CleaningIssueType[]>([]);
   const [description, setDescription] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
   const [repasseRequired, setRepasseRequired] = useState(false);
@@ -58,7 +58,7 @@ export const CleaningIssueDialog = ({
   useEffect(() => {
     if (open) {
       setIssueSource(source);
-      setIssueType('general' as CleaningIssueType);
+      setIssueTypes([]);
       setDescription('');
       setPhotos([]);
       setRepasseRequired(false);
@@ -66,8 +66,16 @@ export const CleaningIssueDialog = ({
     }
   }, [open, linkedTask, source]);
 
+  const toggleIssueType = (type: CleaningIssueType) => {
+    setIssueTypes(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    );
+  };
+
   const handleSubmit = () => {
-    if (!propertyName || !issueType || !description.trim()) {
+    if (!propertyName || issueTypes.length === 0 || !description.trim()) {
       return;
     }
 
@@ -78,7 +86,8 @@ export const CleaningIssueDialog = ({
       linkedAgentId: linkedTask?.cleaningAgent?.toLowerCase().replace(/\s+/g, '-'),
       linkedAgentName: linkedTask?.cleaningAgent || undefined,
       source: issueSource,
-      issueType,
+      issueType: issueTypes[0], // Primary issue type (first selected)
+      issueTypes: issueTypes, // All selected types
       description,
       photos,
       repasseRequired,
@@ -170,25 +179,30 @@ export const CleaningIssueDialog = ({
             </div>
           )}
 
-          {/* Issue Type */}
+          {/* Issue Type - Multiple selection */}
           <div className="space-y-2">
-            <Label>Type de problème *</Label>
+            <Label>Type(s) de problème * <span className="text-muted-foreground text-xs font-normal">(plusieurs choix possibles)</span></Label>
             <div className="flex flex-wrap gap-2">
               {ISSUE_TYPES.map((type) => (
                 <Badge
                   key={type.value}
-                  variant={issueType === type.value ? 'default' : 'outline'}
+                  variant={issueTypes.includes(type.value) ? 'default' : 'outline'}
                   className={cn(
                     'cursor-pointer transition-all hover:scale-105',
-                    issueType === type.value && 'bg-primary'
+                    issueTypes.includes(type.value) && 'bg-primary'
                   )}
-                  onClick={() => setIssueType(type.value)}
+                  onClick={() => toggleIssueType(type.value)}
                 >
                   <span className="mr-1">{type.emoji}</span>
                   {type.label}
                 </Badge>
               ))}
             </div>
+            {issueTypes.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {issueTypes.length} type{issueTypes.length > 1 ? 's' : ''} sélectionné{issueTypes.length > 1 ? 's' : ''}
+              </p>
+            )}
           </div>
 
           {/* Description */}
@@ -260,7 +274,7 @@ export const CleaningIssueDialog = ({
           </Button>
           <Button 
             onClick={handleSubmit}
-            disabled={!propertyName || !description.trim()}
+            disabled={!propertyName || issueTypes.length === 0 || !description.trim()}
             variant="destructive"
           >
             Déclarer le problème
