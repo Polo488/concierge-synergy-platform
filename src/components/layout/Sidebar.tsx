@@ -38,6 +38,7 @@ import {
   MessageSquare,
   Users,
   Gauge,
+  StickyNote,
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -147,7 +148,7 @@ export function Sidebar() {
       bgClass: 'bg-nav-organisation/10',
       iconBgClass: 'bg-nav-organisation/15 text-nav-organisation',
       items: [
-        { name: 'Agenda', path: '/agenda', icon: CalendarIcon, permission: 'agenda' },
+        { name: 'Agenda', path: '/agenda', icon: StickyNote, permission: 'agenda' },
         { name: 'Gestion des utilisateurs', path: '/user-management', icon: Users, permission: 'users' },
       ]
     }
