@@ -66,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (key === 'users' && (currentPath === '/users' || currentPath === '/user-management')) return true;
           if (key === 'guestExperience' && currentPath === '/guest-experience') return true;
           if (key === 'agenda' && currentPath.startsWith('/agenda')) return true;
+          if (key === 'messaging' && currentPath === '/messaging') return true;
           
           return currentPath === '/';
         }
