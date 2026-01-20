@@ -7,6 +7,7 @@ import { DashboardCard } from '@/components/dashboard/DashboardCard';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { DailyKPICards } from '@/components/dashboard/DailyKPICards';
 import { DailyActivityTabs } from '@/components/dashboard/DailyActivityTabs';
+import { DailyTimeline } from '@/components/dashboard/DailyTimeline';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, 
@@ -54,12 +55,19 @@ const Dashboard = () => {
       {/* Daily KPI Cards */}
       <DailyKPICards stats={stats} />
 
-      {/* Daily Activity Tabs */}
-      <DailyActivityTabs 
-        checkIns={checkIns} 
-        checkOuts={checkOuts} 
-        tasks={tasks} 
-      />
+      {/* Daily Activity: Tabs and Timeline side by side */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <DailyActivityTabs 
+          checkIns={checkIns} 
+          checkOuts={checkOuts} 
+          tasks={tasks} 
+        />
+        <DailyTimeline 
+          checkIns={checkIns} 
+          checkOuts={checkOuts} 
+          tasks={tasks} 
+        />
+      </div>
       
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">
