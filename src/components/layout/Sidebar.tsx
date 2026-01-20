@@ -36,6 +36,7 @@ import {
   Lightbulb,
   BarChart3,
   MessageSquare,
+  MessageCircle,
   Users,
   Gauge,
   StickyNote,
@@ -137,6 +138,7 @@ export function Sidebar() {
       bgClass: 'bg-nav-experience/10',
       iconBgClass: 'bg-nav-experience/15 text-nav-experience',
       items: [
+        { name: 'Messagerie Voyageur', path: '/messaging', icon: MessageCircle, permission: 'messaging' },
         { name: 'Communication Intelligente', path: '/guest-experience', icon: MessageSquare, permission: 'guestExperience' },
       ]
     },
