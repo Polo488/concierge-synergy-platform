@@ -51,14 +51,14 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   const lastVisibleDay = days[days.length - 1];
 
   return (
-    <div className="flex border-b border-border hover:bg-accent/20 transition-colors">
+    <div className="flex hover:bg-accent/20 transition-all duration-200">
       {/* Property info - fixed left column */}
       <div 
-        className="w-[220px] min-w-[220px] flex items-center gap-3 px-3 py-2 border-r border-border bg-background sticky left-0 z-20 cursor-pointer hover:bg-accent/40 transition-colors"
+        className="w-[220px] min-w-[220px] flex items-center gap-3 px-4 py-3 bg-transparent sticky left-0 z-20 cursor-pointer hover:bg-accent/30 transition-all duration-200"
         onClick={() => onPropertyClick?.(property)}
         title="Cliquez pour voir le calendrier mensuel"
       >
-        <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0 relative">
+        <div className="w-11 h-11 rounded-xl overflow-hidden bg-gradient-to-br from-muted to-muted/50 flex-shrink-0 relative ring-1 ring-border/20">
           {property.thumbnail ? (
             <img
               src={property.thumbnail}
@@ -93,7 +93,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               {property.name}
             </p>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-0.5">
             {property.capacity} pers. • {property.pricePerNight}€/nuit
           </p>
         </div>
@@ -212,12 +212,12 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
             <div
               key={dayIndex}
               className={cn(
-                "w-10 min-w-[40px] h-12 border-r border-border relative",
+                "w-10 min-w-[40px] h-14 relative transition-all duration-150",
                 isToday && "bg-primary/5",
-                isPast && !isToday && "bg-muted/20",
-                isWeekend && !isToday && "bg-muted/10",
-                isEmpty && "cursor-pointer hover:bg-accent/30",
-                isSelected && "ring-2 ring-inset ring-primary bg-primary/20"
+                isPast && !isToday && "bg-muted/10",
+                isWeekend && !isToday && !isPast && "bg-muted/5",
+                isEmpty && "cursor-pointer hover:bg-primary/10",
+                isSelected && "ring-2 ring-inset ring-primary/50 bg-primary/15 rounded-sm"
               )}
               onMouseDown={(e) => isEmpty && onDayMouseDown?.(property.id, day, e)}
               onMouseEnter={() => onDayMouseEnter?.(property.id, day)}

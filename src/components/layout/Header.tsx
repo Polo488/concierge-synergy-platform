@@ -72,16 +72,23 @@ export function Header() {
   return (
     <>
       <header className={cn(
-        "sticky top-0 z-30 w-full transition-all duration-200",
-        scrolled ? "bg-background/95 backdrop-blur-sm border-b border-border/50" : "bg-transparent"
+        "sticky top-0 z-30 w-full transition-all duration-300",
+        scrolled 
+          ? "glass-panel border-0 rounded-none shadow-glass" 
+          : "bg-transparent"
       )}>
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-2 w-full max-w-sm">
-            <Search className="text-muted-foreground h-4 w-4" />
-            <Input 
-              placeholder={t('search')} 
-              className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground/60"
-            />
+        <div className="container mx-auto flex h-16 items-center justify-between px-6">
+          <div className="flex items-center gap-3 w-full max-w-sm">
+            <div className={cn(
+              "flex items-center gap-2 flex-1 px-4 py-2.5 rounded-xl transition-all duration-200",
+              "bg-accent/50 hover:bg-accent/80"
+            )}>
+              <Search className="text-muted-foreground h-4 w-4" />
+              <Input 
+                placeholder={t('search')} 
+                className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground/60 h-auto p-0"
+              />
+            </div>
           </div>
           
           <div className="flex items-center gap-1">

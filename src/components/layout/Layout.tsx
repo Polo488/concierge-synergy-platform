@@ -25,11 +25,23 @@ export function Layout() {
   }, [language]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Subtle gradient overlay for depth */}
+      <div 
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: `
+            radial-gradient(ellipse 100% 60% at 50% -20%, hsla(var(--primary) / 0.04), transparent 60%),
+            radial-gradient(circle at 20% 80%, hsla(var(--primary) / 0.02), transparent 30%),
+            radial-gradient(circle at 80% 90%, hsla(var(--primary) / 0.02), transparent 30%)
+          `
+        }}
+      />
+      
       <Sidebar />
       
       <main className={cn(
-        "transition-all duration-200 ease-out min-h-screen",
+        "relative transition-all duration-300 ease-out min-h-screen",
         isMobile ? "ml-0" : "ml-[68px] md:ml-60"
       )}>
         <Header />

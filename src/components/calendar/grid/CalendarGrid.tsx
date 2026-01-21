@@ -71,7 +71,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   return (
     <div 
       ref={scrollContainerRef}
-      className="border border-border rounded-lg overflow-auto bg-background select-none"
+      className="glass-panel rounded-2xl overflow-auto select-none"
       style={{ maxHeight: 'calc(100vh - 280px)' }}
     >
       <div className="min-w-max">
@@ -81,7 +81,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
           onDayClick={onDayClick}
         />
         
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-border/30">
           {properties.length === 0 ? (
             <div className="flex items-center justify-center py-20 text-muted-foreground">
               Aucun logement trouvé

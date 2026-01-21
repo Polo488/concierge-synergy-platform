@@ -68,17 +68,33 @@ export const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
       {/* Top row - Navigation and actions */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => onNavigate('prev')}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" onClick={onGoToToday}>
-            <CalendarDays className="h-4 w-4 mr-2" />
-            Aujourd'hui
-          </Button>
-          <Button variant="outline" size="icon" onClick={() => onNavigate('next')}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <span className="text-lg font-semibold ml-2 capitalize">
+          <div className="flex items-center glass-subtle rounded-xl p-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => onNavigate('prev')}
+              className="rounded-lg h-9 w-9"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={onGoToToday}
+              className="rounded-lg h-9 px-4"
+            >
+              <CalendarDays className="h-4 w-4 mr-2" />
+              Aujourd'hui
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => onNavigate('next')}
+              className="rounded-lg h-9 w-9"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+          <span className="text-lg font-semibold ml-3 capitalize text-foreground">
             {format(currentDate, 'MMMM yyyy', { locale: fr })}
           </span>
         </div>
@@ -87,14 +103,14 @@ export const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
           {layers && onLayersChange && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="rounded-xl border-border/50 bg-card/50 backdrop-blur-sm">
                   <Layers className="h-4 w-4 mr-2" />
                   Couches
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Afficher</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+              <DropdownMenuContent align="end" className="glass-panel border-0">
+                <DropdownMenuLabel className="text-muted-foreground">Afficher</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-border/30" />
                 <DropdownMenuCheckboxItem
                   checked={layers.showCleaning}
                   onCheckedChange={(checked) => 
@@ -120,12 +136,13 @@ export const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
             size="sm" 
             onClick={onSync}
             disabled={isSyncing}
+            className="rounded-xl border-border/50 bg-card/50 backdrop-blur-sm"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
             {isSyncing ? 'Sync...' : 'Synchroniser'}
           </Button>
 
-          <Button onClick={onAddBooking}>
+          <Button onClick={onAddBooking} className="rounded-xl shadow-sm btn-press">
             <Plus className="h-4 w-4 mr-2" />
             Ajouter une réservation
           </Button>
@@ -135,12 +152,12 @@ export const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
       {/* Filter row */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Rechercher un logement..."
             value={filters.propertySearch}
             onChange={(e) => onFiltersChange({ propertySearch: e.target.value })}
-            className="pl-9"
+            className="pl-10 rounded-xl border-border/50 bg-card/50 backdrop-blur-sm focus:bg-card"
           />
         </div>
 
@@ -148,11 +165,11 @@ export const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
           value={filters.status}
           onValueChange={(value) => onFiltersChange({ status: value as BookingStatus | 'all' })}
         >
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-[160px] rounded-xl border-border/50 bg-card/50 backdrop-blur-sm">
             <Filter className="h-4 w-4 mr-2" />
             <SelectValue placeholder="Statut" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="glass-panel border-0">
             <SelectItem value="all">Tous les statuts</SelectItem>
             {Object.entries(STATUS_LABELS).map(([value, label]) => (
               <SelectItem key={value} value={value}>
@@ -166,10 +183,10 @@ export const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
           value={filters.channel}
           onValueChange={(value) => onFiltersChange({ channel: value as BookingChannel | 'all' })}
         >
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-[160px] rounded-xl border-border/50 bg-card/50 backdrop-blur-sm">
             <SelectValue placeholder="Canal" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="glass-panel border-0">
             <SelectItem value="all">Tous les canaux</SelectItem>
             {Object.entries(CHANNEL_NAMES).map(([value, label]) => (
               <SelectItem key={value} value={value}>
@@ -180,7 +197,7 @@ export const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
         </Select>
 
         {lastSyncTime && (
-          <Badge variant="secondary" className="ml-auto text-xs">
+          <Badge variant="secondary" className="ml-auto text-xs rounded-full px-3 py-1 bg-card/50 backdrop-blur-sm border-0">
             Dernière sync: {format(lastSyncTime, 'HH:mm')}
           </Badge>
         )}
