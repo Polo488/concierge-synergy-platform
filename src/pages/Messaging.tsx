@@ -1,11 +1,16 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useMessaging } from '@/hooks/useMessaging';
+import { useOperations } from '@/contexts/OperationsContext';
 import { ConversationList } from '@/components/messaging/ConversationList';
 import { MessageThread } from '@/components/messaging/MessageThread';
 import { ContextPanel } from '@/components/messaging/ContextPanel';
+import { CreateMaintenanceFromMessageDialog } from '@/components/messaging/dialogs/CreateMaintenanceFromMessageDialog';
+import { CreateCleaningIssueFromMessageDialog } from '@/components/messaging/dialogs/CreateCleaningIssueFromMessageDialog';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { MessagingMaintenanceFormData, MessagingCleaningIssueFormData } from '@/types/operations';
+import { Conversation } from '@/types/messaging';
 
 const Messaging = () => {
   const { toast } = useToast();
@@ -28,48 +33,88 @@ const Messaging = () => {
     addLinkedTask,
   } = useMessaging();
 
-  // Quick action handlers
+  const {
+    createMaintenanceFromMessaging,
+    createCleaningIssueFromMessaging,
+    createRepasseFromMessaging,
+    hasSimilarTask,
+  } = useOperations();
+
+  // Dialog states
+  const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
+  const [cleaningIssueDialogOpen, setCleaningIssueDialogOpen] = useState(false);
+  const [dialogConversation, setDialogConversation] = useState<Conversation | null>(null);
+
+  // Quick action handlers - now open dialogs instead of direct creation
   const handleCreateMaintenanceTask = (conversationId: string) => {
     const conv = conversations.find(c => c.id === conversationId);
     if (conv) {
-      addLinkedTask(conversationId, {
-        type: 'maintenance',
-        title: `Maintenance - ${conv.reservation.propertyName}`,
-        status: 'À faire',
-      });
-      toast({
-        title: "Tâche créée",
-        description: "La tâche de maintenance a été ajoutée",
-      });
+      setDialogConversation(conv);
+      setMaintenanceDialogOpen(true);
     }
   };
 
   const handleCreateCleaningIssue = (conversationId: string) => {
     const conv = conversations.find(c => c.id === conversationId);
     if (conv) {
-      addLinkedTask(conversationId, {
-        type: 'cleaning',
-        title: `Problème ménage - ${conv.reservation.propertyName}`,
-        status: 'À traiter',
-      });
-      toast({
-        title: "Problème signalé",
-        description: "Le problème de ménage a été enregistré",
-      });
+      setDialogConversation(conv);
+      setCleaningIssueDialogOpen(true);
     }
   };
 
   const handleCreateRepasse = (conversationId: string) => {
+    // For direct repasse, we create a cleaning issue with repasse required
     const conv = conversations.find(c => c.id === conversationId);
     if (conv) {
-      addLinkedTask(conversationId, {
+      setDialogConversation(conv);
+      setCleaningIssueDialogOpen(true);
+    }
+  };
+
+  // Handle maintenance submission
+  const handleMaintenanceSubmit = (data: MessagingMaintenanceFormData) => {
+    // Create real maintenance task
+    const task = createMaintenanceFromMessaging(data);
+    
+    // Also add linked task reference to conversation
+    addLinkedTask(data.conversationId, {
+      type: 'maintenance',
+      title: data.title,
+      status: 'En attente',
+    });
+
+    toast({
+      title: "Tâche de maintenance créée",
+      description: `"${data.title}" liée à la conversation`,
+    });
+  };
+
+  // Handle cleaning issue submission
+  const handleCleaningIssueSubmit = (data: MessagingCleaningIssueFormData, createRepasse: boolean) => {
+    // Create real cleaning issue
+    const issue = createCleaningIssueFromMessaging(data);
+    
+    // Add linked task reference to conversation
+    addLinkedTask(data.conversationId, {
+      type: 'cleaning',
+      title: `Problème: ${data.issueTypes.join(', ')}`,
+      status: 'Ouvert',
+    });
+
+    // If repasse required, create repasse task
+    if (createRepasse) {
+      createRepasseFromMessaging(
+        issue.id,
+        data.propertyId,
+        data.propertyName,
+        data.conversationId,
+        data.reservationId
+      );
+
+      addLinkedTask(data.conversationId, {
         type: 'repasse',
-        title: `Repasse - ${conv.reservation.propertyName}`,
-        status: 'Planifié',
-      });
-      toast({
-        title: "Repasse planifiée",
-        description: "La repasse a été ajoutée au planning",
+        title: `Repasse - ${data.propertyName}`,
+        status: 'Planifiée',
       });
     }
   };
@@ -149,6 +194,23 @@ const Messaging = () => {
         onSendUpsell={handleSendUpsell}
         onOpenProperty={handleOpenProperty}
         onOpenReservation={handleOpenReservation}
+      />
+
+      {/* Dialogs */}
+      <CreateMaintenanceFromMessageDialog
+        open={maintenanceDialogOpen}
+        onOpenChange={setMaintenanceDialogOpen}
+        conversation={dialogConversation}
+        hasSimilarTask={dialogConversation ? hasSimilarTask(dialogConversation.id, 'maintenance') : false}
+        onSubmit={handleMaintenanceSubmit}
+      />
+
+      <CreateCleaningIssueFromMessageDialog
+        open={cleaningIssueDialogOpen}
+        onOpenChange={setCleaningIssueDialogOpen}
+        conversation={dialogConversation}
+        hasSimilarTask={dialogConversation ? hasSimilarTask(dialogConversation.id, 'cleaning_issue') : false}
+        onSubmit={handleCleaningIssueSubmit}
       />
     </div>
   );
