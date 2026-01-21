@@ -220,10 +220,11 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               key={dayIndex}
               className={cn(
                 "w-10 min-w-[40px] h-14 relative transition-all duration-150",
-                isPast && !isToday && "bg-muted/10",
-                isWeekend && !isToday && !isPast && "bg-muted/5",
-                isEmpty && "cursor-pointer hover:bg-primary/10",
-                isSelected && "ring-2 ring-inset ring-primary/50 bg-primary/15 rounded-sm"
+                "border-r border-border/[0.08]", // Subtle vertical day separator
+                isPast && !isToday && "bg-muted/[0.04]",
+                isWeekend && !isToday && !isPast && "bg-muted/[0.03]",
+                isEmpty && "cursor-pointer hover:bg-accent/20",
+                isSelected && "ring-2 ring-inset ring-primary/40 bg-primary/10 rounded-sm"
               )}
               onMouseDown={(e) => isEmpty && onDayMouseDown?.(property.id, day, e)}
               onMouseEnter={() => onDayMouseEnter?.(property.id, day)}
@@ -233,10 +234,11 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
                 }
               }}
             >
-              {/* Today vertical highlight line */}
+              {/* Today indicator - very subtle background, lowest z-index */}
               {isToday && (
-                <div className="absolute inset-0 border-l border-r border-primary/20 bg-primary/[0.03] pointer-events-none" />
+                <div className="absolute inset-0 bg-primary/[0.04] pointer-events-none z-0" />
               )}
+              {/* Reservation blocks - higher z-index, always on top */}
               {bookingBlocks}
               {blockedBlock}
             </div>

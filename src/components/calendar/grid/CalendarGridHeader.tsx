@@ -81,17 +81,15 @@ export const CalendarGridHeader: React.FC<CalendarGridHeaderProps> = ({
                 onClick={() => onDayClick?.(day)}
                 className={cn(
                   "w-10 min-w-[40px] flex flex-col items-center justify-center py-2 cursor-pointer transition-all duration-200 relative",
+                  "border-r border-border/[0.08]", // Subtle vertical separator
                   isPast && "opacity-50",
-                  isWeekend && !isToday && "bg-muted/20",
-                  !isToday && "hover:bg-primary/5"
+                  isWeekend && !isToday && "bg-muted/[0.06]",
+                  !isToday && "hover:bg-accent/30"
                 )}
               >
-                {/* Today vertical line indicator - extends downward */}
+                {/* Today indicator - subtle background highlight only */}
                 {isToday && (
-                  <>
-                    <div className="absolute inset-x-0 top-0 bottom-0 border-l border-r border-primary/20 pointer-events-none" />
-                    <div className="absolute inset-1 rounded-lg bg-primary/10" />
-                  </>
+                  <div className="absolute inset-0 bg-primary/[0.06] pointer-events-none" />
                 )}
                 <span className={cn(
                   "text-[10px] uppercase font-medium relative z-10",
