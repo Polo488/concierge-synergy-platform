@@ -320,19 +320,21 @@ const CalendarPage = () => {
       {activeTab === 'planning' ? (
         <>
           {/* Toolbar */}
-          <CalendarToolbar
-            currentDate={currentDate}
-            filters={filters}
-            onFiltersChange={setFilters}
-            onNavigate={navigateWeeks}
-            onGoToToday={goToToday}
-            onAddBooking={handleAddBooking}
-            onSync={handleSync}
-            isSyncing={isSyncing}
-            lastSyncTime={lastSyncTime}
-            layers={layers}
-            onLayersChange={setLayers}
-          />
+          <div data-tutorial="calendar-toolbar">
+            <CalendarToolbar
+              currentDate={currentDate}
+              filters={filters}
+              onFiltersChange={setFilters}
+              onNavigate={navigateWeeks}
+              onGoToToday={goToToday}
+              onAddBooking={handleAddBooking}
+              onSync={handleSync}
+              isSyncing={isSyncing}
+              lastSyncTime={lastSyncTime}
+              layers={layers}
+              onLayersChange={setLayers}
+            />
+          </div>
 
           {/* Property Month View - shown when a property is selected */}
           {selectedPropertyForMonth && (
@@ -351,24 +353,26 @@ const CalendarPage = () => {
           )}
 
           {/* Calendar Grid - always visible */}
-          <CalendarGrid
-            properties={filteredProperties}
-            days={visibleDays}
-            dailyPrices={dailyPrices}
-            getBookingsForProperty={getBookingsForProperty}
-            getBlockedForProperty={getBlockedForProperty}
-            onBookingClick={handleBookingClick}
-            onCellClick={handleCellClick}
-            onPropertyClick={handlePropertyClick}
-            onBlockedClick={handleBlockedClick}
-            isDaySelected={isDaySelected}
-            onDayMouseDown={handleDayMouseDown}
-            onDayMouseEnter={handleDayMouseEnter}
-            onDayMouseUp={handleDayMouseUp}
-            isSelecting={isSelecting}
-            getInsightsForProperty={getInsightsForProperty}
-            onInsightClick={() => setIsInsightsPanelOpen(true)}
-          />
+          <div data-tutorial="calendar-grid">
+            <CalendarGrid
+              properties={filteredProperties}
+              days={visibleDays}
+              dailyPrices={dailyPrices}
+              getBookingsForProperty={getBookingsForProperty}
+              getBlockedForProperty={getBlockedForProperty}
+              onBookingClick={handleBookingClick}
+              onCellClick={handleCellClick}
+              onPropertyClick={handlePropertyClick}
+              onBlockedClick={handleBlockedClick}
+              isDaySelected={isDaySelected}
+              onDayMouseDown={handleDayMouseDown}
+              onDayMouseEnter={handleDayMouseEnter}
+              onDayMouseUp={handleDayMouseUp}
+              isSelecting={isSelecting}
+              getInsightsForProperty={getInsightsForProperty}
+              onInsightClick={() => setIsInsightsPanelOpen(true)}
+            />
+          </div>
         </>
       ) : (
         <PricingView properties={filteredProperties} days={visibleDays} />
