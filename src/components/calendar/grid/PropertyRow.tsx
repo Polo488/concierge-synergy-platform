@@ -220,7 +220,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               key={dayIndex}
               className={cn(
                 "w-10 min-w-[40px] h-14 relative transition-all duration-150",
-                "border-r border-border/20", // Light vertical day separator - visible but calm
+                "border-r border-border/35", // Visible vertical day separator
                 isPast && !isToday && "bg-muted/[0.03]",
                 isWeekend && !isToday && !isPast && "bg-muted/[0.02]",
                 isEmpty && "cursor-pointer hover:bg-accent/10",
