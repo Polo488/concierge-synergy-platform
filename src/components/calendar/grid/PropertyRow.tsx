@@ -220,7 +220,6 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               key={dayIndex}
               className={cn(
                 "w-10 min-w-[40px] h-14 relative transition-all duration-150",
-                isToday && "bg-primary/5",
                 isPast && !isToday && "bg-muted/10",
                 isWeekend && !isToday && !isPast && "bg-muted/5",
                 isEmpty && "cursor-pointer hover:bg-primary/10",
@@ -234,6 +233,10 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
                 }
               }}
             >
+              {/* Today vertical highlight line */}
+              {isToday && (
+                <div className="absolute inset-0 border-l border-r border-primary/20 bg-primary/[0.03] pointer-events-none" />
+              )}
               {bookingBlocks}
               {blockedBlock}
             </div>
