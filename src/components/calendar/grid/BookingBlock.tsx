@@ -14,18 +14,18 @@ interface BookingBlockProps {
   onClick: () => void;
 }
 
-// Channel colors - Using modern, slightly desaturated tones
-const CHANNEL_COLORS: Record<string, string> = {
-  airbnb: 'hsl(0 84% 60%)',     // Airbnb red
-  booking: 'hsl(217 91% 60%)',   // Booking blue
-  vrbo: 'hsl(220 13% 55%)',      // Neutral
-  direct: 'hsl(152 45% 50%)',    // Green for direct
-  other: 'hsl(220 13% 55%)',     // Neutral
+// Channel colors - Premium, slightly desaturated tones
+const CHANNEL_COLORS: Record<string, { bg: string; text: string }> = {
+  airbnb: { bg: 'hsl(0 72% 58%)', text: 'white' },      // Soft Airbnb red
+  booking: { bg: 'hsl(217 80% 52%)', text: 'white' },   // Calm Booking blue
+  vrbo: { bg: 'hsl(220 14% 50%)', text: 'white' },      // Neutral
+  direct: { bg: 'hsl(152 40% 45%)', text: 'white' },    // Soft green
+  other: { bg: 'hsl(220 14% 50%)', text: 'white' },     // Neutral
 };
 
-// Past bookings are gray
-const PAST_COLOR = 'hsl(220 10% 65%)';
-const DEFAULT_COLOR = 'hsl(220 13% 55%)';
+// Past bookings - muted grey
+const PAST_COLORS = { bg: 'hsl(220 12% 72%)', text: 'white' };
+const DEFAULT_COLORS = { bg: 'hsl(220 14% 50%)', text: 'white' };
 
 export const BookingBlock: React.FC<BookingBlockProps> = ({
   booking,
@@ -37,57 +37,65 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   isPast,
   onClick,
 }) => {
-  // Past bookings are always gray, otherwise use channel color
-  const backgroundColor = isPast 
-    ? PAST_COLOR 
-    : (CHANNEL_COLORS[booking.channel] || DEFAULT_COLOR);
+  // Color selection
+  const colors = isPast 
+    ? PAST_COLORS 
+    : (CHANNEL_COLORS[booking.channel] || DEFAULT_COLORS);
   
-  // Each day cell is 40px wide
+  // Cell dimensions
   const cellWidth = 40;
   const halfCell = cellWidth / 2;
+  
+  // Calculate width and offset based on check-in/out visibility
+  const hasVisibleCheckIn = isCheckInDay && !isStartTruncated;
+  const hasVisibleCheckOut = isCheckOutDay && !isEndTruncated;
   
   let width: number;
   let leftOffset = 0;
   
-  const hasVisibleCheckIn = isCheckInDay && !isStartTruncated;
-  const hasVisibleCheckOut = isCheckOutDay && !isEndTruncated;
-  
   if (hasVisibleCheckIn && hasVisibleCheckOut) {
+    // Both visible: start at half, end at half
     width = visibleDays * cellWidth;
     leftOffset = halfCell;
   } else if (hasVisibleCheckIn && !hasVisibleCheckOut) {
+    // Only check-in visible: start at half, go to edge
     width = visibleDays * cellWidth - halfCell;
     leftOffset = halfCell;
   } else if (!hasVisibleCheckIn && hasVisibleCheckOut) {
+    // Only check-out visible: start at edge, end at half
     width = visibleDays * cellWidth + halfCell;
     leftOffset = 0;
   } else {
+    // Neither visible (spans full width)
     width = visibleDays * cellWidth;
     leftOffset = 0;
   }
 
-  // Determine bevel configuration
+  // Bevel configuration for diagonal cuts
   const hasLeftBevel = isCheckInDay && !isStartTruncated;
   const hasRightBevel = isCheckOutDay && !isEndTruncated;
+  const bevelSize = 11;
 
-  // Get display name
+  // Smart text truncation
   const getDisplayName = (): string => {
     const name = booking.guestName || '?';
-    const availableWidth = width - 40;
+    const availableWidth = width - 32; // Account for icon + padding
     
-    if (visibleDays <= 1 || availableWidth < 40) {
-      return name.substring(0, 2) + (name.length > 2 ? '…' : '');
-    } else if (visibleDays <= 2 || availableWidth < 60) {
-      return name.length > 6 ? name.substring(0, 5) + '…' : name;
-    } else if (visibleDays <= 3 || availableWidth < 100) {
-      return name.length > 10 ? name.substring(0, 9) + '…' : name;
+    if (availableWidth < 30) {
+      return name.charAt(0);
+    } else if (availableWidth < 50) {
+      return name.length > 4 ? name.substring(0, 3) + '…' : name;
+    } else if (availableWidth < 80) {
+      return name.length > 8 ? name.substring(0, 7) + '…' : name;
+    } else if (availableWidth < 120) {
+      return name.length > 12 ? name.substring(0, 11) + '…' : name;
     } else {
-      return name.length > 16 ? name.substring(0, 15) + '…' : name;
+      return name.length > 18 ? name.substring(0, 17) + '…' : name;
     }
   };
 
-  const showPrice = visibleDays >= 2 && booking.nightlyRate && width > 80;
-  const bevelSize = 10;
+  // Show price only when there's enough space
+  const showPrice = visibleDays >= 3 && booking.nightlyRate && width > 100;
   
   return (
     <div
@@ -96,47 +104,72 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
         onClick();
       }}
       className={cn(
-        "absolute top-1.5 bottom-1.5 z-10 flex items-center px-2 cursor-pointer",
-        "booking-block shadow-sm"
+        "absolute top-1 bottom-1 z-10 flex items-center cursor-pointer",
+        "transition-all duration-200 ease-out",
+        "hover:z-20"
       )}
       style={{
-        width: `${Math.max(width, 24)}px`,
-        backgroundColor,
+        width: `${Math.max(width, 20)}px`,
         left: `${leftOffset}px`,
-        clipPath: getSharpBevelClipPath(hasLeftBevel, hasRightBevel, bevelSize),
-        borderRadius: hasLeftBevel || hasRightBevel ? '0' : '8px',
+        backgroundColor: colors.bg,
+        clipPath: createBevelClipPath(hasLeftBevel, hasRightBevel, bevelSize),
+        boxShadow: '0 2px 8px -2px rgba(0,0,0,0.15), 0 1px 3px -1px rgba(0,0,0,0.1)',
+        borderRadius: getBorderRadius(hasLeftBevel, hasRightBevel),
       }}
-      title={`${booking.guestName} - ${booking.nightlyRate ? `${booking.nightlyRate}€/nuit` : ''}`}
+      title={`${booking.guestName}${booking.nightlyRate ? ` • ${booking.nightlyRate}€/nuit` : ''}`}
     >
-      {/* Channel icon */}
-      <ChannelIcon channel={booking.channel} className="w-3.5 h-3.5 flex-shrink-0 text-white/90 mr-1.5" />
-      
-      {/* Guest name */}
-      <span className="text-xs font-medium text-white truncate flex-1 min-w-0">
-        {getDisplayName()}
-      </span>
-      
-      {/* Price */}
-      {showPrice && (
-        <span className="text-[10px] text-white/80 flex-shrink-0 ml-1.5 font-medium">
-          {booking.nightlyRate}€
+      {/* Content container with proper padding */}
+      <div className="flex items-center w-full h-full px-2 gap-1.5 overflow-hidden">
+        {/* Channel icon */}
+        <ChannelIcon 
+          channel={booking.channel} 
+          className="w-3 h-3 flex-shrink-0 opacity-90 text-white" 
+        />
+        
+        {/* Guest name */}
+        <span 
+          className="text-xs font-medium truncate flex-1 min-w-0 leading-tight text-white"
+        >
+          {getDisplayName()}
         </span>
-      )}
+        
+        {/* Price badge */}
+        {showPrice && (
+          <span className="text-[10px] flex-shrink-0 font-medium opacity-75 text-white">
+            {booking.nightlyRate}€
+          </span>
+        )}
+      </div>
     </div>
   );
 };
 
-// Creates sharp diagonal bevels
-function getSharpBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean, bevelSize: number): string {
+// Creates clean diagonal bevel clip paths
+function createBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean, bevelSize: number): string {
   const cut = `${bevelSize}px`;
   
   if (hasLeftBevel && hasRightBevel) {
+    // Both sides beveled: parallelogram shape
     return `polygon(${cut} 0%, calc(100% - ${cut}) 0%, 100% 100%, 0% 100%)`;
   } else if (hasLeftBevel) {
+    // Only left beveled
     return `polygon(${cut} 0%, 100% 0%, 100% 100%, 0% 100%)`;
   } else if (hasRightBevel) {
+    // Only right beveled
     return `polygon(0% 0%, calc(100% - ${cut}) 0%, 100% 100%, 0% 100%)`;
   }
   
   return 'none';
+}
+
+// Returns appropriate border radius based on bevels
+function getBorderRadius(hasLeftBevel: boolean, hasRightBevel: boolean): string {
+  if (hasLeftBevel && hasRightBevel) {
+    return '0';
+  } else if (hasLeftBevel) {
+    return '0 10px 10px 0';
+  } else if (hasRightBevel) {
+    return '10px 0 0 10px';
+  }
+  return '10px';
 }
