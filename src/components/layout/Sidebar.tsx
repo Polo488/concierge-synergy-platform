@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
+import logoNoe from '@/assets/logo-noe.jpg';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
@@ -275,17 +276,14 @@ export function Sidebar() {
             !isOpen && "md:justify-center md:px-0"
           )}
         >
-          <span className={cn(
-            "font-semibold text-foreground text-base tracking-tight",
-            !isOpen && "md:hidden"
-          )}>
-            GESTION BNB LYON
-          </span>
-          {!isOpen && (
-            <span className="hidden md:block text-foreground">
-              <LayoutDashboard size={20} />
-            </span>
-          )}
+          <img 
+            src={logoNoe} 
+            alt="Noé" 
+            className={cn(
+              "h-8 w-auto object-contain",
+              !isOpen && "md:h-6"
+            )}
+          />
         </div>
         
         {/* User info */}
