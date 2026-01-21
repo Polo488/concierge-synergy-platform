@@ -241,7 +241,7 @@ export function Sidebar() {
       {/* Mobile overlay */}
       {isMobile && isOpen && (
         <div 
-          className="fixed inset-0 bg-foreground/10 backdrop-blur-sm z-40"
+          className="fixed inset-0 bg-foreground/5 backdrop-blur-md z-40"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -249,8 +249,8 @@ export function Sidebar() {
       {/* Sidebar toggle button for mobile */}
       <button
         className={cn(
-          "fixed md:hidden z-50 top-4 transition-all duration-200",
-          "bg-card rounded-lg p-2.5 shadow-soft",
+          "fixed md:hidden z-50 top-4 transition-all duration-300",
+          "glass-panel rounded-xl p-2.5",
           isOpen ? "left-[232px]" : "left-4"
         )}
         onClick={() => setIsOpen(!isOpen)}
@@ -258,19 +258,20 @@ export function Sidebar() {
         {isOpen ? <X size={18} /> : <Menu size={18} />}
       </button>
       
-      {/* Sidebar container */}
+      {/* Sidebar container - Glass floating panel */}
       <aside
         className={cn(
-          "fixed left-0 top-0 h-full z-40 transition-all duration-200 ease-out",
-          "bg-card border-r border-border/50 flex flex-col",
+          "fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-out",
+          "glass-panel flex flex-col",
           isOpen ? "w-60" : "w-0 md:w-[68px]",
-          "overflow-hidden"
+          "overflow-hidden",
+          isMobile ? "" : "m-3 rounded-2xl h-[calc(100%-24px)]"
         )}
       >
         {/* Logo */}
         <div 
           className={cn(
-            "h-16 flex items-center px-5 border-b border-border/50",
+            "h-16 flex items-center px-5",
             !isOpen && "md:justify-center md:px-0"
           )}
         >
@@ -290,11 +291,11 @@ export function Sidebar() {
         {/* User info */}
         {user && (
           <div className={cn(
-            "py-4 px-4 border-b border-border/50",
+            "py-4 px-4",
             !isOpen && "md:flex md:justify-center md:py-4"
           )}>
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0 ring-1 ring-primary/10">
                 {user.avatar ? (
                   <img 
                     src={user.avatar}
@@ -302,7 +303,7 @@ export function Sidebar() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="font-medium text-muted-foreground text-sm">
+                  <span className="font-medium text-primary text-sm">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 )}
@@ -314,6 +315,9 @@ export function Sidebar() {
             </div>
           </div>
         )}
+        
+        {/* Subtle separator */}
+        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
         
         {/* Navigation sections with drag and drop */}
         <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
@@ -342,8 +346,8 @@ export function Sidebar() {
             <DragOverlay>
               {activeSection ? (
                 <div className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg",
-                  "bg-card shadow-elevated",
+                  "flex items-center gap-2 px-3 py-2 rounded-xl",
+                  "glass-panel shadow-float",
                   "text-xs font-medium",
                   activeSection.colorClass
                 )}>
@@ -359,8 +363,8 @@ export function Sidebar() {
           <button
             onClick={logout}
             className={cn(
-              "flex items-center w-full gap-3 px-3 py-2.5 rounded-lg transition-all duration-150",
-              "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+              "flex items-center w-full gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
+              "text-muted-foreground hover:text-foreground hover:bg-accent/50",
               !isOpen && "md:justify-center"
             )}
           >
@@ -375,15 +379,15 @@ export function Sidebar() {
         </div>
         
         {/* Collapse button (desktop only) */}
-        <div className="hidden md:flex border-t border-border/50 p-3 justify-center">
+        <div className="hidden md:flex p-3 justify-center">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted/50"
+            className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-accent/50"
           >
             <ChevronLeft 
               size={16} 
               className={cn(
-                "transition-transform duration-200",
+                "transition-transform duration-300",
                 !isOpen && "rotate-180"
               )} 
             />
