@@ -24,6 +24,8 @@ interface PropertyRowProps {
   // Insights props
   propertyInsights?: PropertyInsight[];
   onInsightClick?: () => void;
+  // Alternating row striping
+  isOddRow?: boolean;
 }
 
 export const PropertyRow: React.FC<PropertyRowProps> = ({
@@ -40,6 +42,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   onDayMouseEnter,
   propertyInsights = [],
   onInsightClick,
+  isOddRow = false,
 }) => {
   const today = startOfDay(new Date());
   
@@ -51,7 +54,11 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   const lastVisibleDay = days[days.length - 1];
 
   return (
-    <div className="flex hover:bg-accent/20 transition-all duration-200 border-b border-border/5">
+    <div className={cn(
+      "flex transition-all duration-200 border-b border-border/5",
+      isOddRow ? "bg-muted/[0.03]" : "bg-transparent",
+      "hover:bg-accent/20"
+    )}>
       {/* Property info - fixed left column */}
       <div 
         className="w-[220px] min-w-[220px] flex items-center gap-3 px-4 py-3 bg-transparent sticky left-0 z-20 cursor-pointer hover:bg-accent/30 transition-all duration-200"

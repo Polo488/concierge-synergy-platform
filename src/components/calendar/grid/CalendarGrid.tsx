@@ -87,7 +87,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
               Aucun logement trouvé
             </div>
           ) : (
-            properties.map((property) => (
+            properties.map((property, index) => (
               <PropertyRow
                 key={property.id}
                 property={property}
@@ -103,6 +103,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 onDayMouseEnter={onDayMouseEnter}
                 propertyInsights={getInsightsForProperty?.(property.id)}
                 onInsightClick={onInsightClick}
+                isOddRow={index % 2 === 1}
               />
             ))
           )}
