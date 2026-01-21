@@ -25,6 +25,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { SmilyImportDialog } from '@/components/billing/SmilyImportDialog';
+import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
+import { TutorialButton } from '@/components/tutorial/TutorialButton';
 import { BookingSyncImportResult } from '@/types/bookingSync';
 
 // Mock data
@@ -466,15 +468,20 @@ const Billing = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Facturation</h1>
-        <p className="text-muted-foreground mt-1">
-          Gestion des factures, BA et paiements
-        </p>
+      <TutorialTrigger moduleId="billing" />
+      
+      <div className="flex items-center justify-between" data-tutorial="billing-header">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Facturation</h1>
+          <p className="text-muted-foreground mt-1">
+            Gestion des factures, BA et paiements
+          </p>
+        </div>
+        <TutorialButton moduleId="billing" />
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="w-full border-b pb-0 flex flex-nowrap overflow-x-auto">
+        <TabsList className="w-full border-b pb-0 flex flex-nowrap overflow-x-auto" data-tutorial="billing-import">
           <TabsTrigger value="dashboard">Tableau de bord</TabsTrigger>
           <TabsTrigger value="import">Import</TabsTrigger>
           <TabsTrigger value="control">Contrôle</TabsTrigger>

@@ -9,6 +9,8 @@ import { PropertyRankingTable } from '@/components/quality/PropertyRankingTable'
 import { AgentRankingTable } from '@/components/quality/AgentRankingTable';
 import { PropertyDetailsDialog } from '@/components/quality/PropertyDetailsDialog';
 import { AgentDetailsDialog } from '@/components/quality/AgentDetailsDialog';
+import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
+import { TutorialButton } from '@/components/tutorial/TutorialButton';
 import { BarChart3, Building, Users } from 'lucide-react';
 
 const QualityStats = () => {
@@ -41,9 +43,14 @@ const QualityStats = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Qualité & Stats Ménage</h1>
-        <p className="text-muted-foreground">Analysez la qualité des nettoyages et les performances des agents</p>
+      <TutorialTrigger moduleId="quality" />
+      
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Qualité & Stats Ménage</h1>
+          <p className="text-muted-foreground">Analysez la qualité des nettoyages et les performances des agents</p>
+        </div>
+        <TutorialButton moduleId="quality" />
       </div>
 
       <QualityFilters
@@ -74,14 +81,18 @@ const QualityStats = () => {
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-6 mt-6">
-          <KPICards kpis={kpis} />
-          <QualityCharts
-            ratingDistribution={ratingDistribution}
-            ratingTrend={ratingTrend}
-            repasseTrend={repasseTrend}
-            issueFrequency={issueFrequency}
-          />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div data-tutorial="quality-kpi">
+            <KPICards kpis={kpis} />
+          </div>
+          <div data-tutorial="quality-charts">
+            <QualityCharts
+              ratingDistribution={ratingDistribution}
+              ratingTrend={ratingTrend}
+              repasseTrend={repasseTrend}
+              issueFrequency={issueFrequency}
+            />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-tutorial="quality-ranking">
             <PropertyRankingTable properties={propertyStats} onSelectProperty={handleSelectProperty} />
             <AgentRankingTable agents={agentProfiles} onSelectAgent={handleSelectAgent} />
           </div>

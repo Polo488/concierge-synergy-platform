@@ -7,6 +7,8 @@ import { MessageThread } from '@/components/messaging/MessageThread';
 import { ContextPanel } from '@/components/messaging/ContextPanel';
 import { CreateMaintenanceFromMessageDialog } from '@/components/messaging/dialogs/CreateMaintenanceFromMessageDialog';
 import { CreateCleaningIssueFromMessageDialog } from '@/components/messaging/dialogs/CreateCleaningIssueFromMessageDialog';
+import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
+import { TutorialButton } from '@/components/tutorial/TutorialButton';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { MessagingMaintenanceFormData, MessagingCleaningIssueFormData } from '@/types/operations';
@@ -159,8 +161,10 @@ const Messaging = () => {
 
   return (
     <div className="h-[calc(100vh-4rem)] flex">
+      <TutorialTrigger moduleId="messaging" />
+      
       {/* Left column - Conversation list */}
-      <div className="w-80 flex-shrink-0">
+      <div className="w-80 flex-shrink-0" data-tutorial="messaging-list">
         <ConversationList
           conversations={conversations}
           selectedConversationId={selectedConversationId}
@@ -173,7 +177,7 @@ const Messaging = () => {
       </div>
 
       {/* Center column - Message thread */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0" data-tutorial="messaging-thread">
         <MessageThread
           conversation={selectedConversation}
           quickReplies={quickReplies}
@@ -185,16 +189,18 @@ const Messaging = () => {
       </div>
 
       {/* Right column - Context panel */}
-      <ContextPanel
-        conversation={selectedConversation}
-        onCreateMaintenanceTask={handleCreateMaintenanceTask}
-        onCreateCleaningIssue={handleCreateCleaningIssue}
-        onCreateRepasse={handleCreateRepasse}
-        onCreateAgendaNote={handleCreateAgendaNote}
-        onSendUpsell={handleSendUpsell}
-        onOpenProperty={handleOpenProperty}
-        onOpenReservation={handleOpenReservation}
-      />
+      <div data-tutorial="messaging-context">
+        <ContextPanel
+          conversation={selectedConversation}
+          onCreateMaintenanceTask={handleCreateMaintenanceTask}
+          onCreateCleaningIssue={handleCreateCleaningIssue}
+          onCreateRepasse={handleCreateRepasse}
+          onCreateAgendaNote={handleCreateAgendaNote}
+          onSendUpsell={handleSendUpsell}
+          onOpenProperty={handleOpenProperty}
+          onOpenReservation={handleOpenReservation}
+        />
+      </div>
 
       {/* Dialogs */}
       <CreateMaintenanceFromMessageDialog
