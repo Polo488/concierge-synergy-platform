@@ -14,6 +14,13 @@ interface BlockedBlockProps {
   onCleaningIndicatorClick?: () => void;
 }
 
+// Calm, tinted color palette for blocked periods
+const BLOCKED_COLORS = {
+  bg: 'rgba(120, 125, 140, 0.12)',      // Very light neutral tint
+  iconBg: 'hsl(220 10% 45%)',            // Solid grey for icon
+  text: 'hsl(220 15% 35%)',              // Dark grey for text
+};
+
 export const BlockedBlock: React.FC<BlockedBlockProps> = ({
   blocked,
   visibleDays,
@@ -26,26 +33,31 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
 }) => {
   const cellWidth = 40;
   const halfCell = cellWidth / 2;
-  let width = visibleDays * cellWidth;
+  
+  // Pure rectangle positioning (same logic as BookingBlock)
+  const hasVisibleStart = isStartDay && !isStartTruncated;
+  const hasVisibleEnd = isEndDay && !isEndTruncated;
+  
+  let width: number;
   let leftOffset = 0;
   
-  // Start day: shift right to start from middle
-  if (isStartDay && !isStartTruncated) {
+  if (hasVisibleStart && hasVisibleEnd) {
+    width = (visibleDays - 1) * cellWidth + halfCell;
     leftOffset = halfCell;
-  }
-  
-  // End day: extend to middle of end cell if start is truncated
-  if (isEndDay && !isEndTruncated) {
-    if (isStartTruncated || !isStartDay) {
-      width += halfCell;
-    }
+  } else if (hasVisibleStart && !hasVisibleEnd) {
+    width = visibleDays * cellWidth - halfCell;
+    leftOffset = halfCell;
+  } else if (!hasVisibleStart && hasVisibleEnd) {
+    width = (visibleDays - 1) * cellWidth + halfCell;
+    leftOffset = 0;
+  } else {
+    width = visibleDays * cellWidth;
+    leftOffset = 0;
   }
 
-  const hasLeftBevel = isStartDay && !isStartTruncated;
-  const hasRightBevel = isEndDay && !isEndTruncated;
   const hasCleaningScheduled = blocked.cleaningSchedule?.enabled;
 
-  const truncateReason = (reason: string | undefined, maxLength: number = 10): string => {
+  const truncateReason = (reason: string | undefined, maxLength: number = 12): string => {
     const text = reason || 'Bloqué';
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength - 1) + '…';
@@ -64,32 +76,44 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
   return (
     <div
       className={cn(
-        "absolute top-0.5 bottom-0.5 z-10 flex items-center gap-1 px-1.5",
-        "bg-zinc-400 dark:bg-zinc-500",
-        onClick && "cursor-pointer hover:bg-zinc-500 dark:hover:bg-zinc-400 transition-colors"
+        "absolute top-1 bottom-1 z-10 flex items-center gap-1 px-1.5",
+        "rounded-md",
+        "transition-all duration-200 ease-out",
+        onClick && "cursor-pointer hover:z-20"
       )}
       style={{
         width: `${Math.max(width, 20)}px`,
         left: `${leftOffset}px`,
-        clipPath: getBevelClipPath(hasLeftBevel, hasRightBevel),
-        borderRadius: hasLeftBevel && hasRightBevel ? '0' : hasLeftBevel ? '0 6px 6px 0' : hasRightBevel ? '6px 0 0 6px' : '6px',
+        backgroundColor: BLOCKED_COLORS.bg,
+        boxShadow: '0 1px 3px -1px rgba(0,0,0,0.06)',
       }}
       title={blocked.reason || 'Bloqué - Cliquez pour modifier'}
       onClick={handleBlockClick}
     >
-      <Ban className="w-3 h-3 text-white/80 flex-shrink-0" />
-      <span className="text-xs font-medium text-white/90 truncate">
-        {visibleDays > 1 ? truncateReason(blocked.reason) : ''}
-      </span>
+      {/* Ban icon - solid, crisp */}
+      <Ban 
+        className="w-3.5 h-3.5 flex-shrink-0" 
+        style={{ color: BLOCKED_COLORS.iconBg }}
+      />
       
-      {/* Cleaning scheduled indicator - positioned at end of block */}
+      {/* Reason text - dark for contrast */}
+      {visibleDays > 1 && (
+        <span 
+          className="text-xs font-medium truncate"
+          style={{ color: BLOCKED_COLORS.text }}
+        >
+          {truncateReason(blocked.reason)}
+        </span>
+      )}
+      
+      {/* Cleaning scheduled indicator */}
       {hasCleaningScheduled && isEndDay && !isEndTruncated && (
         <div 
           className={cn(
             "absolute -right-0.5 top-1/2 -translate-y-1/2 translate-x-1/2",
             "w-5 h-5 rounded-full bg-primary flex items-center justify-center",
             "cursor-pointer hover:scale-110 transition-transform",
-            "shadow-md border-2 border-background"
+            "shadow-sm border-2 border-background"
           )}
           onClick={handleCleaningClick}
           title="Ménage programmé"
@@ -100,17 +124,3 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
     </div>
   );
 };
-
-function getBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean): string {
-  const cut = '8px';
-  
-  if (hasLeftBevel && hasRightBevel) {
-    return `polygon(${cut} 0%, calc(100% - ${cut}) 0%, 100% 100%, ${cut} 100%)`;
-  } else if (hasLeftBevel) {
-    return `polygon(${cut} 0%, 100% 0%, 100% 100%, 0% 100%)`;
-  } else if (hasRightBevel) {
-    return `polygon(0% 0%, calc(100% - ${cut}) 0%, 100% 100%, 0% 100%)`;
-  }
-  
-  return 'none';
-}
