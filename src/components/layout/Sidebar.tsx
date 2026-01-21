@@ -272,8 +272,8 @@ export function Sidebar() {
         {/* Logo */}
         <div 
           className={cn(
-            "h-16 flex items-center px-5",
-            !isOpen && "md:justify-center md:px-0"
+            "h-16 flex items-center justify-center px-5",
+            !isOpen && "md:px-0"
           )}
         >
           <img 
