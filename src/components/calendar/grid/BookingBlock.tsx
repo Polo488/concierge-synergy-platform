@@ -105,6 +105,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
       }}
       className={cn(
         "absolute top-1 bottom-1 z-10 flex items-center cursor-pointer",
+        "booking-block",
         "transition-all duration-200 ease-out",
         "hover:z-20"
       )}
@@ -113,7 +114,6 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
         left: `${leftOffset}px`,
         backgroundColor: colors.bg,
         clipPath: createBevelClipPath(hasLeftBevel, hasRightBevel, bevelSize),
-        boxShadow: '0 2px 8px -2px rgba(0,0,0,0.15), 0 1px 3px -1px rgba(0,0,0,0.1)',
         borderRadius: getBorderRadius(hasLeftBevel, hasRightBevel),
       }}
       title={`${booking.guestName}${booking.nightlyRate ? ` • ${booking.nightlyRate}€/nuit` : ''}`}
