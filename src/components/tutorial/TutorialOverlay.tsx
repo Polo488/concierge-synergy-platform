@@ -40,8 +40,9 @@ export const TutorialOverlay = () => {
       const rect = element.getBoundingClientRect();
       const padding = 8;
       
+      // Use fixed positioning (no scrollY adjustment since overlay is fixed)
       setHighlightPosition({
-        top: rect.top - padding + window.scrollY,
+        top: rect.top - padding,
         left: rect.left - padding,
         width: rect.width + padding * 2,
         height: rect.height + padding * 2
@@ -49,7 +50,7 @@ export const TutorialOverlay = () => {
 
       // Calculate tooltip position based on preferred position
       const tooltipWidth = 320;
-      const tooltipHeight = 180;
+      const tooltipHeight = 200;
       const gap = 16;
       
       let top = 0;
@@ -60,37 +61,37 @@ export const TutorialOverlay = () => {
 
       switch (position) {
         case 'bottom':
-          top = rect.bottom + gap + window.scrollY;
+          top = rect.bottom + gap;
           left = rect.left + rect.width / 2 - tooltipWidth / 2;
           arrowPosition = 'top';
           break;
         case 'top':
-          top = rect.top - tooltipHeight - gap + window.scrollY;
+          top = rect.top - tooltipHeight - gap;
           left = rect.left + rect.width / 2 - tooltipWidth / 2;
           arrowPosition = 'bottom';
           break;
         case 'right':
-          top = rect.top + rect.height / 2 - tooltipHeight / 2 + window.scrollY;
+          top = rect.top + rect.height / 2 - tooltipHeight / 2;
           left = rect.right + gap;
           arrowPosition = 'left';
           break;
         case 'left':
-          top = rect.top + rect.height / 2 - tooltipHeight / 2 + window.scrollY;
+          top = rect.top + rect.height / 2 - tooltipHeight / 2;
           left = rect.left - tooltipWidth - gap;
           arrowPosition = 'right';
           break;
       }
 
-      // Keep tooltip within viewport
+      // Keep tooltip within viewport with better boundaries
       left = Math.max(16, Math.min(left, window.innerWidth - tooltipWidth - 16));
-      top = Math.max(16, top);
+      top = Math.max(16, Math.min(top, window.innerHeight - tooltipHeight - 16));
 
       setTooltipPosition({ top, left, arrowPosition });
     } else {
       // Fallback: center tooltip if element not found
       setHighlightPosition(null);
       setTooltipPosition({
-        top: window.innerHeight / 2 - 90,
+        top: window.innerHeight / 2 - 100,
         left: window.innerWidth / 2 - 160,
         arrowPosition: 'top'
       });
@@ -100,12 +101,16 @@ export const TutorialOverlay = () => {
   useEffect(() => {
     if (state.isActive && currentStepData) {
       setIsAnimating(true);
+      // Wait longer for DOM elements to render
       const timer = setTimeout(() => {
         calculatePositions();
         setIsAnimating(false);
-      }, 100);
+      }, 300);
       
       return () => clearTimeout(timer);
+    } else {
+      setHighlightPosition(null);
+      setTooltipPosition(null);
     }
   }, [state.isActive, state.currentStep, currentStepData, calculatePositions]);
 
@@ -141,53 +146,47 @@ export const TutorialOverlay = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] pointer-events-none">
-      {/* Dimmed overlay with cutout */}
-      <div className="absolute inset-0 pointer-events-auto">
-        <svg className="w-full h-full" style={{ position: 'absolute' }}>
-          <defs>
-            <mask id="tutorial-mask">
-              <rect x="0" y="0" width="100%" height="100%" fill="white" />
-              {highlightPosition && (
-                <rect
-                  x={highlightPosition.left}
-                  y={highlightPosition.top}
-                  width={highlightPosition.width}
-                  height={highlightPosition.height}
-                  rx="8"
-                  fill="black"
-                  className={cn(
-                    "transition-all duration-300 ease-out",
-                    isAnimating && "opacity-0"
-                  )}
-                />
-              )}
-            </mask>
-          </defs>
-          <rect
-            x="0"
-            y="0"
-            width="100%"
-            height="100%"
-            fill="rgba(0, 0, 0, 0.5)"
-            mask="url(#tutorial-mask)"
-          />
-        </svg>
-      </div>
+    <div className="fixed inset-0 z-[9999]" style={{ pointerEvents: 'none' }}>
+      {/* Dark overlay */}
+      <div 
+        className="absolute inset-0 bg-black/50 transition-opacity duration-300" 
+        style={{ pointerEvents: 'auto' }}
+        onClick={(e) => e.stopPropagation()}
+      />
 
-      {/* Highlight border */}
+      {/* Highlight cutout */}
       {highlightPosition && (
         <div
           className={cn(
-            "absolute border-2 border-primary rounded-lg transition-all duration-300 ease-out pointer-events-none",
-            "shadow-[0_0_0_4px_rgba(var(--primary),0.2)]",
+            "absolute bg-transparent transition-all duration-300 ease-out",
             isAnimating && "opacity-0"
           )}
           style={{
             top: highlightPosition.top,
             left: highlightPosition.left,
             width: highlightPosition.width,
-            height: highlightPosition.height
+            height: highlightPosition.height,
+            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
+            borderRadius: '8px',
+            pointerEvents: 'none'
+          }}
+        />
+      )}
+
+      {/* Highlight border */}
+      {highlightPosition && (
+        <div
+          className={cn(
+            "absolute border-2 border-primary rounded-lg transition-all duration-300 ease-out",
+            isAnimating && "opacity-0"
+          )}
+          style={{
+            top: highlightPosition.top,
+            left: highlightPosition.left,
+            width: highlightPosition.width,
+            height: highlightPosition.height,
+            boxShadow: '0 0 20px 4px hsl(var(--primary) / 0.3)',
+            pointerEvents: 'none'
           }}
         />
       )}
@@ -196,13 +195,15 @@ export const TutorialOverlay = () => {
       {tooltipPosition && (
         <div
           className={cn(
-            "absolute w-80 bg-background border border-border rounded-xl shadow-2xl pointer-events-auto",
+            "absolute w-80 bg-background border border-border rounded-xl shadow-2xl",
             "transition-all duration-300 ease-out",
             isAnimating && "opacity-0 scale-95"
           )}
           style={{
             top: tooltipPosition.top,
-            left: tooltipPosition.left
+            left: tooltipPosition.left,
+            pointerEvents: 'auto',
+            zIndex: 10000
           }}
         >
           {/* Arrow */}
