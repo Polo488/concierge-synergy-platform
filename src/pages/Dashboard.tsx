@@ -8,6 +8,8 @@ import { DailyActivityTabs } from '@/components/dashboard/DailyActivityTabs';
 import { AgendaPreviewWidget } from '@/components/dashboard/AgendaPreviewWidget';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useAgenda } from '@/hooks/useAgenda';
+import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
+import { TutorialButton } from '@/components/tutorial/TutorialButton';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, 
   Tooltip, ResponsiveContainer, LineChart, Line
@@ -45,18 +47,24 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Tableau de bord</h1>
-        <p className="text-muted-foreground mt-1">
-          Vue opérationnelle de votre activité du jour
-        </p>
+      <TutorialTrigger moduleId="dashboard" />
+      <div data-tutorial="dashboard-header" className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Tableau de bord</h1>
+          <p className="text-muted-foreground mt-1">
+            Vue opérationnelle de votre activité du jour
+          </p>
+        </div>
+        <TutorialButton moduleId="dashboard" />
       </div>
       
       {/* Daily KPI Cards */}
-      <DailyKPICards stats={stats} />
+      <div data-tutorial="dashboard-kpi">
+        <DailyKPICards stats={stats} />
+      </div>
 
       {/* Daily Activity: Tabs and Agenda preview side by side */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2" data-tutorial="dashboard-activity">
         <DailyActivityTabs 
           checkIns={checkIns} 
           checkOuts={checkOuts} 

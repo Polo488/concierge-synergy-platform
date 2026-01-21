@@ -99,7 +99,10 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2" defaultValue={initialTab}>
-      <TabsList className={`grid w-full max-w-lg ${isCleaningAgent ? 'grid-cols-3' : 'grid-cols-4'}`}>
+      <TabsList 
+        className={`grid w-full max-w-lg ${isCleaningAgent ? 'grid-cols-3' : 'grid-cols-4'}`}
+        data-tutorial="cleaning-tabs"
+      >
         <TabsTrigger value="today">{t('cleaning.tabs.today')}</TabsTrigger>
         {!isCleaningAgent && (
           <TabsTrigger value="tomorrow">{t('cleaning.tabs.tomorrow')}</TabsTrigger>
@@ -129,7 +132,7 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
         </div>
       </div>
       
-      <TabsContent value="today" className="space-y-4">
+      <TabsContent value="today" className="space-y-4" data-tutorial="cleaning-task">
         <CleaningTaskList
           tasks={getFilteredTasks(allTodayTasks)}
           emptyMessage={t('cleaning.empty.today')}
