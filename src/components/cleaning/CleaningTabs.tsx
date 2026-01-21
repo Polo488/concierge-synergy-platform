@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Search, AlertTriangle, Plus } from 'lucide-react';
 import { CleaningTaskList } from '@/components/cleaning/CleaningTaskList';
 import { CleaningIssuesList } from '@/components/cleaning/CleaningIssuesList';
 import { useCleaning } from '@/contexts/CleaningContext';
+import { useOperations } from '@/contexts/OperationsContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -26,7 +27,7 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
     todayCleaningTasks,
     tomorrowCleaningTasks,
     completedCleaningTasks,
-    cleaningIssues,
+    cleaningIssues: localCleaningIssues,
     selectedTasks,
     handleSelectTask,
     handleStartCleaning,
@@ -36,8 +37,42 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
     openProblemDialog,
     openDeleteDialog,
     openIssueDialog,
-    handleResolveIssue,
+    handleResolveIssue: localHandleResolveIssue,
   } = useCleaning();
+
+  // Get issues and repasse tasks from messaging/operations context
+  const { 
+    cleaningIssuesFromMessaging, 
+    repasseTasksFromMessaging,
+    resolveCleaningIssue: messagingResolveIssue 
+  } = useOperations();
+
+  // Merge all cleaning issues (local + from messaging)
+  const allCleaningIssues = useMemo(() => {
+    const allIssues = [...localCleaningIssues, ...cleaningIssuesFromMessaging];
+    // Sort by creation date, most recent first
+    return allIssues.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [localCleaningIssues, cleaningIssuesFromMessaging]);
+
+  // Merge repasse tasks into today's tasks
+  const allTodayTasks = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const todayRepasses = repasseTasksFromMessaging.filter(t => t.date === today);
+    return [...todayCleaningTasks, ...todayRepasses];
+  }, [todayCleaningTasks, repasseTasksFromMessaging]);
+
+  // Handle resolve for both local and messaging issues
+  const handleResolveIssue = (issueId: number) => {
+    // Check if it's a messaging issue
+    const isMessagingIssue = cleaningIssuesFromMessaging.some(i => i.id === issueId);
+    if (isMessagingIssue) {
+      messagingResolveIssue(issueId);
+    } else {
+      localHandleResolveIssue(issueId);
+    }
+  };
 
   const filterTasks = (tasks) => {
     if (!searchTerm) return tasks;
@@ -60,7 +95,7 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
     return filterTasks(filterTasksByRole(tasks));
   };
 
-  const openIssuesCount = cleaningIssues.filter(i => i.status === 'open').length;
+  const openIssuesCount = allCleaningIssues.filter(i => i.status === 'open').length;
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2" defaultValue={initialTab}>
@@ -96,7 +131,7 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
       
       <TabsContent value="today" className="space-y-4">
         <CleaningTaskList
-          tasks={getFilteredTasks(todayCleaningTasks)}
+          tasks={getFilteredTasks(allTodayTasks)}
           emptyMessage={t('cleaning.empty.today')}
           labelsDialogOpen={false}
           selectedTasks={selectedTasks}
@@ -163,10 +198,10 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
           )}
         </div>
         <CleaningIssuesList
-          issues={cleaningIssues}
+          issues={allCleaningIssues}
           onResolve={!isCleaningAgent ? handleResolveIssue : undefined}
           onViewRepasseTask={(taskId) => {
-            const task = todayCleaningTasks.find(t => t.id === taskId);
+            const task = allTodayTasks.find(t => t.id === taskId);
             if (task) openDetailsDialog(task);
           }}
         />

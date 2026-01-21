@@ -14,6 +14,10 @@ interface OperationsContextType {
   // Linked tasks created from messaging
   linkedTasks: LinkedOperationalTask[];
   
+  // Direct access to cleaning issues and repasse tasks created from messaging
+  cleaningIssuesFromMessaging: CleaningIssue[];
+  repasseTasksFromMessaging: CleaningTask[];
+  
   // Stats
   stats: MessagingOperationsStats;
   
@@ -41,6 +45,9 @@ interface OperationsContextType {
   
   // Navigation helpers
   getConversationIdForTask: (taskId: string, taskType: string) => string | null;
+  
+  // Issue resolution
+  resolveCleaningIssue: (issueId: number) => void;
 }
 
 const OperationsContext = createContext<OperationsContextType | undefined>(undefined);
@@ -241,9 +248,20 @@ export const OperationsProvider: React.FC<{ children: ReactNode }> = ({ children
     return task?.conversationId || null;
   }, [linkedTasks]);
 
+  const resolveCleaningIssue = useCallback((issueId: number) => {
+    setCleaningIssues(prev => prev.map(issue => 
+      issue.id === issueId 
+        ? { ...issue, status: 'resolved' as const, resolvedAt: new Date().toISOString() }
+        : issue
+    ));
+    toast.success("Problème résolu");
+  }, []);
+
   return (
     <OperationsContext.Provider value={{
       linkedTasks,
+      cleaningIssuesFromMessaging: cleaningIssues,
+      repasseTasksFromMessaging: repasseTasks,
       stats,
       createMaintenanceFromMessaging,
       createCleaningIssueFromMessaging,
@@ -253,6 +271,7 @@ export const OperationsProvider: React.FC<{ children: ReactNode }> = ({ children
       getTasksByReservation,
       hasSimilarTask,
       getConversationIdForTask,
+      resolveCleaningIssue,
     }}>
       {children}
     </OperationsContext.Provider>
