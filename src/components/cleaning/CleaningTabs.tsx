@@ -99,7 +99,7 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2" defaultValue={initialTab}>
-      <TabsList className="grid grid-cols-4 w-full max-w-lg">
+      <TabsList className={`grid w-full max-w-lg ${isCleaningAgent ? 'grid-cols-3' : 'grid-cols-4'}`}>
         <TabsTrigger value="today">{t('cleaning.tabs.today')}</TabsTrigger>
         {!isCleaningAgent && (
           <TabsTrigger value="tomorrow">{t('cleaning.tabs.tomorrow')}</TabsTrigger>
@@ -107,7 +107,7 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
         <TabsTrigger value="completed">{t('cleaning.tabs.completed')}</TabsTrigger>
         <TabsTrigger value="issues" className="flex items-center gap-1.5">
           <AlertTriangle className="h-3.5 w-3.5" />
-          Problèmes
+          {t('cleaning.tabs.issues') || 'Problèmes'}
           {openIssuesCount > 0 && (
             <span className="ml-1 bg-destructive text-destructive-foreground text-xs px-1.5 py-0.5 rounded-full">
               {openIssuesCount}
