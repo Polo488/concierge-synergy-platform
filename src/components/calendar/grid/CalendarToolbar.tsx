@@ -142,7 +142,7 @@ export const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
             {isSyncing ? 'Sync...' : 'Synchroniser'}
           </Button>
 
-          <Button onClick={onAddBooking} className="rounded-xl shadow-sm btn-press">
+          <Button onClick={onAddBooking} className="rounded-xl shadow-sm btn-press" data-tutorial="calendar-add">
             <Plus className="h-4 w-4 mr-2" />
             Ajouter une réservation
           </Button>

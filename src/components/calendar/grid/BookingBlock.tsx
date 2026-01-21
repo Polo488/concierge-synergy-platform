@@ -179,6 +179,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
         boxShadow: '0 1px 3px -1px rgba(0,0,0,0.06)',
       }}
       title={`${booking.guestName}${booking.nightlyRate ? ` • ${booking.nightlyRate}€/nuit` : ''}`}
+      data-tutorial="calendar-booking"
     >
       <div className="flex items-center w-full h-full px-1.5 gap-1 overflow-hidden">
         {/* Channel icon - solid, crisp, primary indicator */}
