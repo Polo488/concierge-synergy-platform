@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    /* Premium, calm color palette - Airbnb inspired */
+    /* Premium, calm color palette - Light mode */
     --background: 0 0% 99%;
     --foreground: 220 13% 18%;
 
@@ -61,6 +61,61 @@
     --nav-organisation-light: 220 10% 97%;
   }
 
+  .dark {
+    /* Premium, calm color palette - Dark mode */
+    --background: 222 20% 7%;
+    --foreground: 220 14% 90%;
+
+    --card: 222 18% 10%;
+    --card-foreground: 220 14% 90%;
+
+    --popover: 222 18% 10%;
+    --popover-foreground: 220 14% 90%;
+
+    --primary: 217 70% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 15% 15%;
+    --secondary-foreground: 220 14% 80%;
+
+    --muted: 222 15% 15%;
+    --muted-foreground: 220 10% 55%;
+
+    --accent: 222 15% 18%;
+    --accent-foreground: 220 14% 90%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 15% 18%;
+    --input: 222 15% 18%;
+    --ring: 217 70% 55%;
+
+    /* Status colors - dark mode variants */
+    --status-success: 152 50% 50%;
+    --status-success-light: 152 40% 15%;
+    --status-warning: 38 70% 55%;
+    --status-warning-light: 38 50% 15%;
+    --status-error: 0 60% 55%;
+    --status-error-light: 0 50% 15%;
+    --status-info: 210 65% 55%;
+    --status-info-light: 210 50% 15%;
+    --status-pending: 270 45% 60%;
+    --status-pending-light: 270 35% 15%;
+
+    /* Navigation section colors - dark mode */
+    --nav-pilotage: 217 65% 60%;
+    --nav-pilotage-light: 217 50% 15%;
+    --nav-operations: 152 45% 50%;
+    --nav-operations-light: 152 40% 15%;
+    --nav-revenus: 25 70% 55%;
+    --nav-revenus-light: 25 50% 15%;
+    --nav-experience: 270 50% 60%;
+    --nav-experience-light: 270 40% 15%;
+    --nav-organisation: 220 10% 55%;
+    --nav-organisation-light: 220 10% 15%;
+  }
+
   * {
     @apply border-border;
   }
@@ -106,17 +161,15 @@
 .stagger-4 { animation-delay: 0.2s; }
 .stagger-5 { animation-delay: 0.25s; }
 
-/* Glass morphism - very subtle */
+/* Glass morphism - theme aware */
 .glass {
-  background: hsla(0, 0%, 100%, 0.85);
+  background: hsla(var(--card) / 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
-.glass-dark {
-  background: hsla(220, 13%, 10%, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+.dark .glass {
+  background: hsla(var(--card) / 0.9);
 }
 
 /* Card hover effects - subtle */
@@ -126,7 +179,11 @@
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px -4px hsla(220, 13%, 18%, 0.08);
+  box-shadow: 0 4px 12px -4px hsla(var(--foreground) / 0.08);
+}
+
+.dark .card-hover:hover {
+  box-shadow: 0 4px 12px -4px hsla(0, 0%, 0%, 0.3);
 }
 
 /* Premium focus states */
@@ -152,4 +209,9 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.3);
+}
+
+/* Smooth theme transition */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
 }

@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Layout } from "./components/layout/Layout";
 import { AuthProvider } from "./contexts/AuthContext";
 import { OperationsProvider } from "./contexts/OperationsContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { RoutePermission } from "./components/auth/RoutePermission";
 import Dashboard from "./pages/Dashboard";
@@ -32,116 +33,118 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <LanguageProvider>
-        <OperationsProvider>
-          <BrowserRouter>
-            <AuthProvider>
-              <Toaster />
-              <Sonner />
-              <Routes>
-                {/* Public routes */}
-                <Route path="/login" element={<Login />} />
-                
-                {/* Protected routes - require authentication */}
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<Layout />}>
-                    <Route path="/" element={<Dashboard />} />
+    <ThemeProvider>
+      <TooltipProvider>
+        <LanguageProvider>
+          <OperationsProvider>
+            <BrowserRouter>
+              <AuthProvider>
+                <Toaster />
+                <Sonner />
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/login" element={<Login />} />
                   
-                  <Route path="/properties" element={
-                    <RoutePermission permission="properties">
-                      <Properties />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/inventory" element={
-                    <RoutePermission permission="inventory">
-                      <Inventory />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/maintenance" element={
-                    <RoutePermission permission="maintenance">
-                      <Maintenance />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/cleaning" element={
-                    <RoutePermission permission="cleaning">
-                      <Cleaning />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/quality-stats" element={
-                    <RoutePermission permission="cleaning">
-                      <QualityStats />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/calendar" element={
-                    <RoutePermission permission="calendar">
-                      <Calendar />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/billing" element={
-                    <RoutePermission permission="billing">
-                      <Billing />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/moyenne-duree" element={
-                    <RoutePermission permission="moyenneDuree">
-                      <MoyenneDuree />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/upsell" element={
-                    <RoutePermission permission="upsell">
-                      <Upsell />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/user-management" element={
-                    <RoutePermission permission="users">
-                      <UserManagement />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/insights" element={
-                    <RoutePermission permission="properties">
-                      <InsightsAlerts />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/guest-experience" element={
-                    <RoutePermission permission="guestExperience">
-                      <GuestExperience />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/agenda" element={
-                    <RoutePermission permission="agenda">
-                      <Agenda />
-                    </RoutePermission>
-                  } />
-                  
-                  <Route path="/messaging" element={
-                    <RoutePermission permission="messaging">
-                      <Messaging />
-                    </RoutePermission>
-                  } />
+                  {/* Protected routes - require authentication */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route element={<Layout />}>
+                      <Route path="/" element={<Dashboard />} />
+                    
+                    <Route path="/properties" element={
+                      <RoutePermission permission="properties">
+                        <Properties />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/inventory" element={
+                      <RoutePermission permission="inventory">
+                        <Inventory />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/maintenance" element={
+                      <RoutePermission permission="maintenance">
+                        <Maintenance />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/cleaning" element={
+                      <RoutePermission permission="cleaning">
+                        <Cleaning />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/quality-stats" element={
+                      <RoutePermission permission="cleaning">
+                        <QualityStats />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/calendar" element={
+                      <RoutePermission permission="calendar">
+                        <Calendar />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/billing" element={
+                      <RoutePermission permission="billing">
+                        <Billing />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/moyenne-duree" element={
+                      <RoutePermission permission="moyenneDuree">
+                        <MoyenneDuree />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/upsell" element={
+                      <RoutePermission permission="upsell">
+                        <Upsell />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/user-management" element={
+                      <RoutePermission permission="users">
+                        <UserManagement />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/insights" element={
+                      <RoutePermission permission="properties">
+                        <InsightsAlerts />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/guest-experience" element={
+                      <RoutePermission permission="guestExperience">
+                        <GuestExperience />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/agenda" element={
+                      <RoutePermission permission="agenda">
+                        <Agenda />
+                      </RoutePermission>
+                    } />
+                    
+                    <Route path="/messaging" element={
+                      <RoutePermission permission="messaging">
+                        <Messaging />
+                      </RoutePermission>
+                    } />
+                  </Route>
                 </Route>
-              </Route>
-              
-              {/* Catch all for 404 */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AuthProvider>
-        </BrowserRouter>
-      </OperationsProvider>
-    </LanguageProvider>
-  </TooltipProvider>
+                
+                {/* Catch all for 404 */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AuthProvider>
+          </BrowserRouter>
+        </OperationsProvider>
+      </LanguageProvider>
+    </TooltipProvider>
+  </ThemeProvider>
 </QueryClientProvider>
 );
 
