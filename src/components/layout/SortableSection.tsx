@@ -9,7 +9,6 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { Link, useLocation } from 'react-router-dom';
-import { ReactNode } from 'react';
 
 type NavItem = {
   name: string;
@@ -67,14 +66,13 @@ export function SortableSection({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "transition-opacity duration-200",
+        "transition-opacity duration-150",
         isDragging && "opacity-50 z-50"
       )}
     >
       <Collapsible open={isExpanded} onOpenChange={onToggle}>
         <div className={cn(
-          "flex items-center gap-1 rounded-lg",
-          hasActiveItem && section.bgClass,
+          "flex items-center gap-0.5 rounded-lg",
           !isOpen && "md:hidden"
         )}>
           {/* Drag handle */}
@@ -83,32 +81,32 @@ export function SortableSection({
             {...listeners}
             className={cn(
               "p-1.5 rounded-md cursor-grab active:cursor-grabbing",
-              "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+              "text-muted-foreground/50 hover:text-muted-foreground",
               "transition-colors touch-none"
             )}
             title="Réorganiser la section"
           >
-            <GripVertical size={14} />
+            <GripVertical size={12} />
           </button>
 
           <CollapsibleTrigger className={cn(
             "flex items-center justify-between flex-1 px-2 py-2 rounded-lg",
-            "text-xs font-semibold tracking-wider",
-            "hover:bg-muted/50 transition-colors",
-            section.colorClass
+            "text-[10px] font-medium tracking-widest uppercase",
+            "hover:bg-muted/30 transition-colors",
+            "text-muted-foreground"
           )}>
             <span>{section.title}</span>
             <ChevronDown 
-              size={14} 
+              size={12} 
               className={cn(
-                "transition-transform duration-200",
+                "transition-transform duration-150",
                 isExpanded && "rotate-180"
               )}
             />
           </CollapsibleTrigger>
         </div>
         
-        <CollapsibleContent className="space-y-0.5 mt-1">
+        <CollapsibleContent className="space-y-0.5 mt-0.5">
           {section.items.map((item) => {
             const isActive = location.pathname === item.path;
             
@@ -117,23 +115,20 @@ export function SortableSection({
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-3 px-2 py-2.5 rounded-lg transition-all duration-200",
-                  "group hover:bg-muted/50 border-l-2 border-transparent ml-1",
-                  isActive && section.activeClass,
+                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150",
+                  "group ml-4",
+                  isActive 
+                    ? "bg-muted text-foreground" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                   !isOpen && "md:ml-0 md:justify-center"
                 )}
               >
-                <div className={cn(
-                  "flex-shrink-0 p-1.5 rounded-md transition-colors",
-                  isActive ? section.iconBgClass : "bg-muted/50 text-muted-foreground group-hover:bg-muted"
-                )}>
-                  <item.icon size={16} />
-                </div>
+                <item.icon size={16} className="flex-shrink-0" />
                 
                 <span className={cn(
-                  "font-medium text-sm",
+                  "text-sm",
                   !isOpen && "md:hidden",
-                  !isActive && "text-foreground/80"
+                  isActive && "font-medium"
                 )}>
                   {item.name}
                 </span>
@@ -144,7 +139,7 @@ export function SortableSection({
         
         {/* Collapsed state - show only icons */}
         {!isOpen && (
-          <div className="hidden md:flex flex-col items-center gap-1 py-1">
+          <div className="hidden md:flex flex-col items-center gap-0.5 py-1">
             {section.items.map((item) => {
               const isActive = location.pathname === item.path;
               
@@ -154,20 +149,13 @@ export function SortableSection({
                   to={item.path}
                   title={item.name}
                   className={cn(
-                    "relative p-2 rounded-lg transition-all duration-200",
-                    "hover:bg-muted/50",
-                    isActive && section.iconBgClass
+                    "relative p-2.5 rounded-lg transition-all duration-150",
+                    isActive 
+                      ? "bg-muted text-foreground" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                 >
                   <item.icon size={18} />
-                  {isActive && (
-                    <div 
-                      className={cn(
-                        "absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-l-md",
-                        section.colorClass.replace('text-', 'bg-')
-                      )} 
-                    />
-                  )}
                 </Link>
               );
             })}

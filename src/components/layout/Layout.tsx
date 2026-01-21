@@ -29,12 +29,12 @@ export function Layout() {
       <Sidebar />
       
       <main className={cn(
-        "transition-all duration-300 ease-in-out min-h-screen",
-        isMobile ? "ml-0" : "ml-20 md:ml-64"
+        "transition-all duration-200 ease-out min-h-screen",
+        isMobile ? "ml-0" : "ml-[68px] md:ml-60"
       )}>
         <Header />
         
-        <div className="container py-6 px-4 animate-fade-in">
+        <div className="container py-8 px-6 animate-fade-in">
           <Outlet />
         </div>
       </main>
