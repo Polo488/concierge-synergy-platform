@@ -55,9 +55,9 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
 
   return (
     <div className={cn(
-      "flex transition-all duration-200 border-b border-border/5",
-      isOddRow ? "bg-muted/[0.03]" : "bg-transparent",
-      "hover:bg-accent/20"
+      "flex transition-all duration-200",
+      isOddRow ? "bg-muted/[0.02]" : "bg-transparent",
+      "hover:bg-accent/10"
     )}>
       {/* Property info - fixed left column */}
       <div 
@@ -220,11 +220,11 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               key={dayIndex}
               className={cn(
                 "w-10 min-w-[40px] h-14 relative transition-all duration-150",
-                "border-r border-border/[0.08]", // Subtle vertical day separator
-                isPast && !isToday && "bg-muted/[0.04]",
-                isWeekend && !isToday && !isPast && "bg-muted/[0.03]",
-                isEmpty && "cursor-pointer hover:bg-accent/20",
-                isSelected && "ring-2 ring-inset ring-primary/40 bg-primary/10 rounded-sm"
+                "border-r border-border/10", // Ultra-light vertical day separator
+                isPast && !isToday && "bg-muted/[0.03]",
+                isWeekend && !isToday && !isPast && "bg-muted/[0.02]",
+                isEmpty && "cursor-pointer hover:bg-accent/10",
+                isSelected && "ring-2 ring-inset ring-primary/30 bg-primary/[0.08] rounded-sm"
               )}
               onMouseDown={(e) => isEmpty && onDayMouseDown?.(property.id, day, e)}
               onMouseEnter={() => onDayMouseEnter?.(property.id, day)}
