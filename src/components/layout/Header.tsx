@@ -1,11 +1,12 @@
 
 import { useState, useEffect } from 'react';
-import { Search, User, Globe } from 'lucide-react';
+import { Search, User, Globe, Moon, Sun, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const { user, logout } = useAuth();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const navigate = useNavigate();
   
   // Insights state
@@ -82,7 +84,44 @@ export function Header() {
             />
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            {/* Theme Toggle */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="ghost" className="rounded-full h-9 w-9">
+                  {resolvedTheme === 'dark' ? (
+                    <Moon className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Sun className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[140px]">
+                <DropdownMenuItem 
+                  onClick={() => setTheme('light')}
+                  className={cn("text-sm gap-2", theme === 'light' && 'bg-muted')}
+                >
+                  <Sun className="h-4 w-4" />
+                  Clair
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setTheme('dark')}
+                  className={cn("text-sm gap-2", theme === 'dark' && 'bg-muted')}
+                >
+                  <Moon className="h-4 w-4" />
+                  Sombre
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setTheme('system')}
+                  className={cn("text-sm gap-2", theme === 'system' && 'bg-muted')}
+                >
+                  <Monitor className="h-4 w-4" />
+                  Système
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Language Toggle */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="icon" variant="ghost" className="rounded-full h-9 w-9">
