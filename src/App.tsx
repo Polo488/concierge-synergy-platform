@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Layout } from "./components/layout/Layout";
 import { AuthProvider } from "./contexts/AuthContext";
+import { OperationsProvider } from "./contexts/OperationsContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { RoutePermission } from "./components/auth/RoutePermission";
 import Dashboard from "./pages/Dashboard";
@@ -33,18 +34,19 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <LanguageProvider>
-        <BrowserRouter>
-          <AuthProvider>
-            <Toaster />
-            <Sonner />
-            <Routes>
-              {/* Public routes */}
-              <Route path="/login" element={<Login />} />
-              
-              {/* Protected routes - require authentication */}
-              <Route element={<ProtectedRoute />}>
-                <Route element={<Layout />}>
-                  <Route path="/" element={<Dashboard />} />
+        <OperationsProvider>
+          <BrowserRouter>
+            <AuthProvider>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                {/* Public routes */}
+                <Route path="/login" element={<Login />} />
+                
+                {/* Protected routes - require authentication */}
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<Layout />}>
+                    <Route path="/" element={<Dashboard />} />
                   
                   <Route path="/properties" element={
                     <RoutePermission permission="properties">
@@ -137,9 +139,10 @@ const App = () => (
             </Routes>
           </AuthProvider>
         </BrowserRouter>
-      </LanguageProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+      </OperationsProvider>
+    </LanguageProvider>
+  </TooltipProvider>
+</QueryClientProvider>
 );
 
 export default App;
