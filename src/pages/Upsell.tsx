@@ -12,6 +12,8 @@ import {
 } from 'recharts';
 import { PropertyUpsellItem } from '@/types/property';
 import { UpsellServiceManager } from '@/components/upsell/UpsellServiceManager';
+import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
+import { TutorialButton } from '@/components/tutorial/TutorialButton';
 
 // Mock data for upsell products
 const initialUpsellProducts = [
@@ -68,15 +70,20 @@ const Upsell = () => {
   
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Upsell et Services</h1>
-        <p className="text-muted-foreground mt-1">
-          Suivi des ventes additionnelles et services proposés aux clients
-        </p>
+      <TutorialTrigger moduleId="upsell" />
+      
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Upsell et Services</h1>
+          <p className="text-muted-foreground mt-1">
+            Suivi des ventes additionnelles et services proposés aux clients
+          </p>
+        </div>
+        <TutorialButton moduleId="upsell" />
       </div>
       
       {/* Statistics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" data-tutorial="upsell-services">
         <StatCard 
           title="Revenus totaux" 
           value={`${(totalRevenue / 100).toLocaleString('fr-FR')} €`}
@@ -106,10 +113,12 @@ const Upsell = () => {
       </div>
 
       {/* Service Management */}
-      <UpsellServiceManager 
-        services={upsellProducts}
-        onServiceUpdate={handleServicesUpdate}
-      />
+      <div data-tutorial="upsell-sales">
+        <UpsellServiceManager 
+          services={upsellProducts}
+          onServiceUpdate={handleServicesUpdate}
+        />
+      </div>
       
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">
