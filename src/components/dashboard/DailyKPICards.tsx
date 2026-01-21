@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { LogIn, LogOut, MessageSquare, AlertCircle } from 'lucide-react';
-import { Card } from '@/components/ui/card';
 import { DashboardStats } from '@/hooks/useDashboardData';
 import { cn } from '@/lib/utils';
 
@@ -13,29 +12,28 @@ interface KPICardProps {
   value: number;
   icon: React.ReactNode;
   onClick: () => void;
-  colorClass: string;
-  bgClass: string;
+  iconColorClass: string;
+  iconBgClass: string;
 }
 
-const KPICard = ({ title, value, icon, onClick, colorClass, bgClass }: KPICardProps) => (
-  <Card 
+const KPICard = ({ title, value, icon, onClick, iconColorClass, iconBgClass }: KPICardProps) => (
+  <div 
     className={cn(
-      "p-4 cursor-pointer transition-all hover:shadow-md hover:scale-[1.02]",
-      "border-l-4",
-      colorClass
+      "bg-card rounded-xl p-5 cursor-pointer transition-all duration-200",
+      "hover:shadow-card"
     )}
     onClick={onClick}
   >
     <div className="flex items-center justify-between">
-      <div>
+      <div className="space-y-1">
         <p className="text-sm text-muted-foreground font-medium">{title}</p>
-        <p className="text-3xl font-bold mt-1">{value}</p>
+        <p className="text-3xl font-semibold text-foreground">{value}</p>
       </div>
-      <div className={cn("p-3 rounded-full", bgClass)}>
-        {icon}
+      <div className={cn("p-3 rounded-xl", iconBgClass)}>
+        <div className={iconColorClass}>{icon}</div>
       </div>
     </div>
-  </Card>
+  </div>
 );
 
 export const DailyKPICards = ({ stats }: DailyKPICardsProps) => {
@@ -45,40 +43,40 @@ export const DailyKPICards = ({ stats }: DailyKPICardsProps) => {
     {
       title: "Check-ins aujourd'hui",
       value: stats.checkInsToday,
-      icon: <LogIn className="h-5 w-5 text-emerald-600" />,
+      icon: <LogIn className="h-5 w-5" />,
       onClick: () => navigate('/calendar'),
-      colorClass: 'border-l-emerald-500',
-      bgClass: 'bg-emerald-100'
+      iconColorClass: 'text-status-success',
+      iconBgClass: 'bg-status-success-light'
     },
     {
       title: "Check-outs aujourd'hui",
       value: stats.checkOutsToday,
-      icon: <LogOut className="h-5 w-5 text-blue-600" />,
+      icon: <LogOut className="h-5 w-5" />,
       onClick: () => navigate('/calendar'),
-      colorClass: 'border-l-blue-500',
-      bgClass: 'bg-blue-100'
+      iconColorClass: 'text-status-info',
+      iconBgClass: 'bg-status-info-light'
     },
     {
       title: "Messages programmés",
       value: stats.scheduledMessages,
-      icon: <MessageSquare className="h-5 w-5 text-purple-600" />,
+      icon: <MessageSquare className="h-5 w-5" />,
       onClick: () => navigate('/guest-experience'),
-      colorClass: 'border-l-purple-500',
-      bgClass: 'bg-purple-100'
+      iconColorClass: 'text-status-pending',
+      iconBgClass: 'bg-status-pending-light'
     },
     {
       title: "Tâches non assignées",
       value: stats.unassignedTasks,
-      icon: <AlertCircle className="h-5 w-5 text-amber-600" />,
+      icon: <AlertCircle className="h-5 w-5" />,
       onClick: () => navigate('/cleaning'),
-      colorClass: 'border-l-amber-500',
-      bgClass: 'bg-amber-100'
+      iconColorClass: 'text-status-warning',
+      iconBgClass: 'bg-status-warning-light'
     }
   ];
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {kpiCards.map((kpi, index) => (
+      {kpiCards.map((kpi) => (
         <KPICard
           key={kpi.title}
           {...kpi}

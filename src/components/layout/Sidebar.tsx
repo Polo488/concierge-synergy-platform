@@ -28,7 +28,7 @@ import {
   Receipt,
   Menu,
   X,
-  ChevronRight,
+  ChevronLeft,
   Calendar as CalendarIcon,
   Clock,
   ShoppingCart,
@@ -91,11 +91,11 @@ export function Sidebar() {
   const navSections: NavSection[] = useMemo(() => [
     {
       id: 'pilotage',
-      title: 'PILOTAGE & ANALYSE',
+      title: 'PILOTAGE',
       colorClass: 'text-nav-pilotage',
-      activeClass: 'bg-nav-pilotage-light text-nav-pilotage border-l-nav-pilotage',
-      bgClass: 'bg-nav-pilotage/10',
-      iconBgClass: 'bg-nav-pilotage/15 text-nav-pilotage',
+      activeClass: 'bg-nav-pilotage-light text-nav-pilotage',
+      bgClass: 'bg-nav-pilotage/5',
+      iconBgClass: 'text-nav-pilotage',
       items: [
         { name: t('sidebar.dashboard'), path: '/', icon: Gauge, permission: 'properties' },
         { name: t('sidebar.qualityStats'), path: '/quality-stats', icon: BarChart3, permission: 'cleaning' },
@@ -106,9 +106,9 @@ export function Sidebar() {
       id: 'operations',
       title: 'OPÉRATIONS',
       colorClass: 'text-nav-operations',
-      activeClass: 'bg-nav-operations-light text-nav-operations border-l-nav-operations',
-      bgClass: 'bg-nav-operations/10',
-      iconBgClass: 'bg-nav-operations/15 text-nav-operations',
+      activeClass: 'bg-nav-operations-light text-nav-operations',
+      bgClass: 'bg-nav-operations/5',
+      iconBgClass: 'text-nav-operations',
       items: [
         { name: t('sidebar.calendar'), path: '/calendar', icon: CalendarIcon, permission: 'calendar' },
         { name: t('sidebar.cleaning'), path: '/cleaning', icon: Sparkles, permission: 'cleaning' },
@@ -121,9 +121,9 @@ export function Sidebar() {
       id: 'revenus',
       title: 'REVENUS',
       colorClass: 'text-nav-revenus',
-      activeClass: 'bg-nav-revenus-light text-nav-revenus border-l-nav-revenus',
-      bgClass: 'bg-nav-revenus/10',
-      iconBgClass: 'bg-nav-revenus/15 text-nav-revenus',
+      activeClass: 'bg-nav-revenus-light text-nav-revenus',
+      bgClass: 'bg-nav-revenus/5',
+      iconBgClass: 'text-nav-revenus',
       items: [
         { name: t('sidebar.averageDuration'), path: '/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
         { name: t('sidebar.billing'), path: '/billing', icon: Receipt, permission: 'billing' },
@@ -132,26 +132,26 @@ export function Sidebar() {
     },
     {
       id: 'experience',
-      title: 'EXPÉRIENCE VOYAGEUR',
+      title: 'VOYAGEURS',
       colorClass: 'text-nav-experience',
-      activeClass: 'bg-nav-experience-light text-nav-experience border-l-nav-experience',
-      bgClass: 'bg-nav-experience/10',
-      iconBgClass: 'bg-nav-experience/15 text-nav-experience',
+      activeClass: 'bg-nav-experience-light text-nav-experience',
+      bgClass: 'bg-nav-experience/5',
+      iconBgClass: 'text-nav-experience',
       items: [
-        { name: 'Messagerie Voyageur', path: '/messaging', icon: MessageCircle, permission: 'messaging' },
-        { name: 'Communication Intelligente', path: '/guest-experience', icon: MessageSquare, permission: 'guestExperience' },
+        { name: 'Messagerie', path: '/messaging', icon: MessageCircle, permission: 'messaging' },
+        { name: 'Communication', path: '/guest-experience', icon: MessageSquare, permission: 'guestExperience' },
       ]
     },
     {
       id: 'organisation',
       title: 'ORGANISATION',
       colorClass: 'text-nav-organisation',
-      activeClass: 'bg-nav-organisation-light text-nav-organisation border-l-nav-organisation',
-      bgClass: 'bg-nav-organisation/10',
-      iconBgClass: 'bg-nav-organisation/15 text-nav-organisation',
+      activeClass: 'bg-nav-organisation-light text-nav-organisation',
+      bgClass: 'bg-nav-organisation/5',
+      iconBgClass: 'text-nav-organisation',
       items: [
         { name: 'Agenda', path: '/agenda', icon: StickyNote, permission: 'agenda' },
-        { name: 'Gestion des utilisateurs', path: '/user-management', icon: Users, permission: 'users' },
+        { name: 'Utilisateurs', path: '/user-management', icon: Users, permission: 'users' },
       ]
     }
   ], [t]);
@@ -233,7 +233,7 @@ export function Sidebar() {
     : null;
 
   if (!isLoaded) {
-    return null; // Or a skeleton loader
+    return null;
   }
 
   return (
@@ -241,7 +241,7 @@ export function Sidebar() {
       {/* Mobile overlay */}
       {isMobile && isOpen && (
         <div 
-          className="fixed inset-0 bg-black/30 z-40"
+          className="fixed inset-0 bg-foreground/10 backdrop-blur-sm z-40"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -249,39 +249,40 @@ export function Sidebar() {
       {/* Sidebar toggle button for mobile */}
       <button
         className={cn(
-          "fixed md:hidden z-50 top-4 transition-all duration-300 glass rounded-full p-2",
-          isOpen ? "left-[240px]" : "left-4"
+          "fixed md:hidden z-50 top-4 transition-all duration-200",
+          "bg-card rounded-lg p-2.5 shadow-soft",
+          isOpen ? "left-[232px]" : "left-4"
         )}
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
+        {isOpen ? <X size={18} /> : <Menu size={18} />}
       </button>
       
       {/* Sidebar container */}
       <aside
         className={cn(
-          "fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-in-out glass",
-          "border-r border-border/30 shadow-soft flex flex-col",
-          isOpen ? "w-64" : "w-0 md:w-20",
+          "fixed left-0 top-0 h-full z-40 transition-all duration-200 ease-out",
+          "bg-card border-r border-border/50 flex flex-col",
+          isOpen ? "w-60" : "w-0 md:w-[68px]",
           "overflow-hidden"
         )}
       >
         {/* Logo */}
         <div 
           className={cn(
-            "h-16 flex items-center px-6 border-b border-border/30",
+            "h-16 flex items-center px-5 border-b border-border/50",
             !isOpen && "md:justify-center md:px-0"
           )}
         >
           <span className={cn(
-            "font-semibold text-primary text-xl tracking-tight",
+            "font-semibold text-foreground text-base tracking-tight",
             !isOpen && "md:hidden"
           )}>
             GESTION BNB LYON
           </span>
           {!isOpen && (
-            <span className="hidden md:block text-primary">
-              <LayoutDashboard size={24} />
+            <span className="hidden md:block text-foreground">
+              <LayoutDashboard size={20} />
             </span>
           )}
         </div>
@@ -289,11 +290,11 @@ export function Sidebar() {
         {/* User info */}
         {user && (
           <div className={cn(
-            "py-3 px-4 border-b border-border/30",
-            !isOpen && "md:flex md:justify-center md:py-3"
+            "py-4 px-4 border-b border-border/50",
+            !isOpen && "md:flex md:justify-center md:py-4"
           )}>
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+              <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
                 {user.avatar ? (
                   <img 
                     src={user.avatar}
@@ -301,13 +302,13 @@ export function Sidebar() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="font-medium text-primary">
+                  <span className="font-medium text-muted-foreground text-sm">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
-              <div className={cn("flex-1 truncate", !isOpen && "md:hidden")}>
-                <p className="text-sm font-medium">{user.name}</p>
+              <div className={cn("flex-1 min-w-0", !isOpen && "md:hidden")}>
+                <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
                 <p className="text-xs text-muted-foreground">{user.role}</p>
               </div>
             </div>
@@ -315,7 +316,7 @@ export function Sidebar() {
         )}
         
         {/* Navigation sections with drag and drop */}
-        <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-2">
+        <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -342,8 +343,8 @@ export function Sidebar() {
               {activeSection ? (
                 <div className={cn(
                   "flex items-center gap-2 px-3 py-2 rounded-lg",
-                  "bg-card shadow-lg border border-border",
-                  "text-xs font-semibold tracking-wider",
+                  "bg-card shadow-elevated",
+                  "text-xs font-medium",
                   activeSection.colorClass
                 )}>
                   <span>{activeSection.title}</span>
@@ -358,16 +359,14 @@ export function Sidebar() {
           <button
             onClick={logout}
             className={cn(
-              "flex items-center w-full gap-3 px-2 py-2.5 rounded-lg transition-all duration-200",
-              "text-destructive hover:bg-destructive/10",
+              "flex items-center w-full gap-3 px-3 py-2.5 rounded-lg transition-all duration-150",
+              "text-muted-foreground hover:text-foreground hover:bg-muted/50",
               !isOpen && "md:justify-center"
             )}
           >
-            <div className="p-1.5 rounded-md bg-destructive/10">
-              <LogOut size={16} />
-            </div>
+            <LogOut size={18} />
             <span className={cn(
-              "font-medium text-sm",
+              "text-sm",
               !isOpen && "md:hidden"
             )}>
               Déconnexion
@@ -376,15 +375,15 @@ export function Sidebar() {
         </div>
         
         {/* Collapse button (desktop only) */}
-        <div className="hidden md:flex border-t border-border/30 p-3 justify-center">
+        <div className="hidden md:flex border-t border-border/50 p-3 justify-center">
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted/50"
           >
-            <ChevronRight 
-              size={18} 
+            <ChevronLeft 
+              size={16} 
               className={cn(
-                "transition-transform duration-300",
+                "transition-transform duration-200",
                 !isOpen && "rotate-180"
               )} 
             />

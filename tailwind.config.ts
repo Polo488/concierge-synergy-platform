@@ -13,7 +13,7 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: '1.5rem',
+      padding: '2rem',
       screens: {
         '2xl': '1400px'
       }
@@ -53,6 +53,29 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))'
         },
+        // Status colors
+        status: {
+          success: {
+            DEFAULT: 'hsl(var(--status-success))',
+            light: 'hsl(var(--status-success-light))'
+          },
+          warning: {
+            DEFAULT: 'hsl(var(--status-warning))',
+            light: 'hsl(var(--status-warning-light))'
+          },
+          error: {
+            DEFAULT: 'hsl(var(--status-error))',
+            light: 'hsl(var(--status-error-light))'
+          },
+          info: {
+            DEFAULT: 'hsl(var(--status-info))',
+            light: 'hsl(var(--status-info-light))'
+          },
+          pending: {
+            DEFAULT: 'hsl(var(--status-pending))',
+            light: 'hsl(var(--status-pending-light))'
+          }
+        },
         // Navigation section colors
         nav: {
           pilotage: {
@@ -82,6 +105,13 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)'
       },
+      fontSize: {
+        '2xs': ['0.625rem', { lineHeight: '0.875rem' }],
+      },
+      spacing: {
+        '18': '4.5rem',
+        '22': '5.5rem',
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -100,20 +130,21 @@ export default {
           to: { transform: "translateX(0)" },
         },
         "slide-up": {
-          from: { transform: "translateY(20px)", opacity: "0" },
+          from: { transform: "translateY(8px)", opacity: "0" },
           to: { transform: "translateY(0)", opacity: "1" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.3s ease-out",
-        "slide-in": "slide-in 0.3s ease-out",
-        "slide-up": "slide-up 0.3s ease-out",
+        "fade-in": "fade-in 0.2s ease-out",
+        "slide-in": "slide-in 0.2s ease-out",
+        "slide-up": "slide-up 0.2s ease-out",
       },
       boxShadow: {
-        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-        'card': '0 8px 16px -2px rgba(0, 0, 0, 0.05)',
+        'soft': '0 1px 3px 0 hsla(220, 13%, 18%, 0.04), 0 1px 2px -1px hsla(220, 13%, 18%, 0.04)',
+        'card': '0 2px 8px -2px hsla(220, 13%, 18%, 0.06)',
+        'elevated': '0 4px 16px -4px hsla(220, 13%, 18%, 0.1)',
       }
     }
   },

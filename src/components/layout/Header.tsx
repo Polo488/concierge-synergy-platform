@@ -71,34 +71,34 @@ export function Header() {
     <>
       <header className={cn(
         "sticky top-0 z-30 w-full transition-all duration-200",
-        scrolled ? "glass shadow-sm border-b border-border/30" : "bg-transparent"
+        scrolled ? "bg-background/95 backdrop-blur-sm border-b border-border/50" : "bg-transparent"
       )}>
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-2 w-full max-w-md">
+        <div className="container mx-auto flex h-14 items-center justify-between px-4">
+          <div className="flex items-center gap-2 w-full max-w-sm">
             <Search className="text-muted-foreground h-4 w-4" />
             <Input 
               placeholder={t('search')} 
-              className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm"
+              className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground/60"
             />
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost" className="rounded-full">
-                  <Globe className="h-5 w-5" />
+                <Button size="icon" variant="ghost" className="rounded-full h-9 w-9">
+                  <Globe className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="min-w-[120px]">
                 <DropdownMenuItem 
                   onClick={() => setLanguage('fr')}
-                  className={language === 'fr' ? 'bg-muted' : ''}
+                  className={cn("text-sm", language === 'fr' && 'bg-muted')}
                 >
                   Français
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLanguage('en')}
-                  className={language === 'en' ? 'bg-muted' : ''}
+                  className={cn("text-sm", language === 'en' && 'bg-muted')}
                 >
                   English
                 </DropdownMenuItem>
@@ -116,43 +116,40 @@ export function Header() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar>
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                    <Avatar className="h-8 w-8">
                       {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
-                      <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback className="bg-muted text-muted-foreground text-sm">
+                        {user.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>
-                    <div>
-                      <p className="font-medium">{user.name}</p>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">{user.name}</p>
                       <p className="text-xs text-muted-foreground">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <div className="flex items-center">
-                      <span className="text-sm font-medium mr-2">{t('header.role')}:</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
-                        user.role === 'employee' ? 'bg-blue-100 text-blue-800' :
-                        user.role === 'maintenance' ? 'bg-green-100 text-green-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
+                  <DropdownMenuItem className="text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">{t('header.role')}:</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                         {getRoleConfig(user.role).name}
                       </span>
                     </div>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout}>
+                  <DropdownMenuItem onClick={logout} className="text-sm">
                     {t('header.logout')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button size="icon" variant="ghost" className="rounded-full">
-                <User className="h-5 w-5" />
+              <Button size="icon" variant="ghost" className="rounded-full h-9 w-9">
+                <User className="h-4 w-4 text-muted-foreground" />
               </Button>
             )}
           </div>
