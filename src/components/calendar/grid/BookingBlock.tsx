@@ -16,11 +16,11 @@ interface BookingBlockProps {
 
 // Channel colors - Premium, slightly desaturated tones
 const CHANNEL_COLORS: Record<string, { bg: string; text: string }> = {
-  airbnb: { bg: 'hsl(0 72% 58%)', text: 'white' },      // Soft Airbnb red
-  booking: { bg: 'hsl(217 80% 52%)', text: 'white' },   // Calm Booking blue
-  vrbo: { bg: 'hsl(220 14% 50%)', text: 'white' },      // Neutral
-  direct: { bg: 'hsl(152 40% 45%)', text: 'white' },    // Soft green
-  other: { bg: 'hsl(220 14% 50%)', text: 'white' },     // Neutral
+  airbnb: { bg: 'hsl(0 72% 58%)', text: 'white' },
+  booking: { bg: 'hsl(217 80% 52%)', text: 'white' },
+  vrbo: { bg: 'hsl(220 14% 50%)', text: 'white' },
+  direct: { bg: 'hsl(152 40% 45%)', text: 'white' },
+  other: { bg: 'hsl(220 14% 50%)', text: 'white' },
 };
 
 // Past bookings - muted grey
@@ -46,7 +46,8 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   const cellWidth = 40;
   const halfCell = cellWidth / 2;
   
-  // Calculate width and offset based on check-in/out visibility
+  // PURE RECTANGLE POSITIONING
+  // Arrival/departure handled by position, NOT by shape
   const hasVisibleCheckIn = isCheckInDay && !isStartTruncated;
   const hasVisibleCheckOut = isCheckOutDay && !isEndTruncated;
   
@@ -54,8 +55,9 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   let leftOffset = 0;
   
   if (hasVisibleCheckIn && hasVisibleCheckOut) {
-    // Both visible: start at half, end at half
-    width = visibleDays * cellWidth;
+    // Both visible: start at half (arrival), end at half (departure)
+    // This leaves room for same-day arrivals/departures
+    width = (visibleDays - 1) * cellWidth + halfCell;
     leftOffset = halfCell;
   } else if (hasVisibleCheckIn && !hasVisibleCheckOut) {
     // Only check-in visible: start at half, go to edge
@@ -63,7 +65,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
     leftOffset = halfCell;
   } else if (!hasVisibleCheckIn && hasVisibleCheckOut) {
     // Only check-out visible: start at edge, end at half
-    width = visibleDays * cellWidth + halfCell;
+    width = (visibleDays - 1) * cellWidth + halfCell;
     leftOffset = 0;
   } else {
     // Neither visible (spans full width)
@@ -71,15 +73,10 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
     leftOffset = 0;
   }
 
-  // Bevel configuration for diagonal cuts
-  const hasLeftBevel = isCheckInDay && !isStartTruncated;
-  const hasRightBevel = isCheckOutDay && !isEndTruncated;
-  const bevelSize = 11;
-
   // Smart text truncation
   const getDisplayName = (): string => {
     const name = booking.guestName || '?';
-    const availableWidth = width - 32; // Account for icon + padding
+    const availableWidth = width - 32;
     
     if (availableWidth < 30) {
       return name.charAt(0);
@@ -106,19 +103,19 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
       className={cn(
         "absolute top-1 bottom-1 z-10 flex items-center cursor-pointer",
         "booking-block",
+        "rounded-lg", // Pure rectangle with soft rounded corners
         "transition-all duration-200 ease-out",
-        "hover:z-20"
+        "hover:z-20 hover:shadow-lg"
       )}
       style={{
         width: `${Math.max(width, 20)}px`,
         left: `${leftOffset}px`,
         backgroundColor: colors.bg,
-        clipPath: createBevelClipPath(hasLeftBevel, hasRightBevel, bevelSize),
-        borderRadius: getBorderRadius(hasLeftBevel, hasRightBevel),
+        boxShadow: '0 2px 8px -2px rgba(0,0,0,0.12), 0 1px 4px -1px rgba(0,0,0,0.08)',
       }}
       title={`${booking.guestName}${booking.nightlyRate ? ` • ${booking.nightlyRate}€/nuit` : ''}`}
     >
-      {/* Content container with proper padding */}
+      {/* Content container */}
       <div className="flex items-center w-full h-full px-2 gap-1.5 overflow-hidden">
         {/* Channel icon */}
         <ChannelIcon 
@@ -127,9 +124,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
         />
         
         {/* Guest name */}
-        <span 
-          className="text-xs font-medium truncate flex-1 min-w-0 leading-tight text-white"
-        >
+        <span className="text-xs font-medium truncate flex-1 min-w-0 leading-tight text-white">
           {getDisplayName()}
         </span>
         
@@ -143,33 +138,3 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
     </div>
   );
 };
-
-// Creates clean diagonal bevel clip paths
-function createBevelClipPath(hasLeftBevel: boolean, hasRightBevel: boolean, bevelSize: number): string {
-  const cut = `${bevelSize}px`;
-  
-  if (hasLeftBevel && hasRightBevel) {
-    // Both sides beveled: parallelogram shape
-    return `polygon(${cut} 0%, calc(100% - ${cut}) 0%, 100% 100%, 0% 100%)`;
-  } else if (hasLeftBevel) {
-    // Only left beveled
-    return `polygon(${cut} 0%, 100% 0%, 100% 100%, 0% 100%)`;
-  } else if (hasRightBevel) {
-    // Only right beveled
-    return `polygon(0% 0%, calc(100% - ${cut}) 0%, 100% 100%, 0% 100%)`;
-  }
-  
-  return 'none';
-}
-
-// Returns appropriate border radius based on bevels
-function getBorderRadius(hasLeftBevel: boolean, hasRightBevel: boolean): string {
-  if (hasLeftBevel && hasRightBevel) {
-    return '0';
-  } else if (hasLeftBevel) {
-    return '0 10px 10px 0';
-  } else if (hasRightBevel) {
-    return '10px 0 0 10px';
-  }
-  return '10px';
-}
