@@ -81,7 +81,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
           onDayClick={onDayClick}
         />
         
-        <div className="divide-y divide-border/10">
+        <div className="divide-y divide-border/20">
           {properties.length === 0 ? (
             <div className="flex items-center justify-center py-20 text-muted-foreground">
               Aucun logement trouvé
