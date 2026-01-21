@@ -10,6 +10,8 @@ import { NewMaintenanceButton } from '@/components/maintenance/NewMaintenanceBut
 import { MaintenanceTabs } from '@/components/maintenance/MaintenanceTabs';
 import { MaintenanceDialogs } from '@/components/maintenance/MaintenanceDialogs';
 import { useMaintenanceContext } from '@/contexts/MaintenanceContext';
+import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
+import { TutorialButton } from '@/components/tutorial/TutorialButton';
 
 // This component wraps the MaintenanceContent with the MaintenanceProvider context
 const Maintenance = () => {
@@ -47,11 +49,15 @@ const MaintenanceContent = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Maintenance</h1>
-        <p className="text-muted-foreground mt-1">
-          Gestion des interventions techniques dans les logements
-        </p>
+      <TutorialTrigger moduleId="maintenance" />
+      <div className="flex items-center justify-between" data-tutorial="maintenance-header">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Maintenance</h1>
+          <p className="text-muted-foreground mt-1">
+            Gestion des interventions techniques dans les logements
+          </p>
+        </div>
+        <TutorialButton moduleId="maintenance" />
       </div>
       
       {/* Statistics */}
@@ -68,8 +74,12 @@ const MaintenanceContent = () => {
         actions={<NewMaintenanceButton />}
       >
         <div className="space-y-4">
-          <MaintenanceSearchFilters />
-          <MaintenanceTabs onStateChange={handleTabsStateChange} />
+          <div data-tutorial="maintenance-filters">
+            <MaintenanceSearchFilters />
+          </div>
+          <div data-tutorial="maintenance-card">
+            <MaintenanceTabs onStateChange={handleTabsStateChange} />
+          </div>
         </div>
       </DashboardCard>
 

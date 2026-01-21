@@ -14,6 +14,8 @@ import { PricingView } from '@/components/calendar/pricing/PricingView';
 import { PropertyMonthView } from '@/components/calendar/PropertyMonthView';
 import { PriceEditModal } from '@/components/calendar/PriceEditModal';
 import { InsightsPanel } from '@/components/insights/InsightsPanel';
+import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
+import { TutorialButton } from '@/components/tutorial/TutorialButton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -256,6 +258,8 @@ const CalendarPage = () => {
 
   return (
     <div className="h-full flex flex-col gap-4 p-6">
+      <TutorialTrigger moduleId="calendar" />
+      
       {/* Page header with tabs */}
       <div className="flex items-center justify-between">
         <div className="space-y-1">
@@ -266,6 +270,7 @@ const CalendarPage = () => {
         </div>
         
         <div className="flex items-center gap-4">
+          <TutorialButton moduleId="calendar" />
           {/* Selection actions for global view */}
           {hasSelection && activeTab === 'planning' && !selectedPropertyForMonth && (
             <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/20 rounded-lg animate-in fade-in slide-in-from-right-2">

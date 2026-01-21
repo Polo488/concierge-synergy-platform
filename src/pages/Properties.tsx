@@ -11,6 +11,8 @@ import { PropertyCard } from '@/components/properties/PropertyCard';
 import { PropertyDetailsDialog } from '@/components/properties/PropertyDetailsDialog';
 import { RepasseEvent } from '@/components/properties/details/PropertyRepasseTab';
 import { CleaningTask, CleaningIssue } from '@/types/cleaning';
+import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
+import { TutorialButton } from '@/components/tutorial/TutorialButton';
 
 const Properties = () => {
   const [properties] = useState(generateProperties);
@@ -150,11 +152,15 @@ const Properties = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Logements</h1>
-        <p className="text-muted-foreground mt-1">
-          Gestion des biens et des propriétaires
-        </p>
+      <TutorialTrigger moduleId="properties" />
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Logements</h1>
+          <p className="text-muted-foreground mt-1">
+            Gestion des biens et des propriétaires
+          </p>
+        </div>
+        <TutorialButton moduleId="properties" />
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
