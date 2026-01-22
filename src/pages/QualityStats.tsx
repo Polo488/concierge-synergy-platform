@@ -12,9 +12,10 @@ import { PropertyDetailsDialog } from '@/components/quality/PropertyDetailsDialo
 import { AgentDetailsDialog } from '@/components/quality/AgentDetailsDialog';
 import { StatsOverview } from '@/components/stats/StatsOverview';
 import { StatsFinance } from '@/components/stats/StatsFinance';
+import { LocationAnalysis } from '@/components/stats/location';
 import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
-import { LayoutDashboard, Sparkles, Euro, BarChart3, Building, Users } from 'lucide-react';
+import { LayoutDashboard, Sparkles, Euro, BarChart3, Building, Users, MapPin } from 'lucide-react';
 
 const QualityStats = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -83,6 +84,10 @@ const QualityStats = () => {
           <TabsTrigger value="finance" className="gap-2">
             <Euro className="h-4 w-4" />
             Finance
+          </TabsTrigger>
+          <TabsTrigger value="location" className="gap-2">
+            <MapPin className="h-4 w-4" />
+            Analyse géographique
           </TabsTrigger>
         </TabsList>
 
@@ -168,6 +173,11 @@ const QualityStats = () => {
             channelData={financeData.channelData}
             comparison={financeData.comparison}
           />
+        </TabsContent>
+
+        {/* Location Analysis Tab */}
+        <TabsContent value="location" className="space-y-6 mt-6">
+          <LocationAnalysis />
         </TabsContent>
       </Tabs>
 
