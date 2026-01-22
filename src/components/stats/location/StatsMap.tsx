@@ -1,12 +1,9 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
+// Stats Map Component - Using native Leaflet (not react-leaflet)
+import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { LocationProperty, ViewportBounds, HeatmapLayer, HeatmapPoint, PropertyGroup } from '@/types/location';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ExternalLink, Calendar, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // Fix Leaflet default marker icon issue
@@ -45,86 +42,6 @@ function createMarkerIcon(color: string = '#3b82f6'): L.DivIcon {
   });
 }
 
-// Map events handler component
-function MapEventHandler({ onViewportChange }: { onViewportChange: (bounds: ViewportBounds) => void }) {
-  const map = useMapEvents({
-    moveend: () => {
-      const bounds = map.getBounds();
-      onViewportChange({
-        north: bounds.getNorth(),
-        south: bounds.getSouth(),
-        east: bounds.getEast(),
-        west: bounds.getWest(),
-      });
-    },
-    zoomend: () => {
-      const bounds = map.getBounds();
-      onViewportChange({
-        north: bounds.getNorth(),
-        south: bounds.getSouth(),
-        east: bounds.getEast(),
-        west: bounds.getWest(),
-      });
-    },
-  });
-
-  // Get initial bounds
-  useEffect(() => {
-    const bounds = map.getBounds();
-    onViewportChange({
-      north: bounds.getNorth(),
-      south: bounds.getSouth(),
-      east: bounds.getEast(),
-      west: bounds.getWest(),
-    });
-  }, [map, onViewportChange]);
-
-  return null;
-}
-
-// Heatmap layer component
-function HeatmapLayerComponent({ data, layer }: { data: HeatmapPoint[]; layer: HeatmapLayer }) {
-  const map = useMap();
-  const heatLayerRef = useRef<any>(null);
-
-  useEffect(() => {
-    if (layer === 'properties' || data.length === 0) {
-      if (heatLayerRef.current) {
-        map.removeLayer(heatLayerRef.current);
-        heatLayerRef.current = null;
-      }
-      return;
-    }
-
-    // Dynamic import of leaflet.heat
-    import('leaflet.heat').then(() => {
-      if (heatLayerRef.current) {
-        map.removeLayer(heatLayerRef.current);
-      }
-
-      const heatData = data.map(point => [point.lat, point.lng, point.intensity] as [number, number, number]);
-      
-      // @ts-ignore - leaflet.heat adds this method
-      heatLayerRef.current = L.heatLayer(heatData, {
-        radius: 35,
-        blur: 25,
-        maxZoom: 12,
-        max: 1,
-        gradient: getGradientForLayer(layer),
-      }).addTo(map);
-    });
-
-    return () => {
-      if (heatLayerRef.current) {
-        map.removeLayer(heatLayerRef.current);
-        heatLayerRef.current = null;
-      }
-    };
-  }, [map, data, layer]);
-
-  return null;
-}
-
 function getGradientForLayer(layer: HeatmapLayer): Record<number, string> {
   switch (layer) {
     case 'revenue':
@@ -141,68 +58,48 @@ function getGradientForLayer(layer: HeatmapLayer): Record<number, string> {
   }
 }
 
-// Property popup content
-function PropertyPopup({ property }: { property: LocationProperty }) {
-  return (
-    <div className="min-w-[220px] p-1">
-      <div className="flex items-start justify-between gap-2 mb-2">
+// Create popup content HTML
+function createPopupContent(property: LocationProperty): string {
+  const groupBadge = property.group 
+    ? `<span style="background-color: ${property.group.color}20; color: ${property.group.color}; font-size: 10px; padding: 2px 6px; border-radius: 4px;">${property.group.name}</span>`
+    : '';
+  
+  return `
+    <div style="min-width: 200px; font-family: Inter, sans-serif;">
+      <div style="display: flex; justify-content: space-between; align-items: start; gap: 8px; margin-bottom: 8px;">
         <div>
-          <h4 className="font-semibold text-sm">{property.name}</h4>
-          <p className="text-xs text-muted-foreground">{property.city}</p>
+          <h4 style="margin: 0; font-size: 14px; font-weight: 600;">${property.name}</h4>
+          <p style="margin: 2px 0 0; font-size: 12px; color: #6b7280;">${property.city}</p>
         </div>
-        {property.group && (
-          <Badge 
-            variant="secondary" 
-            className="text-[10px] shrink-0"
-            style={{ backgroundColor: `${property.group.color}20`, color: property.group.color }}
-          >
-            {property.group.name}
-          </Badge>
-        )}
+        ${groupBadge}
       </div>
-      
-      <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-        <div className="bg-muted/50 rounded p-1.5">
-          <span className="text-muted-foreground">Occupation</span>
-          <p className="font-semibold">{property.stats.occupancyRate}%</p>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px;">
+        <div style="background: #f3f4f6; padding: 6px; border-radius: 4px;">
+          <span style="color: #6b7280;">Occupation</span>
+          <p style="margin: 2px 0 0; font-weight: 600;">${property.stats.occupancyRate}%</p>
         </div>
-        <div className="bg-muted/50 rounded p-1.5">
-          <span className="text-muted-foreground">CA</span>
-          <p className="font-semibold">{property.stats.revenue.toLocaleString()}€</p>
+        <div style="background: #f3f4f6; padding: 6px; border-radius: 4px;">
+          <span style="color: #6b7280;">CA</span>
+          <p style="margin: 2px 0 0; font-weight: 600;">${property.stats.revenue.toLocaleString()}€</p>
         </div>
-        <div className="bg-muted/50 rounded p-1.5">
-          <span className="text-muted-foreground">Nuits</span>
-          <p className="font-semibold">{property.stats.bookedNights}</p>
+        <div style="background: #f3f4f6; padding: 6px; border-radius: 4px;">
+          <span style="color: #6b7280;">Nuits</span>
+          <p style="margin: 2px 0 0; font-weight: 600;">${property.stats.bookedNights}</p>
         </div>
-        <div className="bg-muted/50 rounded p-1.5">
-          <span className="text-muted-foreground">Note</span>
-          <p className="font-semibold">{property.stats.avgRating}/5</p>
+        <div style="background: #f3f4f6; padding: 6px; border-radius: 4px;">
+          <span style="color: #6b7280;">Note</span>
+          <p style="margin: 2px 0 0; font-weight: 600;">${property.stats.avgRating}/5</p>
         </div>
-      </div>
-      
-      <div className="flex gap-1">
-        <Button size="sm" variant="outline" className="flex-1 h-7 text-xs">
-          <ExternalLink className="h-3 w-3 mr-1" />
-          Détails
-        </Button>
-        <Button size="sm" variant="outline" className="flex-1 h-7 text-xs">
-          <Calendar className="h-3 w-3 mr-1" />
-          Calendrier
-        </Button>
-        <Button size="sm" variant="outline" className="flex-1 h-7 text-xs">
-          <BarChart3 className="h-3 w-3 mr-1" />
-          Stats
-        </Button>
       </div>
     </div>
-  );
+  `;
 }
 
-// Heatmap legend
+// Heatmap legend component
 function HeatmapLegend({ layer }: { layer: HeatmapLayer }) {
   if (layer === 'properties') return null;
 
-  const legendConfig = {
+  const legendConfig: Record<string, { label: string; low: string; high: string }> = {
     'booked-nights': { label: 'Nuits réservées', low: 'Peu', high: 'Beaucoup' },
     'occupancy': { label: 'Taux d\'occupation', low: '0%', high: '100%' },
     'revenue': { label: 'Chiffre d\'affaires', low: 'Faible', high: 'Élevé' },
@@ -213,7 +110,7 @@ function HeatmapLegend({ layer }: { layer: HeatmapLayer }) {
   const config = legendConfig[layer];
   if (!config) return null;
 
-  const gradientColors = {
+  const gradientColors: Record<string, string> = {
     'revenue': 'from-amber-100 via-amber-400 to-amber-600',
     'occupancy': 'from-emerald-100 via-emerald-400 to-emerald-600',
     'booked-nights': 'from-blue-100 via-blue-400 to-blue-600',
@@ -243,49 +140,122 @@ export function StatsMap({
   activeLayer, 
   heatmapData, 
   onViewportChange,
-  groups 
 }: StatsMapProps) {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markersLayerRef = useRef<L.LayerGroup | null>(null);
+  const heatLayerRef = useRef<any>(null);
+
   // France center
-  const defaultCenter: [number, number] = [46.603354, 1.888334];
+  const defaultCenter: L.LatLngExpression = [46.603354, 1.888334];
   const defaultZoom = 6;
 
-  // Calculate bounds to fit all properties
-  const bounds = properties.length > 0
-    ? L.latLngBounds(properties.map(p => [p.lat, p.lng] as [number, number]))
-    : null;
+  // Initialize map
+  useEffect(() => {
+    if (!mapContainerRef.current || mapRef.current) return;
+
+    const map = L.map(mapContainerRef.current, {
+      center: defaultCenter,
+      zoom: defaultZoom,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    markersLayerRef.current = L.layerGroup().addTo(map);
+    mapRef.current = map;
+
+    // Set up viewport change handlers
+    const handleViewportChange = () => {
+      const bounds = map.getBounds();
+      onViewportChange({
+        north: bounds.getNorth(),
+        south: bounds.getSouth(),
+        east: bounds.getEast(),
+        west: bounds.getWest(),
+      });
+    };
+
+    map.on('moveend', handleViewportChange);
+    map.on('zoomend', handleViewportChange);
+
+    // Initial viewport
+    handleViewportChange();
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, [onViewportChange]);
+
+  // Update markers when properties or activeLayer changes
+  useEffect(() => {
+    if (!mapRef.current || !markersLayerRef.current) return;
+
+    // Clear existing markers
+    markersLayerRef.current.clearLayers();
+
+    // Only show markers when in properties layer
+    if (activeLayer !== 'properties') return;
+
+    // Add property markers
+    properties.forEach(property => {
+      const marker = L.marker([property.lat, property.lng], {
+        icon: createMarkerIcon(property.group?.color),
+      });
+
+      marker.bindPopup(createPopupContent(property), {
+        maxWidth: 280,
+      });
+
+      markersLayerRef.current?.addLayer(marker);
+    });
+
+    // Fit bounds if we have properties
+    if (properties.length > 0) {
+      const bounds = L.latLngBounds(properties.map(p => [p.lat, p.lng] as [number, number]));
+      mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }, [properties, activeLayer]);
+
+  // Update heatmap when data or layer changes
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    // Remove existing heat layer
+    if (heatLayerRef.current) {
+      mapRef.current.removeLayer(heatLayerRef.current);
+      heatLayerRef.current = null;
+    }
+
+    // Only show heatmap for non-properties layers
+    if (activeLayer === 'properties' || heatmapData.length === 0) return;
+
+    // Dynamic import of leaflet.heat
+    import('leaflet.heat').then(() => {
+      if (!mapRef.current) return;
+
+      const heatData = heatmapData.map(point => [point.lat, point.lng, point.intensity] as [number, number, number]);
+      
+      // @ts-ignore - leaflet.heat adds this method
+      heatLayerRef.current = L.heatLayer(heatData, {
+        radius: 35,
+        blur: 25,
+        maxZoom: 12,
+        max: 1,
+        gradient: getGradientForLayer(activeLayer),
+      }).addTo(mapRef.current);
+    });
+  }, [heatmapData, activeLayer]);
 
   return (
     <div className="relative h-full w-full rounded-xl overflow-hidden border border-border/30">
-      <MapContainer
-        center={defaultCenter}
-        zoom={defaultZoom}
-        bounds={bounds || undefined}
+      <div 
+        ref={mapContainerRef} 
         className="h-full w-full"
         style={{ background: 'hsl(var(--muted))' }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        
-        <MapEventHandler onViewportChange={onViewportChange} />
-        
-        {/* Heatmap layer */}
-        <HeatmapLayerComponent data={heatmapData} layer={activeLayer} />
-        
-        {/* Property markers */}
-        {activeLayer === 'properties' && properties.map(property => (
-          <Marker
-            key={property.id}
-            position={[property.lat, property.lng]}
-            icon={createMarkerIcon(property.group?.color)}
-          >
-            <Popup>
-              <PropertyPopup property={property} />
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+      />
       
       {/* Heatmap Legend */}
       <HeatmapLegend layer={activeLayer} />
