@@ -92,6 +92,7 @@ const QualityStats = () => {
             activityKpis={overviewData.activityKpis}
             revenueKpis={overviewData.revenueKpis}
             operationsKpis={overviewData.operationsKpis}
+            monthlyComparison={overviewData.monthlyComparison}
           />
         </TabsContent>
 
