@@ -1,4 +1,4 @@
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   CalendarDays, 
@@ -14,7 +14,10 @@ import {
   Sparkles,
   AlertTriangle,
   Wrench,
-  HelpCircle
+  HelpCircle,
+  CheckCircle,
+  XCircle,
+  Minus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +27,7 @@ interface OverviewKPI {
   change?: number;
   tooltip: string;
   icon: React.ElementType;
+  isPriority?: boolean;
 }
 
 interface StatsOverviewProps {
@@ -78,79 +82,205 @@ function formatValue(value: number, type: 'number' | 'percent' | 'currency' | 'r
   }
 }
 
-function KPICard({ kpi, valueType }: { kpi: OverviewKPI; valueType: 'number' | 'percent' | 'currency' | 'rating' | 'days' }) {
+// Performance status based on change
+type PerformanceStatus = 'good' | 'warning' | 'risk' | 'neutral';
+
+function getPerformanceStatus(change: number | undefined, inverse: boolean = false): PerformanceStatus {
+  if (change === undefined || isNaN(change)) return 'neutral';
+  const threshold = inverse ? -change : change;
+  if (threshold >= 5) return 'good';
+  if (threshold >= -5) return 'neutral';
+  if (threshold >= -15) return 'warning';
+  return 'risk';
+}
+
+function PerformanceIndicator({ status }: { status: PerformanceStatus }) {
+  const config = {
+    good: { icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-500/10', label: 'Performant' },
+    warning: { icon: Minus, color: 'text-amber-600', bg: 'bg-amber-500/10', label: 'À surveiller' },
+    risk: { icon: XCircle, color: 'text-red-600', bg: 'bg-red-500/10', label: 'Sous-performant' },
+    neutral: { icon: Minus, color: 'text-muted-foreground', bg: 'bg-muted', label: 'Stable' }
+  };
+  
+  const { icon: Icon, color, bg, label } = config[status];
+  
+  return (
+    <div className={cn("flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full", bg, color)}>
+      <Icon className="h-3 w-3" />
+      {label}
+    </div>
+  );
+}
+
+function PriorityKPICard({ kpi, valueType }: { kpi: OverviewKPI; valueType: 'number' | 'percent' | 'currency' | 'rating' | 'days' }) {
   const Icon = kpi.icon;
   const hasChange = kpi.change !== undefined && !isNaN(kpi.change);
   const isPositive = hasChange && kpi.change > 0;
   const isNegative = hasChange && kpi.change < 0;
   
   return (
-    <Card className="bg-card/50 backdrop-blur-sm border-border/30 hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Icon className="h-4 w-4 text-primary" />
-            </div>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="text-muted-foreground hover:text-foreground">
-                  <HelpCircle className="h-3 w-3" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-xs">
-                <p className="text-xs">{kpi.tooltip}</p>
-              </TooltipContent>
-            </Tooltip>
+    <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 hover:shadow-lg transition-all hover:scale-[1.01]">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-3">
+          <div className="p-2.5 rounded-xl bg-primary/10">
+            <Icon className="h-5 w-5 text-primary" />
           </div>
-          
-          {hasChange && (
-            <div className={cn(
-              "flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full",
-              isPositive && "bg-emerald-500/10 text-emerald-600",
-              isNegative && "bg-red-500/10 text-red-600",
-              !isPositive && !isNegative && "bg-muted text-muted-foreground"
-            )}>
-              {isPositive ? <TrendingUp className="h-3 w-3" /> : isNegative ? <TrendingDown className="h-3 w-3" /> : null}
-              {isPositive && '+'}{kpi.change.toFixed(1)}%
-            </div>
-          )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="text-muted-foreground hover:text-foreground">
+                <HelpCircle className="h-3.5 w-3.5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs">
+              <p className="text-xs">{kpi.tooltip}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
         
-        <div className="mt-3">
-          <p className="text-2xl font-bold tracking-tight">
-            {typeof kpi.value === 'number' ? formatValue(kpi.value, valueType) : kpi.value}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">{kpi.label}</p>
-        </div>
+        <p className="text-3xl font-bold tracking-tight">
+          {typeof kpi.value === 'number' ? formatValue(kpi.value, valueType) : kpi.value}
+        </p>
+        <p className="text-sm text-muted-foreground mt-1">{kpi.label}</p>
+        
+        {hasChange && (
+          <div className={cn(
+            "inline-flex items-center gap-1 text-xs font-medium mt-3 px-2 py-1 rounded-full",
+            isPositive && "bg-emerald-500/10 text-emerald-600",
+            isNegative && "bg-red-500/10 text-red-600",
+            !isPositive && !isNegative && "bg-muted text-muted-foreground"
+          )}>
+            {isPositive ? <TrendingUp className="h-3 w-3" /> : isNegative ? <TrendingDown className="h-3 w-3" /> : null}
+            {isPositive && '+'}{kpi.change.toFixed(1)}% vs mois précédent
+          </div>
+        )}
       </CardContent>
     </Card>
   );
 }
 
-function KPISection({ title, children }: { title: string; children: React.ReactNode }) {
+function SecondaryKPICard({ kpi, valueType }: { kpi: OverviewKPI; valueType: 'number' | 'percent' | 'currency' | 'rating' | 'days' }) {
+  const Icon = kpi.icon;
+  const hasChange = kpi.change !== undefined && !isNaN(kpi.change);
+  const isPositive = hasChange && kpi.change > 0;
+  const isNegative = hasChange && kpi.change < 0;
+  
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{title}</h3>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {children}
+    <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+      <div className="flex items-center gap-3">
+        <div className="p-1.5 rounded-lg bg-background">
+          <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+        </div>
+        <div>
+          <p className="text-sm font-medium">
+            {typeof kpi.value === 'number' ? formatValue(kpi.value, valueType) : kpi.value}
+          </p>
+          <p className="text-xs text-muted-foreground">{kpi.label}</p>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-2">
+        {hasChange && (
+          <span className={cn(
+            "text-xs font-medium",
+            isPositive && "text-emerald-600",
+            isNegative && "text-red-600",
+            !isPositive && !isNegative && "text-muted-foreground"
+          )}>
+            {isPositive && '+'}{kpi.change.toFixed(1)}%
+          </span>
+        )}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button className="text-muted-foreground/50 hover:text-muted-foreground">
+              <HelpCircle className="h-3 w-3" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="left" className="max-w-xs">
+            <p className="text-xs">{kpi.tooltip}</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );
 }
 
+function SectionHeader({ title, icon: Icon, status }: { title: string; icon: React.ElementType; status?: PerformanceStatus }) {
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2">
+        <Icon className="h-4 w-4 text-muted-foreground" />
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{title}</h3>
+      </div>
+      {status && <PerformanceIndicator status={status} />}
+    </div>
+  );
+}
+
 export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: StatsOverviewProps) {
-  const activityCards: { kpi: OverviewKPI; valueType: 'number' | 'percent' | 'currency' | 'rating' | 'days' }[] = [
+  // Calculate overall performance status
+  const overallStatus = getPerformanceStatus(
+    (revenueKpis.monthlyRevenueChange + activityKpis.occupancyRateChange + revenueKpis.revparChange) / 3
+  );
+  
+  const financeStatus = getPerformanceStatus(
+    (revenueKpis.monthlyRevenueChange + revenueKpis.revparChange) / 2
+  );
+  
+  const operationsStatus = getPerformanceStatus(
+    operationsKpis.repasseRateChange,
+    true // Inverse: lower repasse rate is better
+  );
+
+  // Priority KPIs for instant understanding
+  const priorityKpis = [
     {
       kpi: {
-        label: 'Réservations',
+        label: 'Réservations ce mois',
         value: activityKpis.reservations,
         change: activityKpis.reservationsChange,
         tooltip: 'Nombre total de réservations pour le mois en cours',
-        icon: CalendarDays
+        icon: CalendarDays,
+        isPriority: true
       },
-      valueType: 'number'
+      valueType: 'number' as const
     },
+    {
+      kpi: {
+        label: "Taux d'occupation",
+        value: activityKpis.occupancyRate,
+        change: activityKpis.occupancyRateChange,
+        tooltip: 'Pourcentage de nuits occupées par rapport aux nuits disponibles',
+        icon: Percent,
+        isPriority: true
+      },
+      valueType: 'percent' as const
+    },
+    {
+      kpi: {
+        label: 'Chiffre d\'affaires',
+        value: revenueKpis.monthlyRevenue,
+        change: revenueKpis.monthlyRevenueChange,
+        tooltip: 'Chiffre d\'affaires total généré ce mois',
+        icon: Euro,
+        isPriority: true
+      },
+      valueType: 'currency' as const
+    },
+    {
+      kpi: {
+        label: 'RevPAR',
+        value: revenueKpis.revpar,
+        change: revenueKpis.revparChange,
+        tooltip: 'Revenu par nuit disponible = Taux occupation × ADR',
+        icon: BarChart3,
+        isPriority: true
+      },
+      valueType: 'currency' as const
+    }
+  ];
+
+  // Secondary activity KPIs
+  const secondaryActivityKpis = [
     {
       kpi: {
         label: 'Nuits réservées',
@@ -159,17 +289,7 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: Sta
         tooltip: 'Nombre total de nuits réservées ce mois',
         icon: Moon
       },
-      valueType: 'number'
-    },
-    {
-      kpi: {
-        label: "Taux d'occupation",
-        value: activityKpis.occupancyRate,
-        change: activityKpis.occupancyRateChange,
-        tooltip: 'Pourcentage de nuits occupées par rapport aux nuits disponibles',
-        icon: Percent
-      },
-      valueType: 'percent'
+      valueType: 'number' as const
     },
     {
       kpi: {
@@ -179,7 +299,7 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: Sta
         tooltip: 'Durée moyenne des séjours en jours',
         icon: Clock
       },
-      valueType: 'days'
+      valueType: 'days' as const
     },
     {
       kpi: {
@@ -189,21 +309,12 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: Sta
         tooltip: 'Délai moyen entre la réservation et l\'arrivée',
         icon: Calendar
       },
-      valueType: 'days'
+      valueType: 'days' as const
     }
   ];
 
-  const revenueCards: { kpi: OverviewKPI; valueType: 'number' | 'percent' | 'currency' | 'rating' | 'days' }[] = [
-    {
-      kpi: {
-        label: 'CA du mois',
-        value: revenueKpis.monthlyRevenue,
-        change: revenueKpis.monthlyRevenueChange,
-        tooltip: 'Chiffre d\'affaires total généré ce mois',
-        icon: Euro
-      },
-      valueType: 'currency'
-    },
+  // Secondary revenue KPIs
+  const secondaryRevenueKpis = [
     {
       kpi: {
         label: 'Revenu moy. / séjour',
@@ -212,31 +323,22 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: Sta
         tooltip: 'Revenu moyen par réservation',
         icon: Bed
       },
-      valueType: 'currency'
+      valueType: 'currency' as const
     },
     {
       kpi: {
-        label: 'Revenu moy. / nuit',
+        label: 'ADR (Revenu moy. / nuit)',
         value: revenueKpis.avgRevenuePerNight,
         change: revenueKpis.avgRevenuePerNightChange,
-        tooltip: 'Revenu moyen par nuit réservée (ADR)',
+        tooltip: 'Average Daily Rate - Revenu moyen par nuit réservée',
         icon: TrendingUp
       },
-      valueType: 'currency'
-    },
-    {
-      kpi: {
-        label: 'RevPAR',
-        value: revenueKpis.revpar,
-        change: revenueKpis.revparChange,
-        tooltip: 'Revenu par nuit disponible = Taux occupation × ADR',
-        icon: BarChart3
-      },
-      valueType: 'currency'
+      valueType: 'currency' as const
     }
   ];
 
-  const operationsCards: { kpi: OverviewKPI; valueType: 'number' | 'percent' | 'currency' | 'rating' | 'days' }[] = [
+  // Operations KPIs
+  const operationsKpisList = [
     {
       kpi: {
         label: 'Ménages effectués',
@@ -245,17 +347,17 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: Sta
         tooltip: 'Nombre de ménages réalisés ce mois',
         icon: Sparkles
       },
-      valueType: 'number'
+      valueType: 'number' as const
     },
     {
       kpi: {
         label: 'Taux de repasse',
         value: operationsKpis.repasseRate,
         change: operationsKpis.repasseRateChange,
-        tooltip: 'Pourcentage de ménages ayant nécessité une repasse',
+        tooltip: 'Pourcentage de ménages ayant nécessité une repasse (négatif = amélioration)',
         icon: AlertTriangle
       },
-      valueType: 'percent'
+      valueType: 'percent' as const
     },
     {
       kpi: {
@@ -265,46 +367,76 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: Sta
         tooltip: 'Note moyenne attribuée aux ménages (sur 5)',
         icon: BarChart3
       },
-      valueType: 'rating'
+      valueType: 'rating' as const
     },
     {
       kpi: {
         label: 'Incidents',
         value: operationsKpis.incidentsCount,
         change: operationsKpis.incidentsCountChange,
-        tooltip: 'Nombre d\'incidents ménage et maintenance ce mois',
+        tooltip: 'Nombre d\'incidents ménage et maintenance ce mois (négatif = amélioration)',
         icon: Wrench
       },
-      valueType: 'number'
+      valueType: 'number' as const
     }
   ];
 
   return (
-    <div className="space-y-6" data-tutorial="stats-overview">
+    <div className="space-y-8" data-tutorial="stats-overview">
+      {/* Header with overall status */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Snapshot mensuel</h2>
-          <p className="text-sm text-muted-foreground">Vision instantanée du mois en cours</p>
+          <h2 className="text-lg font-semibold">Ce mois-ci</h2>
+          <p className="text-sm text-muted-foreground">Snapshot instantané de votre performance</p>
         </div>
+        <PerformanceIndicator status={overallStatus} />
       </div>
 
-      <KPISection title="Activité">
-        {activityCards.map((card, idx) => (
-          <KPICard key={idx} kpi={card.kpi} valueType={card.valueType} />
+      {/* Priority KPIs - Top 4 for instant understanding */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {priorityKpis.map((item, idx) => (
+          <PriorityKPICard key={idx} kpi={item.kpi} valueType={item.valueType} />
         ))}
-      </KPISection>
+      </div>
 
-      <KPISection title="Revenus">
-        {revenueCards.map((card, idx) => (
-          <KPICard key={idx} kpi={card.kpi} valueType={card.valueType} />
-        ))}
-      </KPISection>
+      {/* Detailed sections in 3 columns */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Activity Section */}
+        <Card className="bg-card/50 backdrop-blur-sm border-border/30">
+          <CardHeader className="pb-2">
+            <SectionHeader title="Activité" icon={CalendarDays} />
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {secondaryActivityKpis.map((item, idx) => (
+              <SecondaryKPICard key={idx} kpi={item.kpi} valueType={item.valueType} />
+            ))}
+          </CardContent>
+        </Card>
 
-      <KPISection title="Opérations">
-        {operationsCards.map((card, idx) => (
-          <KPICard key={idx} kpi={card.kpi} valueType={card.valueType} />
-        ))}
-      </KPISection>
+        {/* Revenue Section */}
+        <Card className="bg-card/50 backdrop-blur-sm border-border/30">
+          <CardHeader className="pb-2">
+            <SectionHeader title="Revenus" icon={Euro} status={financeStatus} />
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {secondaryRevenueKpis.map((item, idx) => (
+              <SecondaryKPICard key={idx} kpi={item.kpi} valueType={item.valueType} />
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Operations Section */}
+        <Card className="bg-card/50 backdrop-blur-sm border-border/30">
+          <CardHeader className="pb-2">
+            <SectionHeader title="Opérations" icon={Sparkles} status={operationsStatus} />
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {operationsKpisList.map((item, idx) => (
+              <SecondaryKPICard key={idx} kpi={item.kpi} valueType={item.valueType} />
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
