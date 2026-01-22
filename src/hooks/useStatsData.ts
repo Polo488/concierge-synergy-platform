@@ -1,40 +1,10 @@
 import { useMemo } from 'react';
-import { subDays, format, startOfMonth, endOfMonth, subMonths, startOfYear, subYears } from 'date-fns';
+import { subDays, format, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-interface OverviewData {
-  activityKpis: {
-    reservations: number;
-    reservationsChange: number;
-    nightsBooked: number;
-    nightsBookedChange: number;
-    occupancyRate: number;
-    occupancyRateChange: number;
-    avgStayDuration: number;
-    avgStayDurationChange: number;
-    avgBookingWindow: number;
-    avgBookingWindowChange: number;
-  };
-  revenueKpis: {
-    monthlyRevenue: number;
-    monthlyRevenueChange: number;
-    avgRevenuePerStay: number;
-    avgRevenuePerStayChange: number;
-    avgRevenuePerNight: number;
-    avgRevenuePerNightChange: number;
-    revpar: number;
-    revparChange: number;
-  };
-  operationsKpis: {
-    cleaningsCount: number;
-    cleaningsCountChange: number;
-    repasseRate: number;
-    repasseRateChange: number;
-    avgCleaningRating: number;
-    avgCleaningRatingChange: number;
-    incidentsCount: number;
-    incidentsCountChange: number;
-  };
+interface SparklinePoint {
+  day: string;
+  value: number;
 }
 
 interface FinanceData {
@@ -66,16 +36,71 @@ interface FinanceData {
   };
 }
 
+interface OverviewData {
+  activityKpis: {
+    reservations: number;
+    reservationsChange: number;
+    reservationsTrend: SparklinePoint[];
+    nightsBooked: number;
+    nightsBookedChange: number;
+    occupancyRate: number;
+    occupancyRateChange: number;
+    occupancyTrend: SparklinePoint[];
+    avgStayDuration: number;
+    avgStayDurationChange: number;
+    avgBookingWindow: number;
+    avgBookingWindowChange: number;
+  };
+  revenueKpis: {
+    monthlyRevenue: number;
+    monthlyRevenueChange: number;
+    revenueTrend: SparklinePoint[];
+    avgRevenuePerStay: number;
+    avgRevenuePerStayChange: number;
+    avgRevenuePerNight: number;
+    avgRevenuePerNightChange: number;
+    revpar: number;
+    revparChange: number;
+    revparTrend: SparklinePoint[];
+  };
+  operationsKpis: {
+    cleaningsCount: number;
+    cleaningsCountChange: number;
+    repasseRate: number;
+    repasseRateChange: number;
+    avgCleaningRating: number;
+    avgCleaningRatingChange: number;
+    incidentsCount: number;
+    incidentsCountChange: number;
+  };
+}
+
+// Generate 7-day sparkline data
+function generateSparklineData(baseValue: number, variance: number, trend: 'up' | 'down' | 'stable' = 'up'): SparklinePoint[] {
+  const today = new Date();
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = subDays(today, 6 - i);
+    const trendFactor = trend === 'up' ? i * 0.03 : trend === 'down' ? -i * 0.03 : 0;
+    const randomVariance = (Math.random() - 0.5) * variance;
+    return {
+      day: format(date, 'EEE', { locale: fr }),
+      value: Math.max(0, baseValue * (1 + trendFactor + randomVariance))
+    };
+  });
+}
+
 // Mock data generation
 function generateMockOverviewData(): OverviewData {
   return {
     activityKpis: {
       reservations: 48,
       reservationsChange: 12.5,
+      reservationsTrend: generateSparklineData(7, 0.4, 'up'),
       nightsBooked: 186,
       nightsBookedChange: 8.3,
       occupancyRate: 78.4,
       occupancyRateChange: 5.2,
+      occupancyTrend: generateSparklineData(78, 0.15, 'up'),
       avgStayDuration: 3.9,
       avgStayDurationChange: -2.1,
       avgBookingWindow: 21.3,
@@ -84,12 +109,14 @@ function generateMockOverviewData(): OverviewData {
     revenueKpis: {
       monthlyRevenue: 42580,
       monthlyRevenueChange: 18.7,
+      revenueTrend: generateSparklineData(6000, 0.3, 'up'),
       avgRevenuePerStay: 887,
       avgRevenuePerStayChange: 5.4,
       avgRevenuePerNight: 229,
       avgRevenuePerNightChange: 9.8,
       revpar: 179,
-      revparChange: 15.2
+      revparChange: 15.2,
+      revparTrend: generateSparklineData(175, 0.2, 'up')
     },
     operationsKpis: {
       cleaningsCount: 52,

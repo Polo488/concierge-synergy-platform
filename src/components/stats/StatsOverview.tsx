@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   CalendarDays, 
@@ -20,6 +20,12 @@ import {
   Minus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ResponsiveContainer, AreaChart, Area } from 'recharts';
+
+interface SparklinePoint {
+  day: string;
+  value: number;
+}
 
 interface OverviewKPI {
   label: string;
@@ -28,16 +34,19 @@ interface OverviewKPI {
   tooltip: string;
   icon: React.ElementType;
   isPriority?: boolean;
+  sparklineData?: SparklinePoint[];
 }
 
 interface StatsOverviewProps {
   activityKpis: {
     reservations: number;
     reservationsChange: number;
+    reservationsTrend: SparklinePoint[];
     nightsBooked: number;
     nightsBookedChange: number;
     occupancyRate: number;
     occupancyRateChange: number;
+    occupancyTrend: SparklinePoint[];
     avgStayDuration: number;
     avgStayDurationChange: number;
     avgBookingWindow: number;
@@ -46,12 +55,14 @@ interface StatsOverviewProps {
   revenueKpis: {
     monthlyRevenue: number;
     monthlyRevenueChange: number;
+    revenueTrend: SparklinePoint[];
     avgRevenuePerStay: number;
     avgRevenuePerStayChange: number;
     avgRevenuePerNight: number;
     avgRevenuePerNightChange: number;
     revpar: number;
     revparChange: number;
+    revparTrend: SparklinePoint[];
   };
   operationsKpis: {
     cleaningsCount: number;
@@ -112,45 +123,81 @@ function PerformanceIndicator({ status }: { status: PerformanceStatus }) {
   );
 }
 
+function Sparkline({ data, color }: { data: SparklinePoint[]; color: string }) {
+  return (
+    <div className="h-12 w-full mt-2">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id={`sparkline-gradient-${color}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={0.3} />
+              <stop offset="100%" stopColor={color} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <Area
+            type="monotone"
+            dataKey="value"
+            stroke={color}
+            strokeWidth={2}
+            fill={`url(#sparkline-gradient-${color})`}
+            dot={false}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 function PriorityKPICard({ kpi, valueType }: { kpi: OverviewKPI; valueType: 'number' | 'percent' | 'currency' | 'rating' | 'days' }) {
   const Icon = kpi.icon;
   const hasChange = kpi.change !== undefined && !isNaN(kpi.change);
   const isPositive = hasChange && kpi.change > 0;
   const isNegative = hasChange && kpi.change < 0;
   
+  // Determine sparkline color based on trend
+  const sparklineColor = isPositive ? '#10b981' : isNegative ? '#ef4444' : '#6b7280';
+  
   return (
-    <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 hover:shadow-lg transition-all hover:scale-[1.01]">
+    <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 hover:shadow-lg transition-all hover:scale-[1.01] overflow-hidden">
       <CardContent className="p-5">
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start justify-between mb-2">
           <div className="p-2.5 rounded-xl bg-primary/10">
             <Icon className="h-5 w-5 text-primary" />
           </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="text-muted-foreground hover:text-foreground">
-                <HelpCircle className="h-3.5 w-3.5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-xs">
-              <p className="text-xs">{kpi.tooltip}</p>
-            </TooltipContent>
-          </Tooltip>
+          <div className="flex items-center gap-2">
+            {hasChange && (
+              <div className={cn(
+                "flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full",
+                isPositive && "bg-emerald-500/10 text-emerald-600",
+                isNegative && "bg-red-500/10 text-red-600",
+                !isPositive && !isNegative && "bg-muted text-muted-foreground"
+              )}>
+                {isPositive ? <TrendingUp className="h-3 w-3" /> : isNegative ? <TrendingDown className="h-3 w-3" /> : null}
+                {isPositive && '+'}{kpi.change.toFixed(1)}%
+              </div>
+            )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="text-muted-foreground hover:text-foreground">
+                  <HelpCircle className="h-3.5 w-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs">
+                <p className="text-xs">{kpi.tooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
         </div>
         
         <p className="text-3xl font-bold tracking-tight">
           {typeof kpi.value === 'number' ? formatValue(kpi.value, valueType) : kpi.value}
         </p>
-        <p className="text-sm text-muted-foreground mt-1">{kpi.label}</p>
+        <p className="text-sm text-muted-foreground">{kpi.label}</p>
         
-        {hasChange && (
-          <div className={cn(
-            "inline-flex items-center gap-1 text-xs font-medium mt-3 px-2 py-1 rounded-full",
-            isPositive && "bg-emerald-500/10 text-emerald-600",
-            isNegative && "bg-red-500/10 text-red-600",
-            !isPositive && !isNegative && "bg-muted text-muted-foreground"
-          )}>
-            {isPositive ? <TrendingUp className="h-3 w-3" /> : isNegative ? <TrendingDown className="h-3 w-3" /> : null}
-            {isPositive && '+'}{kpi.change.toFixed(1)}% vs mois précédent
+        {kpi.sparklineData && kpi.sparklineData.length > 0 && (
+          <div className="mt-1">
+            <Sparkline data={kpi.sparklineData} color={sparklineColor} />
+            <p className="text-[10px] text-muted-foreground text-right mt-0.5">7 derniers jours</p>
           </div>
         )}
       </CardContent>
@@ -240,7 +287,8 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: Sta
         change: activityKpis.reservationsChange,
         tooltip: 'Nombre total de réservations pour le mois en cours',
         icon: CalendarDays,
-        isPriority: true
+        isPriority: true,
+        sparklineData: activityKpis.reservationsTrend
       },
       valueType: 'number' as const
     },
@@ -251,7 +299,8 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: Sta
         change: activityKpis.occupancyRateChange,
         tooltip: 'Pourcentage de nuits occupées par rapport aux nuits disponibles',
         icon: Percent,
-        isPriority: true
+        isPriority: true,
+        sparklineData: activityKpis.occupancyTrend
       },
       valueType: 'percent' as const
     },
@@ -262,7 +311,8 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: Sta
         change: revenueKpis.monthlyRevenueChange,
         tooltip: 'Chiffre d\'affaires total généré ce mois',
         icon: Euro,
-        isPriority: true
+        isPriority: true,
+        sparklineData: revenueKpis.revenueTrend
       },
       valueType: 'currency' as const
     },
@@ -273,7 +323,8 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: Sta
         change: revenueKpis.revparChange,
         tooltip: 'Revenu par nuit disponible = Taux occupation × ADR',
         icon: BarChart3,
-        isPriority: true
+        isPriority: true,
+        sparklineData: revenueKpis.revparTrend
       },
       valueType: 'currency' as const
     }
