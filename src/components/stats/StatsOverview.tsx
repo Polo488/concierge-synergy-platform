@@ -74,6 +74,24 @@ interface StatsOverviewProps {
     incidentsCount: number;
     incidentsCountChange: number;
   };
+  monthlyComparison: {
+    currentMonth: {
+      revenue: number;
+      occupancy: number;
+      reservations: number;
+      adr: number;
+      revpar: number;
+      cleanings: number;
+    };
+    previousMonth: {
+      revenue: number;
+      occupancy: number;
+      reservations: number;
+      adr: number;
+      revpar: number;
+      cleanings: number;
+    };
+  };
 }
 
 function formatValue(value: number, type: 'number' | 'percent' | 'currency' | 'rating' | 'days'): string {
@@ -251,6 +269,81 @@ function SecondaryKPICard({ kpi, valueType }: { kpi: OverviewKPI; valueType: 'nu
   );
 }
 
+interface ComparisonMetric {
+  label: string;
+  current: number;
+  previous: number;
+  format: 'currency' | 'percent' | 'number';
+  icon: React.ElementType;
+}
+
+function ComparisonBar({ metric }: { metric: ComparisonMetric }) {
+  const Icon = metric.icon;
+  const change = metric.previous > 0 ? ((metric.current - metric.previous) / metric.previous) * 100 : 0;
+  const isPositive = change > 0;
+  const isNegative = change < 0;
+  
+  // Calculate percentage for progress bars (relative to max of both values)
+  const maxValue = Math.max(metric.current, metric.previous);
+  const currentPercent = maxValue > 0 ? (metric.current / maxValue) * 100 : 0;
+  const previousPercent = maxValue > 0 ? (metric.previous / maxValue) * 100 : 0;
+  
+  const formatMetricValue = (value: number) => {
+    if (metric.format === 'currency') {
+      return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
+    }
+    if (metric.format === 'percent') {
+      return `${value.toFixed(1)}%`;
+    }
+    return value.toLocaleString('fr-FR');
+  };
+  
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Icon className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">{metric.label}</span>
+        </div>
+        <div className={cn(
+          "text-xs font-medium px-2 py-0.5 rounded-full",
+          isPositive && "bg-emerald-500/10 text-emerald-600",
+          isNegative && "bg-red-500/10 text-red-600",
+          !isPositive && !isNegative && "bg-muted text-muted-foreground"
+        )}>
+          {isPositive && '+'}{change.toFixed(1)}%
+        </div>
+      </div>
+      
+      <div className="space-y-1.5">
+        {/* Current month bar */}
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted-foreground w-20">Ce mois</span>
+          <div className="flex-1 h-3 bg-muted/50 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-primary rounded-full transition-all duration-500"
+              style={{ width: `${currentPercent}%` }}
+            />
+          </div>
+          <span className="text-sm font-medium w-24 text-right">{formatMetricValue(metric.current)}</span>
+        </div>
+        
+        {/* Previous month bar */}
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted-foreground w-20">Mois préc.</span>
+          <div className="flex-1 h-3 bg-muted/50 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-muted-foreground/40 rounded-full transition-all duration-500"
+              style={{ width: `${previousPercent}%` }}
+            />
+          </div>
+          <span className="text-sm text-muted-foreground w-24 text-right">{formatMetricValue(metric.previous)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SectionHeader({ title, icon: Icon, status }: { title: string; icon: React.ElementType; status?: PerformanceStatus }) {
   return (
     <div className="flex items-center justify-between mb-4">
@@ -263,7 +356,7 @@ function SectionHeader({ title, icon: Icon, status }: { title: string; icon: Rea
   );
 }
 
-export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: StatsOverviewProps) {
+export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, monthlyComparison }: StatsOverviewProps) {
   // Calculate overall performance status
   const overallStatus = getPerformanceStatus(
     (revenueKpis.monthlyRevenueChange + activityKpis.occupancyRateChange + revenueKpis.revparChange) / 3
@@ -488,6 +581,79 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis }: Sta
           </CardContent>
         </Card>
       </div>
+
+      {/* Monthly Comparison Section */}
+      <Card className="bg-card/50 backdrop-blur-sm border-border/30">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Comparaison mensuelle
+            </h3>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Performance du mois en cours vs mois précédent
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ComparisonBar
+              metric={{
+                label: 'Chiffre d\'affaires',
+                current: monthlyComparison.currentMonth.revenue,
+                previous: monthlyComparison.previousMonth.revenue,
+                format: 'currency',
+                icon: Euro
+              }}
+            />
+            <ComparisonBar
+              metric={{
+                label: 'Taux d\'occupation',
+                current: monthlyComparison.currentMonth.occupancy,
+                previous: monthlyComparison.previousMonth.occupancy,
+                format: 'percent',
+                icon: Percent
+              }}
+            />
+            <ComparisonBar
+              metric={{
+                label: 'Réservations',
+                current: monthlyComparison.currentMonth.reservations,
+                previous: monthlyComparison.previousMonth.reservations,
+                format: 'number',
+                icon: CalendarDays
+              }}
+            />
+            <ComparisonBar
+              metric={{
+                label: 'ADR',
+                current: monthlyComparison.currentMonth.adr,
+                previous: monthlyComparison.previousMonth.adr,
+                format: 'currency',
+                icon: Bed
+              }}
+            />
+            <ComparisonBar
+              metric={{
+                label: 'RevPAR',
+                current: monthlyComparison.currentMonth.revpar,
+                previous: monthlyComparison.previousMonth.revpar,
+                format: 'currency',
+                icon: BarChart3
+              }}
+            />
+            <ComparisonBar
+              metric={{
+                label: 'Ménages',
+                current: monthlyComparison.currentMonth.cleanings,
+                previous: monthlyComparison.previousMonth.cleanings,
+                format: 'number',
+                icon: Sparkles
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

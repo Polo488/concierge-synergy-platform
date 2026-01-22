@@ -73,6 +73,24 @@ interface OverviewData {
     incidentsCount: number;
     incidentsCountChange: number;
   };
+  monthlyComparison: {
+    currentMonth: {
+      revenue: number;
+      occupancy: number;
+      reservations: number;
+      adr: number;
+      revpar: number;
+      cleanings: number;
+    };
+    previousMonth: {
+      revenue: number;
+      occupancy: number;
+      reservations: number;
+      adr: number;
+      revpar: number;
+      cleanings: number;
+    };
+  };
 }
 
 // Generate 7-day sparkline data
@@ -127,6 +145,24 @@ function generateMockOverviewData(): OverviewData {
       avgCleaningRatingChange: 2.2,
       incidentsCount: 7,
       incidentsCountChange: -22.2
+    },
+    monthlyComparison: {
+      currentMonth: {
+        revenue: 42580,
+        occupancy: 78.4,
+        reservations: 48,
+        adr: 229,
+        revpar: 179,
+        cleanings: 52
+      },
+      previousMonth: {
+        revenue: 35870,
+        occupancy: 74.5,
+        reservations: 43,
+        adr: 215,
+        revpar: 155,
+        cleanings: 48
+      }
     }
   };
 }
