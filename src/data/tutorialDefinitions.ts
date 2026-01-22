@@ -247,12 +247,26 @@ export const tutorialDefinitions: Record<string, ModuleTutorial> = {
   },
   quality: {
     moduleId: 'quality',
-    moduleName: 'Qualité & Stats',
+    moduleName: 'Stats',
     steps: [
+      {
+        id: 'stats-overview',
+        targetSelector: '[data-tutorial="stats-overview"]',
+        title: 'Vue d\'ensemble',
+        description: 'Snapshot mensuel avec les KPIs clés : activité, revenus, opérations.',
+        position: 'bottom'
+      },
+      {
+        id: 'stats-tabs',
+        targetSelector: '[data-tutorial="stats-tabs"]',
+        title: 'Navigation par onglet',
+        description: 'Passez entre Vue d\'ensemble, Ménage et Finance pour des analyses détaillées.',
+        position: 'bottom'
+      },
       {
         id: 'quality-kpi',
         targetSelector: '[data-tutorial="quality-kpi"]',
-        title: 'Indicateurs qualité',
+        title: 'Indicateurs ménage',
         description: 'Suivez les métriques de qualité : notes moyennes, taux de repasse.',
         position: 'bottom'
       },

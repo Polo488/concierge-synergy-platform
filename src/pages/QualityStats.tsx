@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQualityStats } from '@/hooks/useQualityStats';
+import { useStatsData } from '@/hooks/useStatsData';
 import { QualityFilters } from '@/components/quality/QualityFilters';
 import { KPICards } from '@/components/quality/KPICards';
 import { QualityCharts } from '@/components/quality/QualityCharts';
@@ -9,12 +10,15 @@ import { PropertyRankingTable } from '@/components/quality/PropertyRankingTable'
 import { AgentRankingTable } from '@/components/quality/AgentRankingTable';
 import { PropertyDetailsDialog } from '@/components/quality/PropertyDetailsDialog';
 import { AgentDetailsDialog } from '@/components/quality/AgentDetailsDialog';
+import { StatsOverview } from '@/components/stats/StatsOverview';
+import { StatsFinance } from '@/components/stats/StatsFinance';
 import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
-import { BarChart3, Building, Users } from 'lucide-react';
+import { LayoutDashboard, Sparkles, Euro, BarChart3, Building, Users } from 'lucide-react';
 
 const QualityStats = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('overview');
+  const [menageSubTab, setMenageSubTab] = useState('dashboard');
   const [propertyDialogOpen, setPropertyDialogOpen] = useState(false);
   const [agentDialogOpen, setAgentDialogOpen] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
@@ -27,6 +31,8 @@ const QualityStats = () => {
     availableProperties, availableAgents, availableChannels,
     getPropertyDetails, getAgentDetails, portfolioAverageRating,
   } = useQualityStats();
+
+  const { overviewData, financeData } = useStatsData();
 
   const handleSelectProperty = (propertyId: string) => {
     setSelectedPropertyId(propertyId);
@@ -47,8 +53,8 @@ const QualityStats = () => {
       
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Qualité & Stats Ménage</h1>
-          <p className="text-muted-foreground">Analysez la qualité des nettoyages et les performances des agents</p>
+          <h1 className="text-2xl font-bold">Stats</h1>
+          <p className="text-muted-foreground">Hub central de statistiques : activité, finance, opérations</p>
         </div>
         <TutorialButton moduleId="quality" />
       </div>
@@ -64,46 +70,103 @@ const QualityStats = () => {
         propertyStats={propertyStats}
       />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="dashboard" className="gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Dashboard
+      <Tabs value={activeTab} onValueChange={setActiveTab} data-tutorial="stats-tabs">
+        <TabsList className="bg-muted/50">
+          <TabsTrigger value="overview" className="gap-2">
+            <LayoutDashboard className="h-4 w-4" />
+            Vue d'ensemble
           </TabsTrigger>
-          <TabsTrigger value="properties" className="gap-2">
-            <Building className="h-4 w-4" />
-            Propriétés
+          <TabsTrigger value="menage" className="gap-2">
+            <Sparkles className="h-4 w-4" />
+            Ménage
           </TabsTrigger>
-          <TabsTrigger value="agents" className="gap-2">
-            <Users className="h-4 w-4" />
-            Agents
+          <TabsTrigger value="finance" className="gap-2">
+            <Euro className="h-4 w-4" />
+            Finance
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="dashboard" className="space-y-6 mt-6">
-          <div data-tutorial="quality-kpi">
-            <KPICards kpis={kpis} />
-          </div>
-          <div data-tutorial="quality-charts">
-            <QualityCharts
-              ratingDistribution={ratingDistribution}
-              ratingTrend={ratingTrend}
-              repasseTrend={repasseTrend}
-              issueFrequency={issueFrequency}
-            />
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-tutorial="quality-ranking">
-            <PropertyRankingTable properties={propertyStats} onSelectProperty={handleSelectProperty} />
-            <AgentRankingTable agents={agentProfiles} onSelectAgent={handleSelectAgent} />
-          </div>
+        {/* Vue d'ensemble Tab */}
+        <TabsContent value="overview" className="space-y-6 mt-6">
+          <StatsOverview 
+            activityKpis={overviewData.activityKpis}
+            revenueKpis={overviewData.revenueKpis}
+            operationsKpis={overviewData.operationsKpis}
+          />
         </TabsContent>
 
-        <TabsContent value="properties" className="mt-6">
-          <PropertyRankingTable properties={propertyStats} onSelectProperty={handleSelectProperty} />
+        {/* Ménage Tab - Existing Content Preserved */}
+        <TabsContent value="menage" className="space-y-6 mt-6">
+          {/* Monthly Summary Card */}
+          <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Sparkles className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-medium">Récap mensuel ménage</h3>
+                <p className="text-sm text-muted-foreground">
+                  {kpis.tasks_completed} ménages • Note moyenne: {kpis.average_rating_overall.toFixed(1)}/5 • Taux repasse: {kpis.repasse_rate.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Sub-tabs for Ménage section */}
+          <Tabs value={menageSubTab} onValueChange={setMenageSubTab}>
+            <TabsList className="bg-muted/30">
+              <TabsTrigger value="dashboard" className="gap-2">
+                <BarChart3 className="h-4 w-4" />
+                Dashboard
+              </TabsTrigger>
+              <TabsTrigger value="properties" className="gap-2">
+                <Building className="h-4 w-4" />
+                Propriétés
+              </TabsTrigger>
+              <TabsTrigger value="agents" className="gap-2">
+                <Users className="h-4 w-4" />
+                Agents
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="dashboard" className="space-y-6 mt-6">
+              <div data-tutorial="quality-kpi">
+                <KPICards kpis={kpis} />
+              </div>
+              <div data-tutorial="quality-charts">
+                <QualityCharts
+                  ratingDistribution={ratingDistribution}
+                  ratingTrend={ratingTrend}
+                  repasseTrend={repasseTrend}
+                  issueFrequency={issueFrequency}
+                />
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-tutorial="quality-ranking">
+                <PropertyRankingTable properties={propertyStats} onSelectProperty={handleSelectProperty} />
+                <AgentRankingTable agents={agentProfiles} onSelectAgent={handleSelectAgent} />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="properties" className="mt-6">
+              <PropertyRankingTable properties={propertyStats} onSelectProperty={handleSelectProperty} />
+            </TabsContent>
+
+            <TabsContent value="agents" className="mt-6">
+              <AgentRankingTable agents={agentProfiles} onSelectAgent={handleSelectAgent} />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
-        <TabsContent value="agents" className="mt-6">
-          <AgentRankingTable agents={agentProfiles} onSelectAgent={handleSelectAgent} />
+        {/* Finance Tab */}
+        <TabsContent value="finance" className="space-y-6 mt-6">
+          <StatsFinance 
+            kpis={financeData.kpis}
+            revenueTrend={financeData.revenueTrend}
+            occupancyTrend={financeData.occupancyTrend}
+            revenuePerStayTrend={financeData.revenuePerStayTrend}
+            channelData={financeData.channelData}
+            comparison={financeData.comparison}
+          />
         </TabsContent>
       </Tabs>
 
