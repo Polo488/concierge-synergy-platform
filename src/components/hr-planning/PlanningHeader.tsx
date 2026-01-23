@@ -1,7 +1,7 @@
 
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Search, Filter, Calendar, Download, Printer, Copy, PanelRightClose, PanelRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Filter, Calendar, Download, Printer, Copy, PanelRightClose, PanelRight, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,9 +15,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { HRTeam } from '@/types/hrPlanning';
+import { HRTeam, HREmployee, PlanningDay, EmployeeMonthlySummary } from '@/types/hrPlanning';
 import { cn } from '@/lib/utils';
 
 interface PlanningHeaderProps {
@@ -33,6 +35,9 @@ interface PlanningHeaderProps {
   onApplyPattern: () => void;
   onToggleRecap: () => void;
   showRecap: boolean;
+  onExportPDF?: () => void;
+  onExportCSV?: () => void;
+  onPrint?: () => void;
 }
 
 export function PlanningHeader({
@@ -48,6 +53,9 @@ export function PlanningHeader({
   onApplyPattern,
   onToggleRecap,
   showRecap,
+  onExportPDF,
+  onExportCSV,
+  onPrint,
 }: PlanningHeaderProps) {
   const months = Array.from({ length: 12 }, (_, i) => {
     const date = new Date(currentMonth.getFullYear(), i, 1);
@@ -157,15 +165,29 @@ export function PlanningHeader({
             Appliquer un modèle
           </Button>
           
-          <Button variant="outline" size="sm" className="h-9">
-            <Download className="h-4 w-4 mr-2" />
-            Exporter
-          </Button>
-          
-          <Button variant="outline" size="sm" className="h-9">
-            <Printer className="h-4 w-4 mr-2" />
-            Imprimer
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-9">
+                <Download className="h-4 w-4 mr-2" />
+                Exporter
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 bg-popover border shadow-lg z-50">
+              <DropdownMenuItem onClick={onExportPDF} className="cursor-pointer">
+                <FileText className="h-4 w-4 mr-2" />
+                Exporter en PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onExportCSV} className="cursor-pointer">
+                <Download className="h-4 w-4 mr-2" />
+                Exporter en CSV
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onPrint} className="cursor-pointer">
+                <Printer className="h-4 w-4 mr-2" />
+                Imprimer
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Button
             variant="ghost"
