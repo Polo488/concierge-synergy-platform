@@ -75,3 +75,14 @@ export interface HeatmapPoint {
   lng: number;
   intensity: number;
 }
+
+export interface MonthlySnapshot {
+  revenue: number;
+  occupancy: number;
+  avgNightlyRate: number;
+  topCity: string;
+  topArea?: string;
+  month: string;
+}
+
+export type VisualizationMode = 'markers' | 'heatmap';
