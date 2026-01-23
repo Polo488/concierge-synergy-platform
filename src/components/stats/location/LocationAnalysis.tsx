@@ -3,6 +3,7 @@ import { useLocationData } from '@/hooks/useLocationData';
 import { LocationFiltersBar } from './LocationFiltersBar';
 import { StatsMap } from './StatsMap';
 import { ViewportKPIPanel } from './ViewportKPIPanel';
+import { MonthlySnapshotCard } from './MonthlySnapshotCard';
 import { ViewportBounds, ViewportKPIs } from '@/types/location';
 
 export function LocationAnalysis() {
@@ -18,7 +19,11 @@ export function LocationAnalysis() {
     getHeatmapData,
     activeLayer,
     setActiveLayer,
+    visualizationMode,
+    setVisualizationMode,
     aggregatedStats,
+    monthlySnapshot,
+    mainCity,
   } = useLocationData();
 
   const [viewportKPIs, setViewportKPIs] = useState<ViewportKPIs | null>(null);
@@ -46,12 +51,18 @@ export function LocationAnalysis() {
         activeLayer={activeLayer}
         onLayerChange={setActiveLayer}
         nonGeolocatedCount={nonGeolocatedCount}
+        visualizationMode={visualizationMode}
+        onVisualizationModeChange={setVisualizationMode}
       />
 
       {/* Map and KPIs Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* KPI Panel - Side */}
-        <div className="lg:col-span-1 order-2 lg:order-1">
+        <div className="lg:col-span-1 order-2 lg:order-1 space-y-4">
+          {/* Monthly Snapshot */}
+          <MonthlySnapshotCard snapshot={monthlySnapshot} />
+          
+          {/* Viewport KPIs */}
           <ViewportKPIPanel 
             kpis={viewportKPIs || {
               totalRevenue: aggregatedStats.totalRevenue,
@@ -74,6 +85,8 @@ export function LocationAnalysis() {
             heatmapData={heatmapData}
             onViewportChange={handleViewportChange}
             groups={groups}
+            visualizationMode={visualizationMode}
+            mainCity={mainCity}
           />
         </div>
       </div>

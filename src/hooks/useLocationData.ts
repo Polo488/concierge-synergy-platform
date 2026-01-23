@@ -1,5 +1,6 @@
 import { useMemo, useState, useCallback } from 'react';
-import { subDays } from 'date-fns';
+import { subDays, format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { 
   PropertyGroup, 
   LocationProperty, 
@@ -7,7 +8,9 @@ import {
   ViewportBounds, 
   ViewportKPIs,
   HeatmapPoint,
-  HeatmapLayer
+  HeatmapLayer,
+  MonthlySnapshot,
+  VisualizationMode
 } from '@/types/location';
 
 // Mock groups
@@ -62,17 +65,41 @@ export function useLocationData() {
     },
   });
 
-  const [activeLayer, setActiveLayer] = useState<HeatmapLayer>('properties');
+  const [activeLayer, setActiveLayer] = useState<HeatmapLayer>('occupancy');
+  const [visualizationMode, setVisualizationMode] = useState<VisualizationMode>('markers');
 
-  // Get unique cities and areas
+  // Get unique cities and areas - with filter cascade
   const availableCities = useMemo(() => {
-    const cities = [...new Set(mockProperties.map(p => p.city))];
+    let props = mockProperties;
+    // If groups selected, filter cities to those groups
+    if (filters.groups.length > 0) {
+      props = props.filter(p => p.groupId && filters.groups.includes(p.groupId));
+    }
+    const cities = [...new Set(props.map(p => p.city))];
     return cities.sort();
-  }, []);
+  }, [filters.groups]);
 
   const availableAreas = useMemo(() => {
-    const areas = [...new Set(mockProperties.filter(p => p.area).map(p => p.area!))];
+    let props = mockProperties;
+    // Cascade from groups
+    if (filters.groups.length > 0) {
+      props = props.filter(p => p.groupId && filters.groups.includes(p.groupId));
+    }
+    // Cascade from cities
+    if (filters.cities.length > 0) {
+      props = props.filter(p => filters.cities.includes(p.city));
+    }
+    const areas = [...new Set(props.filter(p => p.area).map(p => p.area!))];
     return areas.sort();
+  }, [filters.groups, filters.cities]);
+
+  // Get main city (most properties)
+  const mainCity = useMemo(() => {
+    const cityCount = mockProperties.reduce((acc, p) => {
+      acc[p.city] = (acc[p.city] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    return Object.entries(cityCount).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Paris';
   }, []);
 
   // Filtered properties
@@ -208,6 +235,46 @@ export function useLocationData() {
     };
   }, [filteredProperties]);
 
+  // Monthly snapshot
+  const monthlySnapshot = useMemo((): MonthlySnapshot => {
+    if (filteredProperties.length === 0) {
+      return {
+        revenue: 0,
+        occupancy: 0,
+        avgNightlyRate: 0,
+        topCity: '-',
+        month: format(new Date(), 'MMMM yyyy', { locale: fr }),
+      };
+    }
+
+    const totalRevenue = filteredProperties.reduce((sum, p) => sum + p.stats.revenue, 0);
+    const totalNights = filteredProperties.reduce((sum, p) => sum + p.stats.bookedNights, 0);
+    const avgOccupancy = filteredProperties.reduce((sum, p) => sum + p.stats.occupancyRate, 0) / filteredProperties.length;
+
+    // Find top city by revenue
+    const cityRevenue = filteredProperties.reduce((acc, p) => {
+      acc[p.city] = (acc[p.city] || 0) + p.stats.revenue;
+      return acc;
+    }, {} as Record<string, number>);
+    const topCity = Object.entries(cityRevenue).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
+
+    // Find top area
+    const areaRevenue = filteredProperties.reduce((acc, p) => {
+      if (p.area) acc[p.area] = (acc[p.area] || 0) + p.stats.revenue;
+      return acc;
+    }, {} as Record<string, number>);
+    const topArea = Object.entries(areaRevenue).sort((a, b) => b[1] - a[1])[0]?.[0];
+
+    return {
+      revenue: totalRevenue,
+      occupancy: avgOccupancy,
+      avgNightlyRate: totalNights > 0 ? Math.round(totalRevenue / totalNights) : 0,
+      topCity,
+      topArea,
+      month: format(new Date(), 'MMMM yyyy', { locale: fr }),
+    };
+  }, [filteredProperties]);
+
   return {
     groups: mockGroups,
     properties: filteredProperties,
@@ -220,6 +287,10 @@ export function useLocationData() {
     getHeatmapData,
     activeLayer,
     setActiveLayer,
+    visualizationMode,
+    setVisualizationMode,
     aggregatedStats,
+    monthlySnapshot,
+    mainCity,
   };
 }
