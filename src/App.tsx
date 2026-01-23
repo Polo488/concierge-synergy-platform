@@ -27,6 +27,7 @@ import QualityStats from "./pages/QualityStats";
 import GuestExperience from "./pages/GuestExperience";
 import Agenda from "./pages/Agenda";
 import Messaging from "./pages/Messaging";
+import HRPlanning from "./pages/HRPlanning";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -135,6 +136,12 @@ const App = () => (
                       <Route path="/messaging" element={
                         <RoutePermission permission="messaging">
                           <Messaging />
+                        </RoutePermission>
+                      } />
+                      
+                      <Route path="/hr-planning" element={
+                        <RoutePermission permission="hrPlanning">
+                          <HRPlanning />
                         </RoutePermission>
                       } />
                     </Route>
