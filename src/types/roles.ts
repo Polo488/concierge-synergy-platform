@@ -14,6 +14,7 @@ export interface PermissionMap {
   guestExperience: boolean;
   agenda: boolean;
   messaging: boolean;
+  hrPlanning: boolean;
 }
 
 export interface RoleDefinition {

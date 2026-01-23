@@ -41,6 +41,7 @@ import {
   Users,
   Gauge,
   StickyNote,
+  CalendarDays,
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -152,6 +153,7 @@ export function Sidebar() {
       iconBgClass: 'text-nav-organisation',
       items: [
         { name: 'Agenda', path: '/agenda', icon: StickyNote, permission: 'agenda' },
+        { name: 'RH – Planning', path: '/hr-planning', icon: CalendarDays, permission: 'hrPlanning' },
         { name: 'Utilisateurs', path: '/user-management', icon: Users, permission: 'users' },
       ]
     }
