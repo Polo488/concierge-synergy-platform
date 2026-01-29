@@ -22,7 +22,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           messaging: true,
           hrPlanning: true,
         },
-        defaultRoute: '/',
+        defaultRoute: '/app',
         canManageUsers: true,
       };
     
@@ -44,7 +44,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           messaging: true,
           hrPlanning: true,
         },
-        defaultRoute: '/',
+        defaultRoute: '/app',
         canManageUsers: true,
       };
 
@@ -66,7 +66,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           messaging: true,
           hrPlanning: false,
         },
-        defaultRoute: '/',
+        defaultRoute: '/app',
         canManageUsers: false,
       };
     
@@ -88,7 +88,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           messaging: true,
           hrPlanning: false,
         },
-        defaultRoute: '/',
+        defaultRoute: '/app',
         canManageUsers: false,
       };
     
@@ -110,7 +110,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           messaging: false,
           hrPlanning: false,
         },
-        defaultRoute: '/maintenance',
+        defaultRoute: '/app/maintenance',
         canManageUsers: false,
       };
     
@@ -132,7 +132,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           messaging: false,
           hrPlanning: false,
         },
-        defaultRoute: '/cleaning',
+        defaultRoute: '/app/cleaning',
         canManageUsers: false,
       };
     

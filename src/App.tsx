@@ -12,6 +12,9 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { RoutePermission } from "./components/auth/RoutePermission";
 import { TutorialProvider } from "./contexts/TutorialContext";
 import { TutorialOverlay } from "./components/tutorial/TutorialOverlay";
+import { PortalLayout } from "./components/portal/PortalLayout";
+
+// App pages
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
 import Maintenance from "./pages/Maintenance";
@@ -30,6 +33,15 @@ import Messaging from "./pages/Messaging";
 import HRPlanning from "./pages/HRPlanning";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+
+// Portal pages
+import PortalHome from "./pages/portal/PortalHome";
+import PortalProduit from "./pages/portal/PortalProduit";
+import PortalModules from "./pages/portal/PortalModules";
+import PortalTarifs from "./pages/portal/PortalTarifs";
+import PortalSecurite from "./pages/portal/PortalSecurite";
+import PortalContact from "./pages/portal/PortalContact";
+
 import { LanguageProvider } from "./contexts/LanguageContext";
 
 const queryClient = new QueryClient();
@@ -47,99 +59,112 @@ const App = () => (
                   <Sonner />
                   <TutorialOverlay />
                   <Routes>
-                    {/* Public routes */}
+                    {/* Portal routes (public) */}
+                    <Route element={<PortalLayout />}>
+                      <Route path="/" element={<PortalHome />} />
+                      <Route path="/produit" element={<PortalProduit />} />
+                      <Route path="/modules" element={<PortalModules />} />
+                      <Route path="/tarifs" element={<PortalTarifs />} />
+                      <Route path="/securite" element={<PortalSecurite />} />
+                      <Route path="/contact" element={<PortalContact />} />
+                    </Route>
+                    
+                    {/* Connexion redirect */}
+                    <Route path="/connexion" element={<Navigate to="/login" replace />} />
+                    
+                    {/* Login page */}
                     <Route path="/login" element={<Login />} />
                     
-                    {/* Protected routes - require authentication */}
+                    {/* Protected app routes */}
                     <Route element={<ProtectedRoute />}>
                       <Route element={<Layout />}>
-                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/app" element={<Dashboard />} />
                       
-                      <Route path="/properties" element={
+                      <Route path="/app/properties" element={
                         <RoutePermission permission="properties">
                           <Properties />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/inventory" element={
+                      <Route path="/app/inventory" element={
                         <RoutePermission permission="inventory">
                           <Inventory />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/maintenance" element={
+                      <Route path="/app/maintenance" element={
                         <RoutePermission permission="maintenance">
                           <Maintenance />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/cleaning" element={
+                      <Route path="/app/cleaning" element={
                         <RoutePermission permission="cleaning">
                           <Cleaning />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/quality-stats" element={
+                      <Route path="/app/quality-stats" element={
                         <RoutePermission permission="cleaning">
                           <QualityStats />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/calendar" element={
+                      <Route path="/app/calendar" element={
                         <RoutePermission permission="calendar">
                           <Calendar />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/billing" element={
+                      <Route path="/app/billing" element={
                         <RoutePermission permission="billing">
                           <Billing />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/moyenne-duree" element={
+                      <Route path="/app/moyenne-duree" element={
                         <RoutePermission permission="moyenneDuree">
                           <MoyenneDuree />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/upsell" element={
+                      <Route path="/app/upsell" element={
                         <RoutePermission permission="upsell">
                           <Upsell />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/user-management" element={
+                      <Route path="/app/user-management" element={
                         <RoutePermission permission="users">
                           <UserManagement />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/insights" element={
+                      <Route path="/app/insights" element={
                         <RoutePermission permission="properties">
                           <InsightsAlerts />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/guest-experience" element={
+                      <Route path="/app/guest-experience" element={
                         <RoutePermission permission="guestExperience">
                           <GuestExperience />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/agenda" element={
+                      <Route path="/app/agenda" element={
                         <RoutePermission permission="agenda">
                           <Agenda />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/messaging" element={
+                      <Route path="/app/messaging" element={
                         <RoutePermission permission="messaging">
                           <Messaging />
                         </RoutePermission>
                       } />
                       
-                      <Route path="/hr-planning" element={
+                      <Route path="/app/hr-planning" element={
                         <RoutePermission permission="hrPlanning">
                           <HRPlanning />
                         </RoutePermission>
