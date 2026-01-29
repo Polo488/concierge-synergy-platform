@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useTheme } from '@/contexts/ThemeContext';
 import logoNoe from '@/assets/logo-noe.jpg';
 
 const navLinks = [
@@ -17,6 +18,11 @@ export function PortalHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { resolvedTheme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,7 +71,14 @@ export function PortalHeader() {
           </nav>
 
           {/* Desktop CTA */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-accent/50 transition-colors"
+              aria-label="Changer de thème"
+            >
+              {resolvedTheme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             <Button asChild>
               <Link to="/login">Connexion</Link>
             </Button>
@@ -100,8 +113,15 @@ export function PortalHeader() {
                 {link.name}
               </Link>
             ))}
-            <div className="pt-3 mt-2 border-t border-border/50">
-              <Button asChild className="w-full">
+            <div className="pt-3 mt-2 border-t border-border/50 flex items-center gap-2">
+              <button
+                onClick={toggleTheme}
+                className="p-3 rounded-lg hover:bg-accent/50 transition-colors"
+                aria-label="Changer de thème"
+              >
+                {resolvedTheme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
+              <Button asChild className="flex-1">
                 <Link to="/login">Connexion</Link>
               </Button>
             </div>
