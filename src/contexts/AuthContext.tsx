@@ -50,31 +50,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const roleConfig = getRoleConfig(user.role);
       const currentPath = window.location.pathname;
 
+      // Only handle redirects for /app routes
+      if (!currentPath.startsWith('/app')) return;
+
       // Check if user has permission for current path
       const hasPermissionForCurrentPath = Object.entries(roleConfig.permissions).some(
         ([key, hasPermission]) => {
           if (!hasPermission) return false;
           
-          if (key === 'properties' && (currentPath === '/properties' || currentPath === '/insights')) return true;
-          if (key === 'inventory' && currentPath === '/inventory') return true;
-          if (key === 'maintenance' && currentPath === '/maintenance') return true;
-          if (key === 'cleaning' && (currentPath === '/cleaning' || currentPath === '/quality-stats')) return true;
-          if (key === 'calendar' && currentPath === '/calendar') return true;
-          if (key === 'billing' && currentPath === '/billing') return true;
-          if (key === 'moyenneDuree' && currentPath === '/moyenne-duree') return true;
-          if (key === 'upsell' && currentPath === '/upsell') return true;
-          if (key === 'users' && (currentPath === '/users' || currentPath === '/user-management')) return true;
-          if (key === 'guestExperience' && currentPath === '/guest-experience') return true;
-          if (key === 'agenda' && currentPath.startsWith('/agenda')) return true;
-          if (key === 'messaging' && currentPath === '/messaging') return true;
-           if (key === 'hrPlanning' && currentPath === '/hr-planning') return true;
+          if (key === 'properties' && (currentPath === '/app/properties' || currentPath === '/app/insights')) return true;
+          if (key === 'inventory' && currentPath === '/app/inventory') return true;
+          if (key === 'maintenance' && currentPath === '/app/maintenance') return true;
+          if (key === 'cleaning' && (currentPath === '/app/cleaning' || currentPath === '/app/quality-stats')) return true;
+          if (key === 'calendar' && currentPath === '/app/calendar') return true;
+          if (key === 'billing' && currentPath === '/app/billing') return true;
+          if (key === 'moyenneDuree' && currentPath === '/app/moyenne-duree') return true;
+          if (key === 'upsell' && currentPath === '/app/upsell') return true;
+          if (key === 'users' && (currentPath === '/app/users' || currentPath === '/app/user-management')) return true;
+          if (key === 'guestExperience' && currentPath === '/app/guest-experience') return true;
+          if (key === 'agenda' && currentPath.startsWith('/app/agenda')) return true;
+          if (key === 'messaging' && currentPath === '/app/messaging') return true;
+          if (key === 'hrPlanning' && currentPath === '/app/hr-planning') return true;
           
-          return currentPath === '/';
+          return currentPath === '/app';
         }
       );
       
-      // If user doesn't have permission for current page or is at root, redirect to default page
-      if (!hasPermissionForCurrentPath || currentPath === '/') {
+      // If user doesn't have permission for current page or is at app root, redirect to default page
+      if (!hasPermissionForCurrentPath || currentPath === '/app') {
         navigate(roleConfig.defaultRoute);
       }
     }

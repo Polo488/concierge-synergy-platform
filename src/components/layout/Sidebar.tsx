@@ -99,9 +99,9 @@ export function Sidebar() {
       bgClass: 'bg-nav-pilotage/5',
       iconBgClass: 'text-nav-pilotage',
       items: [
-        { name: t('sidebar.dashboard'), path: '/', icon: Gauge, permission: 'properties' },
-        { name: t('sidebar.qualityStats'), path: '/quality-stats', icon: BarChart3, permission: 'cleaning' },
-        { name: t('sidebar.insights'), path: '/insights', icon: Lightbulb, permission: 'properties' },
+        { name: t('sidebar.dashboard'), path: '/app', icon: Gauge, permission: 'properties' },
+        { name: t('sidebar.qualityStats'), path: '/app/quality-stats', icon: BarChart3, permission: 'cleaning' },
+        { name: t('sidebar.insights'), path: '/app/insights', icon: Lightbulb, permission: 'properties' },
       ]
     },
     {
@@ -112,11 +112,11 @@ export function Sidebar() {
       bgClass: 'bg-nav-operations/5',
       iconBgClass: 'text-nav-operations',
       items: [
-        { name: t('sidebar.calendar'), path: '/calendar', icon: CalendarIcon, permission: 'calendar' },
-        { name: t('sidebar.cleaning'), path: '/cleaning', icon: Sparkles, permission: 'cleaning' },
-        { name: t('sidebar.maintenance'), path: '/maintenance', icon: Wrench, permission: 'maintenance' },
-        { name: t('sidebar.inventory'), path: '/inventory', icon: Package, permission: 'inventory' },
-        { name: t('sidebar.properties'), path: '/properties', icon: Home, permission: 'properties' },
+        { name: t('sidebar.calendar'), path: '/app/calendar', icon: CalendarIcon, permission: 'calendar' },
+        { name: t('sidebar.cleaning'), path: '/app/cleaning', icon: Sparkles, permission: 'cleaning' },
+        { name: t('sidebar.maintenance'), path: '/app/maintenance', icon: Wrench, permission: 'maintenance' },
+        { name: t('sidebar.inventory'), path: '/app/inventory', icon: Package, permission: 'inventory' },
+        { name: t('sidebar.properties'), path: '/app/properties', icon: Home, permission: 'properties' },
       ]
     },
     {
@@ -127,9 +127,9 @@ export function Sidebar() {
       bgClass: 'bg-nav-revenus/5',
       iconBgClass: 'text-nav-revenus',
       items: [
-        { name: t('sidebar.averageDuration'), path: '/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
-        { name: t('sidebar.billing'), path: '/billing', icon: Receipt, permission: 'billing' },
-        { name: t('sidebar.upsell'), path: '/upsell', icon: ShoppingCart, permission: 'upsell' },
+        { name: t('sidebar.averageDuration'), path: '/app/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
+        { name: t('sidebar.billing'), path: '/app/billing', icon: Receipt, permission: 'billing' },
+        { name: t('sidebar.upsell'), path: '/app/upsell', icon: ShoppingCart, permission: 'upsell' },
       ]
     },
     {
@@ -140,8 +140,8 @@ export function Sidebar() {
       bgClass: 'bg-nav-experience/5',
       iconBgClass: 'text-nav-experience',
       items: [
-        { name: 'Messagerie', path: '/messaging', icon: MessageCircle, permission: 'messaging' },
-        { name: 'Communication', path: '/guest-experience', icon: MessageSquare, permission: 'guestExperience' },
+        { name: 'Messagerie', path: '/app/messaging', icon: MessageCircle, permission: 'messaging' },
+        { name: 'Communication', path: '/app/guest-experience', icon: MessageSquare, permission: 'guestExperience' },
       ]
     },
     {
@@ -152,9 +152,9 @@ export function Sidebar() {
       bgClass: 'bg-nav-organisation/5',
       iconBgClass: 'text-nav-organisation',
       items: [
-        { name: 'Agenda', path: '/agenda', icon: StickyNote, permission: 'agenda' },
-        { name: 'RH – Planning', path: '/hr-planning', icon: CalendarDays, permission: 'hrPlanning' },
-        { name: 'Utilisateurs', path: '/user-management', icon: Users, permission: 'users' },
+        { name: 'Agenda', path: '/app/agenda', icon: StickyNote, permission: 'agenda' },
+        { name: 'RH – Planning', path: '/app/hr-planning', icon: CalendarDays, permission: 'hrPlanning' },
+        { name: 'Utilisateurs', path: '/app/user-management', icon: Users, permission: 'users' },
       ]
     }
   ], [t]);
