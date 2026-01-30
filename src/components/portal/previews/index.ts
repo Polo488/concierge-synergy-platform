@@ -5,3 +5,4 @@ export { StatsPreview } from './StatsPreview';
 export { MaintenancePreview } from './MaintenancePreview';
 export { BillingPreview } from './BillingPreview';
 export { DashboardPreview } from './DashboardPreview';
+export { GeoPreview } from './GeoPreview';

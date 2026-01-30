@@ -2,39 +2,35 @@ import { EnhancedHeroSection } from '@/components/portal/EnhancedHeroSection';
 import { WhyNoeSection } from '@/components/portal/WhyNoeSection';
 import { ValueOutcomesSection } from '@/components/portal/ValueOutcomesSection';
 import { PersonasSection } from '@/components/portal/PersonasSection';
-import { ProductTourSection } from '@/components/portal/ProductTourSection';
+import { StatsShowcaseSection } from '@/components/portal/StatsShowcaseSection';
 import { ProductShowcase } from '@/components/portal/ProductShowcase';
 import { EnhancedTestimonials } from '@/components/portal/EnhancedTestimonials';
 import { PricingSection } from '@/components/portal/PricingSection';
 import { SecuritySection } from '@/components/portal/SecuritySection';
-import { ProductGallery } from '@/components/portal/ProductGallery';
 import { FinalCTA } from '@/components/portal/FinalCTA';
 
 export default function PortalHome() {
   return (
     <div>
-      {/* Hero Section - Product immersive */}
+      {/* Hero Section - Pilotage focus, copilot tone */}
       <EnhancedHeroSection />
 
-      {/* Why Noé - 3 columns pain→solution */}
+      {/* Why Noé - Centralise, Éclaire, Aide à décider */}
       <WhyNoeSection />
 
-      {/* Value Outcomes - What you gain in 7 days */}
+      {/* Value Outcomes - Concrete metrics, first week results */}
       <ValueOutcomesSection />
+
+      {/* STATS SHOWCASE - Key differentiator, immersive preview */}
+      <StatsShowcaseSection />
 
       {/* Personas - Before/After by company size */}
       <PersonasSection />
 
-      {/* Product Tour - 5 steps clickable */}
-      <ProductTourSection />
-
-      {/* Product Showcase - Scroll-driven discovery */}
+      {/* Product Showcase - See, Understand, Decide structure */}
       <div id="product">
         <ProductShowcase />
       </div>
-
-      {/* Product Gallery - Screenshots grid */}
-      <ProductGallery />
 
       {/* Testimonials - Enhanced with park size & problem */}
       <EnhancedTestimonials />

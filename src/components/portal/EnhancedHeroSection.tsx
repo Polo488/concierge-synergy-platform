@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, MessageCircle, Sparkles, BarChart3, FileText, Check, LayoutDashboard } from 'lucide-react';
+import { ArrowRight, Calendar, MessageCircle, Sparkles, BarChart3, Check, LayoutDashboard, Map, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { CalendarPreview, CleaningPreview, MessagingPreview, StatsPreview, BillingPreview, DashboardPreview } from './previews';
+import { CalendarPreview, CleaningPreview, MessagingPreview, StatsPreview, DashboardPreview } from './previews';
+import { GeoPreview } from './previews/GeoPreview';
 
 interface PreviewThumbnail {
   id: string;
@@ -17,20 +18,20 @@ interface PreviewThumbnail {
 const thumbnails: PreviewThumbnail[] = [
   { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', color: 'from-primary/20 to-primary/5', preview: DashboardPreview },
   { id: 'calendar', icon: Calendar, label: 'Calendrier', color: 'from-status-info/20 to-status-info/5', preview: CalendarPreview },
-  { id: 'messaging', icon: MessageCircle, label: 'Messagerie', color: 'from-status-pending/20 to-status-pending/5', preview: MessagingPreview },
-  { id: 'cleaning', icon: Sparkles, label: 'Ménage', color: 'from-status-success/20 to-status-success/5', preview: CleaningPreview },
   { id: 'stats', icon: BarChart3, label: 'Stats', color: 'from-nav-pilotage/20 to-nav-pilotage/5', preview: StatsPreview },
+  { id: 'geo', icon: Map, label: 'Géo', color: 'from-status-success/20 to-status-success/5', preview: GeoPreview },
+  { id: 'cleaning', icon: Sparkles, label: 'Opérations', color: 'from-status-warning/20 to-status-warning/5', preview: CleaningPreview },
 ];
 
-// Floating notifications like Hospitable
+// Floating notifications - contextual and human
 const notifications = [
-  { text: 'Réservation confirmée', delay: 800 },
-  { text: 'Calendriers synchronisés', delay: 2500 },
-  { text: 'Ménage assigné', delay: 4200 },
-  { text: 'Check-in validé', delay: 5900 },
+  { text: 'Check-in confirmé', icon: Check, delay: 800 },
+  { text: 'Ménage terminé ✓', icon: Sparkles, delay: 2500 },
+  { text: 'Occupation +12% ce mois', icon: Zap, delay: 4200 },
+  { text: 'Nouveau message voyageur', icon: MessageCircle, delay: 5900 },
 ];
 
-function FloatingNotification({ text, delay, index }: { text: string; delay: number; index: number }) {
+function FloatingNotification({ text, icon: Icon, delay, index }: { text: string; icon: React.ElementType; delay: number; index: number }) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -58,7 +59,7 @@ function FloatingNotification({ text, delay, index }: { text: string; delay: num
         style={{ animation: isVisible ? `float 4s ease-in-out infinite ${index * 0.7}s` : 'none' }}
       >
         <div className="w-6 h-6 rounded-full bg-status-success/20 flex items-center justify-center">
-          <Check className="w-3.5 h-3.5 text-status-success" />
+          <Icon className="w-3.5 h-3.5 text-status-success" />
         </div>
         <span className="text-sm font-medium text-foreground whitespace-nowrap">
           {text}
@@ -85,7 +86,6 @@ function ThumbnailPreview({ thumbnail }: { thumbnail: PreviewThumbnail }) {
         <Icon className="w-8 h-8 text-primary" />
       </div>
       <p className="text-lg font-medium text-foreground">{thumbnail.label}</p>
-      <p className="text-sm text-muted-foreground">Capture d'écran</p>
     </div>
   );
 }
@@ -95,7 +95,6 @@ export function EnhancedHeroSection() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Trigger animations after mount
     const timer = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timer);
   }, []);
@@ -109,7 +108,7 @@ export function EnhancedHeroSection() {
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-24 w-full">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          {/* Content - Left Side - Animated entrance */}
+          {/* Content - Left Side */}
           <div className="lg:col-span-5 text-center lg:text-left">
             {/* Badge */}
             <div 
@@ -120,22 +119,23 @@ export function EnhancedHeroSection() {
               style={{ transitionDelay: '100ms' }}
             >
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm font-medium">Channel Manager + PMS</span>
+              <span className="text-sm font-medium">Votre copilote de gestion</span>
             </div>
 
-            {/* Headline - Hospitable style "Simple at one. Simple at hundred" */}
+            {/* Headline - Pilotage focus */}
             <h1 
               className={cn(
-                "text-4xl sm:text-5xl lg:text-6xl font-semibold text-foreground leading-[1.1] tracking-tight mb-6 transition-all duration-1000",
+                "text-4xl sm:text-5xl lg:text-[3.5rem] font-semibold text-foreground leading-[1.1] tracking-tight mb-6 transition-all duration-1000",
                 isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               )}
               style={{ transitionDelay: '200ms' }}
             >
-              <span className="block">Simple à 1 logement.</span>
-              <span className="block text-muted-foreground">Simple à 100.</span>
+              Pilotez votre conciergerie,
+              <br />
+              <span className="text-muted-foreground">sans naviguer à vue.</span>
             </h1>
             
-            {/* Subheadline */}
+            {/* Subheadline - Human, value-oriented */}
             <p 
               className={cn(
                 "text-lg sm:text-xl text-muted-foreground leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0 transition-all duration-1000",
@@ -143,7 +143,7 @@ export function EnhancedHeroSection() {
               )}
               style={{ transitionDelay: '400ms' }}
             >
-              Pilotez chaque séjour avec une synchronisation en temps réel, des opérations automatisées et un pilotage clair.
+              Réservations, équipes, qualité, finances, performance : <strong className="text-foreground">tout est enfin au même endroit.</strong>
             </p>
             
             {/* CTAs */}
@@ -160,7 +160,7 @@ export function EnhancedHeroSection() {
                 asChild
               >
                 <Link to="/contact">
-                  Commencer gratuitement
+                  Demander une démo
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
@@ -170,13 +170,13 @@ export function EnhancedHeroSection() {
                 className="text-base px-8 h-12 hover:bg-card hover:scale-[1.02] transition-all duration-300" 
                 asChild
               >
-                <Link to="/produit">
+                <a href="#product">
                   Voir le produit
-                </Link>
+                </a>
               </Button>
             </div>
 
-            {/* Trust indicators */}
+            {/* Trust indicators - Partner tone */}
             <div 
               className={cn(
                 "flex flex-wrap items-center gap-6 justify-center lg:justify-start text-sm text-muted-foreground transition-all duration-1000",
@@ -184,7 +184,7 @@ export function EnhancedHeroSection() {
               )}
               style={{ transitionDelay: '600ms' }}
             >
-              {['Sans engagement', 'Démo personnalisée', 'Onboarding inclus'].map((text) => (
+              {['Sans engagement', 'Démo en 30 min', 'Onboarding accompagné'].map((text) => (
                 <div key={text} className="flex items-center gap-2">
                   <div className="w-5 h-5 rounded-full bg-status-success/20 flex items-center justify-center">
                     <Check className="w-3 h-3 text-status-success" />
@@ -197,9 +197,9 @@ export function EnhancedHeroSection() {
 
           {/* Product Preview - Right Side */}
           <div className="lg:col-span-7 relative">
-            {/* Floating Notifications - Hospitable style */}
+            {/* Floating Notifications */}
             {notifications.map((notif, i) => (
-              <FloatingNotification key={i} text={notif.text} delay={notif.delay} index={i} />
+              <FloatingNotification key={i} text={notif.text} icon={notif.icon} delay={notif.delay} index={i} />
             ))}
 
             {/* Glow effect */}
