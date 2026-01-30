@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, MessageCircle, Sparkles, BarChart3, FileText, Check } from 'lucide-react';
+import { ArrowRight, Calendar, MessageCircle, Sparkles, BarChart3, FileText, Check, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { CalendarPreview, CleaningPreview, MessagingPreview, StatsPreview, BillingPreview } from './previews';
+import { CalendarPreview, CleaningPreview, MessagingPreview, StatsPreview, BillingPreview, DashboardPreview } from './previews';
 
 interface PreviewThumbnail {
   id: string;
@@ -15,11 +15,11 @@ interface PreviewThumbnail {
 }
 
 const thumbnails: PreviewThumbnail[] = [
-  { id: 'calendar', icon: Calendar, label: 'Calendrier', color: 'from-primary/20 to-primary/5', preview: CalendarPreview },
-  { id: 'messaging', icon: MessageCircle, label: 'Messagerie', color: 'from-status-info/20 to-status-info/5', preview: MessagingPreview },
+  { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', color: 'from-primary/20 to-primary/5', preview: DashboardPreview },
+  { id: 'calendar', icon: Calendar, label: 'Calendrier', color: 'from-status-info/20 to-status-info/5', preview: CalendarPreview },
+  { id: 'messaging', icon: MessageCircle, label: 'Messagerie', color: 'from-status-pending/20 to-status-pending/5', preview: MessagingPreview },
   { id: 'cleaning', icon: Sparkles, label: 'Ménage', color: 'from-status-success/20 to-status-success/5', preview: CleaningPreview },
   { id: 'stats', icon: BarChart3, label: 'Stats', color: 'from-nav-pilotage/20 to-nav-pilotage/5', preview: StatsPreview },
-  { id: 'billing', icon: FileText, label: 'Facturation', color: 'from-nav-revenus/20 to-nav-revenus/5', preview: BillingPreview },
 ];
 
 // Floating notifications like Hospitable
@@ -206,7 +206,7 @@ export function EnhancedHeroSection() {
             <div className="absolute -inset-8 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 rounded-3xl blur-2xl opacity-60" />
             
             <div className="relative space-y-4">
-              {/* Main Preview - Real Calendar */}
+              {/* Main Preview - Dashboard */}
               <div 
                 className={cn(
                   "transition-all duration-1000",
@@ -214,7 +214,7 @@ export function EnhancedHeroSection() {
                 )}
                 style={{ transitionDelay: '300ms' }}
               >
-                <CalendarPreview className="shadow-elevated" />
+                <DashboardPreview className="shadow-elevated" />
               </div>
 
               {/* Thumbnails Row */}
