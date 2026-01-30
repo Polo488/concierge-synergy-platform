@@ -1,10 +1,6 @@
-import { useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { Calendar, Sparkles, MessageCircle, BarChart3, Wrench, Users } from 'lucide-react';
-import { ProductPreviewCalendar } from './ProductPreviewCalendar';
-import { ProductPreviewCleaning } from './ProductPreviewCleaning';
-import { ProductPreviewMessaging } from './ProductPreviewMessaging';
-import { ProductPreviewStats } from './ProductPreviewStats';
+import { Calendar, Sparkles, MessageCircle, BarChart3 } from 'lucide-react';
+import { CalendarPreview, CleaningPreview, MessagingPreview, StatsPreview } from './previews';
 
 const showcaseSections = [
   {
@@ -13,7 +9,7 @@ const showcaseSections = [
     title: 'Un calendrier que vos équipes comprennent',
     description: 'Vue unifiée de toutes vos réservations, par bien et par période. Plus de doute sur qui arrive, qui part, et quand.',
     benefit: 'Fini les doubles réservations et les oublis de check-in.',
-    component: ProductPreviewCalendar,
+    component: CalendarPreview,
   },
   {
     id: 'cleaning',
@@ -21,7 +17,7 @@ const showcaseSections = [
     title: 'Ménage et maintenance enfin structurés',
     description: 'Chaque intervention est planifiée, assignée et suivie. Vos équipes savent quoi faire, sans appel ni message.',
     benefit: 'Des logements toujours prêts, sans stress.',
-    component: ProductPreviewCleaning,
+    component: CleaningPreview,
   },
   {
     id: 'messaging',
@@ -29,7 +25,7 @@ const showcaseSections = [
     title: 'Messagerie voyageurs, connectée aux opérations',
     description: 'Tous les messages au même endroit. Historique complet, réponses rapides, contexte automatique.',
     benefit: 'Une communication fluide qui renforce votre image.',
-    component: ProductPreviewMessaging,
+    component: MessagingPreview,
   },
   {
     id: 'stats',
@@ -37,7 +33,7 @@ const showcaseSections = [
     title: 'Des statistiques qui aident à décider',
     description: 'Taux d\'occupation, revenus, performance par bien. Des chiffres utiles, pas des tableaux décoratifs.',
     benefit: 'Pilotez votre activité avec des données fiables.',
-    component: ProductPreviewStats,
+    component: StatsPreview,
   },
 ];
 
