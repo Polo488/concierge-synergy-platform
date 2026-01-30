@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { PortalHeader } from './PortalHeader';
-import { PortalFooter } from './PortalFooter';
+import { EnhancedFooter } from './EnhancedFooter';
 
 export function PortalLayout() {
   return (
@@ -9,7 +9,7 @@ export function PortalLayout() {
       <main className="flex-1 pt-16">
         <Outlet />
       </main>
-      <PortalFooter />
+      <EnhancedFooter />
     </div>
   );
 }
