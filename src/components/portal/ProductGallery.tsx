@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ZoomIn, Calendar, MessageCircle, Sparkles, BarChart3, FileText, Users, Wrench, Clock } from 'lucide-react';
+import { ZoomIn, Calendar, MessageCircle, Sparkles, BarChart3, FileText, Users, Wrench, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { 
@@ -8,7 +8,8 @@ import {
   MessagingPreview, 
   StatsPreview, 
   MaintenancePreview, 
-  BillingPreview 
+  BillingPreview,
+  DashboardPreview
 } from './previews';
 
 interface Screenshot {
@@ -21,6 +22,14 @@ interface Screenshot {
 }
 
 const screenshots: Screenshot[] = [
+  { 
+    id: 'dashboard', 
+    title: 'Tableau de bord', 
+    description: 'Vue d\'ensemble de votre activité', 
+    icon: LayoutDashboard, 
+    category: 'Pilotage',
+    preview: DashboardPreview,
+  },
   { 
     id: 'calendar', 
     title: 'Calendrier multi-lots', 
@@ -75,13 +84,6 @@ const screenshots: Screenshot[] = [
     description: 'Rôles et accès par utilisateur', 
     icon: Users, 
     category: 'Organisation',
-  },
-  { 
-    id: 'agenda', 
-    title: 'Agenda opérationnel', 
-    description: 'Vue journée de vos équipes', 
-    icon: Clock, 
-    category: 'Opérations',
   },
 ];
 

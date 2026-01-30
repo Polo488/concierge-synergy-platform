@@ -4,3 +4,4 @@ export { MessagingPreview } from './MessagingPreview';
 export { StatsPreview } from './StatsPreview';
 export { MaintenancePreview } from './MaintenancePreview';
 export { BillingPreview } from './BillingPreview';
+export { DashboardPreview } from './DashboardPreview';
