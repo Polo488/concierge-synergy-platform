@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, MessageCircle, Sparkles, BarChart3, FileText } from 'lucide-react';
+import { ArrowRight, Calendar, MessageCircle, Sparkles, BarChart3, FileText, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
@@ -22,86 +22,48 @@ const thumbnails: PreviewThumbnail[] = [
   { id: 'billing', icon: FileText, label: 'Facturation', color: 'from-nav-revenus/20 to-nav-revenus/5', preview: BillingPreview },
 ];
 
-function MainPreview() {
+// Floating notifications like Hospitable
+const notifications = [
+  { text: 'Réservation confirmée', delay: 800 },
+  { text: 'Calendriers synchronisés', delay: 2500 },
+  { text: 'Ménage assigné', delay: 4200 },
+  { text: 'Check-in validé', delay: 5900 },
+];
+
+function FloatingNotification({ text, delay, index }: { text: string; delay: number; index: number }) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const showTimeout = setTimeout(() => setIsVisible(true), delay);
+    return () => clearTimeout(showTimeout);
+  }, [delay]);
+
+  const positions = [
+    'top-8 right-4 lg:right-8',
+    'top-28 right-0 lg:right-2',
+    'bottom-48 right-6 lg:right-10',
+    'bottom-28 right-2 lg:right-4',
+  ];
+
   return (
-    <div className="relative bg-card rounded-2xl border border-border/50 shadow-elevated overflow-hidden">
-      {/* Window chrome */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-muted/30">
-        <div className="flex gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-status-error/60" />
-          <div className="w-3 h-3 rounded-full bg-status-warning/60" />
-          <div className="w-3 h-3 rounded-full bg-status-success/60" />
+    <div
+      className={cn(
+        'absolute transition-all duration-700 ease-out z-20 hidden lg:block',
+        positions[index % positions.length],
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+      )}
+    >
+      <div 
+        className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-card/95 backdrop-blur-sm border border-border/50 shadow-elevated"
+        style={{ animation: isVisible ? `float 4s ease-in-out infinite ${index * 0.7}s` : 'none' }}
+      >
+        <div className="w-6 h-6 rounded-full bg-status-success/20 flex items-center justify-center">
+          <Check className="w-3.5 h-3.5 text-status-success" />
         </div>
-        <div className="flex-1 text-center">
-          <span className="text-xs text-muted-foreground">app.noe-conciergerie.com</span>
-        </div>
-      </div>
-
-      {/* Main calendar preview */}
-      <div className="p-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h4 className="font-semibold text-foreground">Calendrier</h4>
-            <p className="text-xs text-muted-foreground">Janvier 2026</p>
-          </div>
-          <div className="flex gap-2">
-            <div className="px-3 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full">12 arrivées</div>
-            <div className="px-3 py-1 bg-status-warning/10 text-status-warning text-xs font-medium rounded-full">8 départs</div>
-          </div>
-        </div>
-
-        {/* Calendar grid simulation */}
-        <div className="space-y-2">
-          {/* Property rows */}
-          {['Villa Sunset', 'Apt. Centre-Ville', 'Studio Plage'].map((property, i) => (
-            <div key={property} className="flex gap-2">
-              <div className="w-28 flex-shrink-0 py-2 text-xs font-medium text-foreground truncate">
-                {property}
-              </div>
-              <div className="flex-1 flex gap-1">
-                {/* Day cells with bookings */}
-                {Array.from({ length: 14 }).map((_, j) => {
-                  const hasBooking = (i === 0 && j >= 2 && j <= 8) || 
-                                    (i === 1 && j >= 5 && j <= 12) || 
-                                    (i === 2 && j >= 0 && j <= 4);
-                  const isAirbnb = i === 0 || i === 2;
-                  return (
-                    <div
-                      key={j}
-                      className={cn(
-                        "flex-1 h-8 rounded text-2xs flex items-center justify-center transition-colors",
-                        hasBooking 
-                          ? isAirbnb 
-                            ? "bg-channel-airbnb/20 text-channel-airbnb" 
-                            : "bg-channel-booking/20 text-channel-booking"
-                          : "bg-muted/50"
-                      )}
-                    >
-                      {j + 15}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Stats footer */}
-        <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-border/50">
-          <div className="text-center">
-            <p className="text-lg font-bold text-foreground">87%</p>
-            <p className="text-2xs text-muted-foreground">Occupation</p>
-          </div>
-          <div className="text-center">
-            <p className="text-lg font-bold text-status-success">24 890€</p>
-            <p className="text-2xs text-muted-foreground">Revenus</p>
-          </div>
-          <div className="text-center">
-            <p className="text-lg font-bold text-foreground">4.8</p>
-            <p className="text-2xs text-muted-foreground">Note moyenne</p>
-          </div>
-        </div>
+        <span className="text-sm font-medium text-foreground whitespace-nowrap">
+          {text}
+        </span>
+        <div className="w-2 h-2 rounded-full bg-status-success animate-pulse" />
       </div>
     </div>
   );
@@ -130,6 +92,13 @@ function ThumbnailPreview({ thumbnail }: { thumbnail: PreviewThumbnail }) {
 
 export function EnhancedHeroSection() {
   const [selectedThumbnail, setSelectedThumbnail] = useState<PreviewThumbnail | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    // Trigger animations after mount
+    const timer = setTimeout(() => setIsLoaded(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <section className="relative overflow-hidden min-h-[95vh] flex items-center">
@@ -140,37 +109,67 @@ export function EnhancedHeroSection() {
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-24 w-full">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          {/* Content - Left Side */}
+          {/* Content - Left Side - Animated entrance */}
           <div className="lg:col-span-5 text-center lg:text-left">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary mb-6">
+            <div 
+              className={cn(
+                "inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary mb-6 transition-all duration-700",
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              )}
+              style={{ transitionDelay: '100ms' }}
+            >
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <span className="text-sm font-medium">Channel Manager + PMS</span>
             </div>
 
-            {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-foreground leading-[1.1] tracking-tight mb-6">
-              Le cockpit tout-en-un
-              <br />
-              <span className="text-muted-foreground">des conciergeries modernes.</span>
+            {/* Headline - Hospitable style "Simple at one. Simple at hundred" */}
+            <h1 
+              className={cn(
+                "text-4xl sm:text-5xl lg:text-6xl font-semibold text-foreground leading-[1.1] tracking-tight mb-6 transition-all duration-1000",
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              )}
+              style={{ transitionDelay: '200ms' }}
+            >
+              <span className="block">Simple à 1 logement.</span>
+              <span className="block text-muted-foreground">Simple à 100.</span>
             </h1>
             
             {/* Subheadline */}
-            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
-              Réservations. Équipes. Opérations. Revenus. Qualité. Automatisation.
-              <br className="hidden sm:block" />
-              Tout ce qu'il faut pour structurer votre activité.
+            <p 
+              className={cn(
+                "text-lg sm:text-xl text-muted-foreground leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0 transition-all duration-1000",
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              )}
+              style={{ transitionDelay: '400ms' }}
+            >
+              Pilotez chaque séjour avec une synchronisation en temps réel, des opérations automatisées et un pilotage clair.
             </p>
             
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
-              <Button size="lg" className="text-base px-8 h-12" asChild>
+            <div 
+              className={cn(
+                "flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8 transition-all duration-1000",
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              )}
+              style={{ transitionDelay: '500ms' }}
+            >
+              <Button 
+                size="lg" 
+                className="text-base px-8 h-12 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] transition-all duration-300" 
+                asChild
+              >
                 <Link to="/contact">
-                  Demander une démo
+                  Commencer gratuitement
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="text-base px-8 h-12" asChild>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-base px-8 h-12 hover:bg-card hover:scale-[1.02] transition-all duration-300" 
+                asChild
+              >
                 <Link to="/produit">
                   Voir le produit
                 </Link>
@@ -178,46 +177,59 @@ export function EnhancedHeroSection() {
             </div>
 
             {/* Trust indicators */}
-            <div className="flex flex-wrap items-center gap-6 justify-center lg:justify-start text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-status-success" viewBox="0 0 16 16" fill="none">
-                  <path d="M2 8L6 12L14 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Sans engagement</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-status-success" viewBox="0 0 16 16" fill="none">
-                  <path d="M2 8L6 12L14 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Démo personnalisée</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-status-success" viewBox="0 0 16 16" fill="none">
-                  <path d="M2 8L6 12L14 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Onboarding inclus</span>
-              </div>
+            <div 
+              className={cn(
+                "flex flex-wrap items-center gap-6 justify-center lg:justify-start text-sm text-muted-foreground transition-all duration-1000",
+                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              )}
+              style={{ transitionDelay: '600ms' }}
+            >
+              {['Sans engagement', 'Démo personnalisée', 'Onboarding inclus'].map((text) => (
+                <div key={text} className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-status-success/20 flex items-center justify-center">
+                    <Check className="w-3 h-3 text-status-success" />
+                  </div>
+                  <span>{text}</span>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Product Preview - Right Side */}
           <div className="lg:col-span-7 relative">
+            {/* Floating Notifications - Hospitable style */}
+            {notifications.map((notif, i) => (
+              <FloatingNotification key={i} text={notif.text} delay={notif.delay} index={i} />
+            ))}
+
             {/* Glow effect */}
             <div className="absolute -inset-8 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 rounded-3xl blur-2xl opacity-60" />
             
             <div className="relative space-y-4">
-              {/* Main Preview */}
-              <MainPreview />
+              {/* Main Preview - Real Calendar */}
+              <div 
+                className={cn(
+                  "transition-all duration-1000",
+                  isLoaded ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-8 scale-95"
+                )}
+                style={{ transitionDelay: '300ms' }}
+              >
+                <CalendarPreview className="shadow-elevated" />
+              </div>
 
               {/* Thumbnails Row */}
               <div className="grid grid-cols-5 gap-2">
-                {thumbnails.map((thumbnail) => {
+                {thumbnails.map((thumbnail, i) => {
                   const Icon = thumbnail.icon;
                   return (
                     <button
                       key={thumbnail.id}
                       onClick={() => setSelectedThumbnail(thumbnail)}
-                      className="group relative bg-card rounded-xl border border-border/50 p-3 transition-all duration-300 hover:shadow-soft hover:border-primary/30 hover:scale-[1.02]"
+                      className={cn(
+                        "group relative bg-card rounded-xl border border-border/50 p-3 transition-all duration-500 hover:shadow-soft hover:border-primary/30 hover:scale-[1.02]",
+                        isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                      )}
+                      style={{ transitionDelay: `${700 + i * 100}ms` }}
                     >
                       <div className="flex flex-col items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -233,9 +245,9 @@ export function EnhancedHeroSection() {
               </div>
             </div>
 
-            {/* Floating Elements */}
-            <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl blur-xl" />
-            <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gradient-to-br from-status-success/20 to-transparent rounded-2xl blur-xl" />
+            {/* Floating decorative Elements */}
+            <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl blur-xl animate-float" />
+            <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gradient-to-br from-status-success/20 to-transparent rounded-2xl blur-xl animate-float" style={{ animationDelay: '2s' }} />
           </div>
         </div>
       </div>
