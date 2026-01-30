@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, Layers, Eye, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -41,11 +42,34 @@ const columns = [
 ];
 
 export function WhyNoeSection({ className }: { className?: string }) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -100px 0px' }
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className={cn("py-20 lg:py-28 bg-muted/30", className)}>
+    <section ref={sectionRef} className={cn("py-20 lg:py-28 bg-muted/30", className)}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div 
+          className={cn(
+            "text-center mb-16 transition-all duration-700",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          )}
+        >
           <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
             La différence Noé
           </span>
@@ -64,7 +88,11 @@ export function WhyNoeSection({ className }: { className?: string }) {
             return (
               <div
                 key={index}
-                className="bg-card rounded-2xl border border-border/50 p-8 hover:shadow-elevated transition-all duration-300"
+                className={cn(
+                  "bg-card rounded-2xl border border-border/50 p-8 hover:shadow-elevated transition-all duration-700 hover:scale-[1.02]",
+                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+                )}
+                style={{ transitionDelay: `${200 + index * 150}ms` }}
               >
                 {/* Icon & Title */}
                 <div className="flex items-center gap-4 mb-6">

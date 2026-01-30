@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link2, Calendar, Sparkles, MessageCircle, BarChart3, X, ChevronRight, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -153,12 +153,34 @@ function StepModal({ step, onClose }: { step: TourStep; onClose: () => void }) {
 
 export function ProductTourSection({ className }: { className?: string }) {
   const [selectedStep, setSelectedStep] = useState<TourStep | null>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -100px 0px' }
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section className={cn("py-20 lg:py-28", className)}>
+    <section ref={sectionRef} className={cn("py-20 lg:py-28", className)}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div 
+          className={cn(
+            "text-center mb-16 transition-all duration-700",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          )}
+        >
           <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
             Tour express
           </span>
@@ -173,24 +195,38 @@ export function ProductTourSection({ className }: { className?: string }) {
         {/* Tour Steps */}
         <div className="relative">
           {/* Connection line */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-border to-transparent -translate-y-1/2" />
+          <div 
+            className={cn(
+              "hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-border to-transparent -translate-y-1/2 transition-all duration-1000",
+              isVisible ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
+            )}
+          />
           
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6">
-            {tourSteps.map((step) => {
+            {tourSteps.map((step, index) => {
               const Icon = step.icon;
               return (
                 <button
                   key={step.id}
                   onClick={() => setSelectedStep(step)}
-                  className="group relative bg-card rounded-2xl border border-border/50 p-6 text-left transition-all duration-300 hover:shadow-elevated hover:border-primary/30 hover:scale-[1.02]"
+                  className={cn(
+                    "group relative bg-card rounded-2xl border border-border/50 p-6 text-left transition-all duration-700 hover:shadow-elevated hover:border-primary/30 hover:scale-[1.03]",
+                    isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+                  )}
+                  style={{ transitionDelay: `${300 + index * 100}ms` }}
                 >
                   {/* Step number */}
-                  <div className="absolute -top-3 left-6 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+                  <div className={cn(
+                    "absolute -top-3 left-6 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center transition-all duration-500",
+                    isVisible ? "scale-100" : "scale-0"
+                  )}
+                  style={{ transitionDelay: `${500 + index * 100}ms` }}
+                  >
                     {step.number}
                   </div>
 
                   {/* Icon */}
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
                     <Icon className="w-6 h-6 text-primary" />
                   </div>
 
@@ -199,7 +235,7 @@ export function ProductTourSection({ className }: { className?: string }) {
                   <p className="text-xs text-muted-foreground line-clamp-2">{step.title}</p>
 
                   {/* Arrow indicator */}
-                  <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
                     <ChevronRight className="w-4 h-4 text-primary" />
                   </div>
                 </button>
