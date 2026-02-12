@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import WelcomeLanding from '@/components/welcome-guide-public/WelcomeLanding';
@@ -19,6 +19,7 @@ interface Step {
   validationLabel: string;
   isOptional: boolean;
   helpText?: string;
+  contextHint?: string;
 }
 
 interface Upsell {
@@ -52,6 +53,7 @@ const MOCK_DATA = {
       imageUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800',
       validationLabel: 'Oui, je suis devant le bâtiment',
       isOptional: false,
+      contextHint: 'Commençons le parcours',
     },
     {
       id: 's2',
@@ -61,7 +63,8 @@ const MOCK_DATA = {
       imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800',
       validationLabel: "J'ai récupéré les clés",
       isOptional: false,
-      helpText: 'Tournez le cadran vers la droite.',
+      helpText: 'Tournez le cadran vers la droite puis appuyez sur le bouton du bas.',
+      contextHint: 'Vous y êtes presque',
     },
     {
       id: 's3',
@@ -71,6 +74,7 @@ const MOCK_DATA = {
       imageUrl: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
       validationLabel: 'Je suis entré dans le logement',
       isOptional: false,
+      contextHint: 'Encore une étape',
     },
     {
       id: 's4',
@@ -79,18 +83,19 @@ const MOCK_DATA = {
       description: '',
       validationLabel: "C'est noté, merci !",
       isOptional: false,
+      contextHint: 'Bienvenue chez vous',
     },
     {
       id: 's5',
       type: 'upsell',
       title: 'Améliorez votre séjour',
       description: '',
-      validationLabel: 'Continuer',
+      validationLabel: 'Terminer',
       isOptional: true,
     },
   ] as Step[],
   upsells: [
-    { id: 'u1', name: 'Check-out tardif (14h)', description: 'Profitez jusqu\'à 14h.', price: 35, currency: '€' },
+    { id: 'u1', name: 'Check-out tardif (14h)', description: 'Profitez jusqu\'à 14h sans stress.', price: 35, currency: '€' },
     { id: 'u2', name: 'Ménage supplémentaire', description: 'Un ménage pendant votre séjour.', price: 45, currency: '€' },
     { id: 'u3', name: 'Pack linge premium', description: 'Draps et serviettes supplémentaires.', price: 20, currency: '€' },
   ] as Upsell[],
@@ -114,11 +119,10 @@ const WelcomeGuidePublic = () => {
     setAnimating(true);
     setCompleted((prev) => [...prev, step.id]);
 
-    // Fire confetti when entering apartment
     if (step.type === 'apartment_access') {
       setTimeout(() => {
-        confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 }, disableForReducedMotion: true });
-      }, 200);
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, disableForReducedMotion: true });
+      }, 250);
     }
 
     setTimeout(() => {
@@ -128,7 +132,7 @@ const WelcomeGuidePublic = () => {
         setPhase('complete');
       }
       setAnimating(false);
-    }, 500);
+    }, 450);
   }, [animating, step, currentStep, data.steps.length]);
 
   const toggleUpsell = useCallback((id: string) => {
@@ -154,13 +158,17 @@ const WelcomeGuidePublic = () => {
     );
   }
 
-  // Completion
+  // Completion — now a rich hub
   if (phase === 'complete') {
     return (
       <div className="min-h-[100dvh] bg-[#0a0a0f] flex flex-col">
         <CompletionScreen
           guestName={data.guestName}
           acceptedUpsells={data.upsells.filter((u) => acceptedUpsells.includes(u.id))}
+          wifiName={data.wifiName}
+          wifiPassword={data.wifiPassword}
+          hostName={data.hostName}
+          propertyName={data.propertyName}
         />
       </div>
     );
@@ -176,7 +184,7 @@ const WelcomeGuidePublic = () => {
         stepIds={data.steps.map((s) => s.id)}
       />
 
-      <div className="flex-1 flex flex-col px-5 pb-8">
+      <div className="flex-1 flex flex-col px-5 pb-6">
         {step?.type === 'welcome' ? (
           <WelcomeStep
             welcomeMessage={data.welcomeMessage}
@@ -206,12 +214,13 @@ const WelcomeGuidePublic = () => {
             helpText={step.helpText}
             animating={animating}
             onValidate={handleValidate}
+            contextHint={step.contextHint}
           />
         ) : null}
       </div>
 
-      <div className="px-6 pb-6 text-center">
-        <p className="text-[10px] text-white/15">Powered by Noé · Livret d'accueil interactif</p>
+      <div className="px-5 pb-5 text-center">
+        <p className="text-[10px] text-white/10 tracking-wider">Powered by Noé</p>
       </div>
     </div>
   );

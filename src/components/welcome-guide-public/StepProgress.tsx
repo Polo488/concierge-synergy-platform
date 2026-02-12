@@ -8,25 +8,39 @@ interface StepProgressProps {
 }
 
 const StepProgress = ({ total, current, completedIds, stepIds }: StepProgressProps) => (
-  <div className="px-6 pt-6 pb-2">
-    <div className="flex items-center gap-1.5">
-      {stepIds.map((id, i) => (
-        <div
-          key={id}
-          className={cn(
-            'h-[3px] rounded-full flex-1 transition-all duration-700 ease-out',
-            completedIds.includes(id)
-              ? 'bg-emerald-400'
-              : i === current
-                ? 'bg-emerald-400/40'
-                : 'bg-white/10'
-          )}
-        />
-      ))}
+  <div className="px-5 pt-5 pb-1">
+    {/* Pill progress bar */}
+    <div className="flex items-center gap-1">
+      {stepIds.map((id, i) => {
+        const done = completedIds.includes(id);
+        const active = i === current;
+        return (
+          <div
+            key={id}
+            className="relative flex-1 h-[3px] rounded-full overflow-hidden bg-white/[0.06]"
+          >
+            <div
+              className={cn(
+                'absolute inset-0 rounded-full transition-all duration-700 ease-out origin-left',
+                done
+                  ? 'scale-x-100 bg-gradient-to-r from-emerald-400 to-emerald-300'
+                  : active
+                    ? 'scale-x-50 bg-emerald-400/50'
+                    : 'scale-x-0'
+              )}
+            />
+          </div>
+        );
+      })}
     </div>
-    <p className="text-[10px] text-white/40 text-center mt-2.5 font-semibold tracking-[0.15em] uppercase">
-      Étape {current + 1} sur {total}
-    </p>
+    <div className="flex items-center justify-between mt-2.5 px-0.5">
+      <p className="text-[10px] text-white/25 font-medium tracking-wider uppercase">
+        Étape {current + 1}/{total}
+      </p>
+      <p className="text-[10px] text-white/25 font-medium">
+        {Math.round(((completedIds.length) / total) * 100)}%
+      </p>
+    </div>
   </div>
 );
 
