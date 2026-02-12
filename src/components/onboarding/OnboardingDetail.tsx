@@ -1,24 +1,32 @@
 
-import { OnboardingProcess, OnboardingStepStatus } from '@/types/onboarding';
+import { OnboardingProcess, OnboardingStepStatus, StepActionData } from '@/types/onboarding';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { 
   ArrowLeft, CheckCircle2, Lock, Loader2, Clock, AlertTriangle, 
-  User, MapPin, Phone, Mail, Calendar, FileText, ChevronDown, ChevronUp
+  User, MapPin, Phone, Mail, Calendar, FileText, ChevronDown, ChevronUp,
+  Plug
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { LeadStep } from './steps/LeadStep';
+import { AppointmentStep } from './steps/AppointmentStep';
+import { MandateStep } from './steps/MandateStep';
+import { RibStep } from './steps/RibStep';
+import { PreparationStep } from './steps/PreparationStep';
+import { PropertyCreationStep } from './steps/PropertyCreationStep';
+import { PublicationStep } from './steps/PublicationStep';
+import { ClosureStep } from './steps/ClosureStep';
 
 interface OnboardingDetailProps {
   process: OnboardingProcess;
   onBack: () => void;
-  onToggleSubTask: (processId: string, stepId: string, subTaskId: string) => void;
+  onUpdateStepAction: (processId: string, stepId: string, data: StepActionData) => void;
 }
 
 const stepStatusConfig: Record<OnboardingStepStatus, { label: string; icon: React.ElementType; color: string; bg: string }> = {
@@ -30,7 +38,7 @@ const stepStatusConfig: Record<OnboardingStepStatus, { label: string; icon: Reac
   blocked: { label: 'Bloquée', icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
 };
 
-export function OnboardingDetail({ process, onBack, onToggleSubTask }: OnboardingDetailProps) {
+export function OnboardingDetail({ process, onBack, onUpdateStepAction }: OnboardingDetailProps) {
   const [expandedSteps, setExpandedSteps] = useState<string[]>(
     process.steps.filter(s => s.status !== 'locked' && s.status !== 'completed').map(s => s.id)
   );
@@ -39,6 +47,29 @@ export function OnboardingDetail({ process, onBack, onToggleSubTask }: Onboardin
     setExpandedSteps(prev => 
       prev.includes(stepId) ? prev.filter(id => id !== stepId) : [...prev, stepId]
     );
+  };
+
+  const renderStepAction = (step: typeof process.steps[0]) => {
+    switch (step.stepType) {
+      case 'lead':
+        return <LeadStep step={step} process={process} />;
+      case 'appointment':
+        return <AppointmentStep step={step} processId={process.id} onUpdateAction={onUpdateStepAction as any} />;
+      case 'mandate':
+        return <MandateStep step={step} processId={process.id} ownerName={process.ownerName} propertyAddress={process.propertyAddress} onUpdateAction={onUpdateStepAction as any} />;
+      case 'rib':
+        return <RibStep step={step} processId={process.id} onUpdateAction={onUpdateStepAction as any} />;
+      case 'preparation':
+        return <PreparationStep step={step} processId={process.id} onUpdateAction={onUpdateStepAction as any} />;
+      case 'property_creation':
+        return <PropertyCreationStep step={step} processId={process.id} onUpdateAction={onUpdateStepAction as any} />;
+      case 'publication':
+        return <PublicationStep step={step} processId={process.id} onUpdateAction={onUpdateStepAction as any} />;
+      case 'closure':
+        return <ClosureStep step={step} processId={process.id} onUpdateAction={onUpdateStepAction as any} />;
+      default:
+        return null;
+    }
   };
 
   return (
@@ -105,7 +136,6 @@ export function OnboardingDetail({ process, onBack, onToggleSubTask }: Onboardin
         </h3>
         
         <div className="relative">
-          {/* Vertical line */}
           <div className="absolute left-[19px] top-8 bottom-4 w-0.5 bg-border" />
           
           <div className="space-y-2">
@@ -113,12 +143,9 @@ export function OnboardingDetail({ process, onBack, onToggleSubTask }: Onboardin
               const cfg = stepStatusConfig[step.status];
               const isExpanded = expandedSteps.includes(step.id);
               const isLocked = step.status === 'locked';
-              const completedSubs = step.subTasks.filter(st => st.completed).length;
-              const totalSubs = step.subTasks.length;
 
               return (
                 <div key={step.id} className={cn("relative", isLocked && "opacity-50")}>
-                  {/* Step header */}
                   <div 
                     className={cn(
                       "flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all",
@@ -127,7 +154,6 @@ export function OnboardingDetail({ process, onBack, onToggleSubTask }: Onboardin
                     )}
                     onClick={() => !isLocked && toggleExpand(step.id)}
                   >
-                    {/* Step number circle */}
                     <div className={cn(
                       "relative z-10 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border-2",
                       step.status === 'completed' ? 'bg-emerald-500 border-emerald-500 text-white' :
@@ -147,16 +173,13 @@ export function OnboardingDetail({ process, onBack, onToggleSubTask }: Onboardin
                         <Badge variant="outline" className={cn('text-[10px] py-0 h-5', cfg.bg, cfg.color)}>
                           {cfg.label}
                         </Badge>
+                        {step.linkedModule && (
+                          <Badge variant="secondary" className="text-[9px] py-0 h-4 gap-0.5">
+                            <Plug size={8} />{step.linkedModule}
+                          </Badge>
+                        )}
                       </div>
-                      {!isLocked && (
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <Progress value={(completedSubs / totalSubs) * 100} className="h-1.5 w-24" />
-                          <span className="text-[11px] text-muted-foreground">{completedSubs}/{totalSubs}</span>
-                          {step.assigneeNames.length > 0 && (
-                            <span className="text-[11px] text-muted-foreground">• {step.assigneeNames[0]}</span>
-                          )}
-                        </div>
-                      )}
+                      <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{step.description}</p>
                     </div>
                     
                     {!isLocked && (
@@ -165,43 +188,10 @@ export function OnboardingDetail({ process, onBack, onToggleSubTask }: Onboardin
                     )}
                   </div>
                   
-                  {/* Expanded subtasks */}
+                  {/* Expanded action UI */}
                   {isExpanded && !isLocked && (
-                    <div className="ml-[52px] pb-2 space-y-1.5">
-                      <p className="text-xs text-muted-foreground mb-2">{step.description}</p>
-                      {step.subTasks.map(sub => (
-                        <label
-                          key={sub.id}
-                          className={cn(
-                            "flex items-center gap-2.5 p-2 rounded-lg transition-all cursor-pointer",
-                            "hover:bg-accent/30",
-                            sub.completed && "opacity-60"
-                          )}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Checkbox
-                            checked={sub.completed}
-                            onCheckedChange={() => onToggleSubTask(process.id, step.id, sub.id)}
-                            disabled={step.status === 'locked'}
-                          />
-                          <span className={cn("text-sm", sub.completed && "line-through text-muted-foreground")}>
-                            {sub.label}
-                          </span>
-                          {sub.required && !sub.completed && (
-                            <Badge variant="outline" className="text-[9px] py-0 h-4 text-destructive border-destructive/30">
-                              Requis
-                            </Badge>
-                          )}
-                        </label>
-                      ))}
-                      {step.status === 'blocked' && step.blockedReason && (
-                        <div className="mt-2 p-2 bg-red-500/5 border border-red-200 rounded-lg">
-                          <p className="text-xs text-red-600 flex items-center gap-1.5">
-                            <AlertTriangle size={12} />
-                            {step.blockedReason}
-                          </p>
-                        </div>
-                      )}
+                    <div className="ml-[52px] pb-3 pr-2">
+                      {renderStepAction(step)}
                     </div>
                   )}
                 </div>

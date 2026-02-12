@@ -12,7 +12,7 @@ import { NewOnboardingDialog } from '@/components/onboarding/NewOnboardingDialog
 export default function Onboarding() {
   const {
     processes, selectedProcess, setSelectedProcessId,
-    filters, setFilters, kpis, toggleSubTask,
+    filters, setFilters, kpis, updateStepAction,
     createOnboarding, cities,
   } = useOnboarding();
   const [showNewDialog, setShowNewDialog] = useState(false);
@@ -23,7 +23,7 @@ export default function Onboarding() {
         <OnboardingDetail
           process={selectedProcess}
           onBack={() => setSelectedProcessId(null)}
-          onToggleSubTask={toggleSubTask}
+          onUpdateStepAction={updateStepAction}
         />
       </div>
     );
@@ -31,7 +31,6 @@ export default function Onboarding() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-primary/10">
@@ -48,16 +47,10 @@ export default function Onboarding() {
         </Button>
       </div>
 
-      {/* KPIs */}
       <OnboardingStats kpis={kpis} />
-
-      {/* Filters */}
       <OnboardingFilters filters={filters} onFiltersChange={setFilters} cities={cities} />
-
-      {/* Portfolio */}
       <OnboardingPortfolio processes={processes} onSelect={setSelectedProcessId} />
 
-      {/* New dialog */}
       <NewOnboardingDialog
         open={showNewDialog}
         onOpenChange={setShowNewDialog}
