@@ -45,6 +45,7 @@ import {
   Rocket,
   PenTool,
   Scale,
+  BookOpen,
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -146,6 +147,7 @@ export function Sidebar() {
       items: [
         { name: 'Messagerie', path: '/app/messaging', icon: MessageCircle, permission: 'messaging' },
         { name: 'Communication', path: '/app/guest-experience', icon: MessageSquare, permission: 'guestExperience' },
+        { name: 'Livret d\'accueil', path: '/app/welcome-guide', icon: BookOpen, permission: 'welcomeGuide' },
       ]
     },
     {
