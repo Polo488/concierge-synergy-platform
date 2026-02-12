@@ -1,20 +1,38 @@
 
 import { OnboardingStep, LeadActionData } from '@/types/onboarding';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { CheckCircle2, User, Tag, UserCheck } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface LeadStepProps {
   step: OnboardingStep;
-  process: { ownerName: string; ownerEmail: string; ownerPhone: string; source: string; assignedToName: string; createdAt: string };
+  process: { id: string; ownerName: string; ownerEmail: string; ownerPhone: string; source: string; assignedToName: string; createdAt: string };
+  onUpdateAction?: (processId: string, stepId: string, data: LeadActionData) => void;
 }
 
-export function LeadStep({ step, process }: LeadStepProps) {
+export function LeadStep({ step, process, onUpdateAction }: LeadStepProps) {
   const data = step.actionData as LeadActionData | undefined;
+  const allFilled = !!process.ownerName && !!process.ownerEmail && !!process.source && !!process.assignedToName;
+  const isCompleted = step.status === 'completed';
+
   const items = [
     { label: 'Contact', value: `${process.ownerName} – ${process.ownerEmail || 'Email non renseigné'}`, done: !!process.ownerName && !!process.ownerEmail, icon: User },
     { label: 'Source', value: process.source || 'Non renseignée', done: !!process.source, icon: Tag },
     { label: 'Responsable', value: process.assignedToName || 'Non assigné', done: !!process.assignedToName, icon: UserCheck },
   ];
+
+  const handleValidate = () => {
+    if (!onUpdateAction) return;
+    onUpdateAction(process.id, step.id, {
+      source: process.source,
+      responsibleName: process.assignedToName,
+      responsibleId: data?.responsibleId || '',
+      createdAt: data?.createdAt || new Date().toISOString(),
+      contactCompleted: true,
+    });
+    toast.success('Étape Lead validée — étape suivante déverrouillée');
+  };
 
   return (
     <div className="space-y-3">
@@ -30,6 +48,12 @@ export function LeadStep({ step, process }: LeadStepProps) {
           {item.done && <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600">Validé</Badge>}
         </div>
       ))}
+      {!isCompleted && allFilled && onUpdateAction && (
+        <Button onClick={handleValidate} size="sm" className="mt-2">
+          <CheckCircle2 size={14} className="mr-1.5" />
+          Valider cette étape
+        </Button>
+      )}
     </div>
   );
 }
