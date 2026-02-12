@@ -43,6 +43,7 @@ import {
   StickyNote,
   CalendarDays,
   Rocket,
+  PenTool,
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -156,6 +157,7 @@ export function Sidebar() {
         { name: 'Agenda', path: '/app/agenda', icon: StickyNote, permission: 'agenda' },
         { name: 'RH – Planning', path: '/app/hr-planning', icon: CalendarDays, permission: 'hrPlanning' },
         { name: 'Onboarding', path: '/app/onboarding', icon: Rocket, permission: 'onboarding' },
+        { name: 'Signature', path: '/app/signature', icon: PenTool, permission: 'onboarding' },
         { name: 'Utilisateurs', path: '/app/user-management', icon: Users, permission: 'users' },
       ]
     }

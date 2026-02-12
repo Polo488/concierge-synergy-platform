@@ -14,7 +14,258 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      signature_events: {
+        Row: {
+          actor: string | null
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          session_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          actor?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          session_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          actor?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          session_id?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "signature_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signature_sessions: {
+        Row: {
+          commission_rate: number | null
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          field_values: Json
+          id: string
+          onboarding_process_id: string | null
+          owner_email: string | null
+          owner_name: string | null
+          property_address: string | null
+          sent_at: string | null
+          signed_at: string | null
+          signed_document_url: string | null
+          signer_ip: string | null
+          status: string
+          template_id: string | null
+          token: string
+          updated_at: string
+          viewed_at: string | null
+        }
+        Insert: {
+          commission_rate?: number | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          field_values?: Json
+          id?: string
+          onboarding_process_id?: string | null
+          owner_email?: string | null
+          owner_name?: string | null
+          property_address?: string | null
+          sent_at?: string | null
+          signed_at?: string | null
+          signed_document_url?: string | null
+          signer_ip?: string | null
+          status?: string
+          template_id?: string | null
+          token: string
+          updated_at?: string
+          viewed_at?: string | null
+        }
+        Update: {
+          commission_rate?: number | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          field_values?: Json
+          id?: string
+          onboarding_process_id?: string | null
+          owner_email?: string | null
+          owner_name?: string | null
+          property_address?: string | null
+          sent_at?: string | null
+          signed_at?: string | null
+          signed_document_url?: string | null
+          signer_ip?: string | null
+          status?: string
+          template_id?: string | null
+          token?: string
+          updated_at?: string
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_sessions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "signature_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signature_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          document_url: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          document_url?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          document_url?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      signature_zone_data: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          session_id: string
+          signer_ip: string | null
+          value: string | null
+          zone_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          session_id: string
+          signer_ip?: string | null
+          value?: string | null
+          zone_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          session_id?: string
+          signer_ip?: string | null
+          value?: string | null
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_zone_data_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "signature_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signature_zone_data_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "signature_zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signature_zones: {
+        Row: {
+          created_at: string
+          field_key: string | null
+          height: number
+          id: string
+          is_required: boolean
+          label: string
+          page_number: number
+          role: string
+          sort_order: number
+          template_id: string
+          width: number
+          x_position: number
+          y_position: number
+          zone_type: string
+        }
+        Insert: {
+          created_at?: string
+          field_key?: string | null
+          height?: number
+          id?: string
+          is_required?: boolean
+          label: string
+          page_number?: number
+          role: string
+          sort_order?: number
+          template_id: string
+          width?: number
+          x_position?: number
+          y_position?: number
+          zone_type: string
+        }
+        Update: {
+          created_at?: string
+          field_key?: string | null
+          height?: number
+          id?: string
+          is_required?: boolean
+          label?: string
+          page_number?: number
+          role?: string
+          sort_order?: number
+          template_id?: string
+          width?: number
+          x_position?: number
+          y_position?: number
+          zone_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_zones_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "signature_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
