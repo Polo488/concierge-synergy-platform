@@ -62,7 +62,7 @@ export function OnboardingDetail({ process, onBack, onUpdateStepAction }: Onboar
       case 'preparation':
         return <PreparationStep step={step} processId={process.id} onUpdateAction={onUpdateStepAction as any} />;
       case 'property_creation':
-        return <PropertyCreationStep step={step} processId={process.id} onUpdateAction={onUpdateStepAction as any} />;
+        return <PropertyCreationStep step={step} processId={process.id} process={process} onUpdateAction={onUpdateStepAction as any} />;
       case 'publication':
         return <PublicationStep step={step} processId={process.id} onUpdateAction={onUpdateStepAction as any} />;
       case 'closure':

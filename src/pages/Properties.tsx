@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
-import { Grid3X3, Home, List, PlusCircle, Building, BedDouble, Calendar } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Grid3X3, Home, List, PlusCircle, Building, BedDouble, Calendar, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
@@ -13,14 +14,41 @@ import { RepasseEvent } from '@/components/properties/details/PropertyRepasseTab
 import { CleaningTask, CleaningIssue } from '@/types/cleaning';
 import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+
+interface OnboardingPrefillData {
+  fromOnboarding: boolean;
+  onboardingProcessId: string;
+  propertyName: string;
+  propertyAddress: string;
+  propertyType: string;
+  ownerName: string;
+  ownerEmail: string;
+  ownerPhone: string;
+  commission?: number;
+  city?: string;
+}
 
 const Properties = () => {
+  const location = useLocation();
   const [properties] = useState(generateProperties);
   const [maintenanceHistory] = useState(() => generateMaintenanceHistory(properties));
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [viewMode, setViewMode] = useState('list');
   const [selectedProperty, setSelectedProperty] = useState(null);
+  const [prefillData, setPrefillData] = useState<OnboardingPrefillData | null>(null);
+
+  useEffect(() => {
+    const state = location.state as { prefillData?: OnboardingPrefillData } | null;
+    if (state?.prefillData?.fromOnboarding) {
+      setPrefillData(state.prefillData);
+      // Clear the state so it doesn't persist on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Generate mock repasse events for demo
   const repasseEvents = useMemo<RepasseEvent[]>(() => {
@@ -162,6 +190,82 @@ const Properties = () => {
         </div>
         <TutorialButton moduleId="properties" />
       </div>
+
+      {prefillData && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} className="text-primary" />
+                <span className="font-semibold text-foreground text-sm">Données pré-remplies depuis l'onboarding</span>
+                <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">Auto</Badge>
+              </div>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setPrefillData(null)}>
+                <X size={14} />
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              {prefillData.propertyName && (
+                <div>
+                  <p className="text-[11px] text-muted-foreground">Nom du logement</p>
+                  <p className="font-medium text-foreground">{prefillData.propertyName}</p>
+                </div>
+              )}
+              {prefillData.propertyAddress && (
+                <div>
+                  <p className="text-[11px] text-muted-foreground">Adresse</p>
+                  <p className="font-medium text-foreground">{prefillData.propertyAddress}</p>
+                </div>
+              )}
+              {prefillData.propertyType && (
+                <div>
+                  <p className="text-[11px] text-muted-foreground">Type</p>
+                  <p className="font-medium text-foreground">{prefillData.propertyType}</p>
+                </div>
+              )}
+              {prefillData.ownerName && (
+                <div>
+                  <p className="text-[11px] text-muted-foreground">Propriétaire</p>
+                  <p className="font-medium text-foreground">{prefillData.ownerName}</p>
+                </div>
+              )}
+              {prefillData.ownerEmail && (
+                <div>
+                  <p className="text-[11px] text-muted-foreground">Email</p>
+                  <p className="font-medium text-foreground">{prefillData.ownerEmail}</p>
+                </div>
+              )}
+              {prefillData.ownerPhone && (
+                <div>
+                  <p className="text-[11px] text-muted-foreground">Téléphone</p>
+                  <p className="font-medium text-foreground">{prefillData.ownerPhone}</p>
+                </div>
+              )}
+              {prefillData.commission && (
+                <div>
+                  <p className="text-[11px] text-muted-foreground">Commission</p>
+                  <p className="font-medium text-foreground">{prefillData.commission}%</p>
+                </div>
+              )}
+              {prefillData.city && (
+                <div>
+                  <p className="text-[11px] text-muted-foreground">Ville</p>
+                  <p className="font-medium text-foreground">{prefillData.city}</p>
+                </div>
+              )}
+            </div>
+            <div className="mt-3 flex gap-2">
+              <Button size="sm" onClick={() => {
+                toast.success('Logement créé avec les données de l\'onboarding !');
+                setPrefillData(null);
+              }}>
+                <PlusCircle size={14} className="mr-1.5" />
+                Créer le logement avec ces données
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard 
