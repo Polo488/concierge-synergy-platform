@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, PenTool, CheckCircle2, Plus, UserPlus, Copy, Check } from 'lucide-react';
+import { FileText, PenTool, CheckCircle2, Plus, UserPlus, Copy, Check, Send } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface MandateStepProps {
@@ -39,7 +39,7 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
   const { register } = useAuth();
   const {
     templates, createSession, getSessionByOnboarding,
-    getSessionEvents, signSession, viewSession,
+    getSessionEvents, signSession, viewSession, sendSession,
   } = useSignatureContext();
 
   const session = getSessionByOnboarding(processId);
@@ -99,6 +99,12 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     toast.success('Identifiants copiés');
+  };
+
+  const handleSendMandate = async () => {
+    if (!session) return;
+    await sendSession(session.id);
+    toast.success('Mandat envoyé — le propriétaire peut maintenant le consulter et le signer depuis son espace.');
   };
 
   const handleSimulateSign = async () => {
@@ -224,8 +230,38 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
         </Card>
       )}
 
+      {/* Send mandate button - appears after account created and session not yet sent */}
+      {session && ownerAccountCreated && session.status === 'draft' && data.status !== 'signed' && (
+        <Card className="border border-primary/30 bg-primary/5">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Send size={16} className="text-primary" />
+              <span className="text-sm font-medium">Envoyer le mandat</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Le propriétaire pourra consulter et signer le mandat depuis son espace personnel.
+            </p>
+            <Button onClick={handleSendMandate} size="sm">
+              <Send size={14} className="mr-1.5" />
+              Envoyer le mandat au propriétaire
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Sent confirmation */}
+      {session && session.status === 'sent' && data.status !== 'signed' && (
+        <div className="p-4 rounded-xl border border-blue-200 bg-blue-500/5 space-y-2">
+          <div className="flex items-center gap-2 text-blue-600 font-medium text-sm">
+            <CheckCircle2 size={14} />
+            Mandat envoyé — en attente de signature
+          </div>
+          <p className="text-xs text-muted-foreground">Le propriétaire peut maintenant consulter et signer le mandat depuis son portail.</p>
+        </div>
+      )}
+
       {/* Simulate sign button (for demo/testing) */}
-      {session && session.status !== 'signed' && data.status !== 'signed' && ownerAccountCreated && (
+      {session && session.status !== 'signed' && data.status !== 'signed' && ownerAccountCreated && session.status === 'sent' && (
         <Button onClick={handleSimulateSign} size="sm" variant="outline">
           <PenTool size={14} className="mr-1.5" />
           Simuler la signature (démo)
