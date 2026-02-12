@@ -1,7 +1,7 @@
 
 import { useState, useMemo } from 'react';
 import { OnboardingStep, MandateActionData, MandateStatus } from '@/types/onboarding';
-import { useSignature } from '@/hooks/useSignature';
+import { useSignatureContext } from '@/contexts/SignatureContext';
 import { SignatureSessionTracker } from '@/components/signature/SignatureSessionTracker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,7 +35,7 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
   const {
     templates, createSession, sendSession, getSessionByOnboarding,
     getSessionEvents, getSessionZoneData, signSession, viewSession,
-  } = useSignature();
+  } = useSignatureContext();
 
   const session = getSessionByOnboarding(processId);
   const events = session ? getSessionEvents(session.id) : [];
