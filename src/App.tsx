@@ -36,6 +36,7 @@ import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
 import SignatureAdmin from "./pages/SignatureAdmin";
 import Sign from "./pages/Sign";
+import OwnerPortal from "./pages/OwnerPortal";
 import NotFound from "./pages/NotFound";
 
 // Portal pages
@@ -187,6 +188,12 @@ const App = () => (
                       <Route path="/app/signature" element={
                         <RoutePermission permission="onboarding">
                           <SignatureAdmin />
+                      </RoutePermission>
+                      } />
+                      
+                      <Route path="/app/owner" element={
+                        <RoutePermission permission="ownerPortal">
+                          <OwnerPortal />
                         </RoutePermission>
                       } />
                     </Route>

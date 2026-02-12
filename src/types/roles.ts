@@ -1,5 +1,5 @@
 
-export type UserRole = 'admin' | 'supervisor' | 'cityManager' | 'employee' | 'maintenance' | 'cleaning';
+export type UserRole = 'admin' | 'supervisor' | 'cityManager' | 'employee' | 'maintenance' | 'cleaning' | 'owner';
 
 export interface PermissionMap {
   properties: boolean;
@@ -16,6 +16,7 @@ export interface PermissionMap {
   messaging: boolean;
   hrPlanning: boolean;
   onboarding: boolean;
+  ownerPortal: boolean;
 }
 
 export interface RoleDefinition {

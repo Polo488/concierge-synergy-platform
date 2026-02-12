@@ -323,43 +323,61 @@ export function Sidebar() {
         {/* Subtle separator */}
         <div className="mx-4 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
         
-        {/* Navigation sections with drag and drop */}
+        {/* Navigation sections */}
         <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={visibleSections.map(s => s.id)}
-              strategy={verticalListSortingStrategy}
+          {user?.role === 'owner' ? (
+            /* Simplified sidebar for owner */
+            <div className="space-y-1">
+              <Link
+                to="/app/owner"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
+                  location.pathname === '/app/owner'
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                )}
+              >
+                <Home size={18} />
+                <span className={cn("text-sm", !isOpen && "md:hidden")}>Mon espace</span>
+              </Link>
+            </div>
+          ) : (
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
             >
-              {visibleSections.map((section) => (
-                <SortableSection
-                  key={section.id}
-                  section={section}
-                  isExpanded={expandedSections.includes(section.id)}
-                  isOpen={isOpen}
-                  onToggle={() => toggleSection(section.id)}
-                />
-              ))}
-            </SortableContext>
-            
-            {/* Drag overlay for visual feedback */}
-            <DragOverlay>
-              {activeSection ? (
-                <div className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-xl",
-                  "glass-panel shadow-float",
-                  "text-xs font-medium",
-                  activeSection.colorClass
-                )}>
-                  <span>{activeSection.title}</span>
-                </div>
-              ) : null}
-            </DragOverlay>
-          </DndContext>
+              <SortableContext
+                items={visibleSections.map(s => s.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {visibleSections.map((section) => (
+                  <SortableSection
+                    key={section.id}
+                    section={section}
+                    isExpanded={expandedSections.includes(section.id)}
+                    isOpen={isOpen}
+                    onToggle={() => toggleSection(section.id)}
+                  />
+                ))}
+              </SortableContext>
+              
+              {/* Drag overlay for visual feedback */}
+              <DragOverlay>
+                {activeSection ? (
+                  <div className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-xl",
+                    "glass-panel shadow-float",
+                    "text-xs font-medium",
+                    activeSection.colorClass
+                  )}>
+                    <span>{activeSection.title}</span>
+                  </div>
+                ) : null}
+              </DragOverlay>
+            </DndContext>
+          )}
         </nav>
         
         {/* Logout button */}
