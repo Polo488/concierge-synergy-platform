@@ -20,6 +20,7 @@ import { getRoleConfig } from '@/utils/roleUtils';
 import { InsightsBell } from '@/components/insights/InsightsBell';
 import { InsightsPanel } from '@/components/insights/InsightsPanel';
 import { useInsights } from '@/hooks/useInsights';
+import { useOnboarding } from '@/hooks/useOnboarding';
 import { useNavigate } from 'react-router-dom';
 
 export function Header() {
@@ -38,7 +39,16 @@ export function Header() {
     archiveInsight,
     disabledTypes,
     toggleTypeEnabled,
+    injectOnboardingProcesses,
   } = useInsights();
+
+  // Onboarding data for alerts
+  const { allProcesses } = useOnboarding();
+  
+  // Inject onboarding processes into insights
+  useEffect(() => {
+    injectOnboardingProcesses(allProcesses);
+  }, [allProcesses, injectOnboardingProcesses]);
   
   const [isInsightsPanelOpen, setIsInsightsPanelOpen] = useState(false);
 
@@ -55,6 +65,9 @@ export function Header() {
         break;
       case 'open_calendar':
         navigate('/calendar');
+        break;
+      case 'open_onboarding':
+        navigate('/app/onboarding');
         break;
     }
   };

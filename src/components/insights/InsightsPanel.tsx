@@ -12,7 +12,8 @@ import {
   X,
   ChevronRight,
   Settings,
-  Bell
+  Bell,
+  ClipboardList
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -59,6 +60,8 @@ const InsightIcon = ({ type }: { type: InsightType }) => {
       return <Calendar className="h-4 w-4" />;
     case 'restriction':
       return <Lock className="h-4 w-4" />;
+    case 'onboarding':
+      return <ClipboardList className="h-4 w-4" />;
     default:
       return <AlertTriangle className="h-4 w-4" />;
   }
