@@ -1,6 +1,6 @@
 // Smart Comparative Notifications Types
 
-export type InsightType = 'occupancy' | 'pricing' | 'availability' | 'restriction';
+export type InsightType = 'occupancy' | 'pricing' | 'availability' | 'restriction' | 'onboarding';
 
 export type InsightSeverity = 'warning' | 'critical' | 'info';
 
@@ -17,7 +17,7 @@ export interface InsightMetric {
 export interface InsightAction {
   id: string;
   label: string;
-  action: 'open_pricing' | 'open_rules' | 'open_property' | 'open_calendar';
+  action: 'open_pricing' | 'open_rules' | 'open_property' | 'open_calendar' | 'open_onboarding';
 }
 
 export interface PropertyInsight {
@@ -58,6 +58,7 @@ export const INSIGHT_TYPE_LABELS: Record<InsightType, string> = {
   pricing: 'Tarification',
   availability: 'Disponibilité',
   restriction: 'Restrictions',
+  onboarding: 'Onboarding',
 };
 
 export const INSIGHT_SEVERITY_CONFIG: Record<InsightSeverity, { color: string; bgColor: string; label: string }> = {

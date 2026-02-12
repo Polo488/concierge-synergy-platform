@@ -6,6 +6,7 @@ import {
   InsightThresholds, 
   DEFAULT_THRESHOLDS 
 } from '@/types/insights';
+import { OnboardingProcess } from '@/types/onboarding';
 import { properties } from '@/hooks/calendar/mockData';
 
 // Generate mock insights based on rules
@@ -137,6 +138,97 @@ const generateMockInsights = (): PropertyInsight[] => {
   ];
 };
 
+// Generate onboarding delay alerts from processes
+const generateOnboardingInsights = (processes: OnboardingProcess[]): PropertyInsight[] => {
+  const now = new Date();
+  const alerts: PropertyInsight[] = [];
+  
+  // Step delay thresholds in days
+  const stepThresholds: Record<string, number> = {
+    'lead': 2,
+    'appointment': 7,
+    'mandate': 10,
+    'rib': 5,
+    'preparation': 14,
+    'property_creation': 5,
+    'publication': 4,
+    'closure': 2,
+  };
+
+  processes
+    .filter(p => p.status === 'in_progress' || p.status === 'blocked')
+    .forEach(process => {
+      process.steps.forEach(step => {
+        if (step.status !== 'in_progress' && step.status !== 'todo' && step.status !== 'blocked') return;
+        if (!step.startedAt) return;
+
+        const startedAt = new Date(step.startedAt);
+        const daysElapsed = Math.floor((now.getTime() - startedAt.getTime()) / (1000 * 60 * 60 * 24));
+        const threshold = stepThresholds[step.stepType] || 7;
+
+        if (daysElapsed >= threshold) {
+          const overdueDays = daysElapsed - threshold;
+          const severity = overdueDays >= 7 ? 'critical' : overdueDays >= 3 ? 'warning' : 'info';
+
+          alerts.push({
+            id: `onb-${process.id}-${step.id}`,
+            propertyId: 0,
+            propertyName: process.propertyName,
+            type: 'onboarding',
+            severity: severity as 'critical' | 'warning' | 'info',
+            status: 'unread',
+            title: `Étape "${step.title}" en retard`,
+            message: `L'onboarding de ${process.propertyName} est bloqué à l'étape "${step.title}" depuis ${daysElapsed} jours (seuil : ${threshold}j). Responsable : ${step.assigneeNames[0] || process.assignedToName}.`,
+            metric: {
+              propertyValue: daysElapsed,
+              portfolioAverage: threshold,
+              difference: overdueDays,
+              differencePercent: Math.round((overdueDays / threshold) * 100),
+            },
+            metricLabel: 'Durée (jours)',
+            comparisonPeriod: '30d',
+            suggestion: step.status === 'blocked' 
+              ? `Cette étape est bloquée${step.blockedReason ? ` : ${step.blockedReason}` : ''}. Contactez ${step.assigneeNames[0] || process.assignedToName} pour débloquer.`
+              : `Relancez ${step.assigneeNames[0] || process.assignedToName} pour finaliser cette étape.`,
+            actions: [
+              { id: `onb-action-${step.id}`, label: 'Voir l\'onboarding', action: 'open_onboarding' },
+            ],
+            createdAt: new Date(now.getTime() - overdueDays * 24 * 60 * 60 * 1000),
+          });
+        }
+      });
+
+      // Global onboarding duration alert
+      if (process.totalDays && process.totalDays > 30 && process.status !== 'completed') {
+        alerts.push({
+          id: `onb-global-${process.id}`,
+          propertyId: 0,
+          propertyName: process.propertyName,
+          type: 'onboarding',
+          severity: process.totalDays > 45 ? 'critical' : 'warning',
+          status: 'unread',
+          title: `Onboarding trop long (${process.totalDays}j)`,
+          message: `L'onboarding de ${process.propertyName} dure depuis ${process.totalDays} jours (objectif : 30j). Progression : ${process.progress}%. Responsable : ${process.assignedToName}.`,
+          metric: {
+            propertyValue: process.totalDays,
+            portfolioAverage: 30,
+            difference: process.totalDays - 30,
+            differencePercent: Math.round(((process.totalDays - 30) / 30) * 100),
+          },
+          metricLabel: 'Durée totale (jours)',
+          comparisonPeriod: '30d',
+          suggestion: `Identifiez les goulots d'étranglement et accélérez les étapes restantes.`,
+          actions: [
+            { id: `onb-global-action-${process.id}`, label: 'Voir l\'onboarding', action: 'open_onboarding' },
+          ],
+          createdAt: new Date(now.getTime() - (process.totalDays - 30) * 24 * 60 * 60 * 1000),
+        });
+      }
+    });
+
+  return alerts;
+};
+
 export interface UseInsightsReturn {
   insights: PropertyInsight[];
   unreadCount: number;
@@ -150,16 +242,29 @@ export interface UseInsightsReturn {
   filterByStatus: (status: InsightStatus | 'all') => PropertyInsight[];
   disabledTypes: InsightType[];
   toggleTypeEnabled: (type: InsightType) => void;
+  injectOnboardingProcesses: (processes: OnboardingProcess[]) => void;
 }
 
 export function useInsights(): UseInsightsReturn {
   const [insights, setInsights] = useState<PropertyInsight[]>(generateMockInsights);
   const [thresholds, setThresholds] = useState<InsightThresholds>(DEFAULT_THRESHOLDS);
   const [disabledTypes, setDisabledTypes] = useState<InsightType[]>([]);
+  const [onboardingProcesses, setOnboardingProcesses] = useState<OnboardingProcess[]>([]);
+
+  const injectOnboardingProcesses = useCallback((processes: OnboardingProcess[]) => {
+    setOnboardingProcesses(processes);
+  }, []);
+
+  const allInsights = useMemo(() => {
+    const onboardingInsights = generateOnboardingInsights(onboardingProcesses);
+    // Merge: base insights + onboarding insights (replace old onboarding ones)
+    const baseInsights = insights.filter(i => i.type !== 'onboarding');
+    return [...baseInsights, ...onboardingInsights];
+  }, [insights, onboardingProcesses]);
 
   const unreadCount = useMemo(() => 
-    insights.filter(i => i.status === 'unread').length,
-    [insights]
+    allInsights.filter(i => i.status === 'unread').length,
+    [allInsights]
   );
 
   const markAsRead = useCallback((insightId: string) => {
@@ -187,22 +292,22 @@ export function useInsights(): UseInsightsReturn {
   }, []);
 
   const getInsightsForProperty = useCallback((propertyId: number) => {
-    return insights.filter(i => 
+    return allInsights.filter(i => 
       i.propertyId === propertyId && 
       i.status !== 'archived' &&
       !disabledTypes.includes(i.type)
     );
-  }, [insights, disabledTypes]);
+  }, [allInsights, disabledTypes]);
 
   const filterByType = useCallback((type: InsightType | 'all') => {
-    if (type === 'all') return insights.filter(i => i.status !== 'archived');
-    return insights.filter(i => i.type === type && i.status !== 'archived');
-  }, [insights]);
+    if (type === 'all') return allInsights.filter(i => i.status !== 'archived');
+    return allInsights.filter(i => i.type === type && i.status !== 'archived');
+  }, [allInsights]);
 
   const filterByStatus = useCallback((status: InsightStatus | 'all') => {
-    if (status === 'all') return insights.filter(i => i.status !== 'archived');
-    return insights.filter(i => i.status === status);
-  }, [insights]);
+    if (status === 'all') return allInsights.filter(i => i.status !== 'archived');
+    return allInsights.filter(i => i.status === status);
+  }, [allInsights]);
 
   const toggleTypeEnabled = useCallback((type: InsightType) => {
     setDisabledTypes(prev => 
@@ -213,7 +318,7 @@ export function useInsights(): UseInsightsReturn {
   }, []);
 
   return {
-    insights,
+    insights: allInsights,
     unreadCount,
     thresholds,
     setThresholds,
@@ -225,5 +330,6 @@ export function useInsights(): UseInsightsReturn {
     filterByStatus,
     disabledTypes,
     toggleTypeEnabled,
+    injectOnboardingProcesses,
   };
 }
