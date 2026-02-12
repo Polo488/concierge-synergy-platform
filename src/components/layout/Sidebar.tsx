@@ -71,7 +71,7 @@ type NavSection = {
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
-  const [expandedSections, setExpandedSections] = useState<string[]>(['pilotage', 'operations', 'experience']);
+  const [expandedSections, setExpandedSections] = useState<string[]>(['pilotage', 'operations', 'experience', 'organisation']);
   const [activeId, setActiveId] = useState<string | null>(null);
   const location = useLocation();
   const isMobile = useIsMobile();
