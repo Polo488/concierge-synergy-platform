@@ -32,6 +32,7 @@ import Agenda from "./pages/Agenda";
 import Messaging from "./pages/Messaging";
 import HRPlanning from "./pages/HRPlanning";
 import Login from "./pages/Login";
+import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 
 // Portal pages
@@ -167,6 +168,12 @@ const App = () => (
                       <Route path="/app/hr-planning" element={
                         <RoutePermission permission="hrPlanning">
                           <HRPlanning />
+                        </RoutePermission>
+                      } />
+                      
+                      <Route path="/app/onboarding" element={
+                        <RoutePermission permission="onboarding">
+                          <Onboarding />
                         </RoutePermission>
                       } />
                     </Route>
