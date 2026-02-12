@@ -33,7 +33,7 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
   const [commission, setCommission] = useState(data.commissionRate?.toString() || '20');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const [ownerAccountCreated, setOwnerAccountCreated] = useState(false);
-  const [generatedPassword, setGeneratedPassword] = useState('');
+  const [manualPassword, setManualPassword] = useState('');
   const [copied, setCopied] = useState(false);
 
   const { register } = useAuth();
@@ -70,14 +70,14 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
       toast.error('Créez d\'abord le mandat électronique');
       return;
     }
+    if (!manualPassword || manualPassword.length < 6) {
+      toast.error('Le mot de passe doit contenir au moins 6 caractères');
+      return;
+    }
 
-    // Generate a simple password for demo
-    const password = 'owner' + Math.random().toString(36).slice(2, 6);
+    // Register the owner account with mustChangePassword flag
+    await register(resolvedEmail, manualPassword, ownerName, 'owner', true);
     
-    // Register the owner account
-    await register(resolvedEmail, password, ownerName, 'owner');
-    
-    setGeneratedPassword(password);
     setOwnerAccountCreated(true);
 
     // Update step status
@@ -90,11 +90,11 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
       sentAt: new Date().toISOString(),
     });
 
-    toast.success('Compte propriétaire créé ! Le propriétaire peut maintenant se connecter et signer depuis son espace.');
+    toast.success('Compte propriétaire créé ! Le propriétaire devra modifier son mot de passe à la première connexion.');
   };
 
   const handleCopyCredentials = () => {
-    const text = `Email : ${resolvedEmail}\nMot de passe : ${generatedPassword}`;
+    const text = `Email : ${resolvedEmail}\nMot de passe : ${manualPassword}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -191,7 +191,17 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
               Créez un compte pour <strong>{ownerName}</strong> ({resolvedEmail}). 
               Il pourra se connecter, suivre l'avancement et signer le mandat depuis son espace.
             </p>
-            <Button onClick={handleCreateOwnerAccount} size="sm">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Mot de passe du compte</Label>
+              <Input 
+                type="text" 
+                value={manualPassword} 
+                onChange={e => setManualPassword(e.target.value)} 
+                placeholder="Saisissez un mot de passe (min. 6 car.)" 
+                className="h-8 text-xs font-mono" 
+              />
+            </div>
+            <Button onClick={handleCreateOwnerAccount} size="sm" disabled={!manualPassword || manualPassword.length < 6}>
               <UserPlus size={14} className="mr-1.5" />
               Créer le compte propriétaire
             </Button>
@@ -200,7 +210,7 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
       )}
 
       {/* Show credentials after account creation */}
-      {ownerAccountCreated && generatedPassword && (
+      {ownerAccountCreated && manualPassword && (
         <Card className="border border-primary/30 bg-primary/5">
           <CardContent className="p-4 space-y-3">
             <div className="flex items-center gap-2">
@@ -215,8 +225,8 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
                 </div>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Mot de passe</p>
-                <p className="font-mono text-sm">{generatedPassword}</p>
+                <p className="text-xs text-muted-foreground">Mot de passe temporaire</p>
+                <p className="font-mono text-sm">{manualPassword}</p>
               </div>
             </div>
             <Button onClick={handleCopyCredentials} size="sm" variant="outline">
@@ -224,7 +234,7 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
               {copied ? 'Copié !' : 'Copier les identifiants'}
             </Button>
             <p className="text-xs text-muted-foreground">
-              Transmettez ces identifiants au propriétaire. Il se connecte sur la page de connexion et accède directement à son espace.
+              Transmettez ces identifiants au propriétaire. À sa première connexion, il sera invité à choisir un nouveau mot de passe.
             </p>
           </CardContent>
         </Card>
