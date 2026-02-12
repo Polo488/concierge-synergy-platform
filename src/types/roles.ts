@@ -18,6 +18,7 @@ export interface PermissionMap {
   onboarding: boolean;
   ownerPortal: boolean;
   legalWatch: boolean;
+  welcomeGuide: boolean;
 }
 
 export interface RoleDefinition {

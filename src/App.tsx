@@ -38,6 +38,8 @@ import SignatureAdmin from "./pages/SignatureAdmin";
 import Sign from "./pages/Sign";
 import OwnerPortal from "./pages/OwnerPortal";
 import LegalWatch from "./pages/LegalWatch";
+import WelcomeGuide from "./pages/WelcomeGuide";
+import WelcomeGuidePublic from "./pages/WelcomeGuidePublic";
 import NotFound from "./pages/NotFound";
 
 // Portal pages
@@ -84,6 +86,9 @@ const App = () => (
                     
                     {/* Public signing page */}
                     <Route path="/sign" element={<Sign />} />
+
+                    {/* Public welcome guide */}
+                    <Route path="/welcome/:token" element={<WelcomeGuidePublic />} />
                     
                     {/* Protected app routes */}
                     <Route element={<ProtectedRoute />}>
@@ -201,6 +206,12 @@ const App = () => (
                       <Route path="/app/legal-watch" element={
                         <RoutePermission permission="legalWatch">
                           <LegalWatch />
+                        </RoutePermission>
+                      } />
+
+                      <Route path="/app/welcome-guide" element={
+                        <RoutePermission permission="welcomeGuide">
+                          <WelcomeGuide />
                         </RoutePermission>
                       } />
                     </Route>

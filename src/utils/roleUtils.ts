@@ -6,6 +6,7 @@ const allFalsePermissions: PermissionMap = {
   calendar: false, billing: false, moyenneDuree: false, upsell: false,
   users: false, guestExperience: false, agenda: false, messaging: false,
   hrPlanning: false, onboarding: false, ownerPortal: false, legalWatch: false,
+  welcomeGuide: false,
 };
 
 // Define permissions and default routes for each role
@@ -19,7 +20,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           properties: true, inventory: true, maintenance: true, cleaning: true,
           calendar: true, billing: true, moyenneDuree: true, upsell: true,
           users: true, guestExperience: true, agenda: true, messaging: true,
-          hrPlanning: true, onboarding: true, legalWatch: true,
+          hrPlanning: true, onboarding: true, legalWatch: true, welcomeGuide: true,
         },
         defaultRoute: '/app',
         canManageUsers: true,
@@ -33,7 +34,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           properties: true, inventory: true, maintenance: true, cleaning: true,
           calendar: true, moyenneDuree: true, upsell: true, users: true,
           guestExperience: true, agenda: true, messaging: true, hrPlanning: true,
-          onboarding: true, legalWatch: true,
+          onboarding: true, legalWatch: true, welcomeGuide: true,
         },
         defaultRoute: '/app',
         canManageUsers: true,
