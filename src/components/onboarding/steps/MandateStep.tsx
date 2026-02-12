@@ -1,19 +1,22 @@
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { OnboardingStep, MandateActionData, MandateStatus } from '@/types/onboarding';
+import { useSignature } from '@/hooks/useSignature';
+import { SignatureSessionTracker } from '@/components/signature/SignatureSessionTracker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { FileText, Send, PenTool, CheckCircle2, Save } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FileText, Send, PenTool, CheckCircle2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface MandateStepProps {
   step: OnboardingStep;
   processId: string;
   ownerName: string;
+  ownerEmail?: string;
   propertyAddress: string;
   onUpdateAction: (processId: string, stepId: string, data: MandateActionData) => void;
 }
@@ -24,42 +27,58 @@ const statusConfig: Record<MandateStatus, { label: string; color: string }> = {
   signed: { label: 'Signé', color: 'bg-emerald-500/10 text-emerald-600' },
 };
 
-export function MandateStep({ step, processId, ownerName, propertyAddress, onUpdateAction }: MandateStepProps) {
+export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAddress, onUpdateAction }: MandateStepProps) {
   const data = (step.actionData as MandateActionData) || { status: 'draft' as MandateStatus };
   const [commission, setCommission] = useState(data.commissionRate?.toString() || '20');
-  const [content, setContent] = useState(data.documentContent || generateTemplate(ownerName, propertyAddress, data.commissionRate || 20));
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
 
-  function generateTemplate(owner: string, address: string, rate: number) {
-    return `MANDAT DE GESTION LOCATIVE\n\nEntre :\nLe mandant : ${owner}\nAdresse du bien : ${address}\n\nEt :\nLa société Noé Conciergerie\n\nIl est convenu ce qui suit :\n\nArticle 1 – Objet\nLe mandant confie au mandataire la gestion locative du bien situé à l'adresse ci-dessus.\n\nArticle 2 – Commission\nLe mandataire percevra une commission de ${rate}% sur les revenus locatifs bruts.\n\nArticle 3 – Durée\nLe présent mandat est conclu pour une durée d'un (1) an, renouvelable par tacite reconduction.\n\nArticle 4 – Obligations du mandataire\n- Gestion des réservations\n- Accueil des voyageurs\n- Coordination du ménage\n- Maintenance courante\n\nFait en deux exemplaires.`;
-  }
+  const {
+    templates, createSession, sendSession, getSessionByOnboarding,
+    getSessionEvents, getSessionZoneData, signSession, viewSession,
+  } = useSignature();
 
-  const handleSave = () => {
-    onUpdateAction(processId, step.id, {
-      ...data,
-      status: 'draft',
-      documentContent: content,
+  const session = getSessionByOnboarding(processId);
+  const events = session ? getSessionEvents(session.id) : [];
+  const activeTemplates = templates.filter(t => t.isActive);
+
+  // Auto-select first template if none selected
+  const effectiveTemplateId = selectedTemplateId || (activeTemplates.length > 0 ? activeTemplates[0].id : '');
+
+  const handleCreateSession = () => {
+    if (!effectiveTemplateId) {
+      toast.error('Sélectionnez un modèle de document');
+      return;
+    }
+    const newSession = createSession(effectiveTemplateId, processId, {
       ownerName,
+      ownerEmail: ownerEmail || `${ownerName.toLowerCase().replace(' ', '.')}@email.com`,
       propertyAddress,
       commissionRate: parseFloat(commission),
     });
-    toast.success('Mandat sauvegardé');
+    if (newSession) {
+      toast.success('Session de signature créée');
+    }
   };
 
   const handleSend = () => {
+    if (!session) return;
+    sendSession(session.id);
     onUpdateAction(processId, step.id, {
       ...data,
       status: 'sent',
-      documentContent: content,
       ownerName,
       propertyAddress,
       commissionRate: parseFloat(commission),
-      signatureLink: `https://sign.noe.app/${Date.now()}`,
+      signatureLink: `${window.location.origin}/sign?token=${session.token}`,
       sentAt: new Date().toISOString(),
     });
     toast.success('Lien de signature envoyé au propriétaire');
   };
 
-  const handleSign = () => {
+  const handleSimulateSign = () => {
+    if (!session) return;
+    // Simulate completing all zones and signing
+    signSession(session.id);
     onUpdateAction(processId, step.id, {
       ...data,
       status: 'signed',
@@ -67,6 +86,8 @@ export function MandateStep({ step, processId, ownerName, propertyAddress, onUpd
     });
     toast.success('Mandat signé électroniquement — étape validée');
   };
+
+  const signingUrl = session ? `${window.location.origin}/sign?token=${session.token}` : undefined;
 
   return (
     <div className="space-y-4">
@@ -77,56 +98,72 @@ export function MandateStep({ step, processId, ownerName, propertyAddress, onUpd
         <Badge variant="outline" className={statusConfig[data.status].color}>{statusConfig[data.status].label}</Badge>
       </div>
 
-      {data.status !== 'signed' && (
-        <>
-          {/* Editor */}
-          <Card className="border border-border/50">
-            <CardContent className="p-4 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Propriétaire</Label>
-                  <Input value={ownerName} disabled className="bg-muted/30" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Commission (%)</Label>
-                  <Input type="number" value={commission} onChange={e => setCommission(e.target.value)} min={0} max={100} />
-                </div>
+      {/* If no session yet, show creation form */}
+      {!session && data.status !== 'signed' && (
+        <Card className="border border-border/50">
+          <CardContent className="p-4 space-y-3">
+            <p className="text-xs font-medium text-muted-foreground">Créer une session de signature électronique</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Modèle de document</Label>
+                <Select value={effectiveTemplateId} onValueChange={setSelectedTemplateId}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="Sélectionner..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeTemplates.map(t => (
+                      <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Contenu du mandat</Label>
-                <Textarea
-                  value={content}
-                  onChange={e => setContent(e.target.value)}
-                  rows={12}
-                  className="font-mono text-xs leading-relaxed"
-                />
+                <Label className="text-xs">Commission (%)</Label>
+                <Input type="number" value={commission} onChange={e => setCommission(e.target.value)} min={0} max={100} className="h-8 text-xs" />
               </div>
-              <Button onClick={handleSave} variant="outline" size="sm">
-                <Save size={14} className="mr-1.5" />
-                Sauvegarder le brouillon
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Actions */}
-          <div className="flex gap-2">
-            {data.status === 'draft' && (
-              <Button onClick={handleSend} size="sm" className="flex-1">
-                <Send size={14} className="mr-1.5" />
-                Envoyer pour signature
-              </Button>
-            )}
-            {data.status === 'sent' && (
-              <Button onClick={handleSign} size="sm" className="flex-1">
-                <PenTool size={14} className="mr-1.5" />
-                Simuler la signature électronique
-              </Button>
-            )}
-          </div>
-        </>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Propriétaire</Label>
+                <Input value={ownerName} disabled className="h-8 text-xs bg-muted/30" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Adresse du bien</Label>
+                <Input value={propertyAddress} disabled className="h-8 text-xs bg-muted/30" />
+              </div>
+            </div>
+            <Button onClick={handleCreateSession} size="sm" disabled={!effectiveTemplateId}>
+              <Plus size={14} className="mr-1.5" />
+              Créer le mandat électronique
+            </Button>
+          </CardContent>
+        </Card>
       )}
 
-      {data.status === 'signed' && (
+      {/* If session exists, show signature tracker */}
+      {session && (
+        <SignatureSessionTracker
+          session={session}
+          events={events}
+          onSend={handleSend}
+          onResend={handleSend}
+          signingUrl={signingUrl}
+        />
+      )}
+
+      {/* Quick action buttons */}
+      {session && session.status !== 'signed' && data.status !== 'signed' && (
+        <div className="flex gap-2">
+          {(session.status === 'sent' || session.status === 'viewed') && (
+            <Button onClick={handleSimulateSign} size="sm" variant="outline" className="flex-1">
+              <PenTool size={14} className="mr-1.5" />
+              Simuler la signature
+            </Button>
+          )}
+        </div>
+      )}
+
+      {data.status === 'signed' && !session && (
         <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-500/5 space-y-2">
           <div className="flex items-center gap-2 text-emerald-600 font-medium text-sm">
             <CheckCircle2 size={14} />

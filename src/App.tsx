@@ -33,6 +33,8 @@ import Messaging from "./pages/Messaging";
 import HRPlanning from "./pages/HRPlanning";
 import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
+import SignatureAdmin from "./pages/SignatureAdmin";
+import Sign from "./pages/Sign";
 import NotFound from "./pages/NotFound";
 
 // Portal pages
@@ -75,6 +77,9 @@ const App = () => (
                     
                     {/* Login page */}
                     <Route path="/login" element={<Login />} />
+                    
+                    {/* Public signing page */}
+                    <Route path="/sign" element={<Sign />} />
                     
                     {/* Protected app routes */}
                     <Route element={<ProtectedRoute />}>
@@ -174,6 +179,12 @@ const App = () => (
                       <Route path="/app/onboarding" element={
                         <RoutePermission permission="onboarding">
                           <Onboarding />
+                        </RoutePermission>
+                      } />
+                      
+                      <Route path="/app/signature" element={
+                        <RoutePermission permission="onboarding">
+                          <SignatureAdmin />
                         </RoutePermission>
                       } />
                     </Route>

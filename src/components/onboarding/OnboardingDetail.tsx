@@ -56,7 +56,7 @@ export function OnboardingDetail({ process, onBack, onUpdateStepAction }: Onboar
       case 'appointment':
         return <AppointmentStep step={step} processId={process.id} onUpdateAction={onUpdateStepAction as any} />;
       case 'mandate':
-        return <MandateStep step={step} processId={process.id} ownerName={process.ownerName} propertyAddress={process.propertyAddress} onUpdateAction={onUpdateStepAction as any} />;
+        return <MandateStep step={step} processId={process.id} ownerName={process.ownerName} ownerEmail={process.ownerEmail} propertyAddress={process.propertyAddress} onUpdateAction={onUpdateStepAction as any} />;
       case 'rib':
         return <RibStep step={step} processId={process.id} onUpdateAction={onUpdateStepAction as any} />;
       case 'preparation':
