@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Check, Wifi, MapPin, Phone, Clock, Sparkles, Utensils, Bus, ShieldCheck, Copy, ExternalLink } from 'lucide-react';
+import { Check, Wifi, MapPin, Phone, Clock, Sparkles, Utensils, Bus, ShieldCheck, Copy } from 'lucide-react';
+import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { cn } from '@/lib/utils';
 
@@ -55,6 +56,12 @@ const RECO_SECTIONS = [
   },
 ];
 
+const stagger = { animate: { transition: { staggerChildren: 0.08 } } };
+const fadeUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const } },
+};
+
 const CompletionScreen = ({
   guestName,
   acceptedUpsells,
@@ -63,12 +70,10 @@ const CompletionScreen = ({
   hostName = 'Noé Conciergerie',
   propertyName = 'Apt Bellecour',
 }: CompletionScreenProps) => {
-  const [show, setShow] = useState(false);
   const [wifiCopied, setWifiCopied] = useState(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setShow(true), 100);
-    const t2 = setTimeout(() => {
+    const t = setTimeout(() => {
       confetti({
         particleCount: 80,
         spread: 70,
@@ -77,7 +82,7 @@ const CompletionScreen = ({
         disableForReducedMotion: true,
       });
     }, 500);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    return () => clearTimeout(t);
   }, []);
 
   const handleCopyWifi = () => {
@@ -89,12 +94,14 @@ const CompletionScreen = ({
   const total = acceptedUpsells.reduce((s, u) => s + u.price, 0);
 
   return (
-    <div className={cn(
-      'flex-1 flex flex-col px-5 pb-8 pt-6 overflow-y-auto transition-all duration-700',
-      show ? 'opacity-100' : 'opacity-0'
-    )}>
+    <motion.div
+      variants={stagger}
+      initial="initial"
+      animate="animate"
+      className="flex-1 flex flex-col px-5 pb-8 pt-6 overflow-y-auto"
+    >
       {/* Hero completion */}
-      <div className="text-center mb-6">
+      <motion.div variants={fadeUp} className="text-center mb-6">
         <div className="inline-flex h-20 w-20 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 items-center justify-center mb-4 border border-emerald-200/40 shadow-[0_8px_32px_rgba(52,211,153,0.15)]">
           <Check size={36} className="text-emerald-500" />
         </div>
@@ -104,10 +111,10 @@ const CompletionScreen = ({
         <p className="text-[13px] text-slate-400 mt-2 max-w-[280px] mx-auto leading-relaxed">
           Votre parcours d'accueil est terminé. Voici tout ce dont vous avez besoin.
         </p>
-      </div>
+      </motion.div>
 
       {/* Quick info cards */}
-      <div className="grid grid-cols-2 gap-2.5 mb-4">
+      <motion.div variants={fadeUp} className="grid grid-cols-2 gap-2.5 mb-4">
         {/* WiFi */}
         <div className="p-4 rounded-[22px] bg-white/65 backdrop-blur-2xl border border-white/50 shadow-[0_4px_24px_rgba(0,0,0,0.05)]">
           <div className="flex items-center justify-between mb-2">
@@ -128,11 +135,11 @@ const CompletionScreen = ({
           <p className="text-[13px] text-slate-800 font-semibold mt-0.5">{hostName}</p>
           <p className="text-[11px] text-slate-400 mt-0.5">Disponible 24/7</p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Upsell summary */}
       {acceptedUpsells.length > 0 && (
-        <div className="p-4 rounded-[22px] bg-emerald-50/80 backdrop-blur-2xl border border-emerald-200/30 mb-4">
+        <motion.div variants={fadeUp} className="p-4 rounded-[22px] bg-emerald-50/80 backdrop-blur-2xl border border-emerald-200/30 mb-4">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles size={14} className="text-emerald-600" />
             <p className="text-[10px] text-emerald-700/60 font-semibold uppercase tracking-widest">
@@ -149,11 +156,11 @@ const CompletionScreen = ({
             <span className="text-slate-500">Total</span>
             <span className="text-emerald-600">{total} €</span>
           </div>
-        </div>
+        </motion.div>
       )}
 
-      {/* Local recommendations – horizontal scroll */}
-      <div className="mb-4">
+      {/* Local recommendations */}
+      <motion.div variants={fadeUp} className="mb-4">
         <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest mb-3 px-1">
           À proximité
         </p>
@@ -181,10 +188,10 @@ const CompletionScreen = ({
             </div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Practical tips */}
-      <div className="p-4 rounded-[22px] bg-white/65 backdrop-blur-2xl border border-white/50 shadow-[0_4px_24px_rgba(0,0,0,0.05)] mb-4">
+      <motion.div variants={fadeUp} className="p-4 rounded-[22px] bg-white/65 backdrop-blur-2xl border border-white/50 shadow-[0_4px_24px_rgba(0,0,0,0.05)] mb-4">
         <div className="flex items-center gap-2 mb-2.5">
           <ShieldCheck size={15} className="text-slate-500" />
           <p className="text-[13px] font-semibold text-slate-700">Infos pratiques</p>
@@ -199,13 +206,13 @@ const CompletionScreen = ({
             <p>En cas d'urgence, contactez-nous via le chat</p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Footer */}
-      <div className="mt-auto pt-4 text-center">
+      <motion.div variants={fadeUp} className="mt-auto pt-4 text-center">
         <p className="text-[10px] text-slate-300 tracking-wider">Powered by Noé · {propertyName}</p>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

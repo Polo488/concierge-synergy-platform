@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import WelcomeLanding from '@/components/welcome-guide-public/WelcomeLanding';
 import StepProgress from '@/components/welcome-guide-public/StepProgress';
@@ -122,7 +123,7 @@ const WelcomeGuidePublic = () => {
     if (step.type === 'apartment_access') {
       setTimeout(() => {
         confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, disableForReducedMotion: true });
-      }, 250);
+      }, 400);
     }
 
     setTimeout(() => {
@@ -132,7 +133,7 @@ const WelcomeGuidePublic = () => {
         setPhase('complete');
       }
       setAnimating(false);
-    }, 450);
+    }, 100);
   }, [animating, step, currentStep, data.steps.length]);
 
   const toggleUpsell = useCallback((id: string) => {
@@ -141,87 +142,110 @@ const WelcomeGuidePublic = () => {
     );
   }, []);
 
-  // Landing
-  if (phase === 'landing') {
-    return (
-      <WelcomeLanding
-        guestName={data.guestName}
-        propertyName={data.propertyName}
-        cityName={data.cityName}
-        checkIn={data.checkIn}
-        checkOut={data.checkOut}
-        nights={data.nights}
-        hostName={data.hostName}
-        heroImage={data.heroImage}
-        onStart={handleStart}
-      />
-    );
-  }
+  const pageTransition = {
+    initial: { opacity: 0, y: 30, scale: 0.97 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: -20, scale: 0.97 },
+    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
+  };
 
-  // Completion — now a rich hub
-  if (phase === 'complete') {
-    return (
-      <div className="min-h-[100dvh] bg-[#F7F9FB] flex flex-col">
-        <CompletionScreen
-          guestName={data.guestName}
-          acceptedUpsells={data.upsells.filter((u) => acceptedUpsells.includes(u.id))}
-          wifiName={data.wifiName}
-          wifiPassword={data.wifiPassword}
-          hostName={data.hostName}
-          propertyName={data.propertyName}
-        />
-      </div>
-    );
-  }
+  const stepTransition = {
+    initial: { opacity: 0, x: 60 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -60 },
+    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
+  };
 
-  // Steps
   return (
-    <div className="min-h-[100dvh] bg-[#F7F9FB] flex flex-col">
-      <StepProgress
-        total={data.steps.length}
-        current={currentStep}
-        completedIds={completed}
-        stepIds={data.steps.map((s) => s.id)}
-      />
+    <div className="min-h-[100dvh] bg-[#F7F9FB] flex flex-col overflow-hidden">
+      <AnimatePresence mode="wait">
+        {phase === 'landing' && (
+          <motion.div key="landing" {...pageTransition} className="min-h-[100dvh]">
+            <WelcomeLanding
+              guestName={data.guestName}
+              propertyName={data.propertyName}
+              cityName={data.cityName}
+              checkIn={data.checkIn}
+              checkOut={data.checkOut}
+              nights={data.nights}
+              hostName={data.hostName}
+              heroImage={data.heroImage}
+              onStart={handleStart}
+            />
+          </motion.div>
+        )}
 
-      <div className="flex-1 flex flex-col px-5 pb-6">
-        {step?.type === 'welcome' ? (
-          <WelcomeStep
-            welcomeMessage={data.welcomeMessage}
-            wifiName={data.wifiName}
-            wifiPassword={data.wifiPassword}
-            houseRules={data.houseRules}
-            validationLabel={step.validationLabel}
-            animating={animating}
-            onValidate={handleValidate}
-          />
-        ) : step?.type === 'upsell' ? (
-          <UpsellStep
-            upsells={data.upsells}
-            acceptedIds={acceptedUpsells}
-            onToggle={toggleUpsell}
-            validationLabel={step.validationLabel}
-            animating={animating}
-            onValidate={handleValidate}
-          />
-        ) : step ? (
-          <StepContent
-            title={step.title}
-            description={step.description}
-            imageUrl={step.imageUrl}
-            validationLabel={step.validationLabel}
-            isOptional={step.isOptional}
-            helpText={step.helpText}
-            animating={animating}
-            onValidate={handleValidate}
-            contextHint={step.contextHint}
-          />
-        ) : null}
-      </div>
+        {phase === 'complete' && (
+          <motion.div key="complete" {...pageTransition} className="min-h-[100dvh] flex flex-col">
+            <CompletionScreen
+              guestName={data.guestName}
+              acceptedUpsells={data.upsells.filter((u) => acceptedUpsells.includes(u.id))}
+              wifiName={data.wifiName}
+              wifiPassword={data.wifiPassword}
+              hostName={data.hostName}
+              propertyName={data.propertyName}
+            />
+          </motion.div>
+        )}
 
-      <div className="px-5 pb-5 text-center">
-        <p className="text-[10px] text-slate-300 tracking-wider">Powered by Noé</p>
-      </div>
+        {phase === 'steps' && (
+          <motion.div key="steps" {...pageTransition} className="min-h-[100dvh] flex flex-col">
+            <StepProgress
+              total={data.steps.length}
+              current={currentStep}
+              completedIds={completed}
+              stepIds={data.steps.map((s) => s.id)}
+            />
+
+            <div className="flex-1 flex flex-col px-5 pb-6 relative">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={step?.id ?? currentStep}
+                  {...stepTransition}
+                  className="flex-1 flex flex-col"
+                >
+                  {step?.type === 'welcome' ? (
+                    <WelcomeStep
+                      welcomeMessage={data.welcomeMessage}
+                      wifiName={data.wifiName}
+                      wifiPassword={data.wifiPassword}
+                      houseRules={data.houseRules}
+                      validationLabel={step.validationLabel}
+                      animating={false}
+                      onValidate={handleValidate}
+                    />
+                  ) : step?.type === 'upsell' ? (
+                    <UpsellStep
+                      upsells={data.upsells}
+                      acceptedIds={acceptedUpsells}
+                      onToggle={toggleUpsell}
+                      validationLabel={step.validationLabel}
+                      animating={false}
+                      onValidate={handleValidate}
+                    />
+                  ) : step ? (
+                    <StepContent
+                      title={step.title}
+                      description={step.description}
+                      imageUrl={step.imageUrl}
+                      validationLabel={step.validationLabel}
+                      isOptional={step.isOptional}
+                      helpText={step.helpText}
+                      animating={false}
+                      onValidate={handleValidate}
+                      contextHint={step.contextHint}
+                    />
+                  ) : null}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            <div className="px-5 pb-5 text-center">
+              <p className="text-[10px] text-slate-300 tracking-wider">Powered by Noé</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
