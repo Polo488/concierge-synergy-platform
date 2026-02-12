@@ -52,7 +52,7 @@ export function OnboardingDetail({ process, onBack, onUpdateStepAction }: Onboar
   const renderStepAction = (step: typeof process.steps[0]) => {
     switch (step.stepType) {
       case 'lead':
-        return <LeadStep step={step} process={process} />;
+        return <LeadStep step={step} process={process} onUpdateAction={onUpdateStepAction as any} />;
       case 'appointment':
         return <AppointmentStep step={step} processId={process.id} onUpdateAction={onUpdateStepAction as any} />;
       case 'mandate':
