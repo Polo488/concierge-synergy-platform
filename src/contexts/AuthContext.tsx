@@ -27,6 +27,7 @@ const MOCK_USERS: User[] = [
   { id: '4', name: 'Employee User', email: 'employee@example.com', role: 'employee', avatar: 'https://i.pravatar.cc/150?u=4' },
   { id: '5', name: 'Maintenance Agent', email: 'maintenance@example.com', role: 'maintenance', avatar: 'https://i.pravatar.cc/150?u=5' },
   { id: '6', name: 'Cleaning Agent', email: 'cleaning@example.com', role: 'cleaning', avatar: 'https://i.pravatar.cc/150?u=6' },
+  { id: '7', name: 'Marie Dupont', email: 'marie.dupont@email.com', role: 'owner', avatar: 'https://i.pravatar.cc/150?u=7' },
 ];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -72,6 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (key === 'messaging' && currentPath === '/app/messaging') return true;
           if (key === 'hrPlanning' && currentPath === '/app/hr-planning') return true;
           if (key === 'onboarding' && (currentPath === '/app/onboarding' || currentPath === '/app/signature')) return true;
+          if (key === 'ownerPortal' && currentPath === '/app/owner') return true;
           
           return currentPath === '/app';
         }

@@ -95,6 +95,14 @@ const Login = () => {
               >
                 Ménage
               </Button>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleDemoLogin('marie.dupont@email.com')}
+              >
+                Propriétaire
+              </Button>
             </div>
           </CardFooter>
         </form>
