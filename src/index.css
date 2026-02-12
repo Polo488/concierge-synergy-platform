@@ -646,6 +646,19 @@ html * {
   font-style: italic;
 }
 
+.document-editor .tiptap u {
+  text-decoration: underline;
+}
+
+.document-editor .tiptap s {
+  text-decoration: line-through;
+}
+
+.document-editor .tiptap mark {
+  border-radius: 0.15rem;
+  padding: 0.1rem 0.2rem;
+}
+
 .document-editor .tiptap ul {
   list-style-type: disc;
   padding-left: 1.5rem;
@@ -668,7 +681,15 @@ html * {
   margin: 1rem 0;
 }
 
-/* Prose rendering for signing flow */
+.document-editor .tiptap blockquote {
+  border-left: 3px solid hsl(var(--primary));
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+/* Prose rendering for signing flow & preview */
 .prose h1 {
   font-size: 1.5rem;
   font-weight: 700;
@@ -698,6 +719,19 @@ html * {
   font-weight: 700;
 }
 
+.prose u {
+  text-decoration: underline;
+}
+
+.prose s {
+  text-decoration: line-through;
+}
+
+.prose mark {
+  border-radius: 0.15rem;
+  padding: 0.1rem 0.2rem;
+}
+
 .prose ul {
   list-style-type: disc;
   padding-left: 1.5rem;
@@ -710,8 +744,19 @@ html * {
   margin-bottom: 0.5rem;
 }
 
+.prose li {
+  margin-bottom: 0.25rem;
+}
+
 .prose hr {
   border: none;
   border-top: 1px solid hsl(var(--border));
   margin: 1rem 0;
+}
+
+.prose blockquote {
+  border-left: 3px solid hsl(var(--primary));
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  font-style: italic;
 }
