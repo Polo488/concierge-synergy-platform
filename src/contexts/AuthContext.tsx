@@ -10,7 +10,8 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (email: string, password: string, name: string, role: UserRole) => Promise<void>;
+  register: (email: string, password: string, name: string, role: UserRole, mustChangePassword?: boolean) => Promise<void>;
+  changePassword: (newPassword: string) => void;
   updateUserRole: (userId: string, newRole: UserRole) => Promise<void>;
   getCurrentUserPermissions: () => Record<string, boolean>;
   hasPermission: (permission: keyof ReturnType<typeof getRoleConfig>['permissions']) => boolean;
@@ -135,11 +136,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
-  const register = async (email: string, password: string, name: string, role: UserRole) => {
+  const register = async (email: string, password: string, name: string, role: UserRole, mustChangePassword = false) => {
     setLoading(true);
     try {
-      // Mock register - in a real app, you'd call an API
-      // Create new mock user with incremented ID
       const newId = (Math.max(...MOCK_USERS.map(u => parseInt(u.id))) + 1).toString();
       const newUser: User = {
         id: newId,
@@ -147,9 +146,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email,
         role,
         avatar: `https://i.pravatar.cc/150?u=${newId}`,
+        mustChangePassword,
       };
       
-      // Add to mock users array (in real app, this would be DB)
       MOCK_USERS.push(newUser);
       
       toast({
@@ -166,6 +165,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
+  };
+
+  const changePassword = (newPassword: string) => {
+    if (!user) return;
+    // Update mustChangePassword flag
+    const userIndex = MOCK_USERS.findIndex(u => u.id === user.id);
+    if (userIndex !== -1) {
+      MOCK_USERS[userIndex].mustChangePassword = false;
+    }
+    const updatedUser = { ...user, mustChangePassword: false };
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    toast({
+      title: "Mot de passe modifié",
+      description: "Votre mot de passe a été mis à jour avec succès",
+    });
   };
 
   const updateUserRole = async (userId: string, newRole: UserRole) => {
@@ -227,6 +242,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       login,
       logout,
       register,
+      changePassword,
       updateUserRole,
       getCurrentUserPermissions,
       hasPermission,

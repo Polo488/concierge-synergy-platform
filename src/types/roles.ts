@@ -32,4 +32,5 @@ export interface User {
   email: string;
   role: UserRole;
   avatar?: string;
+  mustChangePassword?: boolean;
 }
