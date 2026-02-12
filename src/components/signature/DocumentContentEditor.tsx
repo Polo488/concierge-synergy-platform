@@ -1,12 +1,16 @@
 
-import { useState, useRef, useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
 import { FIELD_KEY_OPTIONS } from '@/types/signature';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { AlignLeft, Variable, Eye, Edit } from 'lucide-react';
+import { 
+  AlignLeft, Variable, Bold, Italic, Heading1, Heading2, Heading3, 
+  List, ListOrdered, Undo, Redo, Minus
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -15,117 +19,177 @@ interface Props {
   onChange: (content: string) => void;
 }
 
-function renderContentWithBadges(content: string) {
-  const parts = content.split(/(\\{\\{[a-z_]+\\}\\})/g);
-  return parts.map((part, i) => {
-    const match = part.match(/^\\{\\{([a-z_]+)\\}\\}$/);
-    if (match) {
-      const fieldKey = match[1];
-      const field = FIELD_KEY_OPTIONS.find(f => f.key === fieldKey);
-      return (
-        <span
-          key={i}
-          className="inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20"
-        >
-          <Variable size={10} />
-          {field?.label || fieldKey}
-        </span>
-      );
-    }
-    // Preserve whitespace and line breaks
-    return part.split('\n').map((line, j, arr) => (
-      <span key={`${i}-${j}`}>
-        {line}
-        {j < arr.length - 1 && <br />}
-      </span>
-    ));
-  });
-}
-
 export function DocumentContentEditor({ content, onChange }: Props) {
-  const [mode, setMode] = useState<'edit' | 'preview'>('edit');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3] },
+      }),
+      Placeholder.configure({
+        placeholder: 'Collez ici le contenu de votre mandat de gestion...\n\nUtilisez la barre d\'outils pour mettre en forme le texte, puis insérez des variables dynamiques depuis le panneau de droite.',
+      }),
+    ],
+    content: content || '',
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm max-w-none min-h-[500px] p-6 focus:outline-none font-serif',
+      },
+    },
+  });
+
+  // Sync external content changes
+  useEffect(() => {
+    if (editor && content !== editor.getHTML() && !editor.isFocused) {
+      editor.commands.setContent(content || '');
+    }
+  }, [content, editor]);
 
   const handleInsertVariable = useCallback((fieldKey: string) => {
-    const ta = textareaRef.current;
-    if (!ta) {
-      // No selection, just append
-      onChange(content + `{{${fieldKey}}}`);
-      toast.success('Variable insérée');
-      return;
-    }
+    if (!editor) return;
 
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const before = content.slice(0, start);
-    const after = content.slice(end);
-    const newContent = before + `{{${fieldKey}}}` + after;
-    onChange(newContent);
+    const { from, to } = editor.state.selection;
+    const variableText = `{{${fieldKey}}}`;
 
-    // Restore cursor position after the inserted variable
-    requestAnimationFrame(() => {
-      const newPos = start + `{{${fieldKey}}}`.length;
-      ta.selectionStart = newPos;
-      ta.selectionEnd = newPos;
-      ta.focus();
-    });
+    editor.chain().focus().deleteRange({ from, to }).insertContent(variableText).run();
 
     const field = FIELD_KEY_OPTIONS.find(f => f.key === fieldKey);
-    if (start !== end) {
+    if (from !== to) {
       toast.success(`Texte remplacé par "${field?.label}"`);
     } else {
       toast.success(`"${field?.label}" inséré`);
     }
-  }, [content, onChange]);
+  }, [editor]);
 
-  // Count used variables
   const usedVariables = FIELD_KEY_OPTIONS.filter(f => content.includes(`{{${f.key}}}`));
+
+  if (!editor) return null;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      {/* Editor / Preview */}
       <div className="lg:col-span-2 space-y-2">
-        <div className="flex items-center gap-2">
-          <Button
-            variant={mode === 'edit' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setMode('edit')}
-          >
-            <Edit size={12} className="mr-1" />
-            Éditer
-          </Button>
-          <Button
-            variant={mode === 'preview' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setMode('preview')}
-          >
-            <Eye size={12} className="mr-1" />
-            Aperçu
-          </Button>
-          <span className="text-xs text-muted-foreground ml-auto">
-            {usedVariables.length} variable{usedVariables.length !== 1 ? 's' : ''} utilisée{usedVariables.length !== 1 ? 's' : ''}
-          </span>
-        </div>
-
+        {/* Toolbar */}
         <Card className="border border-border/50">
+          <CardContent className="p-2">
+            <div className="flex items-center gap-1 flex-wrap">
+              <Button
+                variant={editor.isActive('heading', { level: 1 }) ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                title="Titre 1"
+              >
+                <Heading1 size={14} />
+              </Button>
+              <Button
+                variant={editor.isActive('heading', { level: 2 }) ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                title="Titre 2"
+              >
+                <Heading2 size={14} />
+              </Button>
+              <Button
+                variant={editor.isActive('heading', { level: 3 }) ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                title="Titre 3"
+              >
+                <Heading3 size={14} />
+              </Button>
+
+              <div className="w-px h-5 bg-border mx-1" />
+
+              <Button
+                variant={editor.isActive('bold') ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => editor.chain().focus().toggleBold().run()}
+                title="Gras"
+              >
+                <Bold size={14} />
+              </Button>
+              <Button
+                variant={editor.isActive('italic') ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+                title="Italique"
+              >
+                <Italic size={14} />
+              </Button>
+
+              <div className="w-px h-5 bg-border mx-1" />
+
+              <Button
+                variant={editor.isActive('bulletList') ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                title="Liste à puces"
+              >
+                <List size={14} />
+              </Button>
+              <Button
+                variant={editor.isActive('orderedList') ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                title="Liste numérotée"
+              >
+                <ListOrdered size={14} />
+              </Button>
+
+              <div className="w-px h-5 bg-border mx-1" />
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => editor.chain().focus().setHorizontalRule().run()}
+                title="Ligne horizontale"
+              >
+                <Minus size={14} />
+              </Button>
+
+              <div className="w-px h-5 bg-border mx-1" />
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => editor.chain().focus().undo().run()}
+                disabled={!editor.can().undo()}
+                title="Annuler"
+              >
+                <Undo size={14} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => editor.chain().focus().redo().run()}
+                disabled={!editor.can().redo()}
+                title="Refaire"
+              >
+                <Redo size={14} />
+              </Button>
+
+              <span className="text-xs text-muted-foreground ml-auto">
+                {usedVariables.length} variable{usedVariables.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Editor */}
+        <Card className="border border-border/50 overflow-hidden">
           <CardContent className="p-0">
-            {mode === 'edit' ? (
-              <Textarea
-                ref={textareaRef}
-                value={content}
-                onChange={e => onChange(e.target.value)}
-                placeholder="Collez ici le contenu de votre mandat de gestion...&#10;&#10;Sélectionnez ensuite un passage de texte puis cliquez sur une variable dans le panneau de droite pour le remplacer."
-                className="min-h-[500px] border-0 rounded-none font-serif text-sm leading-relaxed resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-            ) : (
-              <ScrollArea className="h-[500px]">
-                <div className="p-6 font-serif text-sm leading-relaxed text-foreground whitespace-pre-wrap">
-                  {content ? renderContentWithBadges(content) : (
-                    <p className="text-muted-foreground italic">Aucun contenu. Passez en mode édition pour coller votre document.</p>
-                  )}
-                </div>
-              </ScrollArea>
-            )}
+            <EditorContent editor={editor} className="document-editor" />
           </CardContent>
         </Card>
       </div>
@@ -141,9 +205,7 @@ export function DocumentContentEditor({ content, onChange }: Props) {
           </CardHeader>
           <CardContent className="p-3 pt-0 space-y-1.5">
             <p className="text-[10px] text-muted-foreground mb-2">
-              {mode === 'edit'
-                ? 'Sélectionnez du texte dans l\'éditeur puis cliquez sur une variable pour remplacer la sélection.'
-                : 'Passez en mode édition pour insérer des variables.'}
+              Sélectionnez du texte dans l'éditeur puis cliquez sur une variable pour remplacer la sélection.
             </p>
             {FIELD_KEY_OPTIONS.map(field => {
               const isUsed = content.includes(`{{${field.key}}}`);
@@ -156,7 +218,6 @@ export function DocumentContentEditor({ content, onChange }: Props) {
                     'w-full justify-start text-xs h-8',
                     isUsed && 'border-primary/30 bg-primary/5'
                   )}
-                  disabled={mode !== 'edit'}
                   onClick={() => handleInsertVariable(field.key)}
                 >
                   <AlignLeft size={10} className="mr-1.5 text-primary" />

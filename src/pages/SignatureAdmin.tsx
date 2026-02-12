@@ -34,7 +34,7 @@ export default function SignatureAdmin() {
     let y = 20;
 
     if (template.documentContent) {
-      // Resolve variables in content
+      // Resolve variables in HTML content
       const valueMap: Record<string, string> = {
         owner_name: session.ownerName || '',
         owner_address: '',
@@ -46,14 +46,97 @@ export default function SignatureAdmin() {
       };
       const resolved = template.documentContent.replace(/\{\{([a-z_]+)\}\}/g, (_, key) => valueMap[key] || `[${key}]`);
 
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      const lines = doc.splitTextToSize(resolved, pageWidth - 40);
-      for (const line of lines) {
-        if (y > 270) { doc.addPage(); y = 20; }
-        doc.text(line, 20, y);
-        y += 5;
-      }
+      // Strip HTML tags for PDF text rendering, preserving structure
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = resolved;
+      
+      // Walk through elements to handle headings and formatting
+      const renderNode = (node: Node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.textContent || '';
+          if (!text.trim()) return;
+          const lines = doc.splitTextToSize(text.trim(), pageWidth - 40);
+          for (const line of lines) {
+            if (y > 270) { doc.addPage(); y = 20; }
+            doc.text(line, 20, y);
+            y += 5;
+          }
+          return;
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+        const el = node as HTMLElement;
+        const tag = el.tagName.toLowerCase();
+        
+        if (tag === 'h1') {
+          if (y > 260) { doc.addPage(); y = 20; }
+          y += 4;
+          doc.setFontSize(16);
+          doc.setFont('helvetica', 'bold');
+          doc.text(el.textContent || '', 20, y);
+          y += 8;
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+        } else if (tag === 'h2') {
+          if (y > 260) { doc.addPage(); y = 20; }
+          y += 3;
+          doc.setFontSize(13);
+          doc.setFont('helvetica', 'bold');
+          doc.text(el.textContent || '', 20, y);
+          y += 7;
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+        } else if (tag === 'h3') {
+          if (y > 260) { doc.addPage(); y = 20; }
+          y += 2;
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'bold');
+          doc.text(el.textContent || '', 20, y);
+          y += 6;
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+        } else if (tag === 'strong' || tag === 'b') {
+          doc.setFont('helvetica', 'bold');
+          const lines = doc.splitTextToSize(el.textContent || '', pageWidth - 40);
+          for (const line of lines) {
+            if (y > 270) { doc.addPage(); y = 20; }
+            doc.text(line, 20, y);
+            y += 5;
+          }
+          doc.setFont('helvetica', 'normal');
+        } else if (tag === 'hr') {
+          y += 3;
+          doc.setDrawColor(200);
+          doc.line(20, y, pageWidth - 20, y);
+          y += 5;
+        } else if (tag === 'li') {
+          const text = `• ${el.textContent || ''}`;
+          const lines = doc.splitTextToSize(text, pageWidth - 45);
+          for (const line of lines) {
+            if (y > 270) { doc.addPage(); y = 20; }
+            doc.text(line, 25, y);
+            y += 5;
+          }
+        } else if (tag === 'p') {
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+          // Handle inline bold/italic within paragraphs
+          const text = el.textContent || '';
+          if (text.trim()) {
+            const lines = doc.splitTextToSize(text.trim(), pageWidth - 40);
+            for (const line of lines) {
+              if (y > 270) { doc.addPage(); y = 20; }
+              doc.text(line, 20, y);
+              y += 5;
+            }
+          }
+          y += 2;
+        } else {
+          // Recurse for other containers
+          el.childNodes.forEach(child => renderNode(child));
+        }
+      };
+
+      tempDiv.childNodes.forEach(node => renderNode(node));
     } else {
       // Legacy hardcoded document
       doc.setFontSize(16);
