@@ -44,6 +44,7 @@ import {
   CalendarDays,
   Rocket,
   PenTool,
+  Scale,
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -104,6 +105,7 @@ export function Sidebar() {
         { name: t('sidebar.dashboard'), path: '/app', icon: Gauge, permission: 'properties' },
         { name: t('sidebar.qualityStats'), path: '/app/quality-stats', icon: BarChart3, permission: 'cleaning' },
         { name: t('sidebar.insights'), path: '/app/insights', icon: Lightbulb, permission: 'properties' },
+        { name: 'Legal Watch', path: '/app/legal-watch', icon: Scale, permission: 'legalWatch' },
       ]
     },
     {

@@ -17,6 +17,7 @@ export interface PermissionMap {
   hrPlanning: boolean;
   onboarding: boolean;
   ownerPortal: boolean;
+  legalWatch: boolean;
 }
 
 export interface RoleDefinition {
