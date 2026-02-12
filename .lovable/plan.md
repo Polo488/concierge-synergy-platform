@@ -1,286 +1,82 @@
 
 
-# Plan: Portail Marketing Noé
-
-## Vue d'ensemble
-
-Creation d'un site marketing public (portail) pour Noé, vivant aux cotes de l'application existante sans la modifier. Le design reutilisera strictement le systeme de design actuel (glassmorphisme, typographie Inter, palette de couleurs) tout en adoptant un ton convivial et axe sur les benefices, inspire de Hospitable.com.
-
----
-
-## Architecture technique
-
-```text
-src/
-├── pages/
-│   └── portal/
-│       ├── PortalHome.tsx          # Page d'accueil "/"
-│       ├── PortalProduit.tsx       # /produit
-│       ├── PortalModules.tsx       # /modules
-│       ├── PortalTarifs.tsx        # /tarifs
-│       ├── PortalSecurite.tsx      # /securite
-│       ├── PortalContact.tsx       # /contact
-│       └── PortalConnexion.tsx     # /connexion
-├── components/
-│   └── portal/
-│       ├── PortalLayout.tsx        # Layout avec Header/Footer
-│       ├── PortalHeader.tsx        # Navigation desktop/mobile
-│       ├── PortalFooter.tsx        # Pied de page
-│       ├── HeroSection.tsx         # Section hero page d'accueil
-│       ├── ValueBlock.tsx          # Bloc de valeur reutilisable
-│       ├── FeatureCard.tsx         # Carte module
-│       ├── PricingCard.tsx         # Carte tarif
-│       ├── FAQAccordion.tsx        # FAQ accordeon
-│       ├── ContactForm.tsx         # Formulaire de contact
-│       └── MockDashboard.tsx       # Visuel mock de l'app
-```
-
----
-
-## Strategie de routage
-
-Le routage sera restructure pour separer les routes publiques (portail) des routes protegees (application).
-
-**Nouvelle structure de App.tsx :**
-
-```text
-Routes
-├── Routes Portail (publiques, sans authentification)
-│   ├── / (PortalHome)
-│   ├── /produit
-│   ├── /modules
-│   ├── /tarifs
-│   ├── /securite
-│   ├── /contact
-│   └── /connexion (redirection vers /login)
-│
-├── /login (page de connexion existante)
-│
-└── Routes Application (protegees)
-    └── /app/* (toutes les routes existantes sous /app)
-        ├── /app (Dashboard)
-        ├── /app/properties
-        ├── /app/calendar
-        └── ... (toutes les autres routes)
-```
-
-**Impact sur l'existant :**
-- La page Dashboard actuelle sera accessible via `/app` au lieu de `/`
-- Les liens dans l'application (Sidebar) seront mis a jour pour pointer vers `/app/*`
-- Le AuthContext redirigera vers `/app` apres connexion
-- Aucune modification du comportement ou des fonctionnalites existantes
-
----
-
-## Composants principaux
-
-### 1. PortalLayout
-
-Layout englobant pour toutes les pages du portail :
-- PortalHeader (navigation)
-- Contenu de la page (via Outlet)
-- PortalFooter
-
-### 2. PortalHeader
-
-**Desktop :**
-- Logo Noe (gauche)
-- Liens : Produit, Modules, Tarifs, Securite, Contact (centre)
-- CTA "Connexion" (droite) - bouton primaire
-
-**Mobile :**
-- Logo (gauche)
-- Menu hamburger (droite)
-- Menu deroulant avec tous les liens + Connexion
+# Editeur de document texte avec zones dynamiques
 
-Styles : `glass-panel` sur scroll, animations subtiles
+## Contexte du probleme
 
-### 3. PortalFooter
+Actuellement, le systeme repose sur l'import d'un PDF puis le placement de zones par drag-and-drop sur le rendu du PDF. Le probleme : les zones sont positionnees visuellement mais ne sont pas liees au contenu du texte. L'utilisateur ne peut pas "surligner" un passage pour le rendre dynamique.
 
-- Liens vers toutes les pages
-- Liens legaux (Mentions legales, Confidentialite)
-- Copyright
-
-### 4. HeroSection
+## Nouvelle approche
 
-- Titre principal avec headline impactante
-- Sous-titre explicatif
-- Deux boutons CTA (primaire + secondaire)
-- Visuel mock de l'application (MockDashboard)
-- Gradient subtil en arriere-plan
+Remplacer l'import PDF par un editeur de texte riche integre ou l'utilisateur peut :
+1. Coller ou rediger directement le contenu du mandat
+2. Selectionner un passage de texte et le transformer en "variable dynamique" (ex: nom du proprietaire, adresse, commission)
+3. Les variables apparaissent comme des badges colores dans le texte
+4. Lors de la signature, les variables sont automatiquement remplacees par les vraies valeurs
 
-### 5. MockDashboard
+## Fonctionnement utilisateur
 
-Representation visuelle simplifiee de l'interface :
-- Simule un calendrier avec reservations colorees
-- Cartes de statistiques avec chiffres fictifs
-- Style identique a l'app (bg-card, rounded-xl, etc.)
+1. Creer un nouveau modele --> un editeur de texte s'ouvre
+2. Coller le texte du mandat de gestion
+3. Selectionner "Jean Dupont" dans le texte --> cliquer sur "Nom du proprietaire" --> le texte est remplace par un placeholder `{{owner_name}}`
+4. Repeter pour chaque champ variable (adresse, commission, date, etc.)
+5. Ajouter les zones de signature/initiales/date en bas du document (celles-ci restent des zones positionnees)
 
----
+## Changements techniques
 
-## Contenu des pages
+### 1. Nouvelle colonne `document_content` sur `signature_templates`
 
-### Page Accueil (/)
+Ajouter une colonne `document_content TEXT` dans la table `signature_templates` pour stocker le contenu du document avec les placeholders de variables (format texte avec marqueurs `{{field_key}}`).
 
-1. **Hero Section**
-   - Headline, subheadline, 2 CTAs
-   - Mock visuel de l'app
+### 2. Nouveau composant `DocumentContentEditor`
 
-2. **Value Blocks** (3 colonnes)
-   - "Un outil qui s'adapte a votre facon de travailler"
-   - "Une synchronisation fiable, sans prise de tete"
-   - "Une vision claire, enfin"
-
-3. **Social Proof**
-   - Titre + texte explicatif
-   - Logos partenaires (placeholders)
+Creer `src/components/signature/DocumentContentEditor.tsx` :
+- Un `<Textarea>` ou editeur de texte enrichi pour coller/rediger le contenu
+- Un panneau lateral avec la liste des champs disponibles (`FIELD_KEY_OPTIONS`)
+- Quand l'utilisateur selectionne du texte et clique sur un champ, le texte selectionne est remplace par `{{field_key}}` affiche comme un badge
+- Pour la mise en forme, utiliser un systeme simple de rendu : le contenu est stocke en texte brut avec des marqueurs `{{owner_name}}`, `{{property_address}}`, etc.
+- Affichage en temps reel avec les placeholders rendus en badges colores
 
-4. **Feature Highlights** (3 elements)
-   - Calendrier, Menage/Maintenance, Statistiques
-   - 2 lignes max par element
+### 3. Mise a jour de `SignatureZoneEditor`
 
-5. **Closing CTA**
-   - Bouton "Demander une demo"
-
-### Page Produit (/produit)
+- Remplacer le canvas PDF par le `DocumentContentEditor` pour la partie contenu textuel
+- Garder la possibilite d'ajouter des zones de signature/initiales en bas du document (ces zones ne sont pas "dans" le texte)
+- Supprimer la logique d'upload PDF et le rendu PDF canvas
+- Conserver le panneau lateral pour les zones de signature/initiales uniquement
 
-1. "Pourquoi Noe existe" - explication du probleme
-2. "Ce que Noe centralise" - liste a puces
-3. "Comment ca marche" - 4 etapes numerotees
-4. "Resultats" - outcome section
-5. CTAs finaux
+### 4. Mise a jour de `SignatureTemplatesList`
 
-### Page Modules (/modules)
+- Retirer la section d'upload PDF du dialogue de creation
+- Ajouter un champ `<Textarea>` pour coller le contenu du document directement a la creation
 
-Grille de cartes module (expandables) :
-- Calendrier et planning
-- Menage et maintenance
-- Statistiques
-- Moyenne duree
-- Facturation
-- Messagerie
-- Experience voyageur
-
-Chaque carte : titre + valeur + 3 outcomes
-
-### Page Tarifs (/tarifs)
-
-1. Texte d'introduction
-2. **Deux cartes tarif** cote a cote :
-   - **Noe** : 4€/mois/logement, liste features, CTA "Choisir Noe"
-   - **Pimp my Noe** : 15€/mois/logement, liste features, CTA "Parler a un expert"
-3. Add-on facturation mentionne
-4. FAQ accordeon (4 questions)
-
-### Page Securite (/securite)
-
-3 sections rassurantes :
-- "Vos donnees vous appartiennent"
-- "Des acces maitrises"
-- "Un outil pense pour durer"
+### 5. Mise a jour de `SigningFlow`
 
-### Page Contact (/contact)
+- Le `DocumentPreview` affiche le contenu texte du template avec les variables remplacees par les vraies valeurs de la session
+- Le texte est rendu dans un format document (police serif, marges, espacement)
+- Les zones de signature/initiales restent en overlay en bas
 
-Formulaire :
-- Nom, Email, Societe, Nombre de logements, Message
-- Bouton "Envoyer"
-- Texte d'introduction convivial
+### 6. Mise a jour de `useSignature.ts`
 
-### Page Connexion (/connexion)
+- `createTemplate` accepte un parametre `documentContent`
+- `updateTemplate` supporte la mise a jour de `documentContent`
+- `createSession` remplace les `{{field_key}}` par les valeurs reelles dans `fieldValues`
 
-Redirection vers /login ou affichage simple avec bouton vers /login
+### 7. Mise a jour des types
 
----
+- Ajouter `documentContent?: string` a `SignatureTemplate`
 
-## Design et style
+### 8. Export PDF admin
 
-**Reutilisation stricte du DA existant :**
-- Classes : `glass-panel`, `glass-subtle`, `bg-card`, `rounded-xl`, `rounded-2xl`
-- Couleurs : `primary`, `muted`, `foreground`, `background`
-- Typographie : Inter, memes tailles (text-sm, text-lg, text-3xl, etc.)
-- Ombres : `shadow-glass`, `shadow-card`
-- Animations : `animate-fade-in`, `animate-slide-up`
+- Adapter `generateSignedPDF` dans `SignatureAdmin.tsx` pour rendre le contenu texte avec les variables resolues au lieu du contenu statique
 
-**Specifique au portail :**
-- Sections avec `max-w-6xl mx-auto`
-- Espacement genereux (`py-20`, `py-24`)
-- Gradients subtils en arriere-plan (deja dans CSS global)
+## Fichiers concernes
 
----
-
-## Fichiers a creer
-
-| Fichier | Description |
-|---------|-------------|
-| `src/components/portal/PortalLayout.tsx` | Layout avec Header/Footer |
-| `src/components/portal/PortalHeader.tsx` | Navigation responsive |
-| `src/components/portal/PortalFooter.tsx` | Pied de page |
-| `src/components/portal/HeroSection.tsx` | Section hero |
-| `src/components/portal/ValueBlock.tsx` | Bloc valeur reutilisable |
-| `src/components/portal/FeatureCard.tsx` | Carte feature |
-| `src/components/portal/ModuleCard.tsx` | Carte module expandable |
-| `src/components/portal/PricingCard.tsx` | Carte tarif |
-| `src/components/portal/FAQAccordion.tsx` | FAQ accordeon |
-| `src/components/portal/ContactForm.tsx` | Formulaire contact |
-| `src/components/portal/MockDashboard.tsx` | Visuel mock app |
-| `src/components/portal/SocialProof.tsx` | Section temoignages |
-| `src/pages/portal/PortalHome.tsx` | Page accueil |
-| `src/pages/portal/PortalProduit.tsx` | Page produit |
-| `src/pages/portal/PortalModules.tsx` | Page modules |
-| `src/pages/portal/PortalTarifs.tsx` | Page tarifs |
-| `src/pages/portal/PortalSecurite.tsx` | Page securite |
-| `src/pages/portal/PortalContact.tsx` | Page contact |
-
----
-
-## Fichiers a modifier
-
-| Fichier | Modification |
-|---------|--------------|
-| `src/App.tsx` | Restructuration des routes (portail public + app sous /app) |
-| `src/components/layout/Sidebar.tsx` | Prefixer tous les paths avec `/app` |
-| `src/contexts/AuthContext.tsx` | Redirection post-login vers `/app` |
-| `src/components/auth/ProtectedRoute.tsx` | Ajuster si necessaire |
-
----
-
-## Section technique
-
-### Modifications de App.tsx
-
-```text
-Routes
-├── "/" → PortalLayout (public)
-│   ├── index → PortalHome
-│   ├── "produit" → PortalProduit
-│   ├── "modules" → PortalModules
-│   ├── "tarifs" → PortalTarifs
-│   ├── "securite" → PortalSecurite
-│   └── "contact" → PortalContact
-├── "/connexion" → Redirect to "/login"
-├── "/login" → Login (existant)
-└── "/app" → ProtectedRoute + Layout (existant)
-    ├── index → Dashboard
-    ├── "properties" → Properties
-    └── ... (toutes les routes actuelles)
-```
-
-### Modification Sidebar.tsx
-
-Mise a jour de tous les chemins :
-- `path: '/'` → `path: '/app'`
-- `path: '/properties'` → `path: '/app/properties'`
-- etc.
-
-### Modification AuthContext.tsx
-
-Apres login reussi, navigation vers `/app` au lieu de `/`
-
----
-
-## Estimation
-
-- **Composants portail** : 12 fichiers
-- **Pages portail** : 6 fichiers
-- **Modifications existant** : 3-4 fichiers (routes, sidebar, auth)
+- `supabase/migrations/` -- nouvelle migration pour `document_content`
+- `src/types/signature.ts` -- ajout de `documentContent`
+- `src/components/signature/DocumentContentEditor.tsx` -- nouveau composant
+- `src/components/signature/SignatureZoneEditor.tsx` -- refactoring majeur
+- `src/components/signature/SignatureTemplatesList.tsx` -- retrait upload PDF
+- `src/components/signature/SigningFlow.tsx` -- rendu du contenu texte
+- `src/hooks/useSignature.ts` -- support `documentContent`
+- `src/pages/SignatureAdmin.tsx` -- adaptation export PDF
 
