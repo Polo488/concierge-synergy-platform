@@ -123,8 +123,10 @@ export function useSignature() {
   }, []);
 
   // Template CRUD
-  const createTemplate = useCallback(async (name: string, description?: string) => {
-    const { data, error } = await supabase.from('signature_templates').insert({ name, description }).select().single();
+  const createTemplate = useCallback(async (name: string, description?: string, documentUrl?: string) => {
+    const insertData: any = { name, description };
+    if (documentUrl) insertData.document_url = documentUrl;
+    const { data, error } = await supabase.from('signature_templates').insert(insertData).select().single();
     if (error || !data) return null;
     const tpl = mapTemplate(data, []);
     setTemplates(prev => [tpl, ...prev]);
