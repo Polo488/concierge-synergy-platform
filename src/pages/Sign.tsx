@@ -1,14 +1,14 @@
 
 import { useSearchParams } from 'react-router-dom';
 import { SigningFlow } from '@/components/signature/SigningFlow';
-import { useSignature } from '@/hooks/useSignature';
+import { useSignatureContext } from '@/contexts/SignatureContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { FileText, AlertTriangle } from 'lucide-react';
 
 export default function Sign() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const { getSessionByToken, templates, getSessionZoneData, completeZone, signSession, viewSession } = useSignature();
+  const { getSessionByToken, templates, getSessionZoneData, completeZone, signSession, viewSession } = useSignatureContext();
 
   if (!token) {
     return (

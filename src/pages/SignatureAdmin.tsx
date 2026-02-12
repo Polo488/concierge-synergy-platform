@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useSignature } from '@/hooks/useSignature';
+import { useSignatureContext } from '@/contexts/SignatureContext';
 import { SignatureTemplatesList } from '@/components/signature/SignatureTemplatesList';
 import { SignatureZoneEditor } from '@/components/signature/SignatureZoneEditor';
 import { SignatureTemplate } from '@/types/signature';
@@ -13,7 +13,7 @@ export default function SignatureAdmin() {
   const { 
     templates, createTemplate, deleteTemplate, updateTemplate,
     addZone, updateZone, removeZone, sessions, signatureKPIs 
-  } = useSignature();
+  } = useSignatureContext();
   const [selectedTemplate, setSelectedTemplate] = useState<SignatureTemplate | null>(null);
 
   if (selectedTemplate) {

@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Layout } from "./components/layout/Layout";
 import { AuthProvider } from "./contexts/AuthContext";
+import { SignatureProvider } from "./contexts/SignatureContext";
 import { OperationsProvider } from "./contexts/OperationsContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
@@ -58,6 +59,7 @@ const App = () => (
             <OperationsProvider>
               <BrowserRouter>
                 <AuthProvider>
+                  <SignatureProvider>
                   <Toaster />
                   <Sonner />
                   <TutorialOverlay />
@@ -193,6 +195,7 @@ const App = () => (
                   {/* Catch all for 404 */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
+                  </SignatureProvider>
               </AuthProvider>
             </BrowserRouter>
           </OperationsProvider>
