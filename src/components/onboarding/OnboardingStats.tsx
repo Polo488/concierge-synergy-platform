@@ -3,7 +3,7 @@ import { OnboardingKPIs } from '@/types/onboarding';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   Rocket, CheckCircle2, AlertTriangle, Clock, TrendingUp, 
-  Target, FileSignature, Globe 
+  Target, FileSignature, Globe, Zap, Route
 } from 'lucide-react';
 
 interface OnboardingStatsProps {
@@ -19,11 +19,13 @@ export function OnboardingStats({ kpis }: OnboardingStatsProps) {
     { label: 'Taux complétion', value: `${kpis.completionRate}%`, icon: Target, color: 'text-primary', bg: 'bg-primary/10' },
     { label: 'Lead → Mandat', value: `${kpis.leadToMandatRate}%`, icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
     { label: 'Délai signature', value: `${kpis.avgSignatureDelay}j`, icon: FileSignature, color: 'text-orange-500', bg: 'bg-orange-500/10' },
-    { label: 'Délai publication', value: `${kpis.avgPublicationDelay}j`, icon: Globe, color: 'text-sky-500', bg: 'bg-sky-500/10' },
+    { label: 'Lead → Publi.', value: `${kpis.leadToPublicationDays}j`, icon: Route, color: 'text-sky-500', bg: 'bg-sky-500/10' },
+    { label: 'Sans friction', value: `${kpis.frictionFreeRate}%`, icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+    { label: 'Délai publi.', value: `${kpis.avgPublicationDelay}j`, icon: Globe, color: 'text-sky-500', bg: 'bg-sky-500/10' },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-3">
       {cards.map(c => (
         <Card key={c.label} className="border border-border/50">
           <CardContent className="p-3 flex flex-col items-center gap-1.5 text-center">

@@ -3,6 +3,12 @@ export type OnboardingStepStatus = 'locked' | 'todo' | 'in_progress' | 'waiting'
 
 export type OnboardingStatus = 'in_progress' | 'completed' | 'blocked' | 'cancelled';
 
+export type AppointmentStatus = 'scheduled' | 'completed' | 'cancelled';
+
+export type MandateStatus = 'draft' | 'sent' | 'signed';
+
+export type PlatformStatus = 'pending' | 'published' | 'error';
+
 export interface OnboardingSubTask {
   id: string;
   label: string;
@@ -15,23 +21,99 @@ export interface OnboardingSubTask {
   notes?: string;
 }
 
+// Step-specific action data
+export interface LeadActionData {
+  source: string;
+  responsibleName: string;
+  responsibleId: string;
+  createdAt: string;
+  contactCompleted: boolean;
+}
+
+export interface AppointmentActionData {
+  date?: string;
+  time?: string;
+  agendaEventId?: string;
+  status: AppointmentStatus;
+  notes?: string;
+}
+
+export interface MandateActionData {
+  status: MandateStatus;
+  documentContent?: string;
+  ownerName?: string;
+  propertyAddress?: string;
+  commissionRate?: number;
+  signatureLink?: string;
+  signedAt?: string;
+  sentAt?: string;
+}
+
+export interface RibActionData {
+  iban?: string;
+  bic?: string;
+  accountHolder?: string;
+  validated: boolean;
+  validatedAt?: string;
+}
+
+export interface PreparationActionData {
+  cleaningTaskId?: string;
+  cleaningDate?: string;
+  cleaningAgent?: string;
+  cleaningCompleted: boolean;
+  photoSessionId?: string;
+  photoDate?: string;
+  photoProvider?: string;
+  photoCompleted: boolean;
+}
+
+export interface PropertyCreationActionData {
+  propertyId?: string;
+  completionPercent: number;
+  requiredFields: { field: string; label: string; completed: boolean }[];
+}
+
+export interface PublicationActionData {
+  platforms: { name: string; status: PlatformStatus; publishedAt?: string }[];
+}
+
+export interface ClosureActionData {
+  messageSent: boolean;
+  messageSentAt?: string;
+  propertyActivated: boolean;
+  activatedAt?: string;
+}
+
+export type StepActionData =
+  | LeadActionData
+  | AppointmentActionData
+  | MandateActionData
+  | RibActionData
+  | PreparationActionData
+  | PropertyCreationActionData
+  | PublicationActionData
+  | ClosureActionData;
+
 export interface OnboardingStep {
   id: string;
   order: number;
   title: string;
   description: string;
   status: OnboardingStepStatus;
+  stepType: 'lead' | 'appointment' | 'mandate' | 'rib' | 'preparation' | 'property_creation' | 'publication' | 'closure';
   assigneeIds: string[];
   assigneeNames: string[];
   subTasks: OnboardingSubTask[];
+  actionData?: StepActionData;
   startedAt?: string;
   completedAt?: string;
   dueDate?: string;
   blockedReason?: string;
   notes?: string;
-  // KPIs
   estimatedDays?: number;
   actualDays?: number;
+  linkedModule?: string;
 }
 
 export interface OnboardingAuditEntry {
@@ -64,8 +146,7 @@ export interface OnboardingProcess {
   templateId: string;
   city?: string;
   group?: string;
-  // Computed
-  progress: number; // 0-100
+  progress: number;
   currentStepIndex: number;
   totalDays?: number;
 }
@@ -90,7 +171,10 @@ export interface OnboardingKPIs {
   avgSignatureDelay: number;
   avgPublicationDelay: number;
   completionRate: number;
+  avgDaysPerStep: { stepTitle: string; avgDays: number }[];
   bottlenecks: { stepTitle: string; avgDays: number; count: number }[];
+  frictionFreeRate: number;
+  leadToPublicationDays: number;
 }
 
 export interface OnboardingFilters {
@@ -100,12 +184,13 @@ export interface OnboardingFilters {
   search: string;
 }
 
-// Step templates (the 7 standard steps)
 export const DEFAULT_STEP_TEMPLATES: Omit<OnboardingStep, 'id' | 'status' | 'assigneeIds' | 'assigneeNames' | 'startedAt' | 'completedAt' | 'actualDays'>[] = [
   {
     order: 1,
     title: 'Création du lead propriétaire',
     description: 'Création d\'un lead avec informations de base et assignation d\'un responsable commercial.',
+    stepType: 'lead',
+    linkedModule: 'Contacts',
     subTasks: [
       { id: 'lt-1', label: 'Informations de contact complétées', completed: false, required: true },
       { id: 'lt-2', label: 'Source du lead renseignée', completed: false, required: true },
@@ -119,11 +204,12 @@ export const DEFAULT_STEP_TEMPLATES: Omit<OnboardingStep, 'id' | 'status' | 'ass
   {
     order: 2,
     title: 'Rendez-vous propriétaire',
-    description: 'Planification et réalisation du rendez-vous avec le propriétaire.',
+    description: 'Planification et réalisation du rendez-vous avec le propriétaire, synchronisé avec l\'agenda.',
+    stepType: 'appointment',
+    linkedModule: 'Agenda',
     subTasks: [
-      { id: 'rdv-1', label: 'Date et heure du rendez-vous fixées', completed: false, required: true },
-      { id: 'rdv-2', label: 'Rendez-vous synchronisé avec l\'agenda', completed: false, required: true },
-      { id: 'rdv-3', label: 'Rendez-vous marqué comme réalisé', completed: false, required: true },
+      { id: 'rdv-1', label: 'Rendez-vous planifié dans l\'agenda', completed: false, required: true },
+      { id: 'rdv-2', label: 'Rendez-vous marqué comme réalisé', completed: false, required: true },
     ],
     estimatedDays: 5,
     dueDate: undefined,
@@ -132,12 +218,13 @@ export const DEFAULT_STEP_TEMPLATES: Omit<OnboardingStep, 'id' | 'status' | 'ass
   },
   {
     order: 3,
-    title: 'Mandat',
-    description: 'Création, envoi et signature du mandat de gestion.',
+    title: 'Mandat de gestion',
+    description: 'Création, édition et signature électronique du mandat de gestion.',
+    stepType: 'mandate',
+    linkedModule: 'Documents',
     subTasks: [
-      { id: 'mdt-1', label: 'Mandat créé et complété', completed: false, required: true },
-      { id: 'mdt-2', label: 'Lien de signature envoyé au propriétaire', completed: false, required: true },
-      { id: 'mdt-3', label: 'Mandat signé par le propriétaire', completed: false, required: true },
+      { id: 'mdt-1', label: 'Mandat rédigé', completed: false, required: true },
+      { id: 'mdt-2', label: 'Mandat signé électroniquement', completed: false, required: true },
     ],
     estimatedDays: 7,
     dueDate: undefined,
@@ -146,27 +233,12 @@ export const DEFAULT_STEP_TEMPLATES: Omit<OnboardingStep, 'id' | 'status' | 'ass
   },
   {
     order: 4,
-    title: 'Préparation du logement',
-    description: 'Organisation du premier ménage et des photos professionnelles.',
+    title: 'RIB propriétaire',
+    description: 'Collecte et validation des coordonnées bancaires du propriétaire.',
+    stepType: 'rib',
+    linkedModule: 'Finance',
     subTasks: [
-      { id: 'prep-1', label: 'Premier ménage organisé', completed: false, required: true },
-      { id: 'prep-2', label: 'Séance photo planifiée', completed: false, required: true },
-      { id: 'prep-3', label: 'Photos reçues et validées', completed: false, required: true },
-    ],
-    estimatedDays: 10,
-    dueDate: undefined,
-    blockedReason: undefined,
-    notes: undefined,
-  },
-  {
-    order: 5,
-    title: 'Création du bien dans le système',
-    description: 'Fiche logement complète dans le channel manager avec tous les champs obligatoires.',
-    subTasks: [
-      { id: 'crea-1', label: 'Fiche logement créée', completed: false, required: true },
-      { id: 'crea-2', label: 'Tous les champs obligatoires remplis', completed: false, required: true },
-      { id: 'crea-3', label: 'Photos uploadées', completed: false, required: true },
-      { id: 'crea-4', label: 'RIB propriétaire reçu et vérifié', completed: false, required: true },
+      { id: 'rib-1', label: 'RIB validé', completed: false, required: true },
     ],
     estimatedDays: 3,
     dueDate: undefined,
@@ -174,14 +246,42 @@ export const DEFAULT_STEP_TEMPLATES: Omit<OnboardingStep, 'id' | 'status' | 'ass
     notes: undefined,
   },
   {
-    order: 6,
-    title: 'Diffusion sur les plateformes',
-    description: 'Connexion aux plateformes et validation avant mise en ligne.',
+    order: 5,
+    title: 'Préparation du logement',
+    description: 'Organisation du premier ménage et des photos professionnelles via les modules dédiés.',
+    stepType: 'preparation',
+    linkedModule: 'Ménage / Agenda',
     subTasks: [
-      { id: 'diff-1', label: 'Connexion Airbnb configurée', completed: false, required: true },
-      { id: 'diff-2', label: 'Connexion Booking configurée', completed: false, required: true },
-      { id: 'diff-3', label: 'Check-list de validation complétée', completed: false, required: true },
-      { id: 'diff-4', label: 'Annonce publiée', completed: false, required: true },
+      { id: 'prep-1', label: 'Premier ménage planifié', completed: false, required: true },
+      { id: 'prep-2', label: 'Séance photo planifiée', completed: false, required: true },
+    ],
+    estimatedDays: 10,
+    dueDate: undefined,
+    blockedReason: undefined,
+    notes: undefined,
+  },
+  {
+    order: 6,
+    title: 'Création du bien dans le système',
+    description: 'Fiche logement complète dans le channel manager avec tous les champs obligatoires.',
+    stepType: 'property_creation',
+    linkedModule: 'Propriétés / Channel',
+    subTasks: [
+      { id: 'crea-1', label: 'Fiche logement complète', completed: false, required: true },
+    ],
+    estimatedDays: 3,
+    dueDate: undefined,
+    blockedReason: undefined,
+    notes: undefined,
+  },
+  {
+    order: 7,
+    title: 'Diffusion sur les plateformes',
+    description: 'Publication du logement sur les plateformes de réservation.',
+    stepType: 'publication',
+    linkedModule: 'Channel Manager',
+    subTasks: [
+      { id: 'diff-1', label: 'Au moins une plateforme active', completed: false, required: true },
     ],
     estimatedDays: 2,
     dueDate: undefined,
@@ -189,12 +289,14 @@ export const DEFAULT_STEP_TEMPLATES: Omit<OnboardingStep, 'id' | 'status' | 'ass
     notes: undefined,
   },
   {
-    order: 7,
+    order: 8,
     title: 'Clôture de l\'onboarding',
-    description: 'Finalisation et passage du logement en statut actif.',
+    description: 'Finalisation, activation du logement et début du suivi opérationnel.',
+    stepType: 'closure',
+    linkedModule: 'Communication / Stats',
     subTasks: [
-      { id: 'clo-1', label: 'Message de fin envoyé au propriétaire', completed: false, required: true },
-      { id: 'clo-2', label: 'Logement passé en statut actif', completed: false, required: true },
+      { id: 'clo-1', label: 'Message de fin envoyé', completed: false, required: true },
+      { id: 'clo-2', label: 'Logement activé', completed: false, required: true },
     ],
     estimatedDays: 1,
     dueDate: undefined,
