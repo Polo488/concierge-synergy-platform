@@ -20,9 +20,9 @@ import { cn } from '@/lib/utils';
 interface Props {
   template: SignatureTemplate;
   onBack: () => void;
-  onAddZone: (templateId: string, zone: Omit<SignatureZone, 'id' | 'templateId'>) => void;
-  onUpdateZone: (templateId: string, zoneId: string, updates: Partial<SignatureZone>) => void;
-  onRemoveZone: (templateId: string, zoneId: string) => void;
+  onAddZone: (templateId: string, zone: Omit<SignatureZone, 'id' | 'templateId'>) => any;
+  onUpdateZone: (templateId: string, zoneId: string, updates: Partial<SignatureZone>) => any;
+  onRemoveZone: (templateId: string, zoneId: string) => any;
 }
 
 const zoneIcons: Record<SignatureZoneType, React.ElementType> = {

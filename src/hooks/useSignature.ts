@@ -1,75 +1,191 @@
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { SignatureTemplate, SignatureZone, SignatureSession, SignatureEvent, SignatureZoneData } from '@/types/signature';
+import type { Json } from '@/integrations/supabase/types';
 
-const generateId = () => Math.random().toString(36).substr(2, 9);
 const generateToken = () => Math.random().toString(36).substr(2, 16) + Date.now().toString(36);
 
-// Mock templates
-const mockTemplates: SignatureTemplate[] = [
-  {
-    id: 'tpl-1',
-    name: 'Mandat de gestion standard',
-    description: 'Template par défaut pour les mandats de gestion locative courte durée.',
-    documentUrl: undefined,
-    createdAt: '2025-01-01T00:00:00Z',
-    updatedAt: '2025-01-15T00:00:00Z',
-    isActive: true,
-    zones: [
-      { id: 'z1', templateId: 'tpl-1', zoneType: 'text', label: 'Nom du propriétaire', role: 'owner', pageNumber: 1, xPosition: 50, yPosition: 180, width: 250, height: 30, isRequired: true, fieldKey: 'owner_name', sortOrder: 1 },
-      { id: 'z2', templateId: 'tpl-1', zoneType: 'text', label: 'Adresse du bien', role: 'owner', pageNumber: 1, xPosition: 50, yPosition: 220, width: 350, height: 30, isRequired: true, fieldKey: 'property_address', sortOrder: 2 },
-      { id: 'z3', templateId: 'tpl-1', zoneType: 'text', label: 'Taux de commission', role: 'conciergerie', pageNumber: 1, xPosition: 50, yPosition: 380, width: 100, height: 30, isRequired: true, fieldKey: 'commission_rate', sortOrder: 3 },
-      { id: 'z4', templateId: 'tpl-1', zoneType: 'date', label: 'Date de signature', role: 'owner', pageNumber: 1, xPosition: 50, yPosition: 550, width: 150, height: 30, isRequired: true, sortOrder: 4 },
-      { id: 'z5', templateId: 'tpl-1', zoneType: 'signature', label: 'Signature propriétaire', role: 'owner', pageNumber: 1, xPosition: 50, yPosition: 600, width: 250, height: 80, isRequired: true, sortOrder: 5 },
-      { id: 'z6', templateId: 'tpl-1', zoneType: 'signature', label: 'Signature conciergerie', role: 'conciergerie', pageNumber: 1, xPosition: 350, yPosition: 600, width: 250, height: 80, isRequired: true, sortOrder: 6 },
-      { id: 'z7', templateId: 'tpl-1', zoneType: 'initials', label: 'Initiales propriétaire', role: 'owner', pageNumber: 1, xPosition: 550, yPosition: 750, width: 60, height: 40, isRequired: true, sortOrder: 7 },
-    ],
-  },
-];
+function mapTemplate(row: any, zones: SignatureZone[]): SignatureTemplate {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description ?? undefined,
+    documentUrl: row.document_url ?? undefined,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    isActive: row.is_active,
+    zones: zones.filter(z => z.templateId === row.id),
+  };
+}
 
-const mockSessions: SignatureSession[] = [];
-const mockEvents: SignatureEvent[] = [];
+function mapZone(row: any): SignatureZone {
+  return {
+    id: row.id,
+    templateId: row.template_id,
+    zoneType: row.zone_type as any,
+    label: row.label,
+    role: row.role as any,
+    pageNumber: row.page_number,
+    xPosition: row.x_position,
+    yPosition: row.y_position,
+    width: row.width,
+    height: row.height,
+    isRequired: row.is_required,
+    fieldKey: row.field_key ?? undefined,
+    sortOrder: row.sort_order,
+  };
+}
+
+function mapSession(row: any): SignatureSession {
+  return {
+    id: row.id,
+    templateId: row.template_id,
+    onboardingProcessId: row.onboarding_process_id ?? undefined,
+    token: row.token,
+    status: row.status as any,
+    ownerName: row.owner_name ?? undefined,
+    ownerEmail: row.owner_email ?? undefined,
+    propertyAddress: row.property_address ?? undefined,
+    commissionRate: row.commission_rate != null ? Number(row.commission_rate) : undefined,
+    fieldValues: (row.field_values as Record<string, string>) ?? {},
+    signedDocumentUrl: row.signed_document_url ?? undefined,
+    sentAt: row.sent_at ?? undefined,
+    viewedAt: row.viewed_at ?? undefined,
+    signedAt: row.signed_at ?? undefined,
+    expiresAt: row.expires_at ?? undefined,
+    signerIp: row.signer_ip ?? undefined,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function mapEvent(row: any): SignatureEvent {
+  return {
+    id: row.id,
+    sessionId: row.session_id,
+    eventType: row.event_type,
+    actor: row.actor ?? undefined,
+    ipAddress: row.ip_address ?? undefined,
+    userAgent: row.user_agent ?? undefined,
+    metadata: (row.metadata as Record<string, unknown>) ?? undefined,
+    createdAt: row.created_at,
+  };
+}
+
+function mapZoneData(row: any): SignatureZoneData {
+  return {
+    id: row.id,
+    sessionId: row.session_id,
+    zoneId: row.zone_id,
+    value: row.value ?? undefined,
+    completedAt: row.completed_at ?? undefined,
+    signerIp: row.signer_ip ?? undefined,
+  };
+}
 
 export function useSignature() {
-  const [templates, setTemplates] = useState<SignatureTemplate[]>(mockTemplates);
-  const [sessions, setSessions] = useState<SignatureSession[]>(mockSessions);
-  const [events, setEvents] = useState<SignatureEvent[]>(mockEvents);
+  const [templates, setTemplates] = useState<SignatureTemplate[]>([]);
+  const [sessions, setSessions] = useState<SignatureSession[]>([]);
+  const [events, setEvents] = useState<SignatureEvent[]>([]);
+  const [allZones, setAllZones] = useState<SignatureZone[]>([]);
   const [zoneDataMap, setZoneDataMap] = useState<Record<string, SignatureZoneData[]>>({});
+  const [loading, setLoading] = useState(true);
+
+  // Fetch all data on mount
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      const [tRes, zRes, sRes, eRes, zdRes] = await Promise.all([
+        supabase.from('signature_templates').select('*').order('created_at', { ascending: false }),
+        supabase.from('signature_zones').select('*').order('sort_order'),
+        supabase.from('signature_sessions').select('*').order('created_at', { ascending: false }),
+        supabase.from('signature_events').select('*').order('created_at', { ascending: false }),
+        supabase.from('signature_zone_data').select('*'),
+      ]);
+
+      const zones = (zRes.data || []).map(mapZone);
+      setAllZones(zones);
+      setTemplates((tRes.data || []).map(r => mapTemplate(r, zones)));
+      setSessions((sRes.data || []).map(mapSession));
+      setEvents((eRes.data || []).map(mapEvent));
+
+      const zdMap: Record<string, SignatureZoneData[]> = {};
+      (zdRes.data || []).forEach(r => {
+        const d = mapZoneData(r);
+        if (!zdMap[d.sessionId]) zdMap[d.sessionId] = [];
+        zdMap[d.sessionId].push(d);
+      });
+      setZoneDataMap(zdMap);
+      setLoading(false);
+    }
+    load();
+  }, []);
 
   // Template CRUD
-  const createTemplate = useCallback((name: string, description?: string) => {
-    const tpl: SignatureTemplate = {
-      id: generateId(),
-      name,
-      description,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      isActive: true,
-      zones: [],
-    };
-    setTemplates(prev => [...prev, tpl]);
+  const createTemplate = useCallback(async (name: string, description?: string) => {
+    const { data, error } = await supabase.from('signature_templates').insert({ name, description }).select().single();
+    if (error || !data) return null;
+    const tpl = mapTemplate(data, []);
+    setTemplates(prev => [tpl, ...prev]);
     return tpl;
   }, []);
 
-  const updateTemplate = useCallback((id: string, updates: Partial<SignatureTemplate>) => {
+  const updateTemplate = useCallback(async (id: string, updates: Partial<SignatureTemplate>) => {
+    const dbUpdates: any = {};
+    if (updates.name !== undefined) dbUpdates.name = updates.name;
+    if (updates.description !== undefined) dbUpdates.description = updates.description;
+    if (updates.isActive !== undefined) dbUpdates.is_active = updates.isActive;
+    if (updates.documentUrl !== undefined) dbUpdates.document_url = updates.documentUrl;
+    await supabase.from('signature_templates').update(dbUpdates).eq('id', id);
     setTemplates(prev => prev.map(t => t.id === id ? { ...t, ...updates, updatedAt: new Date().toISOString() } : t));
   }, []);
 
-  const deleteTemplate = useCallback((id: string) => {
+  const deleteTemplate = useCallback(async (id: string) => {
+    await supabase.from('signature_zones').delete().eq('template_id', id);
+    await supabase.from('signature_templates').delete().eq('id', id);
     setTemplates(prev => prev.filter(t => t.id !== id));
   }, []);
 
   // Zone management
-  const addZone = useCallback((templateId: string, zone: Omit<SignatureZone, 'id' | 'templateId'>) => {
-    const newZone: SignatureZone = { ...zone, id: generateId(), templateId };
-    setTemplates(prev => prev.map(t => 
+  const addZone = useCallback(async (templateId: string, zone: Omit<SignatureZone, 'id' | 'templateId'>) => {
+    const { data, error } = await supabase.from('signature_zones').insert({
+      template_id: templateId,
+      zone_type: zone.zoneType,
+      label: zone.label,
+      role: zone.role,
+      page_number: zone.pageNumber,
+      x_position: zone.xPosition,
+      y_position: zone.yPosition,
+      width: zone.width,
+      height: zone.height,
+      is_required: zone.isRequired,
+      field_key: zone.fieldKey,
+      sort_order: zone.sortOrder,
+    }).select().single();
+    if (error || !data) return null;
+    const newZone = mapZone(data);
+    setAllZones(prev => [...prev, newZone]);
+    setTemplates(prev => prev.map(t =>
       t.id === templateId ? { ...t, zones: [...t.zones, newZone], updatedAt: new Date().toISOString() } : t
     ));
     return newZone;
   }, []);
 
-  const updateZone = useCallback((templateId: string, zoneId: string, updates: Partial<SignatureZone>) => {
-    setTemplates(prev => prev.map(t => 
+  const updateZone = useCallback(async (templateId: string, zoneId: string, updates: Partial<SignatureZone>) => {
+    const dbUpdates: any = {};
+    if (updates.xPosition !== undefined) dbUpdates.x_position = updates.xPosition;
+    if (updates.yPosition !== undefined) dbUpdates.y_position = updates.yPosition;
+    if (updates.width !== undefined) dbUpdates.width = updates.width;
+    if (updates.height !== undefined) dbUpdates.height = updates.height;
+    if (updates.label !== undefined) dbUpdates.label = updates.label;
+    if (updates.zoneType !== undefined) dbUpdates.zone_type = updates.zoneType;
+    if (updates.role !== undefined) dbUpdates.role = updates.role;
+    if (updates.isRequired !== undefined) dbUpdates.is_required = updates.isRequired;
+    if (updates.fieldKey !== undefined) dbUpdates.field_key = updates.fieldKey;
+    if (updates.sortOrder !== undefined) dbUpdates.sort_order = updates.sortOrder;
+    await supabase.from('signature_zones').update(dbUpdates).eq('id', zoneId);
+    setTemplates(prev => prev.map(t =>
       t.id === templateId ? {
         ...t,
         zones: t.zones.map(z => z.id === zoneId ? { ...z, ...updates } : z),
@@ -78,8 +194,9 @@ export function useSignature() {
     ));
   }, []);
 
-  const removeZone = useCallback((templateId: string, zoneId: string) => {
-    setTemplates(prev => prev.map(t => 
+  const removeZone = useCallback(async (templateId: string, zoneId: string) => {
+    await supabase.from('signature_zones').delete().eq('id', zoneId);
+    setTemplates(prev => prev.map(t =>
       t.id === templateId ? {
         ...t,
         zones: t.zones.filter(z => z.id !== zoneId),
@@ -89,7 +206,7 @@ export function useSignature() {
   }, []);
 
   // Session management
-  const createSession = useCallback((
+  const createSession = useCallback(async (
     templateId: string,
     onboardingProcessId: string,
     data: { ownerName: string; ownerEmail: string; propertyAddress: string; commissionRate: number }
@@ -104,86 +221,92 @@ export function useSignature() {
       if (z.fieldKey === 'commission_rate') fieldValues[z.id] = `${data.commissionRate}%`;
     });
 
-    const session: SignatureSession = {
-      id: generateId(),
-      templateId,
-      onboardingProcessId,
+    const { data: row, error } = await supabase.from('signature_sessions').insert({
+      template_id: templateId,
+      onboarding_process_id: onboardingProcessId,
       token: generateToken(),
       status: 'draft',
-      ownerName: data.ownerName,
-      ownerEmail: data.ownerEmail,
-      propertyAddress: data.propertyAddress,
-      commissionRate: data.commissionRate,
-      fieldValues,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+      owner_name: data.ownerName,
+      owner_email: data.ownerEmail,
+      property_address: data.propertyAddress,
+      commission_rate: data.commissionRate,
+      field_values: fieldValues as unknown as Json,
+    }).select().single();
 
-    setSessions(prev => [...prev, session]);
+    if (error || !row) return null;
+    const session = mapSession(row);
+    setSessions(prev => [session, ...prev]);
 
-    const event: SignatureEvent = {
-      id: generateId(),
-      sessionId: session.id,
-      eventType: 'created',
+    // Create event
+    await supabase.from('signature_events').insert({
+      session_id: session.id,
+      event_type: 'created',
       actor: 'Noé Conciergerie',
-      createdAt: new Date().toISOString(),
-    };
-    setEvents(prev => [...prev, event]);
+    });
 
     return session;
   }, [templates]);
 
-  const sendSession = useCallback((sessionId: string) => {
-    setSessions(prev => prev.map(s => 
-      s.id === sessionId ? { ...s, status: 'sent' as const, sentAt: new Date().toISOString(), updatedAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 30 * 86400000).toISOString() } : s
+  const sendSession = useCallback(async (sessionId: string) => {
+    const now = new Date().toISOString();
+    const expires = new Date(Date.now() + 30 * 86400000).toISOString();
+    await supabase.from('signature_sessions').update({
+      status: 'sent', sent_at: now, expires_at: expires,
+    }).eq('id', sessionId);
+    setSessions(prev => prev.map(s =>
+      s.id === sessionId ? { ...s, status: 'sent' as const, sentAt: now, expiresAt: expires, updatedAt: now } : s
     ));
-    setEvents(prev => [...prev, {
-      id: generateId(), sessionId, eventType: 'sent', actor: 'Noé Conciergerie', createdAt: new Date().toISOString(),
-    }]);
+    await supabase.from('signature_events').insert({
+      session_id: sessionId, event_type: 'sent', actor: 'Noé Conciergerie',
+    });
   }, []);
 
-  const viewSession = useCallback((sessionId: string) => {
-    setSessions(prev => prev.map(s => 
-      s.id === sessionId && s.status === 'sent' ? { ...s, status: 'viewed' as const, viewedAt: new Date().toISOString(), updatedAt: new Date().toISOString() } : s
+  const viewSession = useCallback(async (sessionId: string) => {
+    const now = new Date().toISOString();
+    await supabase.from('signature_sessions').update({
+      status: 'viewed', viewed_at: now,
+    }).eq('id', sessionId);
+    setSessions(prev => prev.map(s =>
+      s.id === sessionId && s.status === 'sent' ? { ...s, status: 'viewed' as const, viewedAt: now, updatedAt: now } : s
     ));
-    setEvents(prev => [...prev, {
-      id: generateId(), sessionId, eventType: 'viewed', actor: 'Propriétaire', createdAt: new Date().toISOString(),
-    }]);
+    await supabase.from('signature_events').insert({
+      session_id: sessionId, event_type: 'viewed', actor: 'Propriétaire',
+    });
   }, []);
 
-  const completeZone = useCallback((sessionId: string, zoneId: string, value: string) => {
-    const zd: SignatureZoneData = {
-      id: generateId(),
-      sessionId,
-      zoneId,
+  const completeZone = useCallback(async (sessionId: string, zoneId: string, value: string) => {
+    const { data: row } = await supabase.from('signature_zone_data').insert({
+      session_id: sessionId,
+      zone_id: zoneId,
       value,
-      completedAt: new Date().toISOString(),
-      signerIp: '192.168.1.1',
-    };
-    setZoneDataMap(prev => ({
-      ...prev,
-      [sessionId]: [...(prev[sessionId] || []), zd],
-    }));
-    setEvents(prev => [...prev, {
-      id: generateId(), sessionId, eventType: 'field_filled', actor: 'Propriétaire',
-      metadata: { zoneId }, createdAt: new Date().toISOString(),
-    }]);
+      completed_at: new Date().toISOString(),
+      signer_ip: '0.0.0.0',
+    }).select().single();
+
+    if (row) {
+      const zd = mapZoneData(row);
+      setZoneDataMap(prev => ({
+        ...prev,
+        [sessionId]: [...(prev[sessionId] || []), zd],
+      }));
+    }
+    await supabase.from('signature_events').insert({
+      session_id: sessionId, event_type: 'field_filled', actor: 'Propriétaire',
+      metadata: { zoneId } as unknown as Json,
+    });
   }, []);
 
-  const signSession = useCallback((sessionId: string) => {
-    setSessions(prev => prev.map(s => 
-      s.id === sessionId ? {
-        ...s,
-        status: 'signed' as const,
-        signedAt: new Date().toISOString(),
-        signerIp: '192.168.1.1',
-        updatedAt: new Date().toISOString(),
-      } : s
+  const signSession = useCallback(async (sessionId: string) => {
+    const now = new Date().toISOString();
+    await supabase.from('signature_sessions').update({
+      status: 'signed', signed_at: now, signer_ip: '0.0.0.0',
+    }).eq('id', sessionId);
+    setSessions(prev => prev.map(s =>
+      s.id === sessionId ? { ...s, status: 'signed' as const, signedAt: now, signerIp: '0.0.0.0', updatedAt: now } : s
     ));
-    setEvents(prev => [...prev, {
-      id: generateId(), sessionId, eventType: 'signed', actor: 'Propriétaire',
-      ipAddress: '192.168.1.1', createdAt: new Date().toISOString(),
-    }]);
+    await supabase.from('signature_events').insert({
+      session_id: sessionId, event_type: 'signed', actor: 'Propriétaire', ip_address: '0.0.0.0',
+    });
   }, []);
 
   const getSessionByToken = useCallback((token: string) => {
@@ -206,12 +329,12 @@ export function useSignature() {
   const signatureKPIs = useMemo(() => {
     const signed = sessions.filter(s => s.status === 'signed');
     const sent = sessions.filter(s => s.status !== 'draft');
-    const avgDelay = signed.length > 0 
+    const avgDelay = signed.length > 0
       ? signed.reduce((acc, s) => {
           const sentDate = s.sentAt ? new Date(s.sentAt).getTime() : 0;
           const signedDate = s.signedAt ? new Date(s.signedAt).getTime() : 0;
           return acc + (signedDate - sentDate) / 86400000;
-        }, 0) / signed.length 
+        }, 0) / signed.length
       : 0;
 
     return {
@@ -226,6 +349,7 @@ export function useSignature() {
   return {
     templates,
     sessions,
+    loading,
     createTemplate,
     updateTemplate,
     deleteTemplate,

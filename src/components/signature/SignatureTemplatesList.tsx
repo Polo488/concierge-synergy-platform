@@ -13,8 +13,8 @@ import { toast } from 'sonner';
 
 interface Props {
   templates: SignatureTemplate[];
-  onCreateTemplate: (name: string, description?: string) => SignatureTemplate;
-  onDeleteTemplate: (id: string) => void;
+  onCreateTemplate: (name: string, description?: string) => any;
+  onDeleteTemplate: (id: string) => any;
   onSelectTemplate: (template: SignatureTemplate) => void;
 }
 
