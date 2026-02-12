@@ -60,9 +60,10 @@ function DocumentPreview({ template, session, zoneData }: { template: SignatureT
     const resolvedContent = resolveContent(template.documentContent, session);
     return (
       <div className="bg-white border border-border rounded-lg shadow-inner mx-auto p-6 md:p-10 max-w-[700px]">
-        <div className="font-serif text-sm leading-relaxed text-foreground whitespace-pre-wrap">
-          {resolvedContent}
-        </div>
+        <div 
+          className="prose prose-sm max-w-none font-serif text-foreground"
+          dangerouslySetInnerHTML={{ __html: resolvedContent }}
+        />
         {/* Signature zones at bottom */}
         {template.zones.length > 0 && (
           <div className="mt-8 pt-6 border-t border-border/50 space-y-4">
