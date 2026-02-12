@@ -2,16 +2,18 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus, Rocket } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { OnboardingStats } from '@/components/onboarding/OnboardingStats';
 import { OnboardingPortfolio } from '@/components/onboarding/OnboardingPortfolio';
 import { OnboardingDetail } from '@/components/onboarding/OnboardingDetail';
 import { OnboardingFilters } from '@/components/onboarding/OnboardingFilters';
 import { NewOnboardingDialog } from '@/components/onboarding/NewOnboardingDialog';
+import { BottlenecksPanel } from '@/components/onboarding/BottlenecksPanel';
 
 export default function Onboarding() {
   const {
-    processes, selectedProcess, setSelectedProcessId,
+    processes, allProcesses, selectedProcess, setSelectedProcessId,
     filters, setFilters, kpis, updateStepAction,
     createOnboarding, cities,
   } = useOnboarding();
@@ -48,8 +50,22 @@ export default function Onboarding() {
       </div>
 
       <OnboardingStats kpis={kpis} />
-      <OnboardingFilters filters={filters} onFiltersChange={setFilters} cities={cities} />
-      <OnboardingPortfolio processes={processes} onSelect={setSelectedProcessId} />
+
+      <Tabs defaultValue="portfolio" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="portfolio">Portefeuille</TabsTrigger>
+          <TabsTrigger value="bottlenecks">Goulots d'étranglement</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="portfolio" className="space-y-4">
+          <OnboardingFilters filters={filters} onFiltersChange={setFilters} cities={cities} />
+          <OnboardingPortfolio processes={processes} onSelect={setSelectedProcessId} />
+        </TabsContent>
+
+        <TabsContent value="bottlenecks">
+          <BottlenecksPanel kpis={kpis} processes={allProcesses} />
+        </TabsContent>
+      </Tabs>
 
       <NewOnboardingDialog
         open={showNewDialog}
