@@ -15,6 +15,7 @@ export interface PermissionMap {
   agenda: boolean;
   messaging: boolean;
   hrPlanning: boolean;
+  onboarding: boolean;
 }
 
 export interface RoleDefinition {
