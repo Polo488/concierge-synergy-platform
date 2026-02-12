@@ -1,7 +1,8 @@
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { OnboardingStep, MandateActionData, MandateStatus } from '@/types/onboarding';
 import { useSignatureContext } from '@/contexts/SignatureContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { SignatureSessionTracker } from '@/components/signature/SignatureSessionTracker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, Send, PenTool, CheckCircle2, Plus } from 'lucide-react';
+import { FileText, PenTool, CheckCircle2, Plus, UserPlus, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface MandateStepProps {
@@ -23,7 +24,7 @@ interface MandateStepProps {
 
 const statusConfig: Record<MandateStatus, { label: string; color: string }> = {
   draft: { label: 'Brouillon', color: 'bg-muted text-muted-foreground' },
-  sent: { label: 'Envoyé', color: 'bg-blue-500/10 text-blue-600' },
+  sent: { label: 'Compte créé', color: 'bg-blue-500/10 text-blue-600' },
   signed: { label: 'Signé', color: 'bg-emerald-500/10 text-emerald-600' },
 };
 
@@ -31,18 +32,22 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
   const data = (step.actionData as MandateActionData) || { status: 'draft' as MandateStatus };
   const [commission, setCommission] = useState(data.commissionRate?.toString() || '20');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
+  const [ownerAccountCreated, setOwnerAccountCreated] = useState(false);
+  const [generatedPassword, setGeneratedPassword] = useState('');
+  const [copied, setCopied] = useState(false);
 
+  const { register } = useAuth();
   const {
-    templates, createSession, sendSession, getSessionByOnboarding,
-    getSessionEvents, getSessionZoneData, signSession, viewSession,
+    templates, createSession, getSessionByOnboarding,
+    getSessionEvents, signSession, viewSession,
   } = useSignatureContext();
 
   const session = getSessionByOnboarding(processId);
   const events = session ? getSessionEvents(session.id) : [];
   const activeTemplates = templates.filter(t => t.isActive);
-
-  // Auto-select first template if none selected
   const effectiveTemplateId = selectedTemplateId || (activeTemplates.length > 0 ? activeTemplates[0].id : '');
+
+  const resolvedEmail = ownerEmail || `${ownerName.toLowerCase().replace(/ /g, '.')}@email.com`;
 
   const handleCreateSession = async () => {
     if (!effectiveTemplateId) {
@@ -51,7 +56,7 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
     }
     const newSession = await createSession(effectiveTemplateId, processId, {
       ownerName,
-      ownerEmail: ownerEmail || `${ownerName.toLowerCase().replace(' ', '.')}@email.com`,
+      ownerEmail: resolvedEmail,
       propertyAddress,
       commissionRate: parseFloat(commission),
     });
@@ -60,19 +65,40 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
     }
   };
 
-  const handleSend = async () => {
-    if (!session) return;
-    await sendSession(session.id);
+  const handleCreateOwnerAccount = async () => {
+    if (!session) {
+      toast.error('Créez d\'abord le mandat électronique');
+      return;
+    }
+
+    // Generate a simple password for demo
+    const password = 'owner' + Math.random().toString(36).slice(2, 6);
+    
+    // Register the owner account
+    await register(resolvedEmail, password, ownerName, 'owner');
+    
+    setGeneratedPassword(password);
+    setOwnerAccountCreated(true);
+
+    // Update step status
     onUpdateAction(processId, step.id, {
       ...data,
       status: 'sent',
       ownerName,
       propertyAddress,
       commissionRate: parseFloat(commission),
-      signatureLink: `${window.location.origin}/sign?token=${session.token}`,
       sentAt: new Date().toISOString(),
     });
-    toast.success('Lien de signature envoyé au propriétaire');
+
+    toast.success('Compte propriétaire créé ! Le propriétaire peut maintenant se connecter et signer depuis son espace.');
+  };
+
+  const handleCopyCredentials = () => {
+    const text = `Email : ${resolvedEmail}\nMot de passe : ${generatedPassword}`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast.success('Identifiants copiés');
   };
 
   const handleSimulateSign = async () => {
@@ -85,8 +111,6 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
     });
     toast.success('Mandat signé électroniquement — étape validée');
   };
-
-  const signingUrl = session ? `${window.location.origin}/sign?token=${session.token}` : undefined;
 
   return (
     <div className="space-y-4">
@@ -144,22 +168,68 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
         <SignatureSessionTracker
           session={session}
           events={events}
-          onSend={handleSend}
-          onResend={handleSend}
-          signingUrl={signingUrl}
+          onSend={() => {}}
+          onResend={() => {}}
         />
       )}
 
-      {/* Quick action buttons */}
-      {session && session.status !== 'signed' && data.status !== 'signed' && (
-        <div className="flex gap-2">
-          {(session.status === 'sent' || session.status === 'viewed') && (
-            <Button onClick={handleSimulateSign} size="sm" variant="outline" className="flex-1">
-              <PenTool size={14} className="mr-1.5" />
-              Simuler la signature
+      {/* Create owner account button */}
+      {session && session.status !== 'signed' && data.status !== 'signed' && !ownerAccountCreated && (
+        <Card className="border border-primary/30 bg-primary/5">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <UserPlus size={16} className="text-primary" />
+              <span className="text-sm font-medium">Inviter le propriétaire</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Créez un compte pour <strong>{ownerName}</strong> ({resolvedEmail}). 
+              Il pourra se connecter, suivre l'avancement et signer le mandat depuis son espace.
+            </p>
+            <Button onClick={handleCreateOwnerAccount} size="sm">
+              <UserPlus size={14} className="mr-1.5" />
+              Créer le compte propriétaire
             </Button>
-          )}
-        </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Show credentials after account creation */}
+      {ownerAccountCreated && generatedPassword && (
+        <Card className="border border-primary/30 bg-primary/5">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-primary" />
+              <span className="text-sm font-medium">Compte propriétaire créé</span>
+            </div>
+            <div className="bg-background rounded-lg p-3 space-y-2 text-sm border border-border/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">Email</p>
+                  <p className="font-mono text-sm">{resolvedEmail}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Mot de passe</p>
+                <p className="font-mono text-sm">{generatedPassword}</p>
+              </div>
+            </div>
+            <Button onClick={handleCopyCredentials} size="sm" variant="outline">
+              {copied ? <Check size={14} className="mr-1.5" /> : <Copy size={14} className="mr-1.5" />}
+              {copied ? 'Copié !' : 'Copier les identifiants'}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Transmettez ces identifiants au propriétaire. Il se connecte sur la page de connexion et accède directement à son espace.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Simulate sign button (for demo/testing) */}
+      {session && session.status !== 'signed' && data.status !== 'signed' && ownerAccountCreated && (
+        <Button onClick={handleSimulateSign} size="sm" variant="outline">
+          <PenTool size={14} className="mr-1.5" />
+          Simuler la signature (démo)
+        </Button>
       )}
 
       {data.status === 'signed' && !session && (
