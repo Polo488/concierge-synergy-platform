@@ -134,6 +134,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          document_content: string | null
           document_url: string | null
           id: string
           is_active: boolean
@@ -144,6 +145,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          document_content?: string | null
           document_url?: string | null
           id?: string
           is_active?: boolean
@@ -154,6 +156,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          document_content?: string | null
           document_url?: string | null
           id?: string
           is_active?: boolean

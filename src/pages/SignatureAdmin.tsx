@@ -33,61 +33,72 @@ export default function SignatureAdmin() {
     const pageWidth = 210;
     let y = 20;
 
-    // Header
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('MANDAT DE GESTION LOCATIVE', pageWidth / 2, y, { align: 'center' });
-    y += 6;
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(120);
-    doc.text('Conciergerie courte & moyenne durée', pageWidth / 2, y, { align: 'center' });
-    doc.setTextColor(0);
-    y += 12;
+    if (template.documentContent) {
+      // Resolve variables in content
+      const valueMap: Record<string, string> = {
+        owner_name: session.ownerName || '',
+        owner_address: '',
+        property_address: session.propertyAddress || '',
+        commission_rate: session.commissionRate != null ? `${session.commissionRate}%` : '',
+        iban: '', bic: '',
+        start_date: session.signedAt ? format(new Date(session.signedAt), 'dd/MM/yyyy') : format(new Date(), 'dd/MM/yyyy'),
+        duration: '1 an',
+      };
+      const resolved = template.documentContent.replace(/\{\{([a-z_]+)\}\}/g, (_, key) => valueMap[key] || `[${key}]`);
 
-    // Body
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Entre les soussignés :', 20, y); y += 7;
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Le Mandant : ${session.ownerName || ''}`, 20, y); y += 5;
-    doc.text(`Adresse du bien : ${session.propertyAddress || ''}`, 20, y); y += 7;
-    doc.text('Et :', 20, y); y += 5;
-    doc.text('La société Noé Conciergerie, SAS au capital de 10 000€,', 20, y); y += 5;
-    doc.text('ci-après dénommée le Mandataire.', 20, y); y += 10;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const lines = doc.splitTextToSize(resolved, pageWidth - 40);
+      for (const line of lines) {
+        if (y > 270) { doc.addPage(); y = 20; }
+        doc.text(line, 20, y);
+        y += 5;
+      }
+    } else {
+      // Legacy hardcoded document
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('MANDAT DE GESTION LOCATIVE', pageWidth / 2, y, { align: 'center' });
+      y += 6;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(120);
+      doc.text('Conciergerie courte & moyenne durée', pageWidth / 2, y, { align: 'center' });
+      doc.setTextColor(0);
+      y += 12;
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Article 1 – Objet du mandat', 20, y); y += 6;
-    doc.setFont('helvetica', 'normal');
-    const art1 = doc.splitTextToSize('Le mandant confie au mandataire, qui accepte, la gestion locative de son bien immobilier sis à l\'adresse ci-dessus mentionnée, en vue de sa mise en location de courte et/ou moyenne durée sur les plateformes de réservation en ligne.', pageWidth - 40);
-    doc.text(art1, 20, y); y += art1.length * 5 + 5;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Entre les soussignés :', 20, y); y += 7;
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Le Mandant : ${session.ownerName || ''}`, 20, y); y += 5;
+      doc.text(`Adresse du bien : ${session.propertyAddress || ''}`, 20, y); y += 7;
+      doc.text('Et :', 20, y); y += 5;
+      doc.text('La société Noé Conciergerie, SAS au capital de 10 000€,', 20, y); y += 5;
+      doc.text('ci-après dénommée le Mandataire.', 20, y); y += 10;
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Article 2 – Commission', 20, y); y += 6;
-    doc.setFont('helvetica', 'normal');
-    const art2 = doc.splitTextToSize(`Le mandataire percevra une commission de ${session.commissionRate || '___'}% hors taxes sur les revenus locatifs bruts générés par la location du bien, prélevée directement sur les versements des plateformes.`, pageWidth - 40);
-    doc.text(art2, 20, y); y += art2.length * 5 + 5;
+      doc.setFont('helvetica', 'bold');
+      doc.text('Article 1 – Objet du mandat', 20, y); y += 6;
+      doc.setFont('helvetica', 'normal');
+      const art1 = doc.splitTextToSize('Le mandant confie au mandataire, qui accepte, la gestion locative de son bien immobilier sis à l\'adresse ci-dessus mentionnée, en vue de sa mise en location de courte et/ou moyenne durée sur les plateformes de réservation en ligne.', pageWidth - 40);
+      doc.text(art1, 20, y); y += art1.length * 5 + 5;
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Article 3 – Durée', 20, y); y += 6;
-    doc.setFont('helvetica', 'normal');
-    const art3 = doc.splitTextToSize('Le présent mandat est conclu pour une durée d\'un an à compter de sa date de signature. Il est renouvelable par tacite reconduction pour des périodes successives d\'un an, sauf dénonciation par l\'une des parties avec un préavis de trois mois.', pageWidth - 40);
-    doc.text(art3, 20, y); y += art3.length * 5 + 5;
+      doc.setFont('helvetica', 'bold');
+      doc.text('Article 2 – Commission', 20, y); y += 6;
+      doc.setFont('helvetica', 'normal');
+      const art2 = doc.splitTextToSize(`Le mandataire percevra une commission de ${session.commissionRate || '___'}% hors taxes sur les revenus locatifs bruts générés par la location du bien.`, pageWidth - 40);
+      doc.text(art2, 20, y); y += art2.length * 5 + 5;
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Article 4 – Obligations du Mandataire', 20, y); y += 6;
-    doc.setFont('helvetica', 'normal');
-    const art4 = doc.splitTextToSize('Le mandataire s\'engage à : gérer les réservations, accueillir les voyageurs, coordonner le ménage et la maintenance, assurer la communication avec les hôtes, et reverser les revenus selon les conditions convenues.', pageWidth - 40);
-    doc.text(art4, 20, y); y += art4.length * 5 + 10;
-
-    doc.text(`Fait en deux exemplaires.`, pageWidth / 2, y, { align: 'center' });
-    y += 15;
+      doc.text(`Fait en deux exemplaires.`, pageWidth / 2, y, { align: 'center' });
+      y += 15;
+    }
 
     // Zone data (text fields, dates)
+    y += 5;
     template.zones.forEach(zone => {
       const data = zoneData.find(d => d.zoneId === zone.id);
       if (!data) return;
-
+      if (y > 270) { doc.addPage(); y = 20; }
       if (zone.zoneType === 'text' || zone.zoneType === 'date') {
         doc.setFontSize(8);
         doc.setTextColor(100);
@@ -104,19 +115,15 @@ export default function SignatureAdmin() {
     // Signatures
     const sigZones = template.zones.filter(z => z.zoneType === 'signature' || z.zoneType === 'initials');
     let sigX = 20;
+    if (y > 240) { doc.addPage(); y = 20; }
     sigZones.forEach(zone => {
       const data = zoneData.find(d => d.zoneId === zone.id);
       doc.setFontSize(8);
       doc.setTextColor(100);
       doc.text(zone.label, sigX, y);
       doc.setTextColor(0);
-
       if (data?.value?.startsWith('data:image')) {
-        try {
-          doc.addImage(data.value, 'PNG', sigX, y + 2, 50, 20);
-        } catch (e) {
-          doc.text('[Signature]', sigX, y + 10);
-        }
+        try { doc.addImage(data.value, 'PNG', sigX, y + 2, 50, 20); } catch (e) { doc.text('[Signature]', sigX, y + 10); }
       } else if (data?.value) {
         doc.setFontSize(10);
         doc.text(data.value, sigX, y + 10);
@@ -125,6 +132,7 @@ export default function SignatureAdmin() {
     });
 
     y += 30;
+    if (y > 270) { doc.addPage(); y = 20; }
 
     // Signature proof footer
     doc.setDrawColor(200);

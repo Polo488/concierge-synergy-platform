@@ -8,6 +8,7 @@ export interface SignatureTemplate {
   name: string;
   description?: string;
   documentUrl?: string;
+  documentContent?: string;
   createdAt: string;
   updatedAt: string;
   isActive: boolean;

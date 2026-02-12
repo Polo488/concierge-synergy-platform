@@ -12,6 +12,7 @@ function mapTemplate(row: any, zones: SignatureZone[]): SignatureTemplate {
     name: row.name,
     description: row.description ?? undefined,
     documentUrl: row.document_url ?? undefined,
+    documentContent: row.document_content ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     isActive: row.is_active,
@@ -123,9 +124,9 @@ export function useSignature() {
   }, []);
 
   // Template CRUD
-  const createTemplate = useCallback(async (name: string, description?: string, documentUrl?: string) => {
+  const createTemplate = useCallback(async (name: string, description?: string, documentContent?: string) => {
     const insertData: any = { name, description };
-    if (documentUrl) insertData.document_url = documentUrl;
+    if (documentContent) insertData.document_content = documentContent;
     const { data, error } = await supabase.from('signature_templates').insert(insertData).select().single();
     if (error || !data) return null;
     const tpl = mapTemplate(data, []);
@@ -139,6 +140,7 @@ export function useSignature() {
     if (updates.description !== undefined) dbUpdates.description = updates.description;
     if (updates.isActive !== undefined) dbUpdates.is_active = updates.isActive;
     if (updates.documentUrl !== undefined) dbUpdates.document_url = updates.documentUrl;
+    if (updates.documentContent !== undefined) dbUpdates.document_content = updates.documentContent;
     await supabase.from('signature_templates').update(dbUpdates).eq('id', id);
     setTemplates(prev => prev.map(t => t.id === id ? { ...t, ...updates, updatedAt: new Date().toISOString() } : t));
   }, []);
