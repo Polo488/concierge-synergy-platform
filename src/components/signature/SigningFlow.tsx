@@ -1,6 +1,6 @@
 
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
-import { SignatureTemplate, SignatureSession, SignatureZone, SignatureZoneData, ZONE_TYPE_CONFIG } from '@/types/signature';
+import { SignatureTemplate, SignatureSession, SignatureZone, SignatureZoneData, ZONE_TYPE_CONFIG, FIELD_KEY_OPTIONS } from '@/types/signature';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { SignaturePad } from './SignaturePad';
 import { 
   CheckCircle2, ChevronRight, ChevronLeft, Shield, Clock,
-  PenTool, Type, Calendar, AlignLeft, FileText, Eye, ArrowDown
+  PenTool, Type, Calendar, AlignLeft, FileText, Eye, ArrowDown, Variable
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -34,7 +34,60 @@ const zoneIcons: Record<string, React.ElementType> = {
 const CANVAS_WIDTH = 595;
 const CANVAS_HEIGHT = 842;
 
+function resolveContent(content: string, session: SignatureSession): string {
+  const valueMap: Record<string, string> = {
+    owner_name: session.ownerName || '',
+    owner_address: '',
+    property_address: session.propertyAddress || '',
+    commission_rate: session.commissionRate != null ? `${session.commissionRate}%` : '',
+    iban: '',
+    bic: '',
+    start_date: format(new Date(), 'dd/MM/yyyy'),
+    duration: '1 an',
+  };
+  // Also use fieldValues if available
+  if (session.fieldValues) {
+    Object.entries(session.fieldValues).forEach(([key, value]) => {
+      if (typeof value === 'string') valueMap[key] = value;
+    });
+  }
+  return content.replace(/\{\{([a-z_]+)\}\}/g, (_, key) => valueMap[key] || `[${key}]`);
+}
+
 function DocumentPreview({ template, session, zoneData }: { template: SignatureTemplate; session: SignatureSession; zoneData: SignatureZoneData[] }) {
+  // If template has document content, render it with resolved variables
+  if (template.documentContent) {
+    const resolvedContent = resolveContent(template.documentContent, session);
+    return (
+      <div className="bg-white border border-border rounded-lg shadow-inner mx-auto p-6 md:p-10 max-w-[700px]">
+        <div className="font-serif text-sm leading-relaxed text-foreground whitespace-pre-wrap">
+          {resolvedContent}
+        </div>
+        {/* Signature zones at bottom */}
+        {template.zones.length > 0 && (
+          <div className="mt-8 pt-6 border-t border-border/50 space-y-4">
+            {template.zones.map(zone => {
+              const data = zoneData.find(d => d.zoneId === zone.id);
+              return (
+                <div key={zone.id} className="flex items-center gap-4">
+                  <span className="text-xs text-muted-foreground w-32">{zone.label} :</span>
+                  {data?.value?.startsWith('data:image') ? (
+                    <img src={data.value} alt={zone.label} className="max-h-16 border rounded" />
+                  ) : data?.value ? (
+                    <span className="text-sm text-foreground">{data.value}</span>
+                  ) : (
+                    <span className="text-sm text-muted-foreground italic">Non rempli</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Fallback: legacy static document
   const zoneColorMap: Record<string, string> = {
     'signature-owner': 'border-primary bg-primary/10',
     'signature-conciergerie': 'border-indigo-500 bg-indigo-500/10',
@@ -46,12 +99,14 @@ function DocumentPreview({ template, session, zoneData }: { template: SignatureT
     'text-conciergerie': 'border-emerald-400 bg-emerald-400/10',
   };
 
+  const CANVAS_WIDTH = 595;
+  const CANVAS_HEIGHT = 842;
+
   return (
     <div 
       className="relative bg-white border border-border rounded-lg shadow-inner mx-auto"
       style={{ aspectRatio: `${CANVAS_WIDTH}/${CANVAS_HEIGHT}`, maxWidth: '100%' }}
     >
-      {/* Document content */}
       <div className="absolute inset-0 p-6 md:p-8 overflow-hidden">
         <div className="text-center mb-6">
           <p className="text-xs md:text-sm font-bold text-foreground tracking-wide">MANDAT DE GESTION LOCATIVE</p>
@@ -66,23 +121,15 @@ function DocumentPreview({ template, session, zoneData }: { template: SignatureT
           <p className="mt-3 font-semibold">Article 1 – Objet du mandat</p>
           <p>Le mandant confie au mandataire, qui accepte, la gestion locative de son bien immobilier sis à l'adresse ci-dessus mentionnée, en vue de sa mise en location de courte et/ou moyenne durée sur les plateformes de réservation en ligne.</p>
           <p className="mt-2 font-semibold">Article 2 – Commission</p>
-          <p>Le mandataire percevra une commission de <span className="font-medium">{session.commissionRate || '___'}%</span> hors taxes sur les revenus locatifs bruts générés par la location du bien, prélevée directement sur les versements des plateformes.</p>
-          <p className="mt-2 font-semibold">Article 3 – Durée</p>
-          <p>Le présent mandat est conclu pour une durée d'un an à compter de sa date de signature. Il est renouvelable par tacite reconduction pour des périodes successives d'un an, sauf dénonciation par l'une des parties avec un préavis de trois mois.</p>
-          <p className="mt-2 font-semibold">Article 4 – Obligations du Mandataire</p>
-          <p>Le mandataire s'engage à : gérer les réservations, accueillir les voyageurs, coordonner le ménage et la maintenance, assurer la communication avec les hôtes, et reverser les revenus selon les conditions convenues.</p>
-          <p className="mt-2 font-semibold">Article 5 – Obligations du Mandant</p>
-          <p>Le mandant s'engage à maintenir le bien en bon état, fournir les clés et accès nécessaires, et informer le mandataire de toute modification affectant la disponibilité du bien.</p>
-          <p className="mt-4 text-center font-medium">Fait en deux exemplaires, à ________________, le ________________</p>
+          <p>Le mandataire percevra une commission de <span className="font-medium">{session.commissionRate || '___'}%</span> hors taxes sur les revenus locatifs bruts générés par la location du bien.</p>
+          <p className="mt-4 text-center font-medium">Fait en deux exemplaires.</p>
         </div>
       </div>
 
-      {/* Zones overlay */}
       {template.zones.map(zone => {
         const colorKey = `${zone.zoneType}-${zone.role}`;
         const colorClass = zoneColorMap[colorKey] || 'border-border bg-muted/50';
         const data = zoneData.find(d => d.zoneId === zone.id);
-        
         return (
           <div
             key={zone.id}

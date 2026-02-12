@@ -1,0 +1,1 @@
+ALTER TABLE public.signature_templates ADD COLUMN document_content TEXT;
