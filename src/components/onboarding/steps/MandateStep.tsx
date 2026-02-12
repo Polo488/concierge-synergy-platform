@@ -44,12 +44,12 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
   // Auto-select first template if none selected
   const effectiveTemplateId = selectedTemplateId || (activeTemplates.length > 0 ? activeTemplates[0].id : '');
 
-  const handleCreateSession = () => {
+  const handleCreateSession = async () => {
     if (!effectiveTemplateId) {
       toast.error('Sélectionnez un modèle de document');
       return;
     }
-    const newSession = createSession(effectiveTemplateId, processId, {
+    const newSession = await createSession(effectiveTemplateId, processId, {
       ownerName,
       ownerEmail: ownerEmail || `${ownerName.toLowerCase().replace(' ', '.')}@email.com`,
       propertyAddress,
@@ -60,9 +60,9 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
     }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!session) return;
-    sendSession(session.id);
+    await sendSession(session.id);
     onUpdateAction(processId, step.id, {
       ...data,
       status: 'sent',
@@ -75,10 +75,9 @@ export function MandateStep({ step, processId, ownerName, ownerEmail, propertyAd
     toast.success('Lien de signature envoyé au propriétaire');
   };
 
-  const handleSimulateSign = () => {
+  const handleSimulateSign = async () => {
     if (!session) return;
-    // Simulate completing all zones and signing
-    signSession(session.id);
+    await signSession(session.id);
     onUpdateAction(processId, step.id, {
       ...data,
       status: 'signed',
