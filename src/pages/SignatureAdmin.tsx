@@ -156,6 +156,7 @@ export default function SignatureAdmin() {
           onAddZone={addZone}
           onUpdateZone={updateZone}
           onRemoveZone={removeZone}
+          onUpdateTemplate={updateTemplate}
         />
       </div>
     );
@@ -222,6 +223,7 @@ export default function SignatureAdmin() {
             onCreateTemplate={createTemplate}
             onDeleteTemplate={deleteTemplate}
             onSelectTemplate={setSelectedTemplate}
+            onUpdateTemplate={updateTemplate}
           />
         </TabsContent>
 
