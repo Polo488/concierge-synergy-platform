@@ -1,5 +1,6 @@
 
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import { SignatureTemplate, SignatureSession, SignatureZone, SignatureZoneData, ZONE_TYPE_CONFIG, FIELD_KEY_OPTIONS } from '@/types/signature';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -224,6 +225,35 @@ export function SigningFlow({ template, session, zoneData, onCompleteZone, onSig
   const handleFinalize = () => {
     onSign(session.id);
     setPhase('completed');
+    // Launch confetti celebration
+    const duration = 3000;
+    const end = Date.now() + duration;
+    const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+    const frame = () => {
+      confetti({
+        particleCount: 4,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.7 },
+        colors,
+      });
+      confetti({
+        particleCount: 4,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.7 },
+        colors,
+      });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    };
+    frame();
+    // Big burst
+    confetti({
+      particleCount: 150,
+      spread: 100,
+      origin: { y: 0.6 },
+      colors,
+    });
   };
 
   const isZoneCompleted = (zoneId: string) => zoneData.some(d => d.zoneId === zoneId);
