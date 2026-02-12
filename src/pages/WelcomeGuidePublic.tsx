@@ -161,7 +161,7 @@ const WelcomeGuidePublic = () => {
   // Completion — now a rich hub
   if (phase === 'complete') {
     return (
-      <div className="min-h-[100dvh] bg-[#0a0a0f] flex flex-col">
+      <div className="min-h-[100dvh] bg-[#F7F9FB] flex flex-col">
         <CompletionScreen
           guestName={data.guestName}
           acceptedUpsells={data.upsells.filter((u) => acceptedUpsells.includes(u.id))}
@@ -176,7 +176,7 @@ const WelcomeGuidePublic = () => {
 
   // Steps
   return (
-    <div className="min-h-[100dvh] bg-[#0a0a0f] flex flex-col">
+    <div className="min-h-[100dvh] bg-[#F7F9FB] flex flex-col">
       <StepProgress
         total={data.steps.length}
         current={currentStep}
@@ -220,7 +220,7 @@ const WelcomeGuidePublic = () => {
       </div>
 
       <div className="px-5 pb-5 text-center">
-        <p className="text-[10px] text-white/10 tracking-wider">Powered by Noé</p>
+        <p className="text-[10px] text-slate-300 tracking-wider">Powered by Noé</p>
       </div>
     </div>
   );
