@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Check, Wifi, MapPin, Phone, Clock, Sparkles, Utensils, Bus, ShieldCheck } from 'lucide-react';
+import { Check, Wifi, MapPin, Phone, Clock, Sparkles, Utensils, Bus, ShieldCheck, Copy, ExternalLink } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { cn } from '@/lib/utils';
 
@@ -23,23 +23,35 @@ const RECO_SECTIONS = [
   {
     icon: Utensils,
     title: 'Restaurants & bars',
-    color: 'text-orange-400',
-    bg: 'bg-orange-500/10 border-orange-500/15',
-    items: ['Le Comptoir du Vin – 5 min à pied', 'Café Mokka – brunch le week-end', 'Brasserie des Jacobins'],
+    color: 'text-orange-600',
+    bg: 'bg-orange-50/80 border-orange-200/30',
+    items: [
+      { name: 'Le Comptoir du Vin', detail: '5 min à pied' },
+      { name: 'Café Mokka', detail: 'brunch le week-end' },
+      { name: 'Brasserie des Jacobins', detail: '3 min' },
+    ],
   },
   {
     icon: Bus,
     title: 'Transports',
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10 border-blue-500/15',
-    items: ['Métro Bellecour – ligne A/D, 2 min', 'Station Vélo\'v en face', 'Gare Part-Dieu – 10 min'],
+    color: 'text-blue-600',
+    bg: 'bg-blue-50/80 border-blue-200/30',
+    items: [
+      { name: 'Métro Bellecour', detail: 'ligne A/D, 2 min' },
+      { name: "Station Vélo'v", detail: 'en face' },
+      { name: 'Gare Part-Dieu', detail: '10 min' },
+    ],
   },
   {
     icon: MapPin,
     title: 'À découvrir',
-    color: 'text-pink-400',
-    bg: 'bg-pink-500/10 border-pink-500/15',
-    items: ['Place Bellecour', 'Vieux Lyon & traboules', 'Parc de la Tête d\'Or – 15 min'],
+    color: 'text-pink-600',
+    bg: 'bg-pink-50/80 border-pink-200/30',
+    items: [
+      { name: 'Place Bellecour', detail: '1 min' },
+      { name: 'Vieux Lyon & traboules', detail: '8 min' },
+      { name: "Parc de la Tête d'Or", detail: '15 min' },
+    ],
   },
 ];
 
@@ -52,20 +64,27 @@ const CompletionScreen = ({
   propertyName = 'Apt Bellecour',
 }: CompletionScreenProps) => {
   const [show, setShow] = useState(false);
+  const [wifiCopied, setWifiCopied] = useState(false);
 
   useEffect(() => {
     const t1 = setTimeout(() => setShow(true), 100);
     const t2 = setTimeout(() => {
       confetti({
-        particleCount: 100,
-        spread: 80,
-        origin: { y: 0.5 },
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.4 },
         colors: ['#34d399', '#60a5fa', '#fbbf24', '#f472b6', '#a78bfa'],
         disableForReducedMotion: true,
       });
     }, 500);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
+
+  const handleCopyWifi = () => {
+    navigator.clipboard.writeText(wifiPassword).catch(() => {});
+    setWifiCopied(true);
+    setTimeout(() => setWifiCopied(false), 2000);
+  };
 
   const total = acceptedUpsells.reduce((s, u) => s + u.price, 0);
 
@@ -76,13 +95,13 @@ const CompletionScreen = ({
     )}>
       {/* Hero completion */}
       <div className="text-center mb-6">
-        <div className="inline-flex h-20 w-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 backdrop-blur-2xl items-center justify-center mb-4 border border-emerald-500/15 shadow-[0_0_40px_rgba(52,211,153,0.12)]">
-          <Check size={36} className="text-emerald-400" />
+        <div className="inline-flex h-20 w-20 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 items-center justify-center mb-4 border border-emerald-200/40 shadow-[0_8px_32px_rgba(52,211,153,0.15)]">
+          <Check size={36} className="text-emerald-500" />
         </div>
-        <h1 className="text-[28px] font-bold text-white tracking-tight">
+        <h1 className="text-[28px] font-bold text-slate-800 tracking-tight">
           Excellent séjour, {guestName} !
         </h1>
-        <p className="text-[13px] text-white/30 mt-2 max-w-[280px] mx-auto leading-relaxed">
+        <p className="text-[13px] text-slate-400 mt-2 max-w-[280px] mx-auto leading-relaxed">
           Votre parcours d'accueil est terminé. Voici tout ce dont vous avez besoin.
         </p>
       </div>
@@ -90,64 +109,72 @@ const CompletionScreen = ({
       {/* Quick info cards */}
       <div className="grid grid-cols-2 gap-2.5 mb-4">
         {/* WiFi */}
-        <div className="p-4 rounded-[18px] bg-white/[0.06] backdrop-blur-3xl border border-white/[0.06]">
-          <Wifi size={16} className="text-blue-400 mb-2" />
-          <p className="text-[10px] text-white/30 font-semibold uppercase tracking-widest">WiFi</p>
-          <p className="text-[13px] text-white font-semibold mt-0.5">{wifiName}</p>
-          <p className="text-[11px] text-white/30 font-mono mt-0.5">{wifiPassword}</p>
+        <div className="p-4 rounded-[22px] bg-white/65 backdrop-blur-2xl border border-white/50 shadow-[0_4px_24px_rgba(0,0,0,0.05)]">
+          <div className="flex items-center justify-between mb-2">
+            <Wifi size={16} className="text-blue-500" />
+            <button onClick={handleCopyWifi} className="text-slate-300 hover:text-slate-500 transition-colors">
+              {wifiCopied ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
+            </button>
+          </div>
+          <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">WiFi</p>
+          <p className="text-[13px] text-slate-800 font-semibold mt-0.5">{wifiName}</p>
+          <p className="text-[11px] text-slate-400 font-mono mt-0.5">{wifiPassword}</p>
         </div>
 
         {/* Contact */}
-        <div className="p-4 rounded-[18px] bg-white/[0.06] backdrop-blur-3xl border border-white/[0.06]">
-          <Phone size={16} className="text-emerald-400 mb-2" />
-          <p className="text-[10px] text-white/30 font-semibold uppercase tracking-widest">Contact</p>
-          <p className="text-[13px] text-white font-semibold mt-0.5">{hostName}</p>
-          <p className="text-[11px] text-white/30 mt-0.5">Disponible 24/7</p>
+        <div className="p-4 rounded-[22px] bg-white/65 backdrop-blur-2xl border border-white/50 shadow-[0_4px_24px_rgba(0,0,0,0.05)]">
+          <Phone size={16} className="text-emerald-500 mb-2" />
+          <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Contact</p>
+          <p className="text-[13px] text-slate-800 font-semibold mt-0.5">{hostName}</p>
+          <p className="text-[11px] text-slate-400 mt-0.5">Disponible 24/7</p>
         </div>
       </div>
 
       {/* Upsell summary */}
       {acceptedUpsells.length > 0 && (
-        <div className="p-4 rounded-[18px] bg-emerald-500/[0.06] backdrop-blur-3xl border border-emerald-500/10 mb-4">
+        <div className="p-4 rounded-[22px] bg-emerald-50/80 backdrop-blur-2xl border border-emerald-200/30 mb-4">
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles size={14} className="text-emerald-400" />
-            <p className="text-[10px] text-emerald-400/60 font-semibold uppercase tracking-widest">
+            <Sparkles size={14} className="text-emerald-600" />
+            <p className="text-[10px] text-emerald-700/60 font-semibold uppercase tracking-widest">
               Vos options
             </p>
           </div>
           {acceptedUpsells.map((u) => (
             <div key={u.id} className="flex justify-between py-1.5 text-[13px]">
-              <span className="text-white/50">{u.name}</span>
-              <span className="font-semibold text-white">{u.price}{u.currency}</span>
+              <span className="text-slate-500">{u.name}</span>
+              <span className="font-semibold text-slate-700">{u.price}{u.currency}</span>
             </div>
           ))}
-          <div className="border-t border-emerald-500/10 mt-2 pt-2 flex justify-between text-[13px] font-bold">
-            <span className="text-white/50">Total</span>
-            <span className="text-emerald-400">{total} €</span>
+          <div className="border-t border-emerald-200/40 mt-2 pt-2 flex justify-between text-[13px] font-bold">
+            <span className="text-slate-500">Total</span>
+            <span className="text-emerald-600">{total} €</span>
           </div>
         </div>
       )}
 
-      {/* Local recommendations */}
+      {/* Local recommendations – horizontal scroll */}
       <div className="mb-4">
-        <p className="text-[10px] text-white/25 font-semibold uppercase tracking-widest mb-3 px-1">
+        <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest mb-3 px-1">
           À proximité
         </p>
         <div className="space-y-2.5">
           {RECO_SECTIONS.map((section) => (
             <div
               key={section.title}
-              className={cn('p-4 rounded-[18px] backdrop-blur-3xl border', section.bg)}
+              className={cn('p-4 rounded-[22px] backdrop-blur-2xl border shadow-[0_4px_24px_rgba(0,0,0,0.04)]', section.bg)}
             >
               <div className="flex items-center gap-2 mb-2.5">
                 <section.icon size={15} className={section.color} />
-                <p className="text-[13px] font-semibold text-white">{section.title}</p>
+                <p className="text-[13px] font-semibold text-slate-700">{section.title}</p>
               </div>
               <div className="space-y-1.5">
                 {section.items.map((item, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="h-1 w-1 rounded-full bg-white/15 shrink-0" />
-                    <p className="text-[12px] text-white/40">{item}</p>
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-1 w-1 rounded-full bg-slate-300 shrink-0" />
+                      <p className="text-[12px] text-slate-500">{item.name}</p>
+                    </div>
+                    <span className="text-[11px] text-slate-400">{item.detail}</span>
                   </div>
                 ))}
               </div>
@@ -157,18 +184,18 @@ const CompletionScreen = ({
       </div>
 
       {/* Practical tips */}
-      <div className="p-4 rounded-[18px] bg-white/[0.06] backdrop-blur-3xl border border-white/[0.06] mb-4">
+      <div className="p-4 rounded-[22px] bg-white/65 backdrop-blur-2xl border border-white/50 shadow-[0_4px_24px_rgba(0,0,0,0.05)] mb-4">
         <div className="flex items-center gap-2 mb-2.5">
-          <ShieldCheck size={15} className="text-white/40" />
-          <p className="text-[13px] font-semibold text-white">Infos pratiques</p>
+          <ShieldCheck size={15} className="text-slate-500" />
+          <p className="text-[13px] font-semibold text-slate-700">Infos pratiques</p>
         </div>
-        <div className="space-y-2 text-[12px] text-white/40">
+        <div className="space-y-2 text-[12px] text-slate-500">
           <div className="flex items-start gap-2">
-            <Clock size={12} className="mt-0.5 shrink-0 text-white/25" />
+            <Clock size={12} className="mt-0.5 shrink-0 text-slate-400" />
             <p>Check-out avant 11h – déposez les clés dans la boîte</p>
           </div>
           <div className="flex items-start gap-2">
-            <ShieldCheck size={12} className="mt-0.5 shrink-0 text-white/25" />
+            <ShieldCheck size={12} className="mt-0.5 shrink-0 text-slate-400" />
             <p>En cas d'urgence, contactez-nous via le chat</p>
           </div>
         </div>
@@ -176,7 +203,7 @@ const CompletionScreen = ({
 
       {/* Footer */}
       <div className="mt-auto pt-4 text-center">
-        <p className="text-[10px] text-white/15 tracking-wider">Powered by Noé · {propertyName}</p>
+        <p className="text-[10px] text-slate-300 tracking-wider">Powered by Noé · {propertyName}</p>
       </div>
     </div>
   );

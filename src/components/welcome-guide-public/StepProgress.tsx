@@ -17,13 +17,13 @@ const StepProgress = ({ total, current, completedIds, stepIds }: StepProgressPro
         return (
           <div
             key={id}
-            className="relative flex-1 h-[3px] rounded-full overflow-hidden bg-white/[0.06]"
+            className="relative flex-1 h-[3px] rounded-full overflow-hidden bg-slate-200/60"
           >
             <div
               className={cn(
                 'absolute inset-0 rounded-full transition-all duration-700 ease-out origin-left',
                 done
-                  ? 'scale-x-100 bg-gradient-to-r from-emerald-400 to-emerald-300'
+                  ? 'scale-x-100 bg-gradient-to-r from-emerald-500 to-emerald-400'
                   : active
                     ? 'scale-x-50 bg-emerald-400/50'
                     : 'scale-x-0'
@@ -34,10 +34,10 @@ const StepProgress = ({ total, current, completedIds, stepIds }: StepProgressPro
       })}
     </div>
     <div className="flex items-center justify-between mt-2.5 px-0.5">
-      <p className="text-[10px] text-white/25 font-medium tracking-wider uppercase">
+      <p className="text-[10px] text-slate-400 font-medium tracking-wider uppercase">
         Étape {current + 1}/{total}
       </p>
-      <p className="text-[10px] text-white/25 font-medium">
+      <p className="text-[10px] text-slate-400 font-medium">
         {Math.round(((completedIds.length) / total) * 100)}%
       </p>
     </div>

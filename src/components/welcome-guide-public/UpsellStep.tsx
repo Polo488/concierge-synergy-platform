@@ -40,13 +40,13 @@ const UpsellStep = ({
     >
       {/* Header */}
       <div className="mt-4 mb-5 text-center">
-        <div className="inline-flex h-14 w-14 rounded-2xl bg-amber-500/10 backdrop-blur-2xl items-center justify-center mb-3 border border-amber-500/15">
-          <Sparkles size={22} className="text-amber-400" />
+        <div className="inline-flex h-14 w-14 rounded-2xl bg-amber-50 backdrop-blur-2xl items-center justify-center mb-3 border border-amber-200/40">
+          <Sparkles size={22} className="text-amber-500" />
         </div>
-        <h1 className="text-[22px] font-bold text-white tracking-tight">
+        <h1 className="text-[22px] font-bold text-slate-800 tracking-tight">
           Envie de plus de confort ?
         </h1>
-        <p className="text-[13px] text-white/30 mt-1">
+        <p className="text-[13px] text-slate-400 mt-1">
           Des options pensées pour votre séjour
         </p>
       </div>
@@ -59,27 +59,27 @@ const UpsellStep = ({
               key={u.id}
               onClick={() => onToggle(u.id)}
               className={cn(
-                'w-full p-4 rounded-[20px] text-left transition-all duration-300 border backdrop-blur-3xl',
+                'w-full p-4 rounded-[22px] text-left transition-all duration-300 border backdrop-blur-2xl',
                 accepted
-                  ? 'bg-emerald-500/[0.08] border-emerald-400/20 shadow-[0_0_20px_rgba(52,211,153,0.05)]'
-                  : 'bg-white/[0.05] border-white/[0.06] active:scale-[0.98]'
+                  ? 'bg-emerald-50/80 border-emerald-300/40 shadow-[0_4px_20px_rgba(52,211,153,0.08)]'
+                  : 'bg-white/65 border-white/50 shadow-[0_4px_24px_rgba(0,0,0,0.05)] active:scale-[0.98]'
               )}
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1 pr-3">
-                  <p className="text-[14px] font-semibold text-white">{u.name}</p>
-                  <p className="text-[12px] text-white/35 mt-0.5 leading-relaxed">{u.description}</p>
+                  <p className="text-[14px] font-semibold text-slate-800">{u.name}</p>
+                  <p className="text-[12px] text-slate-400 mt-0.5 leading-relaxed">{u.description}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[15px] font-bold text-white tabular-nums">
+                  <span className="text-[15px] font-bold text-slate-700 tabular-nums">
                     {u.price}{u.currency}
                   </span>
                   <div
                     className={cn(
                       'h-7 w-7 rounded-full flex items-center justify-center transition-all duration-300',
                       accepted
-                        ? 'bg-emerald-500 shadow-[0_0_12px_rgba(52,211,153,0.3)]'
-                        : 'bg-white/[0.08] border border-white/15'
+                        ? 'bg-emerald-500 shadow-[0_0_12px_rgba(52,211,153,0.25)]'
+                        : 'bg-slate-100 border border-slate-200'
                     )}
                   >
                     {accepted && <Check size={13} className="text-white" strokeWidth={2.5} />}
@@ -93,11 +93,11 @@ const UpsellStep = ({
 
       {/* Total summary */}
       {acceptedIds.length > 0 && (
-        <div className="mt-4 p-3.5 rounded-2xl bg-emerald-500/[0.06] border border-emerald-500/10 flex items-center justify-between">
-          <span className="text-[12px] text-emerald-400/60 font-medium">
+        <div className="mt-4 p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/40 flex items-center justify-between">
+          <span className="text-[12px] text-emerald-700/70 font-medium">
             {acceptedIds.length} option{acceptedIds.length > 1 ? 's' : ''} sélectionnée{acceptedIds.length > 1 ? 's' : ''}
           </span>
-          <span className="text-[15px] font-bold text-emerald-400">{total} €</span>
+          <span className="text-[15px] font-bold text-emerald-600">{total} €</span>
         </div>
       )}
 
@@ -105,14 +105,14 @@ const UpsellStep = ({
       <div className="mt-auto pt-5">
         <button
           onClick={onValidate}
-          className="group w-full h-[56px] rounded-2xl bg-white font-semibold text-[15px] text-slate-900 flex items-center justify-center gap-2 active:scale-[0.97] transition-all duration-200 shadow-[0_8px_32px_rgba(255,255,255,0.1)]"
+          className="group w-full h-[56px] rounded-2xl bg-slate-900 font-semibold text-[15px] text-white flex items-center justify-center gap-2 active:scale-[0.97] transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.15)]"
         >
           {validationLabel}
           <ChevronRight size={16} className="transition-transform group-active:translate-x-0.5" />
         </button>
         <button
           onClick={onValidate}
-          className="w-full text-center mt-3 text-[13px] text-white/20 font-medium hover:text-white/40 transition-colors"
+          className="w-full text-center mt-3 text-[13px] text-slate-400 font-medium hover:text-slate-600 transition-colors"
         >
           Passer
         </button>
