@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { 
   Receipt, Download, Filter, PlusCircle, 
   Search, CreditCard, ArrowUpDown, BarChart, ArrowUp,
-  FileText, RefreshCw, CheckCircle, AlertTriangle, FileSpreadsheet, Zap
+  FileText, RefreshCw, CheckCircle, AlertTriangle, FileSpreadsheet
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +28,7 @@ import { SmilyImportDialog } from '@/components/billing/SmilyImportDialog';
 import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
 import { BookingSyncImportResult } from '@/types/bookingSync';
-import { TransitoryDashboard } from '@/components/transitory/TransitoryDashboard';
+
 
 // Mock data
 const invoicesData = [
@@ -493,10 +493,6 @@ const Billing = () => {
           <TabsTrigger value="emails">Emails</TabsTrigger>
           <TabsTrigger value="touristtax">Taxe de séjour</TabsTrigger>
           <TabsTrigger value="billingcalls">Appels à facturation</TabsTrigger>
-          <TabsTrigger value="transitory" className="flex items-center gap-1.5">
-            <Zap className="h-3.5 w-3.5" />
-            LCD Transitoire
-          </TabsTrigger>
         </TabsList>
         
         {/* Dashboard Tab Content */}
@@ -837,11 +833,6 @@ const Billing = () => {
           <DashboardCard title="Appels à facturation">
             <p className="text-muted-foreground">Fonctionnalité à implémenter.</p>
           </DashboardCard>
-        </TabsContent>
-
-        {/* LCD Transitoire Tab */}
-        <TabsContent value="transitory" className="space-y-6">
-          <TransitoryDashboard />
         </TabsContent>
       </Tabs>
       

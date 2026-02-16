@@ -46,6 +46,7 @@ import {
   PenTool,
   Scale,
   BookOpen,
+  Zap,
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -135,6 +136,7 @@ export function Sidebar() {
         { name: t('sidebar.averageDuration'), path: '/app/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
         { name: t('sidebar.billing'), path: '/app/billing', icon: Receipt, permission: 'billing' },
         { name: t('sidebar.upsell'), path: '/app/upsell', icon: ShoppingCart, permission: 'upsell' },
+        { name: 'LCD Transitoire', path: '/app/transitory', icon: Zap, permission: 'transitory' },
       ]
     },
     {
