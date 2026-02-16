@@ -40,6 +40,7 @@ import OwnerPortal from "./pages/OwnerPortal";
 import LegalWatch from "./pages/LegalWatch";
 import WelcomeGuide from "./pages/WelcomeGuide";
 import WelcomeGuidePublic from "./pages/WelcomeGuidePublic";
+import Transitory from "./pages/Transitory";
 import NotFound from "./pages/NotFound";
 
 // Portal pages
@@ -212,6 +213,12 @@ const App = () => (
                       <Route path="/app/welcome-guide" element={
                         <RoutePermission permission="welcomeGuide">
                           <WelcomeGuide />
+                        </RoutePermission>
+                      } />
+
+                      <Route path="/app/transitory" element={
+                        <RoutePermission permission="transitory">
+                          <Transitory />
                         </RoutePermission>
                       } />
                     </Route>
