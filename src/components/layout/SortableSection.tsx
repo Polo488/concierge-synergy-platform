@@ -93,9 +93,12 @@ export function SortableSection({
             "flex items-center justify-between flex-1 px-2 py-2 rounded-lg",
             "text-[10px] font-semibold tracking-widest uppercase",
             "hover:bg-muted/30 transition-colors",
-            "text-foreground/70"
+            section.colorClass
           )}>
-            <span>{section.title}</span>
+            <span className={cn(
+              "px-2 py-0.5 rounded-md",
+              section.bgClass
+            )}>{section.title}</span>
             <ChevronDown 
               size={12} 
               className={cn(
