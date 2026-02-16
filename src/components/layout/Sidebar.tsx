@@ -101,7 +101,7 @@ export function Sidebar() {
       title: 'PILOTAGE',
       colorClass: 'text-nav-pilotage',
       activeClass: 'bg-nav-pilotage-light text-nav-pilotage',
-      bgClass: 'bg-nav-pilotage/5',
+      bgClass: 'bg-nav-pilotage-light',
       iconBgClass: 'text-nav-pilotage',
       items: [
         { name: t('sidebar.dashboard'), path: '/app', icon: Gauge, permission: 'properties' },
@@ -115,7 +115,7 @@ export function Sidebar() {
       title: 'OPÉRATIONS',
       colorClass: 'text-nav-operations',
       activeClass: 'bg-nav-operations-light text-nav-operations',
-      bgClass: 'bg-nav-operations/5',
+      bgClass: 'bg-nav-operations-light',
       iconBgClass: 'text-nav-operations',
       items: [
         { name: t('sidebar.calendar'), path: '/app/calendar', icon: CalendarIcon, permission: 'calendar' },
@@ -130,7 +130,7 @@ export function Sidebar() {
       title: 'REVENUS',
       colorClass: 'text-nav-revenus',
       activeClass: 'bg-nav-revenus-light text-nav-revenus',
-      bgClass: 'bg-nav-revenus/5',
+      bgClass: 'bg-nav-revenus-light',
       iconBgClass: 'text-nav-revenus',
       items: [
         { name: t('sidebar.averageDuration'), path: '/app/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
@@ -144,7 +144,7 @@ export function Sidebar() {
       title: 'VOYAGEURS',
       colorClass: 'text-nav-experience',
       activeClass: 'bg-nav-experience-light text-nav-experience',
-      bgClass: 'bg-nav-experience/5',
+      bgClass: 'bg-nav-experience-light',
       iconBgClass: 'text-nav-experience',
       items: [
         { name: 'Messagerie', path: '/app/messaging', icon: MessageCircle, permission: 'messaging' },
@@ -157,7 +157,7 @@ export function Sidebar() {
       title: 'ORGANISATION',
       colorClass: 'text-nav-organisation',
       activeClass: 'bg-nav-organisation-light text-nav-organisation',
-      bgClass: 'bg-nav-organisation/5',
+      bgClass: 'bg-nav-organisation-light',
       iconBgClass: 'text-nav-organisation',
       items: [
         { name: 'Agenda', path: '/app/agenda', icon: StickyNote, permission: 'agenda' },
