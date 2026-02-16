@@ -4,7 +4,7 @@ import { Menu, X, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
-import logoNoe from '@/assets/logo-noe.jpg';
+import logoNoe from '@/assets/logo-noe.png';
 
 const navLinks = [
   { name: 'Produit', path: '/produit' },

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import logoNoe from '@/assets/logo-noe.jpg';
+import logoNoe from '@/assets/logo-noe.png';
 
 const footerLinks = {
   product: [

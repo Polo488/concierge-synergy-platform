@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
-import logoNoe from '@/assets/logo-noe.jpg';
+import logoNoe from '@/assets/logo-noe.png';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
