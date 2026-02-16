@@ -56,17 +56,17 @@
     --status-pending: 270 40% 50%;
     --status-pending-light: 270 40% 96%;
 
-    /* Navigation section colors - subtle */
-    --nav-pilotage: 217 70% 50%;
-    --nav-pilotage-light: 217 60% 97%;
-    --nav-operations: 152 50% 40%;
-    --nav-operations-light: 152 50% 97%;
-    --nav-revenus: 25 75% 50%;
-    --nav-revenus-light: 25 75% 97%;
-    --nav-experience: 270 50% 55%;
-    --nav-experience-light: 270 50% 97%;
-    --nav-organisation: 220 10% 50%;
-    --nav-organisation-light: 220 10% 97%;
+    /* Navigation section colors - pastel */
+    --nav-pilotage: 217 55% 65%;
+    --nav-pilotage-light: 217 60% 95%;
+    --nav-operations: 152 40% 55%;
+    --nav-operations-light: 152 50% 95%;
+    --nav-revenus: 25 65% 60%;
+    --nav-revenus-light: 25 70% 95%;
+    --nav-experience: 270 40% 65%;
+    --nav-experience-light: 270 45% 95%;
+    --nav-organisation: 220 15% 60%;
+    --nav-organisation-light: 220 15% 95%;
 
     /* Booking channel colors */
     --channel-airbnb: 0 84% 60%;
