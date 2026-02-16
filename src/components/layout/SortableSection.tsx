@@ -109,7 +109,7 @@ export function SortableSection({
           </CollapsibleTrigger>
         </div>
         
-        <CollapsibleContent className="space-y-0.5 mt-0.5">
+        <CollapsibleContent className={cn("space-y-0.5 mt-0.5", !isOpen && "md:hidden")}>
           {section.items.map((item) => {
             const isActive = location.pathname === item.path;
             
