@@ -20,6 +20,7 @@ export interface PermissionMap {
   legalWatch: boolean;
   welcomeGuide: boolean;
   transitory: boolean;
+  ideaBox: boolean;
 }
 
 export interface RoleDefinition {

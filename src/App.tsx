@@ -41,6 +41,7 @@ import LegalWatch from "./pages/LegalWatch";
 import WelcomeGuide from "./pages/WelcomeGuide";
 import WelcomeGuidePublic from "./pages/WelcomeGuidePublic";
 import Transitory from "./pages/Transitory";
+import IdeaBox from "./pages/IdeaBox";
 import NotFound from "./pages/NotFound";
 
 // Portal pages
@@ -244,6 +245,12 @@ const App = () => (
                       <Route path="/app/transitory" element={
                         <RoutePermission permission="transitory">
                           <Transitory />
+                        </RoutePermission>
+                      } />
+
+                      <Route path="/app/idea-box" element={
+                        <RoutePermission permission="ideaBox">
+                          <IdeaBox />
                         </RoutePermission>
                       } />
                     </Route>

@@ -6,7 +6,7 @@ const allFalsePermissions: PermissionMap = {
   calendar: false, billing: false, moyenneDuree: false, upsell: false,
   users: false, guestExperience: false, agenda: false, messaging: false,
   hrPlanning: false, onboarding: false, ownerPortal: false, legalWatch: false,
-  welcomeGuide: false, transitory: false,
+  welcomeGuide: false, transitory: false, ideaBox: false,
 };
 
 // Define permissions and default routes for each role
@@ -21,8 +21,8 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           calendar: true, billing: true, moyenneDuree: true, upsell: true,
           users: true, guestExperience: true, agenda: true, messaging: true,
           hrPlanning: true, onboarding: true, legalWatch: true, welcomeGuide: true,
-          transitory: true,
-        },
+           transitory: true, ideaBox: true,
+         },
         defaultRoute: '/app',
         canManageUsers: true,
       };
@@ -35,21 +35,21 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           properties: true, inventory: true, maintenance: true, cleaning: true,
           calendar: true, moyenneDuree: true, upsell: true, users: true,
           guestExperience: true, agenda: true, messaging: true, hrPlanning: true,
-          onboarding: true, legalWatch: true, welcomeGuide: true, transitory: true,
-        },
-        defaultRoute: '/app',
-        canManageUsers: true,
-      };
+           onboarding: true, legalWatch: true, welcomeGuide: true, transitory: true, ideaBox: true,
+         },
+         defaultRoute: '/app',
+         canManageUsers: true,
+       };
 
-    case 'cityManager':
+     case 'cityManager':
       return {
         name: 'City Manager',
         permissions: {
           ...allFalsePermissions,
           properties: true, inventory: true, maintenance: true, cleaning: true,
           calendar: true, moyenneDuree: true, upsell: true, guestExperience: true,
-          agenda: true, messaging: true, onboarding: true,
-        },
+           agenda: true, messaging: true, onboarding: true, ideaBox: true,
+         },
         defaultRoute: '/app',
         canManageUsers: false,
       };
@@ -61,13 +61,13 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           ...allFalsePermissions,
           properties: true, inventory: true, maintenance: true, cleaning: true,
           calendar: true, moyenneDuree: true, upsell: true, guestExperience: true,
-          agenda: true, messaging: true,
-        },
-        defaultRoute: '/app',
-        canManageUsers: false,
-      };
-    
-    case 'maintenance':
+           agenda: true, messaging: true, ideaBox: true,
+         },
+         defaultRoute: '/app',
+         canManageUsers: false,
+       };
+     
+     case 'maintenance':
       return {
         name: 'Agent de maintenance',
         permissions: { ...allFalsePermissions, maintenance: true },
