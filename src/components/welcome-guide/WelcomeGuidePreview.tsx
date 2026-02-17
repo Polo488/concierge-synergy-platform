@@ -176,7 +176,7 @@ export function WelcomeGuidePreview({ template, onBack }: Props) {
           {phase === 'landing' && (
             <motion.div key="landing" {...pageTransition} className="min-h-[calc(100vh-100px)]">
               <WelcomeLanding
-                guestName="Voyageur Test"
+                guestName="Noé"
                 propertyName={template.propertyName || template.name}
                 checkIn="2026-02-20"
                 checkOut="2026-02-22"
@@ -217,7 +217,7 @@ export function WelcomeGuidePreview({ template, onBack }: Props) {
           {phase === 'complete' && (
             <motion.div key="complete" {...pageTransition} className="min-h-[calc(100vh-100px)] flex flex-col">
               <CompletionScreen
-                guestName="Voyageur Test"
+                guestName="Noé"
                 acceptedUpsells={activeUpsells.filter(u => acceptedUpsells.includes(u.id)).map(u => ({
                   id: u.id, name: u.name, price: u.price, currency: u.currency,
                 }))}

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { ArrowLeft, Wifi, Copy, Check, Home, BookOpen, ShieldCheck, MapPin, Phone, Sparkles, ExternalLink, ChevronRight, Lock, Clock } from 'lucide-react';
+import { ArrowLeft, Wifi, Copy, Check, Home, BookOpen, ShieldCheck, MapPin, Phone, Sparkles, ExternalLink, ChevronRight, Lock, Clock, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import PaymentSimulation from './PaymentSimulation';
 
 interface Upsell {
   id: string;
@@ -38,7 +39,7 @@ interface GuideHubProps {
   onStartJourney?: () => void;
 }
 
-type Section = 'menu' | 'info' | 'wifi' | 'rules' | 'upsells' | 'recommendations' | 'contact';
+type Section = 'menu' | 'info' | 'wifi' | 'rules' | 'upsells' | 'recommendations' | 'contact' | 'payment';
 
 const GuideHub = ({
   propertyName,
@@ -74,11 +75,11 @@ const GuideHub = ({
   }, 0);
 
   const menuItems = [
+    { key: 'upsells' as Section, icon: Sparkles, label: 'Services extras', sublabel: `${upsells.length} disponible${upsells.length > 1 ? 's' : ''}` },
     { key: 'info' as Section, icon: Home, label: 'Informations du logement', sublabel: 'Message, détails' },
+    { key: 'recommendations' as Section, icon: MapPin, label: 'À proximité', sublabel: 'Restaurants, bars, activités' },
     { key: 'wifi' as Section, icon: Wifi, label: 'WiFi', sublabel: wifiName || 'Connexion' },
     { key: 'rules' as Section, icon: BookOpen, label: 'Règles du logement', sublabel: `${houseRules.length} règle${houseRules.length > 1 ? 's' : ''}` },
-    { key: 'upsells' as Section, icon: Sparkles, label: 'Services extras', sublabel: `${upsells.length} disponible${upsells.length > 1 ? 's' : ''}` },
-    { key: 'recommendations' as Section, icon: MapPin, label: 'À proximité', sublabel: 'Restaurants, bars, activités' },
     { key: 'contact' as Section, icon: Phone, label: 'Contact', sublabel: 'Disponible 24/7' },
   ];
 
@@ -186,12 +187,21 @@ const GuideHub = ({
               );
             })}
             {acceptedUpsells.length > 0 && (
-              <div className="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/40 flex items-center justify-between">
-                <span className="text-[12px] text-emerald-700/70 font-medium">
-                  {acceptedUpsells.length} option{acceptedUpsells.length > 1 ? 's' : ''} sélectionnée{acceptedUpsells.length > 1 ? 's' : ''}
-                </span>
-                <span className="text-[15px] font-bold text-emerald-600">{total} €</span>
-              </div>
+              <>
+                <div className="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/40 flex items-center justify-between">
+                  <span className="text-[12px] text-emerald-700/70 font-medium">
+                    {acceptedUpsells.length} option{acceptedUpsells.length > 1 ? 's' : ''} sélectionnée{acceptedUpsells.length > 1 ? 's' : ''}
+                  </span>
+                  <span className="text-[15px] font-bold text-emerald-600">{total} €</span>
+                </div>
+                <button
+                  onClick={() => setSection('payment')}
+                  className="w-full h-[52px] rounded-2xl bg-slate-900 font-semibold text-[15px] text-white flex items-center justify-center gap-2 active:scale-[0.97] transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.15)]"
+                >
+                  <CreditCard size={16} />
+                  Payer {total} €
+                </button>
+              </>
             )}
           </motion.div>
         );
@@ -243,6 +253,20 @@ const GuideHub = ({
                 Contacter
               </button>
             </div>
+          </motion.div>
+        );
+
+      case 'payment':
+        return (
+          <motion.div key="payment" {...transition} className="min-h-[60vh]">
+            <PaymentSimulation
+              items={acceptedUpsells.map(id => {
+                const u = upsells.find(x => x.id === id);
+                return u ? { id: u.id, name: u.name, price: u.price, currency: u.currency } : { id, name: '', price: 0, currency: '€' };
+              }).filter(i => i.name)}
+              onBack={() => setSection('upsells')}
+              onSuccess={() => setSection('menu')}
+            />
           </motion.div>
         );
 
