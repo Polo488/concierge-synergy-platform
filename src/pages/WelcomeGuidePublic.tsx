@@ -34,7 +34,7 @@ interface Upsell {
 }
 
 const MOCK_DATA = {
-  guestName: 'Benjamin',
+  guestName: 'Noé',
   propertyName: 'Apt Bellecour – T2 Premium',
   propertyAddress: '12 Place Bellecour, 69002 Lyon',
   cityName: 'Lyon 2e',
@@ -102,11 +102,10 @@ const MOCK_DATA = {
     },
   ] as Step[],
   upsells: [
-    { id: 'u1', name: 'Check-out tardif (14h)', description: 'Profitez jusqu\'à 14h sans stress.', price: 35, currency: '€' },
-    { id: 'u2', name: 'Ménage supplémentaire', description: 'Un ménage pendant votre séjour.', price: 45, currency: '€' },
-    { id: 'u3', name: 'Pack linge premium', description: 'Draps et serviettes supplémentaires.', price: 20, currency: '€' },
-    { id: 'u4', name: 'Petit-déjeuner livré', description: 'Croissants, jus et café le matin.', price: 18, currency: '€' },
-    { id: 'u5', name: 'Pack romantique', description: 'Pétales de rose, bougies & champagne.', price: 55, currency: '€' },
+    { id: 'u1', name: 'Check-out tardif (14h)', description: 'Profitez de votre logement jusqu\'à 14h sans stress.', price: 35, currency: '€' },
+    { id: 'u2', name: 'Check-in anticipé (13h)', description: 'Arrivez plus tôt dès 13h et installez-vous.', price: 30, currency: '€' },
+    { id: 'u3', name: 'Petit-déjeuner livré', description: 'Croissants, jus d\'orange et café chaud le matin.', price: 18, currency: '€' },
+    { id: 'u4', name: 'Pack romantique', description: 'Pétales de rose, bougies parfumées & champagne.', price: 55, currency: '€' },
   ] as Upsell[],
   recommendations: [
     {

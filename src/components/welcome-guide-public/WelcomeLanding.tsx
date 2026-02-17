@@ -52,10 +52,10 @@ const WelcomeLanding = ({
   }, []);
 
   const quickMenuItems: QuickMenuItem[] = [
-    { icon: Home, label: 'Guides du logement', sublabel: 'Tout savoir', onClick: () => onNavigate?.('info') },
-    { icon: Wifi, label: 'WiFi haut débit', sublabel: 'Connexion instantanée', onClick: () => onNavigate?.('wifi') },
-    { icon: Star, label: 'Recommandations', sublabel: 'Restaurants, bars & activités', onClick: () => onNavigate?.('recommendations') },
     { icon: Sparkles, label: 'Services extras', sublabel: 'Améliorez votre séjour', onClick: () => onNavigate?.('upsells') },
+    { icon: Home, label: 'Guides du logement', sublabel: 'Tout savoir', onClick: () => onNavigate?.('info') },
+    { icon: Star, label: 'Recommandations', sublabel: 'Restaurants, bars & activités', onClick: () => onNavigate?.('recommendations') },
+    { icon: Wifi, label: 'WiFi', sublabel: 'Connexion instantanée', onClick: () => onNavigate?.('wifi') },
     { icon: BookOpen, label: 'Règles du logement', sublabel: 'À noter', onClick: () => onNavigate?.('rules') },
     { icon: MessageCircle, label: 'Contact hôte', sublabel: 'Disponible 24/7', onClick: () => onNavigate?.('contact') },
   ];

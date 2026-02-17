@@ -1,5 +1,7 @@
-import { Check, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { Check, ChevronRight, ChevronLeft, Sparkles, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import PaymentSimulation from './PaymentSimulation';
 
 interface Upsell {
   id: string;
@@ -28,10 +30,25 @@ const UpsellStep = ({
   onValidate,
   onBack,
 }: UpsellStepProps) => {
+  const [showPayment, setShowPayment] = useState(false);
+
   const total = acceptedIds.reduce((sum, id) => {
     const u = upsells.find((x) => x.id === id);
     return sum + (u?.price ?? 0);
   }, 0);
+
+  if (showPayment) {
+    return (
+      <PaymentSimulation
+        items={acceptedIds.map(id => {
+          const u = upsells.find(x => x.id === id);
+          return u ? { id: u.id, name: u.name, price: u.price, currency: u.currency } : { id, name: '', price: 0, currency: '€' };
+        }).filter(i => i.name)}
+        onBack={() => setShowPayment(false)}
+        onSuccess={onValidate}
+      />
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col">
@@ -112,14 +129,24 @@ const UpsellStep = ({
 
       {/* CTA */}
       <div className="mt-auto pt-5">
-        <button
-          onClick={onValidate}
-          disabled={animating}
-          className="group w-full h-[56px] rounded-2xl bg-slate-900 font-semibold text-[15px] text-white flex items-center justify-center gap-2 active:scale-[0.97] transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.15)] disabled:opacity-50"
-        >
-          {validationLabel}
-          <ChevronRight size={16} className="transition-transform group-active:translate-x-0.5" />
-        </button>
+        {acceptedIds.length > 0 ? (
+          <button
+            onClick={() => setShowPayment(true)}
+            className="group w-full h-[56px] rounded-2xl bg-slate-900 font-semibold text-[15px] text-white flex items-center justify-center gap-2 active:scale-[0.97] transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.15)]"
+          >
+            <CreditCard size={16} />
+            Payer {total} €
+          </button>
+        ) : (
+          <button
+            onClick={onValidate}
+            disabled={animating}
+            className="group w-full h-[56px] rounded-2xl bg-slate-900 font-semibold text-[15px] text-white flex items-center justify-center gap-2 active:scale-[0.97] transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.15)] disabled:opacity-50"
+          >
+            {validationLabel}
+            <ChevronRight size={16} className="transition-transform group-active:translate-x-0.5" />
+          </button>
+        )}
         <button
           onClick={onValidate}
           className="w-full text-center mt-3 text-[13px] text-slate-400 font-medium hover:text-slate-600 transition-colors"
