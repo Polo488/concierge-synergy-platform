@@ -203,6 +203,31 @@ const App = () => (
                           <OwnerPortal />
                         </RoutePermission>
                       } />
+                      <Route path="/app/owner/onboarding" element={
+                        <RoutePermission permission="ownerPortal">
+                          <OwnerPortal />
+                        </RoutePermission>
+                      } />
+                      <Route path="/app/owner/invoices" element={
+                        <RoutePermission permission="ownerPortal">
+                          <OwnerPortal />
+                        </RoutePermission>
+                      } />
+                      <Route path="/app/owner/documents" element={
+                        <RoutePermission permission="ownerPortal">
+                          <OwnerPortal />
+                        </RoutePermission>
+                      } />
+                      <Route path="/app/owner/revenue" element={
+                        <RoutePermission permission="ownerPortal">
+                          <OwnerPortal />
+                        </RoutePermission>
+                      } />
+                      <Route path="/app/owner/notifications" element={
+                        <RoutePermission permission="ownerPortal">
+                          <OwnerPortal />
+                        </RoutePermission>
+                      } />
                       
                       <Route path="/app/legal-watch" element={
                         <RoutePermission permission="legalWatch">
