@@ -6,6 +6,7 @@ interface StepContentProps {
   title: string;
   description: string;
   imageUrl?: string;
+  videoUrl?: string;
   validationLabel: string;
   isOptional: boolean;
   helpText?: string;
@@ -19,6 +20,7 @@ const StepContent = ({
   title,
   description,
   imageUrl,
+  videoUrl,
   validationLabel,
   isOptional,
   helpText,
@@ -80,7 +82,7 @@ const StepContent = ({
         </div>
       )}
 
-      {!imageUrl && (
+      {!imageUrl && !videoUrl && (
         <div className="mt-4 mb-3 flex items-center gap-3">
           {onBack && (
             <button
