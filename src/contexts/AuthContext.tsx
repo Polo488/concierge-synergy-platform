@@ -77,7 +77,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (key === 'ownerPortal' && currentPath.startsWith('/app/owner')) return true;
           if (key === 'legalWatch' && currentPath === '/app/legal-watch') return true;
           if (key === 'welcomeGuide' && currentPath === '/app/welcome-guide') return true;
-          if (key === 'transitory' && currentPath === '/app/transitory') return true;
+           if (key === 'transitory' && currentPath === '/app/transitory') return true;
+           if (key === 'ideaBox' && currentPath === '/app/idea-box') return true;
           
           return currentPath === '/app';
         }
