@@ -47,6 +47,9 @@ import {
   Scale,
   BookOpen,
   Zap,
+  TrendingUp,
+  Bell,
+  FileText,
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -332,20 +335,30 @@ export function Sidebar() {
         {/* Navigation sections */}
         <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
           {user?.role === 'owner' ? (
-            /* Simplified sidebar for owner */
+            /* Sidebar for owner with dedicated sections */
             <div className="space-y-1">
-              <Link
-                to="/app/owner"
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
-                  location.pathname === '/app/owner'
-                    ? "bg-primary/10 text-primary font-medium"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                )}
-              >
-                <Home size={18} />
-                <span className={cn("text-sm", !isOpen && "md:hidden")}>Mon espace</span>
-              </Link>
+              {[
+                { name: 'Tableau de bord', path: '/app/owner', icon: LayoutDashboard },
+                { name: 'Onboarding', path: '/app/owner/onboarding', icon: Rocket },
+                { name: 'Factures', path: '/app/owner/invoices', icon: Receipt },
+                { name: 'Documents', path: '/app/owner/documents', icon: FileText },
+                { name: 'Revenus', path: '/app/owner/revenue', icon: TrendingUp },
+                { name: 'Notifications', path: '/app/owner/notifications', icon: Bell },
+              ].map(item => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
+                    location.pathname === item.path
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  )}
+                >
+                  <item.icon size={18} />
+                  <span className={cn("text-sm", !isOpen && "md:hidden")}>{item.name}</span>
+                </Link>
+              ))}
             </div>
           ) : (
             <DndContext
