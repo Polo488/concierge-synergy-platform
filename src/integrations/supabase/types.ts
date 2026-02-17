@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      idea_votes: {
+        Row: {
+          created_at: string
+          id: string
+          idea_id: string
+          voter_identifier: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idea_id: string
+          voter_identifier: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idea_id?: string
+          voter_identifier?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_votes_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ideas: {
+        Row: {
+          author_email: string | null
+          author_name: string
+          created_at: string
+          description: string | null
+          id: string
+          status: string
+          title: string
+          updated_at: string
+          votes_count: number
+        }
+        Insert: {
+          author_email?: string | null
+          author_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string
+          votes_count?: number
+        }
+        Update: {
+          author_email?: string | null
+          author_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          votes_count?: number
+        }
+        Relationships: []
+      }
       signature_events: {
         Row: {
           actor: string | null

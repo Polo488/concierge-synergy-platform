@@ -30,7 +30,7 @@ import {
   Menu,
   X,
   ChevronLeft,
-  Calendar as CalendarIcon,
+  CalendarIcon,
   Clock,
   ShoppingCart,
   LogOut,
@@ -168,6 +168,7 @@ export function Sidebar() {
         { name: 'Onboarding', path: '/app/onboarding', icon: Rocket, permission: 'onboarding' },
         { name: 'Signature', path: '/app/signature', icon: PenTool, permission: 'onboarding' },
         { name: 'Utilisateurs', path: '/app/user-management', icon: Users, permission: 'users' },
+        { name: 'Boîte à idées', path: '/app/idea-box', icon: Lightbulb, permission: 'ideaBox' },
       ]
     }
   ], [t]);
