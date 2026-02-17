@@ -1,4 +1,4 @@
-import { Wifi, Copy, ChevronRight, ShieldCheck } from 'lucide-react';
+import { Wifi, Copy, ChevronRight, ChevronLeft, ShieldCheck, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
@@ -10,6 +10,7 @@ interface WelcomeStepProps {
   validationLabel: string;
   animating: boolean;
   onValidate: () => void;
+  onBack?: () => void;
 }
 
 const WelcomeStep = ({
@@ -20,6 +21,7 @@ const WelcomeStep = ({
   validationLabel,
   animating,
   onValidate,
+  onBack,
 }: WelcomeStepProps) => {
   const [copied, setCopied] = useState(false);
 
@@ -32,14 +34,21 @@ const WelcomeStep = ({
   };
 
   return (
-    <div
-      className={cn(
-        'flex-1 flex flex-col transition-all duration-500 ease-out',
-        animating ? 'opacity-0 translate-y-10 scale-[0.96]' : 'opacity-100 translate-y-0 scale-100'
-      )}
-    >
+    <div className="flex-1 flex flex-col">
+      {/* Header with back */}
+      <div className="flex items-center gap-3 mt-2 mb-4">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="h-10 w-10 rounded-xl bg-white/80 backdrop-blur-xl border border-white/50 flex items-center justify-center shadow-sm active:scale-95 transition-transform shrink-0"
+          >
+            <ChevronLeft size={18} className="text-slate-600" />
+          </button>
+        )}
+      </div>
+
       {/* Celebration header */}
-      <div className="mt-6 mb-5 text-center">
+      <div className="mb-5 text-center">
         <div className="inline-flex h-20 w-20 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 backdrop-blur-2xl items-center justify-center mb-4 border border-emerald-200/40 shadow-[0_8px_32px_rgba(52,211,153,0.12)]">
           <span className="text-[38px]">🏠</span>
         </div>
@@ -74,7 +83,7 @@ const WelcomeStep = ({
                   copied ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400 hover:text-slate-600'
                 )}
               >
-                {copied ? <ShieldCheck size={14} /> : <Copy size={14} />}
+                {copied ? <Check size={14} /> : <Copy size={14} />}
               </button>
             </div>
           </div>
@@ -83,9 +92,7 @@ const WelcomeStep = ({
         {/* House rules */}
         {houseRules.length > 0 && (
           <div className="p-4 rounded-[22px] bg-white/65 backdrop-blur-2xl border border-white/50 shadow-[0_4px_24px_rgba(0,0,0,0.05)]">
-            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-[0.15em] mb-3">
-              À noter
-            </p>
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-[0.15em] mb-3">À noter</p>
             <div className="space-y-2">
               {houseRules.map((rule, i) => (
                 <div key={i} className="flex items-start gap-2.5">
@@ -102,7 +109,8 @@ const WelcomeStep = ({
       <div className="mt-auto pt-6">
         <button
           onClick={onValidate}
-          className="group w-full h-[56px] rounded-2xl bg-slate-900 font-semibold text-[15px] text-white flex items-center justify-center gap-2 active:scale-[0.97] transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.15)]"
+          disabled={animating}
+          className="group w-full h-[56px] rounded-2xl bg-slate-900 font-semibold text-[15px] text-white flex items-center justify-center gap-2 active:scale-[0.97] transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.15)] disabled:opacity-50"
         >
           {validationLabel}
           <ChevronRight size={16} className="transition-transform group-active:translate-x-0.5" />

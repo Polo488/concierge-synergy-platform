@@ -1,4 +1,4 @@
-import { Check, ChevronRight, Sparkles } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Upsell {
@@ -16,6 +16,7 @@ interface UpsellStepProps {
   validationLabel: string;
   animating: boolean;
   onValidate: () => void;
+  onBack?: () => void;
 }
 
 const UpsellStep = ({
@@ -25,6 +26,7 @@ const UpsellStep = ({
   validationLabel,
   animating,
   onValidate,
+  onBack,
 }: UpsellStepProps) => {
   const total = acceptedIds.reduce((sum, id) => {
     const u = upsells.find((x) => x.id === id);
@@ -32,14 +34,21 @@ const UpsellStep = ({
   }, 0);
 
   return (
-    <div
-      className={cn(
-        'flex-1 flex flex-col transition-all duration-500 ease-out',
-        animating ? 'opacity-0 translate-y-10 scale-[0.96]' : 'opacity-100 translate-y-0 scale-100'
-      )}
-    >
+    <div className="flex-1 flex flex-col">
+      {/* Header with back */}
+      <div className="flex items-center gap-3 mt-2 mb-2">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="h-10 w-10 rounded-xl bg-white/80 backdrop-blur-xl border border-white/50 flex items-center justify-center shadow-sm active:scale-95 transition-transform shrink-0"
+          >
+            <ChevronLeft size={18} className="text-slate-600" />
+          </button>
+        )}
+      </div>
+
       {/* Header */}
-      <div className="mt-4 mb-5 text-center">
+      <div className="mb-5 text-center">
         <div className="inline-flex h-14 w-14 rounded-2xl bg-amber-50 backdrop-blur-2xl items-center justify-center mb-3 border border-amber-200/40">
           <Sparkles size={22} className="text-amber-500" />
         </div>
@@ -105,7 +114,8 @@ const UpsellStep = ({
       <div className="mt-auto pt-5">
         <button
           onClick={onValidate}
-          className="group w-full h-[56px] rounded-2xl bg-slate-900 font-semibold text-[15px] text-white flex items-center justify-center gap-2 active:scale-[0.97] transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.15)]"
+          disabled={animating}
+          className="group w-full h-[56px] rounded-2xl bg-slate-900 font-semibold text-[15px] text-white flex items-center justify-center gap-2 active:scale-[0.97] transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.15)] disabled:opacity-50"
         >
           {validationLabel}
           <ChevronRight size={16} className="transition-transform group-active:translate-x-0.5" />
