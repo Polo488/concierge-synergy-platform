@@ -30,7 +30,7 @@ import {
   Menu,
   X,
   ChevronLeft,
-  CalendarIcon,
+  Calendar as CalendarIcon,
   Clock,
   ShoppingCart,
   LogOut,
