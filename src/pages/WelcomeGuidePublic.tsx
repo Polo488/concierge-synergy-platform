@@ -19,6 +19,7 @@ interface Step {
   title: string;
   description: string;
   imageUrl?: string;
+  videoUrl?: string;
   validationLabel: string;
   isOptional: boolean;
   helpText?: string;
@@ -337,6 +338,7 @@ const WelcomeGuidePublic = () => {
                       title={step.title}
                       description={step.description}
                       imageUrl={step.imageUrl}
+                      videoUrl={step.videoUrl}
                       validationLabel={step.validationLabel}
                       isOptional={step.isOptional}
                       helpText={step.helpText}

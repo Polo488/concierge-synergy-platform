@@ -264,6 +264,7 @@ export function WelcomeGuidePreview({ template, onBack }: Props) {
                         title={step.title}
                         description={step.description}
                         imageUrl={step.imageUrl}
+                        videoUrl={step.videoUrl}
                         validationLabel={step.validationLabel}
                         isOptional={step.isOptional}
                         helpText={step.helpText}

@@ -2,14 +2,16 @@
 export interface WelcomeGuideStep {
   id: string;
   order: number;
-  type: 'building_arrival' | 'key_access' | 'apartment_access' | 'welcome' | 'upsell';
+  type: 'building_arrival' | 'key_access' | 'apartment_access' | 'welcome' | 'upsell' | 'custom';
   title: string;
   description: string;
   imageUrl?: string;
+  videoUrl?: string;
   validationLabel: string;
   isOptional: boolean;
   isActive: boolean;
   helpText?: string;
+  contextHint?: string;
 }
 
 export interface WelcomeGuideUpsell {
@@ -20,6 +22,14 @@ export interface WelcomeGuideUpsell {
   currency: string;
   imageUrl?: string;
   isActive: boolean;
+}
+
+export interface WelcomeGuideLandingConfig {
+  heroImage?: string;
+  showHostBadge: boolean;
+  showNightsBadge: boolean;
+  showPropertyCard: boolean;
+  showDates: boolean;
 }
 
 export interface WelcomeGuideTemplate {
@@ -34,6 +44,7 @@ export interface WelcomeGuideTemplate {
   wifiName?: string;
   wifiPassword?: string;
   houseRules?: string[];
+  landingConfig?: WelcomeGuideLandingConfig;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -60,7 +71,7 @@ export interface WelcomeGuideSession {
 export interface WelcomeGuideAnalytics {
   totalSessions: number;
   completionRate: number;
-  averageCompletionTime: number; // in minutes
+  averageCompletionTime: number;
   upsellConversionRate: number;
   upsellRevenue: number;
   stepDropoffRates: Record<string, number>;
