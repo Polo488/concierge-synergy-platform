@@ -1,139 +1,122 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const tiers = [
-  {
-    name: 'Noé',
-    price: '4€',
-    unit: 'HT / logement / mois',
-    description: 'Channel Manager + PMS complet',
-    features: [
-      'Distribution multi-plateforme',
-      'Calendrier unifié',
-      'Gestion opérations',
-      'Ménages & maintenance',
-      'Messaging automatisé',
-      'Tableau de bord & stats',
-      'Conformité réglementaire',
-      'Support standard',
-    ],
-    cta: 'Demander un accès',
-    highlighted: false,
-  },
-  {
-    name: 'Pimp my Noé',
-    price: '15€',
-    unit: 'HT / logement / mois',
-    description: 'Sur-mesure + accompagnement',
-    features: [
-      'Tout Noé inclus',
-      'Configuration sur-mesure',
-      'Intégrations personnalisées',
-      'Formation équipe dédiée',
-      'Account manager',
-      'Support prioritaire',
-      'SLA garanti',
-      'Audit & conseil',
-    ],
-    cta: 'Nous contacter',
-    highlighted: true,
-  },
-];
 
 export function PricingSection() {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
-    <section ref={ref} className="relative py-24 lg:py-32" id="pricing">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <motion.div
-          className="text-center mb-16"
+    <section ref={ref} className="relative py-28 lg:py-40" id="pricing">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        <motion.p
+          className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-5"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+        >
+          Tarification
+        </motion.p>
+
+        <motion.h2
+          className="text-3xl sm:text-[2.6rem] font-semibold text-foreground leading-[1.15] tracking-tight"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <div
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium tracking-wide mb-6"
-            style={{ background: 'hsla(220, 70%, 50%, 0.06)', color: 'hsl(var(--primary))' }}
-          >
-            TARIFICATION
+          Optimisé par design.
+          <br />
+          <span className="text-muted-foreground">Pas par compromis.</span>
+        </motion.h2>
+
+        <motion.p
+          className="text-muted-foreground mt-5 leading-relaxed max-w-lg text-[15px]"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.2 }}
+        >
+          Une architecture lean qui réduit le coût sans réduire le périmètre.
+        </motion.p>
+
+        {/* Pricing grid */}
+        <motion.div
+          className="mt-14 grid sm:grid-cols-2 gap-px bg-border/40 rounded-2xl overflow-hidden"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          {/* Channel Manager */}
+          <div className="bg-background p-8">
+            <p className="text-[11px] font-medium tracking-[0.15em] uppercase text-muted-foreground">Channel Manager</p>
+            <div className="mt-4 flex items-baseline gap-1.5">
+              <span className="text-4xl font-semibold text-foreground">4€</span>
+              <span className="text-sm text-muted-foreground">HT / logement / mois</span>
+            </div>
+            <div className="mt-6 space-y-2">
+              {[
+                'Distribution multi-plateforme',
+                'Calendrier unifié',
+                'Ménages & maintenance',
+                'Messaging automatisé',
+                'Tableau de bord',
+                'Conformité réglementaire',
+              ].map((f) => (
+                <div key={f} className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 rounded-full bg-primary/40" />
+                  {f}
+                </div>
+              ))}
+            </div>
+            <Button className="w-full mt-8 h-11 rounded-xl" asChild>
+              <Link to="/contact">
+                Demander un accès
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-semibold text-foreground tracking-tight">
-            Tarification transparente,
-            <br />
-            <span className="text-muted-foreground">sans surprise.</span>
-          </h2>
+
+          {/* Billing module */}
+          <div className="bg-background p-8">
+            <p className="text-[11px] font-medium tracking-[0.15em] uppercase text-muted-foreground">Module Facturation</p>
+            <div className="mt-4 flex items-baseline gap-1.5">
+              <span className="text-4xl font-semibold text-foreground">2€</span>
+              <span className="text-sm text-muted-foreground">par facture générée</span>
+            </div>
+            <div className="mt-6 space-y-2">
+              {[
+                'Génération automatique',
+                'Calcul commission',
+                'Reversement propriétaire',
+                'Export comptable',
+                'Traçabilité complète',
+                'Horodatage audit-ready',
+              ].map((f) => (
+                <div key={f} className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                  <div className="w-1 h-1 rounded-full bg-primary/40" />
+                  {f}
+                </div>
+              ))}
+            </div>
+            <Button variant="outline" className="w-full mt-8 h-11 rounded-xl" asChild>
+              <Link to="/contact">
+                En savoir plus
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {tiers.map((tier, i) => (
-            <motion.div
-              key={tier.name}
-              className={`rounded-2xl p-8 relative ${
-                tier.highlighted
-                  ? 'bg-foreground text-background'
-                  : 'glass-panel'
-              }`}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.1 + i * 0.15 }}
-              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-            >
-              <p className={`text-xs font-medium tracking-wide uppercase ${tier.highlighted ? 'opacity-60' : 'text-muted-foreground'}`}>
-                {tier.name}
-              </p>
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-4xl font-semibold">{tier.price}</span>
-                <span className={`text-sm ${tier.highlighted ? 'opacity-60' : 'text-muted-foreground'}`}>{tier.unit}</span>
-              </div>
-              <p className={`text-sm mt-2 ${tier.highlighted ? 'opacity-70' : 'text-muted-foreground'}`}>{tier.description}</p>
-
-              <div className="mt-6 space-y-2.5">
-                {tier.features.map((f) => (
-                  <div key={f} className="flex items-center gap-2">
-                    <Check className={`w-3.5 h-3.5 ${tier.highlighted ? 'opacity-60' : 'text-[hsl(152,50%,45%)]'}`} />
-                    <span className={`text-sm ${tier.highlighted ? 'opacity-80' : 'text-muted-foreground'}`}>{f}</span>
-                  </div>
-                ))}
-              </div>
-
-              <Button
-                className={`w-full mt-8 rounded-xl h-11 ${
-                  tier.highlighted
-                    ? 'bg-background text-foreground hover:bg-background/90'
-                    : ''
-                }`}
-                variant={tier.highlighted ? 'secondary' : 'default'}
-                asChild
-              >
-                <Link to="/contact">
-                  {tier.cta}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Billing module add-on */}
+        {/* Average cost */}
         <motion.div
-          className="mt-6 glass-panel rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.5 }}
+          className="mt-6 text-center"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.5 }}
         >
-          <div>
-            <p className="text-sm font-medium text-foreground">Module Facturation</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Génération automatique, traçabilité complète, export comptable</p>
-          </div>
-          <div className="flex items-baseline gap-1 shrink-0">
-            <span className="text-2xl font-semibold text-foreground">2€</span>
-            <span className="text-xs text-muted-foreground">/ facture</span>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            Coût moyen total : <span className="text-foreground font-medium">~6€ / logement / mois</span>
+          </p>
         </motion.div>
       </div>
     </section>

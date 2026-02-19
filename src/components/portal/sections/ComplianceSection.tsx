@@ -1,93 +1,86 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { Shield, AlertTriangle, CheckCircle2, MapPin } from 'lucide-react';
 
-const complianceSteps = [
-  { icon: MapPin, label: 'Géolocalisation', desc: 'Identification de la commune' },
-  { icon: AlertTriangle, label: 'Analyse réglementaire', desc: 'Règles locales détectées' },
-  { icon: Shield, label: 'Score de risque', desc: 'Évaluation en temps réel' },
-  { icon: CheckCircle2, label: 'Conformité', desc: 'Statut vérifié' },
+const steps = [
+  { label: 'Géolocalisation', desc: 'Identification commune' },
+  { label: 'Analyse réglementaire', desc: 'Règles locales détectées' },
+  { label: 'Score de risque', desc: 'Évaluation temps réel' },
+  { label: 'Conformité', desc: 'Statut vérifié' },
 ];
 
 export function ComplianceSection() {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
-    <section ref={ref} className="relative py-24 lg:py-32">
+    <section ref={ref} className="relative py-28 lg:py-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-20 items-center">
           <div>
-            <motion.div
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium tracking-wide mb-6"
-              style={{ background: 'hsla(270, 40%, 55%, 0.08)', color: 'hsl(var(--nav-experience))' }}
-              initial={{ opacity: 0, y: 10 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
+            <motion.p
+              className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-5"
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : {}}
             >
-              CONFORMITÉ
-            </motion.div>
+              Conformité
+            </motion.p>
 
             <motion.h2
-              className="text-3xl sm:text-4xl font-semibold text-foreground leading-tight tracking-tight"
+              className="text-3xl sm:text-[2.6rem] font-semibold text-foreground leading-[1.15] tracking-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               Chaque logement,
               <br />
-              <span className="text-muted-foreground">conforme et sécurisé.</span>
+              <span className="text-muted-foreground">conforme et monitoré.</span>
             </motion.h2>
 
             <motion.p
-              className="text-muted-foreground mt-4 leading-relaxed max-w-md"
-              initial={{ opacity: 0, y: 20 }}
+              className="text-muted-foreground mt-5 leading-relaxed max-w-md text-[15px]"
+              initial={{ opacity: 0, y: 15 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              Surveillance réglementaire automatique par commune.
+              Surveillance réglementaire par commune.
               Score de risque dynamique et alertes proactives
               pour chaque bien du portefeuille.
             </motion.p>
           </div>
 
-          {/* Shield build animation */}
+          {/* Workflow steps */}
           <div className="relative">
-            {/* Shield layers */}
-            <div className="flex flex-col gap-3">
-              {complianceSteps.map((step, i) => {
-                const Icon = step.icon;
-                return (
-                  <motion.div
-                    key={step.label}
-                    className="glass-panel rounded-xl p-4 flex items-center gap-4"
-                    initial={{ opacity: 0, x: 30 }}
-                    animate={isInView ? { opacity: 1, x: 0 } : {}}
-                    transition={{ duration: 0.5, delay: 0.2 + i * 0.15 }}
-                  >
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-                      style={{ background: 'hsla(270, 40%, 55%, 0.08)' }}
-                    >
-                      <Icon className="w-5 h-5 text-[hsl(var(--nav-experience))]" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">{step.label}</p>
-                      <p className="text-xs text-muted-foreground">{step.desc}</p>
-                    </div>
+            <div className="space-y-3">
+              {steps.map((step, i) => (
+                <motion.div
+                  key={step.label}
+                  className="flex items-center gap-5 border border-border/40 rounded-xl px-5 py-4"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={isInView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ duration: 0.4, delay: 0.15 + i * 0.12 }}
+                >
+                  {/* Step indicator */}
+                  <div className="flex flex-col items-center shrink-0">
                     <motion.div
-                      className="w-2 h-2 rounded-full"
-                      style={{ background: 'hsl(152, 50%, 45%)' }}
+                      className="w-2 h-2 rounded-full bg-primary/40"
                       initial={{ scale: 0 }}
                       animate={isInView ? { scale: 1 } : {}}
-                      transition={{ delay: 0.6 + i * 0.15, type: 'spring' }}
+                      transition={{ delay: 0.4 + i * 0.12, type: 'spring' }}
                     />
-                  </motion.div>
-                );
-              })}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground">{step.label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{step.desc}</p>
+                  </div>
+                  <motion.div
+                    className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--status-success))]"
+                    initial={{ scale: 0 }}
+                    animate={isInView ? { scale: 1 } : {}}
+                    transition={{ delay: 0.6 + i * 0.12, type: 'spring' }}
+                  />
+                </motion.div>
+              ))}
             </div>
-
-            {/* Connection lines between steps */}
-            <div className="absolute left-7 top-16 bottom-16 w-px" style={{ background: 'hsla(270, 40%, 55%, 0.15)' }} />
           </div>
         </div>
       </div>

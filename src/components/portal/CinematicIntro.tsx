@@ -6,148 +6,92 @@ interface CinematicIntroProps {
 }
 
 export function CinematicIntro({ onComplete }: CinematicIntroProps) {
-  const [phase, setPhase] = useState<'logo' | 'expand' | 'exit'>('logo');
+  const [phase, setPhase] = useState<'logo' | 'reveal' | 'exit'>('logo');
 
   const handleSkip = useCallback(() => {
     setPhase('exit');
-    setTimeout(onComplete, 600);
+    setTimeout(onComplete, 500);
   }, [onComplete]);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('expand'), 2000);
-    const t2 = setTimeout(() => setPhase('exit'), 2600);
+    const t1 = setTimeout(() => setPhase('reveal'), 2200);
+    const t2 = setTimeout(() => setPhase('exit'), 2700);
     const t3 = setTimeout(onComplete, 3200);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [onComplete]);
 
   return (
     <AnimatePresence>
-      {phase !== 'exit' ? null : null}
       <motion.div
-        className="fixed inset-0 z-[9999] flex items-center justify-center cursor-pointer overflow-hidden"
+        className="fixed inset-0 z-[9999] flex items-center justify-center cursor-pointer"
         onClick={handleSkip}
         initial={{ opacity: 1 }}
         animate={{ opacity: phase === 'exit' ? 0 : 1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        style={{ background: 'hsl(220 20% 97%)' }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        style={{ background: '#ffffff' }}
       >
-        {/* Animated grid background */}
-        <div className="absolute inset-0 opacity-[0.04]">
+        {/* Subtle grain that fades in during reveal */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E")`,
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: phase === 'reveal' || phase === 'exit' ? 1 : 0 }}
+          transition={{ duration: 0.8 }}
+        />
+
+        {/* System grid that appears on reveal */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: phase === 'reveal' ? 0.03 : 0 }}
+          transition={{ duration: 1 }}
+        >
           <svg width="100%" height="100%">
             <defs>
-              <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-                <path d="M 60 0 L 0 0 0 60" fill="none" stroke="currentColor" strokeWidth="0.5" />
+              <pattern id="intro-grid" width="80" height="80" patternUnits="userSpaceOnUse">
+                <path d="M 80 0 L 0 0 0 80" fill="none" stroke="#000" strokeWidth="0.3" />
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
+            <rect width="100%" height="100%" fill="url(#intro-grid)" />
           </svg>
-        </div>
-
-        {/* Floating glass panels */}
-        <motion.div
-          className="absolute w-72 h-48 rounded-2xl"
-          style={{
-            background: 'hsla(220, 70%, 50%, 0.03)',
-            backdropFilter: 'blur(40px)',
-            border: '1px solid hsla(220, 70%, 50%, 0.06)',
-          }}
-          animate={{
-            x: [0, 30, -20, 0],
-            y: [0, -20, 10, 0],
-            rotate: [0, 2, -1, 0],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          initial={{ top: '15%', left: '10%' }}
-        />
-        <motion.div
-          className="absolute w-56 h-36 rounded-2xl"
-          style={{
-            background: 'hsla(220, 70%, 50%, 0.02)',
-            backdropFilter: 'blur(40px)',
-            border: '1px solid hsla(220, 70%, 50%, 0.04)',
-          }}
-          animate={{
-            x: [0, -25, 15, 0],
-            y: [0, 15, -25, 0],
-            rotate: [0, -1, 2, 0],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-          initial={{ bottom: '20%', right: '12%' }}
-        />
-
-        {/* Light gradient particles */}
-        <motion.div
-          className="absolute w-[600px] h-[600px] rounded-full"
-          style={{
-            background: 'radial-gradient(circle, hsla(220, 70%, 50%, 0.06), transparent 70%)',
-          }}
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.5, 0.8, 0.5],
-          }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        />
-
-        {/* Logo */}
-        <motion.div
-          className="relative z-10 flex flex-col items-center"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{
-            opacity: phase === 'logo' ? 1 : phase === 'expand' ? 1 : 0,
-            scale: phase === 'logo' ? 1 : phase === 'expand' ? 1.05 : 1.1,
-          }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <img
-            src="/images/noe-logo-animated.gif"
-            alt="Noé"
-            className="w-32 h-32 sm:w-40 sm:h-40 object-contain"
-          />
         </motion.div>
 
-        {/* Glow ripple on expand */}
-        {phase === 'expand' && (
+        {/* Ripple on reveal */}
+        {phase === 'reveal' && (
           <motion.div
-            className="absolute rounded-full"
+            className="absolute rounded-full pointer-events-none"
             style={{
-              width: 200,
-              height: 200,
-              background: 'radial-gradient(circle, hsla(220, 70%, 50%, 0.15), transparent 70%)',
+              width: 120,
+              height: 120,
+              border: '1px solid hsla(220, 70%, 50%, 0.08)',
             }}
-            initial={{ scale: 0.5, opacity: 0.8 }}
-            animate={{ scale: 6, opacity: 0 }}
-            transition={{ duration: 1.2, ease: 'easeOut' }}
+            initial={{ scale: 0.5, opacity: 0.6 }}
+            animate={{ scale: 8, opacity: 0 }}
+            transition={{ duration: 1.5, ease: 'easeOut' }}
           />
         )}
 
-        {/* Data flow lines on expand */}
-        {phase === 'expand' && (
-          <>
-            {[0, 60, 120, 180, 240, 300].map((angle) => (
-              <motion.div
-                key={angle}
-                className="absolute h-px"
-                style={{
-                  width: '40vw',
-                  background: 'linear-gradient(90deg, transparent, hsla(220, 70%, 50%, 0.2), transparent)',
-                  transform: `rotate(${angle}deg)`,
-                  transformOrigin: 'left center',
-                }}
-                initial={{ scaleX: 0, opacity: 0 }}
-                animate={{ scaleX: 1, opacity: [0, 0.6, 0] }}
-                transition={{ duration: 1, delay: 0.1, ease: 'easeOut' }}
-              />
-            ))}
-          </>
-        )}
+        {/* Logo — pure, centered, no container */}
+        <motion.img
+          src="/images/noe-logo-animated.gif"
+          alt="Noé"
+          className="relative z-10 w-28 h-28 sm:w-36 sm:h-36 object-contain"
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{
+            opacity: phase === 'exit' ? 0 : 1,
+            scale: phase === 'reveal' ? 1.03 : 1,
+          }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        />
 
         {/* Skip hint */}
         <motion.p
-          className="absolute bottom-8 text-xs tracking-widest uppercase"
-          style={{ color: 'hsla(220, 13%, 18%, 0.3)' }}
+          className="absolute bottom-8 text-[11px] tracking-[0.2em] uppercase text-foreground/20"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
+          transition={{ delay: 1.2, duration: 0.4 }}
         >
           Cliquez pour passer
         </motion.p>
