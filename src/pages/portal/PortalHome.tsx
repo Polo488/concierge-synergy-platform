@@ -1,48 +1,25 @@
-import { EnhancedHeroSection } from '@/components/portal/EnhancedHeroSection';
-import { WhyNoeSection } from '@/components/portal/WhyNoeSection';
-import { ValueOutcomesSection } from '@/components/portal/ValueOutcomesSection';
-import { PersonasSection } from '@/components/portal/PersonasSection';
-import { StatsShowcaseSection } from '@/components/portal/StatsShowcaseSection';
-import { ProductShowcase } from '@/components/portal/ProductShowcase';
-import { EnhancedTestimonials } from '@/components/portal/EnhancedTestimonials';
-import { PricingSection } from '@/components/portal/PricingSection';
-import { SecuritySection } from '@/components/portal/SecuritySection';
-import { FinalCTA } from '@/components/portal/FinalCTA';
+import { HeroSection } from '@/components/portal/sections/HeroSection';
+import { DistributionEngineSection } from '@/components/portal/sections/DistributionEngineSection';
+import { OperationsFlowSection } from '@/components/portal/sections/OperationsFlowSection';
+import { BillingEngineSection } from '@/components/portal/sections/BillingEngineSection';
+import { ComplianceSection } from '@/components/portal/sections/ComplianceSection';
+import { SocialProofSection } from '@/components/portal/sections/SocialProofSection';
+import { PricingSection } from '@/components/portal/sections/PricingSection';
+import { FinalCTASection } from '@/components/portal/sections/FinalCTASection';
 
 export default function PortalHome() {
   return (
     <div>
-      {/* Hero Section - Pilotage focus, copilot tone */}
-      <EnhancedHeroSection />
-
-      {/* Why Noé - Centralise, Éclaire, Aide à décider */}
-      <WhyNoeSection />
-
-      {/* Value Outcomes - Concrete metrics, first week results */}
-      <ValueOutcomesSection />
-
-      {/* STATS SHOWCASE - Key differentiator, immersive preview */}
-      <StatsShowcaseSection />
-
-      {/* Personas - Before/After by company size */}
-      <PersonasSection />
-
-      {/* Product Showcase - See, Understand, Decide structure */}
-      <div id="product">
-        <ProductShowcase />
+      <HeroSection />
+      <DistributionEngineSection />
+      <OperationsFlowSection />
+      <BillingEngineSection />
+      <ComplianceSection />
+      <SocialProofSection />
+      <div id="pricing">
+        <PricingSection />
       </div>
-
-      {/* Testimonials - Enhanced with park size & problem */}
-      <EnhancedTestimonials />
-
-      {/* Pricing - Quick overview */}
-      <PricingSection />
-
-      {/* Security - Brief section */}
-      <SecuritySection />
-
-      {/* Final CTA */}
-      <FinalCTA />
+      <FinalCTASection />
     </div>
   );
 }
