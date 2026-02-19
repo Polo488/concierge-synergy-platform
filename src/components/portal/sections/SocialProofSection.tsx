@@ -1,13 +1,23 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 
-function Counter({ target, suffix = '', delay = 0, isVisible }: { target: number; suffix?: string; delay?: number; isVisible: boolean }) {
+function Counter({
+  target,
+  suffix = '',
+  delay = 0,
+  isVisible,
+}: {
+  target: number;
+  suffix?: string;
+  delay?: number;
+  isVisible: boolean;
+}) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
     if (!isVisible) return;
     const timeout = setTimeout(() => {
-      const duration = 1400;
+      const duration = 1300;
       const start = Date.now();
       const animate = () => {
         const progress = Math.min((Date.now() - start) / duration, 1);
@@ -20,12 +30,17 @@ function Counter({ target, suffix = '', delay = 0, isVisible }: { target: number
     return () => clearTimeout(timeout);
   }, [isVisible, target, delay]);
 
-  return <span>{count.toLocaleString('fr-FR')}{suffix}</span>;
+  return (
+    <span>
+      {count.toLocaleString('fr-FR')}
+      {suffix}
+    </span>
+  );
 }
 
 const metrics = [
   { value: 850, suffix: '+', label: 'Logements gérés' },
-  { value: 12, label: 'Villes couvertes' },
+  { value: 12, suffix: '', label: 'Villes couvertes' },
   { value: 45, suffix: 'k+', label: 'Réservations traitées' },
   { value: 99, suffix: '.9%', label: 'Uptime système' },
 ];
@@ -45,17 +60,22 @@ export function SocialProofSection() {
           En production
         </motion.p>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border/30 rounded-xl overflow-hidden">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border/25 rounded-xl overflow-hidden">
           {metrics.map((m, i) => (
             <motion.div
               key={m.label}
-              className="bg-background p-8 text-center"
-              initial={{ opacity: 0, y: 15 }}
+              className="bg-background py-10 px-6 text-center"
+              initial={{ opacity: 0, y: 14 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.1 * i }}
+              transition={{ duration: 0.5, delay: 0.08 * i }}
             >
               <p className="text-3xl sm:text-4xl font-semibold text-foreground tabular-nums">
-                <Counter target={m.value} suffix={m.suffix} isVisible={isInView} delay={200 + i * 120} />
+                <Counter
+                  target={m.value}
+                  suffix={m.suffix}
+                  isVisible={isInView}
+                  delay={180 + i * 100}
+                />
               </p>
               <p className="text-xs text-muted-foreground mt-2">{m.label}</p>
             </motion.div>

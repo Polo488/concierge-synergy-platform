@@ -26,7 +26,7 @@ export function ComplianceSection() {
             </motion.p>
 
             <motion.h2
-              className="text-3xl sm:text-[2.6rem] font-semibold text-foreground leading-[1.15] tracking-tight"
+              className="text-3xl sm:text-[2.5rem] font-semibold text-foreground leading-[1.12] tracking-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.1 }}
@@ -38,7 +38,7 @@ export function ComplianceSection() {
 
             <motion.p
               className="text-muted-foreground mt-5 leading-relaxed max-w-md text-[15px]"
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 14 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
@@ -48,39 +48,34 @@ export function ComplianceSection() {
             </motion.p>
           </div>
 
-          {/* Workflow steps */}
-          <div className="relative">
-            <div className="space-y-3">
-              {steps.map((step, i) => (
+          {/* Workflow steps — clean bordered cards */}
+          <div className="space-y-3">
+            {steps.map((step, i) => (
+              <motion.div
+                key={step.label}
+                className="flex items-center gap-5 border border-border/30 rounded-xl px-5 py-4"
+                initial={{ opacity: 0, x: 20 }}
+                animate={isInView ? { opacity: 1, x: 0 } : {}}
+                transition={{ duration: 0.4, delay: 0.15 + i * 0.1 }}
+              >
                 <motion.div
-                  key={step.label}
-                  className="flex items-center gap-5 border border-border/40 rounded-xl px-5 py-4"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={isInView ? { opacity: 1, x: 0 } : {}}
-                  transition={{ duration: 0.4, delay: 0.15 + i * 0.12 }}
-                >
-                  {/* Step indicator */}
-                  <div className="flex flex-col items-center shrink-0">
-                    <motion.div
-                      className="w-2 h-2 rounded-full bg-primary/40"
-                      initial={{ scale: 0 }}
-                      animate={isInView ? { scale: 1 } : {}}
-                      transition={{ delay: 0.4 + i * 0.12, type: 'spring' }}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">{step.label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{step.desc}</p>
-                  </div>
-                  <motion.div
-                    className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--status-success))]"
-                    initial={{ scale: 0 }}
-                    animate={isInView ? { scale: 1 } : {}}
-                    transition={{ delay: 0.6 + i * 0.12, type: 'spring' }}
-                  />
-                </motion.div>
-              ))}
-            </div>
+                  className="w-2 h-2 rounded-full bg-primary/30 shrink-0"
+                  initial={{ scale: 0 }}
+                  animate={isInView ? { scale: 1 } : {}}
+                  transition={{ delay: 0.35 + i * 0.1, type: 'spring' }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">{step.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{step.desc}</p>
+                </div>
+                <motion.div
+                  className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--status-success))]"
+                  initial={{ scale: 0 }}
+                  animate={isInView ? { scale: 1 } : {}}
+                  transition={{ delay: 0.55 + i * 0.1, type: 'spring' }}
+                />
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>

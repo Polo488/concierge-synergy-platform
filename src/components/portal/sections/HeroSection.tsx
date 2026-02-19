@@ -1,205 +1,159 @@
-import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
 
-function DataFlowCanvas() {
+function DataFlowBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* Animated grid */}
-      <div className="absolute inset-0 opacity-[0.03]">
+      {/* Subtle system grid */}
+      <div className="absolute inset-0 opacity-[0.02]">
         <svg width="100%" height="100%">
           <defs>
-            <pattern id="hero-grid" width="80" height="80" patternUnits="userSpaceOnUse">
-              <path d="M 80 0 L 0 0 0 80" fill="none" stroke="currentColor" strokeWidth="0.5" />
+            <pattern id="hero-grid" width="60" height="60" patternUnits="userSpaceOnUse">
+              <path d="M 60 0 L 0 0 0 60" fill="none" stroke="currentColor" strokeWidth="0.4" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#hero-grid)" />
         </svg>
       </div>
 
-      {/* Flowing data lines */}
-      {[1, 2, 3, 4, 5].map((i) => (
+      {/* Horizontal flow lines */}
+      {[20, 38, 55, 72, 86].map((top, i) => (
         <motion.div
           key={i}
-          className="absolute h-px"
+          className="absolute h-px left-0 right-0"
           style={{
-            width: `${20 + i * 8}%`,
-            left: `${10 + i * 12}%`,
-            top: `${15 + i * 15}%`,
-            background: `linear-gradient(90deg, transparent, hsla(220, 70%, 50%, ${0.06 + i * 0.02}), transparent)`,
+            top: `${top}%`,
+            background: `linear-gradient(90deg, transparent, hsla(220, 70%, 50%, ${0.03 + i * 0.008}), transparent)`,
           }}
           animate={{ x: ['-100%', '100%'] }}
           transition={{
-            duration: 4 + i * 1.5,
+            duration: 14 + i * 4,
             repeat: Infinity,
             ease: 'linear',
-            delay: i * 0.8,
+            delay: i * 2,
           }}
         />
       ))}
 
-      {/* Floating nodes */}
+      {/* Pulsing nodes */}
       {[
-        { x: '15%', y: '25%', delay: 0 },
-        { x: '75%', y: '20%', delay: 1.2 },
-        { x: '85%', y: '60%', delay: 0.6 },
-        { x: '25%', y: '70%', delay: 1.8 },
-        { x: '55%', y: '40%', delay: 0.3 },
-      ].map((node, i) => (
+        { x: '12%', y: '28%' },
+        { x: '82%', y: '35%' },
+        { x: '50%', y: '75%' },
+        { x: '90%', y: '15%' },
+      ].map((pos, i) => (
         <motion.div
           key={i}
-          className="absolute w-2 h-2 rounded-full"
-          style={{
-            left: node.x,
-            top: node.y,
-            background: 'hsla(220, 70%, 50%, 0.15)',
-            boxShadow: '0 0 20px hsla(220, 70%, 50%, 0.1)',
-          }}
-          animate={{
-            scale: [1, 1.5, 1],
-            opacity: [0.4, 0.8, 0.4],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: node.delay,
-          }}
+          className="absolute w-1 h-1 rounded-full bg-primary/15"
+          style={{ left: pos.x, top: pos.y }}
+          animate={{ scale: [1, 2.5, 1], opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 4, repeat: Infinity, delay: i * 1.1 }}
         />
       ))}
-
-      {/* Large ambient glow */}
-      <div
-        className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] rounded-full"
-        style={{
-          background: 'radial-gradient(circle, hsla(220, 70%, 50%, 0.04), transparent 70%)',
-        }}
-      />
-      <div
-        className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] rounded-full"
-        style={{
-          background: 'radial-gradient(circle, hsla(220, 70%, 50%, 0.03), transparent 70%)',
-        }}
-      />
     </div>
-  );
-}
-
-function SystemCard({ title, value, sub, delay }: { title: string; value: string; sub: string; delay: number }) {
-  return (
-    <motion.div
-      className="glass-panel rounded-xl p-4 flex-1 min-w-[140px]"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <p className="text-xs text-muted-foreground font-medium tracking-wide uppercase">{title}</p>
-      <p className="text-2xl font-semibold text-foreground mt-1 tabular-nums">{value}</p>
-      <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>
-    </motion.div>
   );
 }
 
 export function HeroSection() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '25%']);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+
+  const [ctaVisible, setCtaVisible] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setCtaVisible(true), 1400);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
-    <section ref={ref} className="relative min-h-[100vh] flex items-center overflow-hidden">
+    <section ref={ref} className="relative min-h-[94vh] flex items-center overflow-hidden">
       <motion.div className="absolute inset-0" style={{ y: bgY }}>
-        <DataFlowCanvas />
+        <DataFlowBackground />
       </motion.div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full py-24 lg:py-32">
-        <div className="max-w-3xl">
-          {/* System status badge */}
-          <motion.div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-8"
-            style={{
-              background: 'hsla(220, 70%, 50%, 0.06)',
-              border: '1px solid hsla(220, 70%, 50%, 0.1)',
-            }}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-[hsl(152,50%,45%)] animate-pulse" />
-            <span className="text-xs font-medium text-foreground tracking-wide">Channel Manager + PMS</span>
-          </motion.div>
-
-          {/* Headline */}
+      <motion.div
+        className="relative max-w-5xl mx-auto px-4 sm:px-6 w-full py-20 lg:py-28"
+        style={{ opacity: contentOpacity }}
+      >
+        <div className="max-w-2xl">
+          {/* Editorial headline */}
           <motion.h1
-            className="text-4xl sm:text-5xl lg:text-[3.5rem] font-semibold text-foreground leading-[1.08] tracking-tight"
-            initial={{ opacity: 0, y: 20 }}
+            className="text-[clamp(2rem,5vw,3.8rem)] font-semibold text-foreground leading-[1.08] tracking-tight"
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
           >
-            Infrastructure de distribution
+            Vous n'avez pas besoin
             <br />
-            <span className="text-muted-foreground">et d'opérations locatives.</span>
+            d'un outil plus gros.
+            <br />
+            <span className="text-muted-foreground">
+              Vous avez besoin d'une
+              <br />
+              meilleure infrastructure.
+            </span>
           </motion.h1>
 
-          {/* Subheadline */}
+          {/* Pricing — calm, factual */}
           <motion.p
-            className="text-lg text-muted-foreground leading-relaxed mt-6 max-w-xl"
-            initial={{ opacity: 0, y: 20 }}
+            className="mt-8 text-lg text-muted-foreground leading-relaxed max-w-md"
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.7, delay: 0.5 }}
           >
-            Connectez vos canaux de distribution. Automatisez vos opérations.
-            Tracez chaque flux financier. Un système, pas un outil.
+            À partir de{' '}
+            <span className="text-foreground font-medium">4€ par logement</span>.
+            <br />
+            Aucun compromis sur les opérations.
           </motion.p>
 
-          {/* CTA */}
+          {/* CTA — delayed appearance */}
           <motion.div
-            className="flex flex-col sm:flex-row gap-3 mt-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.6 }}
+            className="mt-10 flex flex-col sm:flex-row gap-4"
+            initial={{ opacity: 0, y: 14 }}
+            animate={ctaVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            <Button size="lg" className="text-sm px-6 h-12 rounded-xl" asChild>
+            <Button size="lg" className="text-[15px] px-7 h-12 rounded-xl" asChild>
               <Link to="/contact">
-                Demander un accès
+                Demander une démo
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-sm px-6 h-12 rounded-xl" asChild>
-              <Link to="/produit">Explorer l'architecture</Link>
+            <Button
+              size="lg"
+              variant="ghost"
+              className="text-[15px] px-7 h-12 rounded-xl text-muted-foreground"
+              asChild
+            >
+              <a href="#operations">Explorer le système</a>
             </Button>
           </motion.div>
 
-          {/* Trust indicators */}
+          {/* Credibility markers */}
           <motion.div
-            className="flex items-center gap-8 mt-10 text-xs text-muted-foreground"
+            className="mt-14 flex flex-wrap gap-x-8 gap-y-3 text-[13px] text-muted-foreground"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.8 }}
+            transition={{ delay: 1.8, duration: 0.6 }}
           >
-            {['Distribution multi-plateforme', 'Traçabilité financière', 'Conformité réglementaire'].map((t) => (
-              <div key={t} className="flex items-center gap-1.5">
-                <div className="w-1 h-1 rounded-full bg-[hsl(152,50%,45%)]" />
-                <span>{t}</span>
+            {[
+              'Distribution multi-plateforme',
+              'Opérations automatisées',
+              'Reporting audit-ready',
+            ].map((t) => (
+              <div key={t} className="flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-primary/30" />
+                {t}
               </div>
             ))}
           </motion.div>
         </div>
-
-        {/* System metrics cards */}
-        <motion.div
-          className="flex flex-wrap gap-3 mt-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.9 }}
-        >
-          <SystemCard title="Coût / logement" value="4€" sub="HT / mois" delay={1.0} />
-          <SystemCard title="Canaux connectés" value="12+" sub="OTAs & directs" delay={1.1} />
-          <SystemCard title="Sync" value="<2min" sub="Temps de propagation" delay={1.2} />
-          <SystemCard title="Uptime" value="99.9%" sub="Disponibilité système" delay={1.3} />
-        </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 }

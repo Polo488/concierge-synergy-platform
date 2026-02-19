@@ -1,6 +1,6 @@
 import { HeroSection } from '@/components/portal/sections/HeroSection';
-import { DistributionEngineSection } from '@/components/portal/sections/DistributionEngineSection';
 import { OperationsFlowSection } from '@/components/portal/sections/OperationsFlowSection';
+import { DistributionEngineSection } from '@/components/portal/sections/DistributionEngineSection';
 import { BillingEngineSection } from '@/components/portal/sections/BillingEngineSection';
 import { ComplianceSection } from '@/components/portal/sections/ComplianceSection';
 import { SocialProofSection } from '@/components/portal/sections/SocialProofSection';
@@ -11,14 +11,12 @@ export default function PortalHome() {
   return (
     <div>
       <HeroSection />
-      <DistributionEngineSection />
       <OperationsFlowSection />
+      <DistributionEngineSection />
       <BillingEngineSection />
       <ComplianceSection />
       <SocialProofSection />
-      <div id="pricing">
-        <PricingSection />
-      </div>
+      <PricingSection />
       <FinalCTASection />
     </div>
   );

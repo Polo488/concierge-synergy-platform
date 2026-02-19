@@ -20,7 +20,7 @@ export function PricingSection() {
         </motion.p>
 
         <motion.h2
-          className="text-3xl sm:text-[2.6rem] font-semibold text-foreground leading-[1.15] tracking-tight"
+          className="text-3xl sm:text-[2.5rem] font-semibold text-foreground leading-[1.12] tracking-tight"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.1 }}
@@ -39,21 +39,23 @@ export function PricingSection() {
           Une architecture lean qui réduit le coût sans réduire le périmètre.
         </motion.p>
 
-        {/* Pricing grid */}
+        {/* Two-column pricing grid */}
         <motion.div
-          className="mt-14 grid sm:grid-cols-2 gap-px bg-border/40 rounded-2xl overflow-hidden"
+          className="mt-14 grid sm:grid-cols-2 gap-px bg-border/30 rounded-2xl overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           {/* Channel Manager */}
-          <div className="bg-background p-8">
-            <p className="text-[11px] font-medium tracking-[0.15em] uppercase text-muted-foreground">Channel Manager</p>
+          <div className="bg-background p-8 lg:p-10">
+            <p className="text-[11px] font-medium tracking-[0.15em] uppercase text-muted-foreground">
+              Channel Manager
+            </p>
             <div className="mt-4 flex items-baseline gap-1.5">
               <span className="text-4xl font-semibold text-foreground">4€</span>
               <span className="text-sm text-muted-foreground">HT / logement / mois</span>
             </div>
-            <div className="mt-6 space-y-2">
+            <div className="mt-7 space-y-2.5">
               {[
                 'Distribution multi-plateforme',
                 'Calendrier unifié',
@@ -63,7 +65,7 @@ export function PricingSection() {
                 'Conformité réglementaire',
               ].map((f) => (
                 <div key={f} className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 rounded-full bg-primary/40" />
+                  <div className="w-1 h-1 rounded-full bg-primary/30" />
                   {f}
                 </div>
               ))}
@@ -76,14 +78,16 @@ export function PricingSection() {
             </Button>
           </div>
 
-          {/* Billing module */}
-          <div className="bg-background p-8">
-            <p className="text-[11px] font-medium tracking-[0.15em] uppercase text-muted-foreground">Module Facturation</p>
+          {/* Billing Module */}
+          <div className="bg-background p-8 lg:p-10">
+            <p className="text-[11px] font-medium tracking-[0.15em] uppercase text-muted-foreground">
+              Module Facturation
+            </p>
             <div className="mt-4 flex items-baseline gap-1.5">
               <span className="text-4xl font-semibold text-foreground">2€</span>
               <span className="text-sm text-muted-foreground">par facture générée</span>
             </div>
-            <div className="mt-6 space-y-2">
+            <div className="mt-7 space-y-2.5">
               {[
                 'Génération automatique',
                 'Calcul commission',
@@ -93,7 +97,7 @@ export function PricingSection() {
                 'Horodatage audit-ready',
               ].map((f) => (
                 <div key={f} className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 rounded-full bg-primary/40" />
+                  <div className="w-1 h-1 rounded-full bg-primary/30" />
                   {f}
                 </div>
               ))}
@@ -108,16 +112,15 @@ export function PricingSection() {
         </motion.div>
 
         {/* Average cost */}
-        <motion.div
-          className="mt-6 text-center"
+        <motion.p
+          className="mt-6 text-center text-sm text-muted-foreground"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ delay: 0.5 }}
         >
-          <p className="text-sm text-muted-foreground">
-            Coût moyen total : <span className="text-foreground font-medium">~6€ / logement / mois</span>
-          </p>
-        </motion.div>
+          Coût moyen total :{' '}
+          <span className="text-foreground font-medium">~6€ / logement / mois</span>
+        </motion.p>
       </div>
     </section>
   );
