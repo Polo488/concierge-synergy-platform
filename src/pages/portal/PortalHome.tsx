@@ -6,17 +6,30 @@ import { ComplianceSection } from '@/components/portal/sections/ComplianceSectio
 import { SocialProofSection } from '@/components/portal/sections/SocialProofSection';
 import { PricingSection } from '@/components/portal/sections/PricingSection';
 import { FinalCTASection } from '@/components/portal/sections/FinalCTASection';
+import { AmbientSection } from '@/components/portal/AmbientLines';
 
 export default function PortalHome() {
   return (
     <div>
       <HeroSection />
-      <OperationsFlowSection />
-      <DistributionEngineSection />
-      <BillingEngineSection />
-      <ComplianceSection />
-      <SocialProofSection />
-      <PricingSection />
+      <AmbientSection variant={0}>
+        <OperationsFlowSection />
+      </AmbientSection>
+      <AmbientSection variant={1}>
+        <DistributionEngineSection />
+      </AmbientSection>
+      <AmbientSection variant={2}>
+        <BillingEngineSection />
+      </AmbientSection>
+      <AmbientSection variant={3}>
+        <ComplianceSection />
+      </AmbientSection>
+      <AmbientSection variant={4}>
+        <SocialProofSection />
+      </AmbientSection>
+      <AmbientSection variant={5}>
+        <PricingSection />
+      </AmbientSection>
       <FinalCTASection />
     </div>
   );
