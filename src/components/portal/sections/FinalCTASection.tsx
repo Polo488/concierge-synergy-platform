@@ -12,7 +12,7 @@ export function FinalCTASection() {
     <section ref={ref} className="relative py-28 lg:py-40">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <motion.h2
-          className="text-3xl sm:text-[2.6rem] font-semibold text-foreground leading-[1.15] tracking-tight"
+          className="text-3xl sm:text-[2.5rem] font-semibold text-foreground leading-[1.12] tracking-tight"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
@@ -24,11 +24,11 @@ export function FinalCTASection() {
 
         <motion.div
           className="mt-10 flex flex-col sm:flex-row gap-4"
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.15 }}
+          transition={{ duration: 0.6, delay: 0.12 }}
         >
-          <Button size="lg" className="text-base px-8 h-12 rounded-xl" asChild>
+          <Button size="lg" className="text-[15px] px-8 h-12 rounded-xl" asChild>
             <Link to="/contact">
               Demander un accès
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -40,11 +40,11 @@ export function FinalCTASection() {
           className="mt-8 flex flex-wrap gap-x-8 gap-y-2 text-[13px] text-muted-foreground"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.35 }}
         >
           {['Sans engagement', 'Démo 30 min', 'Setup 48h'].map((t) => (
             <div key={t} className="flex items-center gap-2">
-              <div className="w-1 h-1 rounded-full bg-primary/40" />
+              <div className="w-1 h-1 rounded-full bg-primary/30" />
               {t}
             </div>
           ))}

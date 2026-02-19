@@ -18,8 +18,8 @@ export function DistributionEngineSection() {
   useEffect(() => {
     if (!isInView) return;
     const interval = setInterval(() => {
-      setActivePulse(p => (p + 1) % platforms.length);
-    }, 1500);
+      setActivePulse((p) => (p + 1) % platforms.length);
+    }, 1800);
     return () => clearInterval(interval);
   }, [isInView]);
 
@@ -33,13 +33,12 @@ export function DistributionEngineSection() {
               className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-5"
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.5 }}
             >
               Distribution
             </motion.p>
 
             <motion.h2
-              className="text-3xl sm:text-[2.6rem] font-semibold text-foreground leading-[1.15] tracking-tight"
+              className="text-3xl sm:text-[2.5rem] font-semibold text-foreground leading-[1.12] tracking-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.1 }}
@@ -51,7 +50,7 @@ export function DistributionEngineSection() {
 
             <motion.p
               className="text-muted-foreground mt-5 leading-relaxed max-w-md text-[15px]"
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 14 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
@@ -64,7 +63,7 @@ export function DistributionEngineSection() {
               className="mt-8 space-y-2.5"
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ delay: 0.4 }}
             >
               {[
                 'Propagation bidirectionnelle',
@@ -72,25 +71,25 @@ export function DistributionEngineSection() {
                 'Historique complet des syncs',
               ].map((item) => (
                 <div key={item} className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                  <div className="w-1 h-1 rounded-full bg-primary/50" />
+                  <div className="w-1 h-1 rounded-full bg-primary/40" />
                   {item}
                 </div>
               ))}
             </motion.div>
           </div>
 
-          {/* Diagram */}
+          {/* Interactive diagram */}
           <motion.div
             className="relative flex items-center justify-center"
-            initial={{ opacity: 0, scale: 0.92 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <svg viewBox="0 0 400 400" className="w-full max-w-sm">
               {/* Center hub */}
               <motion.circle
-                cx="200" cy="200" r="28"
-                fill="hsla(220, 70%, 50%, 0.06)"
+                cx="200" cy="200" r="26"
+                fill="hsla(220, 70%, 50%, 0.05)"
                 stroke="hsl(var(--primary))"
                 strokeWidth="1"
                 initial={{ scale: 0 }}
@@ -109,24 +108,24 @@ export function DistributionEngineSection() {
                 Noé
               </motion.text>
 
-              {/* Sync pulse */}
+              {/* Sync pulse ring */}
               {activePulse >= 0 && (
                 <motion.circle
-                  cx="200" cy="200" r="28"
+                  key={`pulse-${activePulse}`}
+                  cx="200" cy="200" r="26"
                   fill="none"
                   stroke="hsl(var(--primary))"
                   strokeWidth="0.5"
-                  key={activePulse}
-                  initial={{ r: 28, opacity: 0.3 }}
-                  animate={{ r: 55, opacity: 0 }}
-                  transition={{ duration: 1 }}
+                  initial={{ r: 26, opacity: 0.25 }}
+                  animate={{ r: 50, opacity: 0 }}
+                  transition={{ duration: 1.2 }}
                 />
               )}
 
-              {/* Platform nodes */}
+              {/* Platform nodes and connections */}
               {platforms.map((p, i) => {
                 const angle = (i * 60) - 90;
-                const radius = 140;
+                const radius = 135;
                 const x = Math.cos((angle * Math.PI) / 180) * radius;
                 const y = Math.sin((angle * Math.PI) / 180) * radius;
                 const isActive = activePulse === i;
@@ -137,29 +136,29 @@ export function DistributionEngineSection() {
                       x1="200" y1="200"
                       x2={200 + x} y2={200 + y}
                       stroke={p.color}
-                      strokeWidth="0.8"
-                      strokeOpacity={isActive ? 0.5 : 0.15}
+                      strokeWidth="0.7"
+                      strokeOpacity={isActive ? 0.5 : 0.12}
                       initial={{ pathLength: 0 }}
                       animate={isInView ? { pathLength: 1 } : {}}
-                      transition={{ duration: 0.7, delay: 0.3 + i * 0.12 }}
+                      transition={{ duration: 0.6, delay: 0.3 + i * 0.1 }}
                     />
                     <motion.circle
                       cx={200 + x} cy={200 + y}
-                      r={isActive ? 5 : 3.5}
+                      r={isActive ? 5 : 3}
                       fill={p.color}
-                      fillOpacity={isActive ? 0.8 : 0.4}
+                      fillOpacity={isActive ? 0.7 : 0.35}
                       initial={{ scale: 0 }}
                       animate={isInView ? { scale: 1 } : {}}
-                      transition={{ duration: 0.4, delay: 0.5 + i * 0.12 }}
+                      transition={{ duration: 0.4, delay: 0.5 + i * 0.1 }}
                     />
                     <motion.text
-                      x={200 + x * 1.22} y={200 + y * 1.22}
+                      x={200 + x * 1.2} y={200 + y * 1.2}
                       textAnchor="middle"
                       dominantBaseline="middle"
                       className="text-[10px] fill-muted-foreground font-medium"
                       initial={{ opacity: 0 }}
                       animate={isInView ? { opacity: 1 } : {}}
-                      transition={{ duration: 0.3, delay: 0.7 + i * 0.12 }}
+                      transition={{ delay: 0.7 + i * 0.1 }}
                     >
                       {p.name}
                     </motion.text>
