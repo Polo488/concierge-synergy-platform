@@ -3,46 +3,33 @@ import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 
 interface AmbientLineProps {
   path: string;
-  gradient: [string, string];
+  color: string;
   strokeWidth?: number;
-  maxOpacity?: number;
   drawDuration?: number;
-  parallaxFactor?: number;
   id: string;
   viewBox?: string;
 }
 
 function AmbientLine({
   path,
-  gradient,
-  strokeWidth = 24,
-  maxOpacity = 0.15,
+  color,
+  strokeWidth = 28,
   drawDuration = 2.5,
-  parallaxFactor = 0.08,
   id,
   viewBox = '0 0 1200 600',
 }: AmbientLineProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-10%' });
-  const [hasDrawn, setHasDrawn] = useState(false);
+  const isInView = useInView(ref, { once: true, margin: '-5%' });
 
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start end', 'end start'],
   });
-  const y = useTransform(scrollYProgress, [0, 1], [20, -20]);
-
-  useEffect(() => {
-    if (isInView && !hasDrawn) {
-      const t = setTimeout(() => setHasDrawn(true), drawDuration * 1000 + 800);
-      return () => clearTimeout(t);
-    }
-  }, [isInView, hasDrawn, drawDuration]);
+  const y = useTransform(scrollYProgress, [0, 1], [15, -15]);
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const actualDuration = isMobile ? drawDuration * 0.65 : drawDuration;
-  const actualStroke = isMobile ? strokeWidth * 0.6 : strokeWidth;
-  const glurRadius = isMobile ? 4 : 12;
+  const actualDuration = isMobile ? drawDuration * 0.6 : drawDuration;
+  const actualStroke = isMobile ? strokeWidth * 0.55 : strokeWidth;
 
   return (
     <div ref={ref} className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
@@ -52,67 +39,22 @@ function AmbientLine({
           className="absolute inset-0 w-full h-full"
           preserveAspectRatio="xMidYMid slice"
           fill="none"
-          xmlns="http://www.w3.org/2000/svg"
         >
-          <defs>
-            <linearGradient id={`grad-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={gradient[0]} />
-              <stop offset="100%" stopColor={gradient[1]} />
-            </linearGradient>
-            <filter id={`glow-${id}`} x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation={glurRadius} result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-
-          {/* Glow layer — thicker, more diffuse */}
+          {/* Main solid stroke — fully opaque */}
           <motion.path
             d={path}
-            stroke={`url(#grad-${id})`}
-            strokeWidth={actualStroke * 2.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-            opacity={0}
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={
-              isInView
-                ? {
-                    pathLength: 1,
-                    opacity: hasDrawn ? maxOpacity * 0.3 : maxOpacity * 0.5,
-                  }
-                : {}
-            }
-            transition={{
-              pathLength: { duration: actualDuration, ease: [0.25, 0.1, 0.25, 1] },
-              opacity: { duration: 1, delay: 0.1 },
-            }}
-            filter={`url(#glow-${id})`}
-          />
-
-          {/* Main stroke — visible, thick */}
-          <motion.path
-            d={path}
-            stroke={`url(#grad-${id})`}
+            stroke={color}
             strokeWidth={actualStroke}
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={
-              isInView
-                ? {
-                    pathLength: 1,
-                    opacity: hasDrawn ? maxOpacity * 0.75 : maxOpacity,
-                  }
-                : {}
-            }
+            initial={{ pathLength: 0 }}
+            animate={isInView ? { pathLength: 1 } : {}}
             transition={{
-              pathLength: { duration: actualDuration, ease: [0.25, 0.1, 0.25, 1] },
-              opacity: { duration: 0.6, delay: 0.15 },
+              pathLength: {
+                duration: actualDuration,
+                ease: [0.22, 0.68, 0.35, 1],
+              },
             }}
           />
         </svg>
@@ -127,60 +69,49 @@ interface AmbientSectionProps {
   className?: string;
 }
 
+// Solid colors, no transparency — thick curves
 const pathConfigs: AmbientLineProps[] = [
   {
     id: 'ops',
-    path: 'M-20,320 C180,80 380,520 620,240 S920,420 1220,180',
-    gradient: ['hsla(220, 70%, 58%, 1)', 'hsla(25, 75%, 58%, 1)'],
-    strokeWidth: 28,
-    maxOpacity: 0.14,
-    drawDuration: 2.6,
-    parallaxFactor: 0.06,
+    path: 'M-20,350 C200,60 420,540 650,220 S960,440 1230,160',
+    color: 'hsl(220, 70%, 85%)',
+    strokeWidth: 32,
+    drawDuration: 2.8,
   },
   {
     id: 'dist',
-    path: 'M1240,80 C980,380 760,40 480,320 S180,140 -20,420',
-    gradient: ['hsla(217, 80%, 62%, 1)', 'hsla(45, 85%, 58%, 1)'],
-    strokeWidth: 24,
-    maxOpacity: 0.13,
-    drawDuration: 2.8,
-    parallaxFactor: 0.09,
+    path: 'M1240,60 C960,400 740,30 460,340 S160,120 -20,440',
+    color: 'hsl(25, 75%, 85%)',
+    strokeWidth: 28,
+    drawDuration: 3.0,
   },
   {
     id: 'billing',
-    path: 'M-20,460 C160,180 360,520 560,130 S820,360 1060,80 1240,280',
-    gradient: ['hsla(25, 70%, 58%, 1)', 'hsla(220, 65%, 58%, 1)'],
-    strokeWidth: 32,
-    maxOpacity: 0.12,
-    drawDuration: 2.4,
-    parallaxFactor: 0.07,
+    path: 'M-20,480 C180,160 380,540 580,110 S840,380 1080,60 1240,300',
+    color: 'hsl(217, 75%, 87%)',
+    strokeWidth: 34,
+    drawDuration: 2.5,
   },
   {
     id: 'compliance',
-    path: 'M1240,480 C1060,180 820,440 580,140 S280,360 40,200 -20,360',
-    gradient: ['hsla(270, 38%, 58%, 1)', 'hsla(220, 60%, 58%, 1)'],
-    strokeWidth: 22,
-    maxOpacity: 0.15,
-    drawDuration: 2.5,
-    parallaxFactor: 0.05,
+    path: 'M1240,500 C1040,160 800,460 560,120 S260,380 20,180 -20,380',
+    color: 'hsl(45, 80%, 85%)',
+    strokeWidth: 26,
+    drawDuration: 2.6,
   },
   {
     id: 'social',
-    path: 'M-20,140 C220,420 500,40 720,360 S1020,180 1240,460',
-    gradient: ['hsla(220, 70%, 58%, 1)', 'hsla(152, 45%, 52%, 1)'],
-    strokeWidth: 26,
-    maxOpacity: 0.12,
-    drawDuration: 2.3,
-    parallaxFactor: 0.08,
+    path: 'M-20,120 C240,440 520,20 740,380 S1040,160 1240,480',
+    color: 'hsl(220, 60%, 88%)',
+    strokeWidth: 30,
+    drawDuration: 2.4,
   },
   {
     id: 'pricing',
-    path: 'M1240,340 C1020,80 780,420 540,180 S240,460 -20,240',
-    gradient: ['hsla(45, 80%, 58%, 1)', 'hsla(25, 70%, 58%, 1)'],
-    strokeWidth: 30,
-    maxOpacity: 0.13,
-    drawDuration: 2.5,
-    parallaxFactor: 0.06,
+    path: 'M1240,360 C1000,60 760,440 520,160 S220,480 -20,220',
+    color: 'hsl(25, 65%, 87%)',
+    strokeWidth: 32,
+    drawDuration: 2.7,
   },
 ];
 
@@ -188,9 +119,9 @@ export function AmbientSection({ children, variant, className = '' }: AmbientSec
   const config = pathConfigs[variant % pathConfigs.length];
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative bg-white ${className}`}>
       <AmbientLine {...config} />
-      {children}
+      <div className="relative z-10">{children}</div>
     </div>
   );
 }
