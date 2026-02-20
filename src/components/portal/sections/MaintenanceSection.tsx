@@ -1,24 +1,88 @@
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
-import { Wrench, AlertTriangle, User, Clock, CheckCircle2 } from 'lucide-react';
+import { Wrench, AlertTriangle, User, Clock, CheckCircle, Calendar, House, Eye, UserPlus, FileText, ClipboardList } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-const tickets = [
-  { id: 'MNT-0127', issue: 'Fuite robinet cuisine', property: 'T2 Bellecour', priority: 'high', status: 'open', reported: '14:22' },
-  { id: 'MNT-0126', issue: 'Serrure porte entrée', property: 'Studio Confluence', priority: 'medium', status: 'assigned', reported: '11:05', tech: 'Pierre M.' },
-  { id: 'MNT-0125', issue: 'Climatisation défaillante', property: 'Loft Part-Dieu', priority: 'low', status: 'resolved', reported: 'Hier', tech: 'Jean D.' },
+/* ── Real admin data matching MaintenanceTaskCard + MaintenanceStats ── */
+
+const stats = [
+  { title: 'En attente', value: '4', icon: ClipboardList, accent: 'text-primary' },
+  { title: 'En cours', value: '3', icon: Clock, accent: 'text-[hsl(217,70%,55%)]' },
+  { title: 'Critiques', value: '1', icon: AlertTriangle, accent: 'text-[hsl(0,70%,55%)]', change: { value: 1, type: 'increase' } },
+  { title: 'Terminées (mois)', value: '12', icon: CheckCircle, accent: 'text-[hsl(152,50%,45%)]', change: { value: 5, type: 'increase' } },
 ];
 
-const priorityConfig = {
-  high: { label: 'Urgent', color: 'text-[hsl(0,70%,55%)]', bg: 'bg-[hsl(0,70%,55%)]/10' },
-  medium: { label: 'Moyen', color: 'text-[hsl(35,80%,50%)]', bg: 'bg-[hsl(35,80%,50%)]/10' },
-  low: { label: 'Faible', color: 'text-muted-foreground', bg: 'bg-muted' },
+const urgencyConfig: Record<string, { label: string; className: string }> = {
+  high: { label: 'Urgent', className: 'bg-[hsl(0,70%,55%)]/15 text-[hsl(0,70%,50%)] border-[hsl(0,70%,55%)]/20' },
+  medium: { label: 'Moyen', className: 'bg-[hsl(35,80%,50%)]/15 text-[hsl(35,80%,45%)] border-[hsl(35,80%,50%)]/20' },
+  low: { label: 'Faible', className: 'bg-muted text-muted-foreground border-border/30' },
 };
 
-const statusConfig = {
-  open: { label: 'Ouvert', icon: AlertTriangle, color: 'text-[hsl(0,70%,55%)]' },
-  assigned: { label: 'Assigné', icon: User, color: 'text-[hsl(217,70%,55%)]' },
-  resolved: { label: 'Résolu', icon: CheckCircle2, color: 'text-[hsl(152,50%,45%)]' },
-};
+interface MockTask {
+  id: string;
+  title: string;
+  description: string;
+  property: string;
+  internalName: string;
+  urgency: 'high' | 'medium' | 'low';
+  status: 'pending' | 'inProgress' | 'completed';
+  createdAt: string;
+  startedAt?: string;
+  completedAt?: string;
+  scheduledDate?: string;
+  technician?: string;
+  materials?: { name: string }[];
+  notes?: string;
+}
+
+const tasks: MockTask[] = [
+  {
+    id: 'MNT-0127',
+    title: 'Fuite robinet cuisine',
+    description: 'Le locataire signale une fuite persistante sous l\'évier de la cuisine. Intervention urgente requise avant prochaine arrivée.',
+    property: 'T2 Bellecour',
+    internalName: 'BLC-02',
+    urgency: 'high',
+    status: 'pending',
+    createdAt: '20 fév. 2026, 14:22',
+    scheduledDate: '21 fév. 2026',
+    materials: [{ name: 'Joint silicone' }, { name: 'Clé à molette' }, { name: 'Flexible inox' }],
+  },
+  {
+    id: 'MNT-0126',
+    title: 'Serrure porte entrée bloquée',
+    description: 'Difficulté d\'ouverture signalée par le voyageur. Cylindre probablement grippé.',
+    property: 'Studio Confluence',
+    internalName: 'CNF-01',
+    urgency: 'medium',
+    status: 'inProgress',
+    createdAt: '19 fév. 2026, 11:05',
+    startedAt: '19 fév. 2026, 16:30',
+    technician: 'Pierre Martin',
+    materials: [{ name: 'Cylindre euro' }, { name: 'Dégrippant' }],
+    notes: 'Pièce commandée, intervention prévue demain matin.',
+  },
+  {
+    id: 'MNT-0125',
+    title: 'Climatisation défaillante',
+    description: 'Unité intérieure ne produit plus d\'air froid. Filtre vérifié, semble être un problème de gaz.',
+    property: 'Loft Part-Dieu',
+    internalName: 'PDU-03',
+    urgency: 'low',
+    status: 'completed',
+    createdAt: '17 fév. 2026, 09:15',
+    startedAt: '17 fév. 2026, 14:00',
+    completedAt: '18 fév. 2026, 10:30',
+    technician: 'Jean Dupont',
+    materials: [{ name: 'Gaz R410A' }, { name: 'Kit recharge' }],
+  },
+];
+
+const tabConfig = [
+  { value: 'pending', label: 'En attente', count: 1 },
+  { value: 'inProgress', label: 'En cours', count: 1 },
+  { value: 'completed', label: 'Terminées', count: 1 },
+];
 
 export function MaintenanceSection() {
   const ref = useRef<HTMLDivElement>(null);
@@ -26,17 +90,20 @@ export function MaintenanceSection() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const cardY = useTransform(scrollYProgress, [0, 1], [40, -30]);
 
+  const [activeTab, setActiveTab] = useState('pending');
   const [simStep, setSimStep] = useState(0);
 
   useEffect(() => {
     if (!isInView) return;
     const timers = [
-      setTimeout(() => setSimStep(1), 2000),
-      setTimeout(() => setSimStep(2), 3200),
-      setTimeout(() => setSimStep(3), 4400),
+      setTimeout(() => setSimStep(1), 2200),
+      setTimeout(() => setSimStep(2), 3400),
+      setTimeout(() => setSimStep(3), 4600),
     ];
     return () => timers.forEach(clearTimeout);
   }, [isInView]);
+
+  const filteredTasks = tasks.filter(t => t.status === activeTab);
 
   return (
     <section ref={ref} className="relative py-28 lg:py-40 overflow-hidden" id="maintenance">
@@ -70,7 +137,7 @@ export function MaintenanceSection() {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              Suivi des incidents, qualification automatique, assignation des techniciens 
+              Suivi des incidents, qualification automatique, assignation des techniciens
               et planification des interventions. Chaque signalement devient un ticket traçable.
             </motion.p>
 
@@ -95,7 +162,7 @@ export function MaintenanceSection() {
             </motion.div>
           </div>
 
-          {/* Maintenance UI */}
+          {/* Real Maintenance UI */}
           <motion.div
             className="border border-border/40 rounded-2xl overflow-hidden bg-card"
             initial={{ opacity: 0, x: 30, scale: 0.97 }}
@@ -111,58 +178,151 @@ export function MaintenanceSection() {
                 <div className="w-2.5 h-2.5 rounded-full bg-[hsl(35,80%,50%)]/50" />
                 <div className="w-2.5 h-2.5 rounded-full bg-[hsl(152,50%,45%)]/50" />
               </div>
-              <span className="text-[10px] text-muted-foreground mx-auto">maintenance · tickets</span>
+              <span className="text-[10px] text-muted-foreground mx-auto">app.noe-conciergerie.com/maintenance</span>
             </div>
 
-            {/* Header */}
-            <div className="px-4 py-3 border-b border-border/20 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Wrench size={14} className="text-primary" />
-                <span className="text-sm font-semibold text-foreground">Tickets actifs</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">3</span>
+            {/* Stats row - matching MaintenanceStats */}
+            <div className="grid grid-cols-4 gap-px bg-border/20 border-b border-border/20">
+              {stats.map((stat, i) => {
+                const Icon = stat.icon;
+                return (
+                  <motion.div
+                    key={stat.title}
+                    className="bg-card p-3 text-center"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.3 + i * 0.06 }}
+                  >
+                    <Icon size={14} className={cn('mx-auto mb-1', stat.accent)} />
+                    <p className="text-lg font-bold text-foreground tabular-nums">{stat.value}</p>
+                    <p className="text-[8px] text-muted-foreground">{stat.title}</p>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Tabs - matching MaintainanceTabs */}
+            <div className="px-4 pt-3 border-b border-border/20">
+              <div className="flex gap-1">
+                {tabConfig.map((tab) => (
+                  <button
+                    key={tab.value}
+                    onClick={() => setActiveTab(tab.value)}
+                    className={cn(
+                      'px-3 py-1.5 text-[11px] font-medium rounded-t-lg transition-colors border-b-2',
+                      activeTab === tab.value
+                        ? 'border-primary text-primary bg-primary/5'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    {tab.label} ({tab.count})
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Tickets */}
-            <div className="divide-y divide-border/20">
-              {tickets.map((ticket, i) => {
-                const priority = priorityConfig[ticket.priority as keyof typeof priorityConfig];
-                const status = statusConfig[ticket.status as keyof typeof statusConfig];
-                const StatusIcon = status.icon;
-
+            {/* Task cards - matching MaintenanceTaskCard */}
+            <div className="p-3 space-y-2 max-h-[320px] overflow-y-auto">
+              {filteredTasks.map((task, i) => {
+                const urgency = urgencyConfig[task.urgency];
                 return (
                   <motion.div
-                    key={ticket.id}
-                    className="px-4 py-3 hover:bg-muted/20 transition-colors group"
-                    initial={{ opacity: 0, x: -16 }}
+                    key={task.id}
+                    className="border border-border/30 rounded-xl p-3 bg-card hover:shadow-md transition-all duration-150 group"
+                    initial={{ opacity: 0, x: -12 }}
                     animate={isInView ? { opacity: 1, x: 0 } : {}}
-                    transition={{ delay: 0.4 + i * 0.12 }}
+                    transition={{ delay: 0.5 + i * 0.1 }}
                   >
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex justify-between items-start gap-3">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono text-muted-foreground">{ticket.id}</span>
-                          <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${priority.bg} ${priority.color}`}>
-                            {priority.label}
+                        {/* Urgency + date row */}
+                        <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                          <span className={cn('text-[9px] px-1.5 py-0.5 rounded font-medium border', urgency.className)}>
+                            {urgency.label}
                           </span>
-                        </div>
-                        <p className="text-sm font-medium text-foreground mt-0.5">{ticket.issue}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] text-muted-foreground">{ticket.property}</span>
-                          <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                            <Clock size={9} /> {ticket.reported}
+                          <span className="text-[9px] text-muted-foreground">
+                            {task.status === 'completed'
+                              ? `Terminé le ${task.completedAt}`
+                              : task.status === 'inProgress'
+                              ? `Commencé le ${task.startedAt}`
+                              : `Créé le ${task.createdAt}`}
                           </span>
-                          {ticket.tech && (
-                            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                              <User size={9} /> {ticket.tech}
+                          {task.scheduledDate && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded border border-border/30 bg-muted/30 text-muted-foreground flex items-center gap-0.5">
+                              <Calendar size={8} />
+                              {task.scheduledDate}
                             </span>
                           )}
                         </div>
+
+                        {/* Title */}
+                        <p className="text-xs font-medium text-foreground mb-0.5">{task.title}</p>
+
+                        {/* Property */}
+                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-1.5">
+                          <span>{task.property}</span>
+                          <span className="px-1.5 py-0.5 rounded bg-muted/50 border border-border/20 text-muted-foreground flex items-center gap-0.5">
+                            <House size={8} />
+                            {task.internalName}
+                          </span>
+                        </div>
+
+                        {/* Description */}
+                        <p className="text-[10px] text-muted-foreground leading-relaxed mb-2">{task.description}</p>
+
+                        {/* Materials */}
+                        {task.materials && task.materials.length > 0 && (
+                          <div className="mb-2">
+                            <p className="text-[8px] font-medium text-muted-foreground uppercase tracking-wider mb-1">Matériel</p>
+                            <div className="flex flex-wrap gap-1">
+                              {task.materials.map((m, j) => (
+                                <span key={j} className="text-[9px] px-1.5 py-0.5 rounded border border-border/30 bg-muted/20 text-muted-foreground">
+                                  {m.name}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Technician */}
+                        {task.technician && (
+                          <div className="flex items-center gap-1.5 mt-1.5">
+                            <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                              <span className="text-[7px] font-medium text-muted-foreground">
+                                {task.technician.split(' ').map(n => n[0]).join('')}
+                              </span>
+                            </div>
+                            <span className="text-[9px] text-muted-foreground">{task.technician}</span>
+                          </div>
+                        )}
+
+                        {/* Notes */}
+                        {task.notes && (
+                          <div className="flex items-center gap-1.5 mt-1.5 text-[9px] text-muted-foreground">
+                            <FileText size={9} />
+                            <span>{task.notes}</span>
+                          </div>
+                        )}
                       </div>
-                      <span className={`flex items-center gap-1 text-[10px] font-medium ${status.color}`}>
-                        <StatusIcon size={12} />
-                        {status.label}
-                      </span>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        {task.status === 'pending' && (
+                          <span className="text-[9px] px-2 py-1 rounded-md bg-primary text-primary-foreground font-medium flex items-center gap-1">
+                            <UserPlus size={9} />
+                            Assigner
+                          </span>
+                        )}
+                        {task.status === 'inProgress' && (
+                          <span className="text-[9px] px-2 py-1 rounded-md bg-primary text-primary-foreground font-medium flex items-center gap-1">
+                            <CheckCircle size={9} />
+                            Terminer
+                          </span>
+                        )}
+                        <span className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors">
+                          <Eye size={12} />
+                        </span>
+                      </div>
                     </div>
                   </motion.div>
                 );
@@ -171,7 +331,7 @@ export function MaintenanceSection() {
 
             {/* Simulation: new incident */}
             <motion.div
-              className="mx-3 mb-3 mt-1 border border-border/30 rounded-xl overflow-hidden bg-background"
+              className="mx-3 mb-3 mt-1 border border-[hsl(0,70%,55%)]/20 rounded-xl overflow-hidden bg-background"
               initial={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0 }}
               animate={simStep >= 1 ? { opacity: 1, height: 'auto', marginTop: 4, marginBottom: 12 } : {}}
               transition={{ duration: 0.5 }}
@@ -187,33 +347,36 @@ export function MaintenanceSection() {
                 </div>
               </div>
               <div className="px-3 py-2 space-y-1.5">
-                <motion.p
-                  className="text-xs font-medium text-foreground"
-                  initial={{ opacity: 0 }}
-                  animate={simStep >= 1 ? { opacity: 1 } : {}}
-                  transition={{ delay: 0.2 }}
-                >
-                  Chauffe-eau en panne → Villa Presqu'île
-                </motion.p>
                 <motion.div
                   className="flex items-center gap-2"
                   initial={{ opacity: 0 }}
-                  animate={simStep >= 2 ? { opacity: 1 } : {}}
-                  transition={{ delay: 0.1 }}
+                  animate={simStep >= 1 ? { opacity: 1 } : {}}
                 >
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[hsl(0,70%,55%)]/10 text-[hsl(0,70%,55%)] font-medium">
+                  <span className={cn('text-[9px] px-1.5 py-0.5 rounded font-medium border', urgencyConfig.high.className)}>
                     Urgent
                   </span>
-                  <span className="text-[10px] text-muted-foreground">Qualification automatique</span>
+                  <span className="text-xs font-medium text-foreground">Chauffe-eau en panne</span>
+                </motion.div>
+                <motion.div
+                  className="flex items-center gap-2 text-[10px] text-muted-foreground"
+                  initial={{ opacity: 0 }}
+                  animate={simStep >= 2 ? { opacity: 1 } : {}}
+                >
+                  <span>Villa Presqu'île</span>
+                  <span className="px-1.5 py-0.5 rounded bg-muted/50 border border-border/20 flex items-center gap-0.5">
+                    <House size={8} /> PIL-01
+                  </span>
+                  <span className="text-[9px] text-muted-foreground">Qualification automatique</span>
                 </motion.div>
                 <motion.div
                   className="flex items-center gap-2"
                   initial={{ opacity: 0 }}
                   animate={simStep >= 3 ? { opacity: 1 } : {}}
-                  transition={{ delay: 0.1 }}
                 >
-                  <User size={10} className="text-[hsl(217,70%,55%)]" />
-                  <span className="text-[10px] text-foreground font-medium">Tech. Plomberie assigné → Intervention J+0</span>
+                  <div className="w-5 h-5 rounded-full bg-[hsl(217,70%,55%)]/10 flex items-center justify-center">
+                    <span className="text-[7px] font-medium text-[hsl(217,70%,55%)]">LR</span>
+                  </div>
+                  <span className="text-[10px] text-foreground font-medium">Lucas Renard assigné → Intervention J+0</span>
                 </motion.div>
               </div>
             </motion.div>
