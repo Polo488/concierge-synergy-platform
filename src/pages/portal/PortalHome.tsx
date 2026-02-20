@@ -3,7 +3,10 @@ import { OperationsFlowSection } from '@/components/portal/sections/OperationsFl
 import { DistributionEngineSection } from '@/components/portal/sections/DistributionEngineSection';
 import { BillingEngineSection } from '@/components/portal/sections/BillingEngineSection';
 import { ComplianceSection } from '@/components/portal/sections/ComplianceSection';
+import { EarlyAccessSection } from '@/components/portal/sections/EarlyAccessSection';
 import { SocialProofSection } from '@/components/portal/sections/SocialProofSection';
+import { PreRegistrationSection } from '@/components/portal/sections/PreRegistrationSection';
+import { DemoBookingSection } from '@/components/portal/sections/DemoBookingSection';
 import { PricingSection } from '@/components/portal/sections/PricingSection';
 import { FinalCTASection } from '@/components/portal/sections/FinalCTASection';
 import { AmbientSection } from '@/components/portal/AmbientLines';
@@ -25,11 +28,14 @@ export default function PortalHome() {
         <ComplianceSection />
       </AmbientSection>
       <AmbientSection variant={4}>
-        <SocialProofSection />
+        <EarlyAccessSection />
       </AmbientSection>
       <AmbientSection variant={5}>
-        <PricingSection />
+        <SocialProofSection />
       </AmbientSection>
+      <PreRegistrationSection />
+      <DemoBookingSection />
+      <PricingSection />
       <FinalCTASection />
     </div>
   );
