@@ -98,17 +98,16 @@ export function HeroSection() {
             </span>
           </motion.h1>
 
-          {/* Pricing — calm, factual */}
+          {/* Positioning — no pricing here */}
           <motion.p
             className="mt-8 text-lg text-muted-foreground leading-relaxed max-w-md"
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.5 }}
           >
-            À partir de{' '}
-            <span className="text-foreground font-medium">4€ par logement</span>.
+            Infrastructure opérationnelle pour les sociétés de gestion courte durée.
             <br />
-            Aucun compromis sur les opérations.
+            <span className="text-foreground font-medium">Profondeur enterprise. Coût d'entrée.</span>
           </motion.p>
 
           {/* CTA — delayed appearance */}
