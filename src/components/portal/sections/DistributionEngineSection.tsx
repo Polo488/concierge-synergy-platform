@@ -1,4 +1,4 @@
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 
 const platforms = [
@@ -13,6 +13,8 @@ const platforms = [
 export function DistributionEngineSection() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
+  const diagramY = useTransform(scrollYProgress, [0, 1], [30, -25]);
   const [activePulse, setActivePulse] = useState(-1);
 
   useEffect(() => {
@@ -31,17 +33,18 @@ export function DistributionEngineSection() {
           <div>
             <motion.p
               className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-5"
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : {}}
+              initial={{ opacity: 0, x: -16 }}
+              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.5 }}
             >
               Distribution
             </motion.p>
 
             <motion.h2
               className="text-3xl sm:text-[2.5rem] font-semibold text-foreground leading-[1.12] tracking-tight"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.1 }}
+              initial={{ clipPath: 'inset(0 100% 0 0)' }}
+              animate={isInView ? { clipPath: 'inset(0 0% 0 0)' } : {}}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
             >
               Un nœud central
               <br />
@@ -52,7 +55,7 @@ export function DistributionEngineSection() {
               className="text-muted-foreground mt-5 leading-relaxed max-w-md text-[15px]"
               initial={{ opacity: 0, y: 14 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
             >
               Calendriers, tarifs et disponibilités synchronisés
               sur l'ensemble de vos plateformes.
@@ -63,17 +66,23 @@ export function DistributionEngineSection() {
               className="mt-8 space-y-2.5"
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.5 }}
             >
               {[
                 'Propagation bidirectionnelle',
                 'Gestion centralisée des tarifs',
                 'Historique complet des syncs',
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-2.5 text-sm text-muted-foreground">
+              ].map((item, i) => (
+                <motion.div
+                  key={item}
+                  className="flex items-center gap-2.5 text-sm text-muted-foreground"
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={isInView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ delay: 0.55 + i * 0.08 }}
+                >
                   <div className="w-1 h-1 rounded-full bg-primary/40" />
                   {item}
-                </div>
+                </motion.div>
               ))}
             </motion.div>
           </div>
@@ -81,9 +90,10 @@ export function DistributionEngineSection() {
           {/* Interactive diagram */}
           <motion.div
             className="relative flex items-center justify-center"
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.85 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            style={{ y: diagramY }}
           >
             <svg viewBox="0 0 400 400" className="w-full max-w-sm">
               {/* Center hub */}
@@ -122,7 +132,7 @@ export function DistributionEngineSection() {
                 />
               )}
 
-              {/* Platform nodes and connections */}
+              {/* Platform nodes */}
               {platforms.map((p, i) => {
                 const angle = (i * 60) - 90;
                 const radius = 135;

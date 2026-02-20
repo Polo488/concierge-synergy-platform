@@ -2,6 +2,7 @@ import { HeroSection } from '@/components/portal/sections/HeroSection';
 import { OperationsFlowSection } from '@/components/portal/sections/OperationsFlowSection';
 import { DistributionEngineSection } from '@/components/portal/sections/DistributionEngineSection';
 import { BillingEngineSection } from '@/components/portal/sections/BillingEngineSection';
+import { InventorySection } from '@/components/portal/sections/InventorySection';
 import { ComplianceSection } from '@/components/portal/sections/ComplianceSection';
 import { EarlyAccessSection } from '@/components/portal/sections/EarlyAccessSection';
 import { SocialProofSection } from '@/components/portal/sections/SocialProofSection';
@@ -25,12 +26,15 @@ export default function PortalHome() {
         <BillingEngineSection />
       </AmbientSection>
       <AmbientSection variant={3}>
-        <ComplianceSection />
+        <InventorySection />
       </AmbientSection>
       <AmbientSection variant={4}>
-        <EarlyAccessSection />
+        <ComplianceSection />
       </AmbientSection>
       <AmbientSection variant={5}>
+        <EarlyAccessSection />
+      </AmbientSection>
+      <AmbientSection variant={0}>
         <SocialProofSection />
       </AmbientSection>
       <PreRegistrationSection />
