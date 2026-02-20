@@ -39,10 +39,10 @@ function Counter({
 }
 
 const metrics = [
-  { value: 850, suffix: '+', label: 'Logements gérés' },
-  { value: 12, suffix: '', label: 'Villes couvertes' },
-  { value: 45, suffix: 'k+', label: 'Réservations traitées' },
-  { value: 99, suffix: '.9%', label: 'Uptime système' },
+  { value: 24, suffix: '', label: 'Companies onboarding' },
+  { value: 1850, suffix: '+', label: 'Units pre-registered' },
+  { value: 87, suffix: '', label: 'Early access requests' },
+  { value: 99, suffix: '.9%', label: 'System uptime' },
 ];
 
 export function SocialProofSection() {
