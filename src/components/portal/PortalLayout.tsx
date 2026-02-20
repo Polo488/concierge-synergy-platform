@@ -5,14 +5,9 @@ import { EnhancedFooter } from './EnhancedFooter';
 import { CinematicIntro } from './CinematicIntro';
 
 export function PortalLayout() {
-  const [showIntro, setShowIntro] = useState(false);
-
-  useEffect(() => {
-    const hasSeenIntro = sessionStorage.getItem('noe-intro-seen');
-    if (!hasSeenIntro) {
-      setShowIntro(true);
-    }
-  }, []);
+  const [showIntro, setShowIntro] = useState(() => {
+    return !sessionStorage.getItem('noe-intro-seen');
+  });
 
   const handleIntroComplete = () => {
     sessionStorage.setItem('noe-intro-seen', 'true');
