@@ -66,9 +66,9 @@ export function OperationsFlowSection() {
             animate={isInView ? { clipPath: 'inset(0 0% 0 0)' } : {}}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
           >
-            Chaque réservation
+            Le check-out devient action.
             <br />
-            <span className="text-muted-foreground">déclenche l'exécution.</span>
+            <span className="text-muted-foreground">Pas un message.</span>
           </motion.h2>
 
           <motion.p
@@ -77,8 +77,16 @@ export function OperationsFlowSection() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            Ménages, maintenance et communications sont déployés automatiquement
-            à chaque événement de réservation.
+            Ménages, maintenance, messagerie — chaque événement de réservation
+            déclenche le bon workflow, au bon moment, vers la bonne personne.
+          </motion.p>
+          <motion.p
+            className="mt-4 text-sm text-muted-foreground/70 italic"
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ delay: 0.5 }}
+          >
+            Every event triggers the right workflow.
           </motion.p>
         </div>
 

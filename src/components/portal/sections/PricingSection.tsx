@@ -25,9 +25,9 @@ export function PricingSection() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          Optimisé par design.
+          Pas un outil low-cost.
           <br />
-          <span className="text-muted-foreground">Pas par compromis.</span>
+          <span className="text-muted-foreground">Une infrastructure optimisée.</span>
         </motion.h2>
 
         <motion.p
@@ -36,7 +36,8 @@ export function PricingSection() {
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ delay: 0.2 }}
         >
-          Une architecture lean qui réduit le coût sans réduire le périmètre.
+          Conçue pour réduire les coûts opérationnels — pas pour augmenter les factures logicielles.
+          La profondeur opérationnelle ne devrait pas dépendre de votre budget.
         </motion.p>
 
         {/* Two-column pricing grid */}
@@ -112,15 +113,20 @@ export function PricingSection() {
         </motion.div>
 
         {/* Average cost */}
-        <motion.p
-          className="mt-6 text-center text-sm text-muted-foreground"
+        <motion.div
+          className="mt-8 text-center"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ delay: 0.5 }}
         >
-          Coût moyen total :{' '}
-          <span className="text-foreground font-medium">~6€ / logement / mois</span>
-        </motion.p>
+          <p className="text-sm text-muted-foreground">
+            Coût moyen tout compris :{' '}
+            <span className="text-foreground font-medium">~6€ / logement / mois</span>
+          </p>
+          <p className="mt-1.5 text-[12px] text-muted-foreground/60 italic">
+            L'infrastructure la plus compétitive du marché — sans compromis opérationnel.
+          </p>
+        </motion.div>
       </div>
     </section>
   );

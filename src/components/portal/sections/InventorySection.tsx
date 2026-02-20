@@ -82,9 +82,9 @@ export function InventorySection() {
               animate={isInView ? { clipPath: 'inset(0 0% 0 0)' } : {}}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
             >
-              Votre stock s'épuise.
+              Plus de savon.
               <br />
-              <span className="text-muted-foreground">Vos opérations s'arrêtent.</span>
+              <span className="text-muted-foreground">Plus de linge. Et personne ne sait.</span>
             </motion.h2>
 
             <motion.p
@@ -93,8 +93,16 @@ export function InventorySection() {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              Suivez le linge, les consommables et les équipements sur l'ensemble de vos biens.
-              Chaque tâche de ménage met à jour les niveaux de stock automatiquement.
+              Avec Noé, le stock suit les opérations automatiquement.
+              Chaque ménage déduit les consommables. Les alertes préviennent avant la rupture.
+            </motion.p>
+            <motion.p
+              className="mt-4 text-sm text-muted-foreground/70 italic"
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : {}}
+              transition={{ delay: 0.5 }}
+            >
+              Infrastructure-level tooling. Entry-level pricing.
             </motion.p>
 
             <motion.div
