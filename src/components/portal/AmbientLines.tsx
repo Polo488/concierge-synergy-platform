@@ -103,7 +103,7 @@ export function AmbientSection({ children, variant, className = '' }: AmbientSec
   const config = pathConfigs[variant % pathConfigs.length];
 
   return (
-    <div className={`relative bg-white ${className}`}>
+    <div className={`relative bg-background ${className}`}>
       <AmbientLine {...config} />
       <div className="relative z-10">{children}</div>
     </div>
