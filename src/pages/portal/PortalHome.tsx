@@ -3,6 +3,9 @@ import { OperationsFlowSection } from '@/components/portal/sections/OperationsFl
 import { DistributionEngineSection } from '@/components/portal/sections/DistributionEngineSection';
 import { BillingEngineSection } from '@/components/portal/sections/BillingEngineSection';
 import { InventorySection } from '@/components/portal/sections/InventorySection';
+import { MaintenanceSection } from '@/components/portal/sections/MaintenanceSection';
+import { MessagingSection } from '@/components/portal/sections/MessagingSection';
+import { AnalyticsSection } from '@/components/portal/sections/AnalyticsSection';
 import { ComplianceSection } from '@/components/portal/sections/ComplianceSection';
 import { EarlyAccessSection } from '@/components/portal/sections/EarlyAccessSection';
 import { SocialProofSection } from '@/components/portal/sections/SocialProofSection';
@@ -29,12 +32,21 @@ export default function PortalHome() {
         <InventorySection />
       </AmbientSection>
       <AmbientSection variant={4}>
-        <ComplianceSection />
+        <MaintenanceSection />
       </AmbientSection>
       <AmbientSection variant={5}>
-        <EarlyAccessSection />
+        <MessagingSection />
       </AmbientSection>
       <AmbientSection variant={0}>
+        <AnalyticsSection />
+      </AmbientSection>
+      <AmbientSection variant={1}>
+        <ComplianceSection />
+      </AmbientSection>
+      <AmbientSection variant={2}>
+        <EarlyAccessSection />
+      </AmbientSection>
+      <AmbientSection variant={3}>
         <SocialProofSection />
       </AmbientSection>
       <PreRegistrationSection />
