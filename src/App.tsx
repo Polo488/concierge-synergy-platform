@@ -13,8 +13,6 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { RoutePermission } from "./components/auth/RoutePermission";
 import { TutorialProvider } from "./contexts/TutorialContext";
 import { TutorialOverlay } from "./components/tutorial/TutorialOverlay";
-import { PortalLayout } from "./components/portal/PortalLayout";
-
 // App pages
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
@@ -44,14 +42,6 @@ import Transitory from "./pages/Transitory";
 import IdeaBox from "./pages/IdeaBox";
 import NotFound from "./pages/NotFound";
 
-// Portal pages
-import PortalHome from "./pages/portal/PortalHome";
-import PortalProduit from "./pages/portal/PortalProduit";
-import PortalModules from "./pages/portal/PortalModules";
-import PortalTarifs from "./pages/portal/PortalTarifs";
-import PortalSecurite from "./pages/portal/PortalSecurite";
-import PortalContact from "./pages/portal/PortalContact";
-
 import { LanguageProvider } from "./contexts/LanguageContext";
 
 const queryClient = new QueryClient();
@@ -70,15 +60,8 @@ const App = () => (
                   <Sonner />
                   <TutorialOverlay />
                   <Routes>
-                    {/* Portal routes (public) */}
-                    <Route element={<PortalLayout />}>
-                      <Route path="/" element={<PortalHome />} />
-                      <Route path="/produit" element={<PortalProduit />} />
-                      <Route path="/modules" element={<PortalModules />} />
-                      <Route path="/tarifs" element={<PortalTarifs />} />
-                      <Route path="/securite" element={<PortalSecurite />} />
-                      <Route path="/contact" element={<PortalContact />} />
-                    </Route>
+                    {/* Root redirects to login */}
+                    <Route path="/" element={<Navigate to="/login" replace />} />
                     
                     {/* Connexion redirect */}
                     <Route path="/connexion" element={<Navigate to="/login" replace />} />
