@@ -38,6 +38,7 @@ import {
   BarChart3,
   MessageSquare,
   MessageCircle,
+  ClipboardCheck,
   Users,
   Gauge,
   StickyNote,
@@ -126,6 +127,7 @@ export function Sidebar() {
         { name: t('sidebar.maintenance'), path: '/app/maintenance', icon: Wrench, permission: 'maintenance' },
         { name: t('sidebar.inventory'), path: '/app/inventory', icon: Package, permission: 'inventory' },
         { name: t('sidebar.properties'), path: '/app/properties', icon: Home, permission: 'properties' },
+        { name: 'Check Apartment', path: '/app/check-apartment', icon: ClipboardCheck, permission: 'checkApartment' },
       ]
     },
     {

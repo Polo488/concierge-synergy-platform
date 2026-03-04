@@ -40,6 +40,7 @@ import WelcomeGuide from "./pages/WelcomeGuide";
 import WelcomeGuidePublic from "./pages/WelcomeGuidePublic";
 import Transitory from "./pages/Transitory";
 import IdeaBox from "./pages/IdeaBox";
+import CheckApartment from "./pages/CheckApartment";
 import NotFound from "./pages/NotFound";
 
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -234,6 +235,12 @@ const App = () => (
                       <Route path="/app/idea-box" element={
                         <RoutePermission permission="ideaBox">
                           <IdeaBox />
+                        </RoutePermission>
+                      } />
+
+                      <Route path="/app/check-apartment" element={
+                        <RoutePermission permission="checkApartment">
+                          <CheckApartment />
                         </RoutePermission>
                       } />
                     </Route>
