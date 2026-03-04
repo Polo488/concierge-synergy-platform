@@ -21,6 +21,7 @@ export interface PermissionMap {
   welcomeGuide: boolean;
   transitory: boolean;
   ideaBox: boolean;
+  checkApartment: boolean;
 }
 
 export interface RoleDefinition {
