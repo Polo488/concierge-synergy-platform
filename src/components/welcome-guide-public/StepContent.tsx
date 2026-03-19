@@ -38,10 +38,12 @@ const StepContent = ({
       {imageUrl && (
         <div className="relative -mx-5 -mt-2 mb-4">
           <div className="aspect-[4/3] relative overflow-hidden">
-            <div className={cn(
-              'absolute inset-0 bg-slate-100 z-10',
-              !imgLoaded && 'animate-pulse'
-            )} />
+            <div
+              className={cn(
+                'absolute inset-0 z-10 transition-opacity duration-300',
+                imgLoaded ? 'opacity-0 pointer-events-none' : 'bg-slate-100 animate-pulse opacity-100'
+              )}
+            />
             <img
               src={imageUrl}
               alt=""
