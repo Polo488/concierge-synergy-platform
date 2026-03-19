@@ -260,15 +260,25 @@ export function WelcomeGuideEditor({ template, onBack }: Props) {
                         className="h-8 text-xs flex-1 min-w-[180px]"
                       />
                       <div className="flex gap-1.5">
-                        <div className="relative">
-                          <Input
-                            value={step.imageUrl || ''}
-                            onChange={e => updateStep(step.id, { imageUrl: e.target.value })}
-                            placeholder="URL image"
-                            className="h-8 text-xs pl-7 w-[200px]"
+                        <label className="relative cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-input bg-background text-xs text-muted-foreground hover:bg-accent transition-colors">
+                          <Image size={12} />
+                          {step.imageUrl ? 'Changer' : 'Image'}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="sr-only"
+                            onChange={e => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const reader = new FileReader();
+                              reader.onload = ev => {
+                                updateStep(step.id, { imageUrl: ev.target?.result as string });
+                              };
+                              reader.readAsDataURL(file);
+                              e.target.value = '';
+                            }}
                           />
-                          <Image size={12} className="absolute left-2 top-2 text-muted-foreground" />
-                        </div>
+                        </label>
                         <div className="relative">
                           <Input
                             value={step.videoUrl || ''}
