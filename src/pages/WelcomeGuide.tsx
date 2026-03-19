@@ -108,7 +108,7 @@ const WelcomeGuide = () => {
 
         <TabsContent value="templates" className="space-y-4 mt-4">
           {selectedTemplate ? (
-            <WelcomeGuideEditor template={selectedTemplate} onBack={() => setSelectedTemplate(null)} />
+            <WelcomeGuideEditor template={selectedTemplate} onBack={() => setSelectedTemplate(null)} onSave={(updated) => { updateTemplate(updated); setSelectedTemplate(null); }} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {templates.map(tpl => (

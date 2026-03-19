@@ -152,7 +152,7 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
             className="text-sm text-muted-foreground border-0 bg-transparent p-0 h-auto focus-visible:ring-0 mt-0.5"
           />
         </div>
-        <Button className="gap-2" onClick={() => { toast.success('Livret sauvegardé'); onBack(); }}>
+        <Button className="gap-2" onClick={() => { toast.success('Livret sauvegardé'); onSave ? onSave(form) : onBack(); }}>
           <Save size={16} /> Sauvegarder
         </Button>
       </div>

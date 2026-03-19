@@ -87,5 +87,9 @@ export function useWelcomeGuide() {
     setTemplates(prev => prev.map(t => t.id === id ? { ...t, isActive: !t.isActive } : t));
   }, []);
 
-  return { templates, sessions, analytics, selectedTemplate, setSelectedTemplate, toggleTemplate };
+  const updateTemplate = useCallback((updated: WelcomeGuideTemplate) => {
+    setTemplates(prev => prev.map(t => t.id === updated.id ? { ...updated, updatedAt: new Date() } : t));
+  }, []);
+
+  return { templates, sessions, analytics, selectedTemplate, setSelectedTemplate, toggleTemplate, updateTemplate };
 }
