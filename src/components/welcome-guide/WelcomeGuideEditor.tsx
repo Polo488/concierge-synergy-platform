@@ -13,6 +13,7 @@ import {
   Plus, Trash2, ChevronUp, ChevronDown, Sparkles, ImageIcon, Type
 } from 'lucide-react';
 import { WelcomeGuideTemplate, WelcomeGuideStep, WelcomeGuideUpsell } from '@/types/welcomeGuide';
+import { uploadWelcomeGuideImage } from '@/lib/welcomeGuideImageUpload';
 import { toast } from 'sonner';
 
 interface Props {
@@ -45,18 +46,18 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const heroInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleFileUpload = useCallback((stepId: string, file: File) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      if (result) {
-        setForm(prev => ({
-          ...prev,
-          steps: prev.steps.map(s => s.id === stepId ? { ...s, imageUrl: result } : s),
-        }));
-      }
-    };
-    reader.readAsDataURL(file);
+  const handleFileUpload = useCallback(async (stepId: string, file: File) => {
+    toast.loading('Upload en cours…', { id: 'img-upload' });
+    const url = await uploadWelcomeGuideImage(file, stepId);
+    if (url) {
+      setForm(prev => ({
+        ...prev,
+        steps: prev.steps.map(s => s.id === stepId ? { ...s, imageUrl: url } : s),
+      }));
+      toast.success('Image uploadée', { id: 'img-upload' });
+    } else {
+      toast.error('Erreur lors de l\'upload', { id: 'img-upload' });
+    }
   }, []);
 
   const updateStep = useCallback((stepId: string, updates: Partial<WelcomeGuideStep>) => {

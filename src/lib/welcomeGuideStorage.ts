@@ -26,7 +26,11 @@ export const loadWelcomeGuideTemplates = (fallback: WelcomeGuideTemplate[]): Wel
 
 export const saveWelcomeGuideTemplates = (templates: WelcomeGuideTemplate[]) => {
   if (typeof window === 'undefined') return;
-  window.localStorage.setItem(WELCOME_GUIDE_STORAGE_KEY, JSON.stringify(templates));
+  try {
+    window.localStorage.setItem(WELCOME_GUIDE_STORAGE_KEY, JSON.stringify(templates));
+  } catch (e) {
+    console.warn('localStorage quota exceeded, skipping save', e);
+  }
 };
 
 export const getWelcomeGuideTemplateByToken = (token: string) => {
