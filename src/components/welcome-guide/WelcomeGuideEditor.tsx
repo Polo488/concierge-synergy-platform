@@ -277,25 +277,27 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
                         className="h-8 text-xs flex-1 min-w-[180px]"
                       />
                       <div className="flex gap-1.5">
-                        <label className="relative cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-input bg-background text-xs text-muted-foreground hover:bg-accent transition-colors">
+                        <input
+                          ref={el => { fileInputRefs.current[step.id] = el; }}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={e => {
+                            const file = e.target.files?.[0];
+                            if (file) handleFileUpload(step.id, file);
+                            e.target.value = '';
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs gap-1.5"
+                          onClick={() => fileInputRefs.current[step.id]?.click()}
+                        >
                           <Image size={12} />
                           {step.imageUrl ? 'Changer' : 'Image'}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="sr-only"
-                            onChange={e => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              const reader = new FileReader();
-                              reader.onload = ev => {
-                                updateStep(step.id, { imageUrl: ev.target?.result as string });
-                              };
-                              reader.readAsDataURL(file);
-                              e.target.value = '';
-                            }}
-                          />
-                        </label>
+                        </Button>
                         <div className="relative">
                           <Input
                             value={step.videoUrl || ''}
