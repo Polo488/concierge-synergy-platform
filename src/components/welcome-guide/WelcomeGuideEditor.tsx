@@ -330,24 +330,43 @@ export function WelcomeGuideEditor({ template, onBack }: Props) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <Label className="text-xs">URL de l'image hero</Label>
-                <Input
-                  value={form.landingConfig?.heroImage || ''}
-                  onChange={e => setForm(prev => ({
-                    ...prev,
-                    landingConfig: { ...prev.landingConfig!, heroImage: e.target.value },
-                  }))}
-                  placeholder="https://images.unsplash.com/..."
-                  className="h-9 text-sm mt-1"
-                />
+                <Label className="text-xs">Image hero</Label>
+                <label className="mt-1 flex items-center gap-2 cursor-pointer">
+                  <span className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md border border-input bg-background text-sm text-muted-foreground hover:bg-accent transition-colors">
+                    <ImageIcon size={14} />
+                    {form.landingConfig?.heroImage ? 'Changer l\'image' : 'Choisir une image'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = ev => {
+                        setForm(prev => ({
+                          ...prev,
+                          landingConfig: { ...prev.landingConfig!, heroImage: ev.target?.result as string },
+                        }));
+                      };
+                      reader.readAsDataURL(file);
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
               </div>
               {form.landingConfig?.heroImage && (
-                <div className="relative rounded-xl overflow-hidden border border-border/30">
+                <div className="relative rounded-xl overflow-hidden border border-border/30 group">
                   <img src={form.landingConfig.heroImage} alt="" className="w-full h-48 object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent" />
                   <div className="absolute bottom-3 left-3">
                     <p className="text-sm font-bold text-slate-800">{form.propertyName || 'Nom du logement'}</p>
                   </div>
+                  <button
+                    onClick={() => setForm(prev => ({ ...prev, landingConfig: { ...prev.landingConfig!, heroImage: '' } }))}
+                    className="absolute top-2 right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                  >×</button>
                 </div>
               )}
             </CardContent>
