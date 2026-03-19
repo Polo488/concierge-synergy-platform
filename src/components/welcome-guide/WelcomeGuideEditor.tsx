@@ -30,7 +30,7 @@ const STEP_TYPE_OPTIONS: { value: WelcomeGuideStep['type']; label: string; icon:
   { value: 'custom', label: 'Étape personnalisée', icon: '✨' },
 ];
 
-export function WelcomeGuideEditor({ template, onBack }: Props) {
+export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
   const [form, setForm] = useState<WelcomeGuideTemplate>({
     ...template,
     landingConfig: template.landingConfig || {
