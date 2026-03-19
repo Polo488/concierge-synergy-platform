@@ -34,7 +34,7 @@ const MOCK_TEMPLATES: WelcomeGuideTemplate[] = [
     propertyId: 'prop-2',
     propertyName: 'Studio Marais – Charme',
     steps: [
-      { id: 's1b', order: 1, type: 'building_arrival', title: 'Arrivée au bâtiment', description: '15 Rue des Archives, Paris 4e. Digicode : 45A12.', imageUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800', validationLabel: 'Oui, je suis devant le bâtiment', isOptional: false, isActive: true },
+      { id: 's1b', order: 1, type: 'building_arrival', title: 'Arrivée au bâtiment', description: '15 Rue des Archives, Paris 4e. Digicode : 45A12.', validationLabel: 'Oui, je suis devant le bâtiment', isOptional: false, isActive: true },
       { id: 's2b', order: 2, type: 'key_access', title: 'Récupération des clés', description: 'Boîte à clés dans le hall. Code : 7721.', validationLabel: 'J\'ai récupéré les clés', isOptional: false, isActive: true },
       { id: 's3b', order: 3, type: 'apartment_access', title: 'Accès au logement', description: '2ème étage sans ascenseur, porte droite.', validationLabel: 'Je suis entré dans le logement', isOptional: false, isActive: true },
       { id: 's4b', order: 4, type: 'welcome', title: 'Bienvenue !', description: '', validationLabel: 'C\'est noté !', isOptional: false, isActive: true },
