@@ -350,30 +350,38 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
             <CardContent className="space-y-3">
               <div>
                 <Label className="text-xs">Image hero</Label>
-                <label className="mt-1 flex items-center gap-2 cursor-pointer">
-                  <span className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md border border-input bg-background text-sm text-muted-foreground hover:bg-accent transition-colors">
-                    <ImageIcon size={14} />
-                    {form.landingConfig?.heroImage ? 'Changer l\'image' : 'Choisir une image'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="sr-only"
-                    onChange={e => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const reader = new FileReader();
-                      reader.onload = ev => {
+                <input
+                  ref={heroInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const result = reader.result as string;
+                      if (result) {
                         setForm(prev => ({
                           ...prev,
-                          landingConfig: { ...prev.landingConfig!, heroImage: ev.target?.result as string },
+                          landingConfig: { ...prev.landingConfig!, heroImage: result },
                         }));
-                      };
-                      reader.readAsDataURL(file);
-                      e.target.value = '';
-                    }}
-                  />
-                </label>
+                      }
+                    };
+                    reader.readAsDataURL(file);
+                    e.target.value = '';
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-1 gap-1.5"
+                  onClick={() => heroInputRef.current?.click()}
+                >
+                  <ImageIcon size={14} />
+                  {form.landingConfig?.heroImage ? 'Changer l\'image' : 'Choisir une image'}
+                </Button>
               </div>
               {form.landingConfig?.heroImage && (
                 <div className="relative rounded-xl overflow-hidden border border-border/30 group">
