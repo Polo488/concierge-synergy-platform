@@ -12,7 +12,7 @@ import { WelcomeGuidePreview } from '@/components/welcome-guide/WelcomeGuidePrev
 import { toast } from 'sonner';
 
 const WelcomeGuide = () => {
-  const { templates, sessions, analytics, selectedTemplate, setSelectedTemplate, toggleTemplate } = useWelcomeGuide();
+  const { templates, sessions, analytics, selectedTemplate, setSelectedTemplate, toggleTemplate, updateTemplate } = useWelcomeGuide();
   const [activeTab, setActiveTab] = useState('templates');
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
 
