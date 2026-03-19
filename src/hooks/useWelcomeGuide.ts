@@ -1,6 +1,6 @@
-
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { WelcomeGuideTemplate, WelcomeGuideSession, WelcomeGuideAnalytics } from '@/types/welcomeGuide';
+import { loadWelcomeGuideTemplates, saveWelcomeGuideTemplates } from '@/lib/welcomeGuideStorage';
 
 const MOCK_TEMPLATES: WelcomeGuideTemplate[] = [
   {
@@ -70,9 +70,13 @@ const MOCK_SESSIONS: WelcomeGuideSession[] = [
 ];
 
 export function useWelcomeGuide() {
-  const [templates, setTemplates] = useState<WelcomeGuideTemplate[]>(MOCK_TEMPLATES);
+  const [templates, setTemplates] = useState<WelcomeGuideTemplate[]>(() => loadWelcomeGuideTemplates(MOCK_TEMPLATES));
   const [sessions] = useState<WelcomeGuideSession[]>(MOCK_SESSIONS);
   const [selectedTemplate, setSelectedTemplate] = useState<WelcomeGuideTemplate | null>(null);
+
+  useEffect(() => {
+    saveWelcomeGuideTemplates(templates);
+  }, [templates]);
 
   const analytics: WelcomeGuideAnalytics = {
     totalSessions: sessions.length,
