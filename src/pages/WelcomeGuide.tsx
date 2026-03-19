@@ -12,7 +12,7 @@ import { WelcomeGuidePreview } from '@/components/welcome-guide/WelcomeGuidePrev
 import { toast } from 'sonner';
 
 const WelcomeGuide = () => {
-  const { templates, sessions, analytics, selectedTemplate, setSelectedTemplate, toggleTemplate } = useWelcomeGuide();
+  const { templates, sessions, analytics, selectedTemplate, setSelectedTemplate, toggleTemplate, updateTemplate } = useWelcomeGuide();
   const [activeTab, setActiveTab] = useState('templates');
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
 
@@ -108,7 +108,7 @@ const WelcomeGuide = () => {
 
         <TabsContent value="templates" className="space-y-4 mt-4">
           {selectedTemplate ? (
-            <WelcomeGuideEditor template={selectedTemplate} onBack={() => setSelectedTemplate(null)} />
+            <WelcomeGuideEditor template={selectedTemplate} onBack={() => setSelectedTemplate(null)} onSave={(updated) => { updateTemplate(updated); setSelectedTemplate(null); }} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {templates.map(tpl => (
