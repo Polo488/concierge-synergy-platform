@@ -13,6 +13,7 @@ import {
   Plus, Trash2, ChevronUp, ChevronDown, Sparkles, ImageIcon, Type
 } from 'lucide-react';
 import { WelcomeGuideTemplate, WelcomeGuideStep, WelcomeGuideUpsell } from '@/types/welcomeGuide';
+import { uploadWelcomeGuideImage } from '@/lib/welcomeGuideImageUpload';
 import { toast } from 'sonner';
 
 interface Props {
