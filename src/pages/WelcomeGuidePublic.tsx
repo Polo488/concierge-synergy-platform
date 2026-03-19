@@ -149,7 +149,7 @@ const MOCK_DATA = {
 type Phase = 'landing' | 'hub' | 'steps' | 'complete';
 
 const WelcomeGuidePublic = () => {
-  const [searchParams] = useSearchParams();
+  const { token } = useParams();
   const [phase, setPhase] = useState<Phase>('landing');
   const [currentStep, setCurrentStep] = useState(0);
   const [completed, setCompleted] = useState<string[]>([]);
@@ -157,7 +157,45 @@ const WelcomeGuidePublic = () => {
   const [acceptedUpsells, setAcceptedUpsells] = useState<string[]>([]);
   const [hubSection, setHubSection] = useState<string>('menu');
 
-  const data = MOCK_DATA;
+  const template = useMemo(() => (token ? getWelcomeGuideTemplateByToken(token) : null), [token]);
+
+  const data = useMemo(() => {
+    if (!template) return MOCK_DATA;
+
+    return {
+      ...MOCK_DATA,
+      propertyName: template.propertyName || template.name,
+      heroImage: template.landingConfig?.heroImage || MOCK_DATA.heroImage,
+      welcomeMessage: template.welcomeMessage || MOCK_DATA.welcomeMessage,
+      wifiName: template.wifiName || '',
+      wifiPassword: template.wifiPassword || '',
+      houseRules: template.houseRules || [],
+      steps: template.steps
+        .filter((s) => s.isActive)
+        .map<Step>((s) => ({
+          id: s.id,
+          type: s.type,
+          title: s.title,
+          description: s.description,
+          imageUrl: s.imageUrl,
+          videoUrl: s.videoUrl,
+          validationLabel: s.validationLabel,
+          isOptional: s.isOptional,
+          helpText: s.helpText,
+          contextHint: s.contextHint,
+        })),
+      upsells: template.upsells
+        .filter((u) => u.isActive)
+        .map<Upsell>((u) => ({
+          id: u.id,
+          name: u.name,
+          description: u.description,
+          price: u.price,
+          currency: u.currency,
+        })),
+    };
+  }, [template]);
+
   const step = data.steps[currentStep];
 
   // Unlock logic: journey is available only on check-in day at 09:00
