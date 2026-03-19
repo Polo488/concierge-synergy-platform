@@ -34,7 +34,7 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
   const [form, setForm] = useState<WelcomeGuideTemplate>({
     ...template,
     landingConfig: template.landingConfig || {
-      heroImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200',
+      heroImage: '',
       showHostBadge: true,
       showNightsBadge: true,
       showPropertyCard: true,
@@ -42,6 +42,22 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
     },
   });
   const [activeTab, setActiveTab] = useState('steps');
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const heroInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileUpload = useCallback((stepId: string, file: File) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      if (result) {
+        setForm(prev => ({
+          ...prev,
+          steps: prev.steps.map(s => s.id === stepId ? { ...s, imageUrl: result } : s),
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+  }, []);
 
   const updateStep = useCallback((stepId: string, updates: Partial<WelcomeGuideStep>) => {
     setForm(prev => ({
