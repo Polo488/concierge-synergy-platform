@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 interface Props {
   template: WelcomeGuideTemplate;
   onBack: () => void;
+  onSave?: (updated: WelcomeGuideTemplate) => void;
 }
 
 const STEP_TYPE_OPTIONS: { value: WelcomeGuideStep['type']; label: string; icon: string }[] = [
