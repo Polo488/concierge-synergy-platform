@@ -183,7 +183,7 @@ export function WelcomeGuidePreview({ template, onBack }: Props) {
                 nights={2}
                 hostName="Noé Conciergerie"
                 hostInitial="N"
-                heroImage="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200"
+                heroImage={template.landingConfig?.heroImage || ''}
                 onStart={handleStartJourney}
                 onNavigate={(section) => { setHubSection(section); setPhase('hub'); }}
                 journeyLocked={!isJourneyUnlocked}
