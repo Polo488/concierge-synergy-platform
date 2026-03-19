@@ -9,9 +9,9 @@ const MOCK_TEMPLATES: WelcomeGuideTemplate[] = [
     propertyId: 'prop-1',
     propertyName: 'Apt Bellecour – T2 Premium',
     steps: [
-      { id: 's1', order: 1, type: 'building_arrival', title: 'Arrivée au bâtiment', description: 'Rendez-vous au 12 Place Bellecour, Lyon 2e. Le bâtiment est à droite de la pharmacie.', imageUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800', validationLabel: 'Oui, je suis devant le bâtiment', isOptional: false, isActive: true },
-      { id: 's2', order: 2, type: 'key_access', title: 'Récupération des clés', description: 'La boîte à clés se trouve à gauche de la porte d\'entrée. Code : 4589#', imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800', validationLabel: 'J\'ai récupéré les clés', isOptional: false, isActive: true, helpText: 'Tournez le cadran vers la droite, puis entrez le code.' },
-      { id: 's3', order: 3, type: 'apartment_access', title: 'Accès au logement', description: '3ème étage, porte gauche. Utilisez la grande clé pour la porte du bas, la petite pour l\'appartement.', imageUrl: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', validationLabel: 'Je suis entré dans le logement', isOptional: false, isActive: true },
+      { id: 's1', order: 1, type: 'building_arrival', title: 'Arrivée au bâtiment', description: 'Rendez-vous au 12 Place Bellecour, Lyon 2e. Le bâtiment est à droite de la pharmacie.', validationLabel: 'Oui, je suis devant le bâtiment', isOptional: false, isActive: true },
+      { id: 's2', order: 2, type: 'key_access', title: 'Récupération des clés', description: 'La boîte à clés se trouve à gauche de la porte d\'entrée. Code : 4589#', validationLabel: 'J\'ai récupéré les clés', isOptional: false, isActive: true, helpText: 'Tournez le cadran vers la droite, puis entrez le code.' },
+      { id: 's3', order: 3, type: 'apartment_access', title: 'Accès au logement', description: '3ème étage, porte gauche. Utilisez la grande clé pour la porte du bas, la petite pour l\'appartement.', validationLabel: 'Je suis entré dans le logement', isOptional: false, isActive: true },
       { id: 's4', order: 4, type: 'welcome', title: 'Bienvenue chez vous !', description: '', validationLabel: 'C\'est noté, merci !', isOptional: false, isActive: true },
       { id: 's5', order: 5, type: 'upsell', title: 'Services additionnels', description: 'Profitez de nos services pour un séjour encore plus agréable.', validationLabel: 'Continuer', isOptional: true, isActive: true },
     ],
@@ -34,7 +34,7 @@ const MOCK_TEMPLATES: WelcomeGuideTemplate[] = [
     propertyId: 'prop-2',
     propertyName: 'Studio Marais – Charme',
     steps: [
-      { id: 's1b', order: 1, type: 'building_arrival', title: 'Arrivée au bâtiment', description: '15 Rue des Archives, Paris 4e. Digicode : 45A12.', imageUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800', validationLabel: 'Oui, je suis devant le bâtiment', isOptional: false, isActive: true },
+      { id: 's1b', order: 1, type: 'building_arrival', title: 'Arrivée au bâtiment', description: '15 Rue des Archives, Paris 4e. Digicode : 45A12.', validationLabel: 'Oui, je suis devant le bâtiment', isOptional: false, isActive: true },
       { id: 's2b', order: 2, type: 'key_access', title: 'Récupération des clés', description: 'Boîte à clés dans le hall. Code : 7721.', validationLabel: 'J\'ai récupéré les clés', isOptional: false, isActive: true },
       { id: 's3b', order: 3, type: 'apartment_access', title: 'Accès au logement', description: '2ème étage sans ascenseur, porte droite.', validationLabel: 'Je suis entré dans le logement', isOptional: false, isActive: true },
       { id: 's4b', order: 4, type: 'welcome', title: 'Bienvenue !', description: '', validationLabel: 'C\'est noté !', isOptional: false, isActive: true },

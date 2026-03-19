@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +34,7 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
   const [form, setForm] = useState<WelcomeGuideTemplate>({
     ...template,
     landingConfig: template.landingConfig || {
-      heroImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200',
+      heroImage: '',
       showHostBadge: true,
       showNightsBadge: true,
       showPropertyCard: true,
@@ -42,6 +42,22 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
     },
   });
   const [activeTab, setActiveTab] = useState('steps');
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const heroInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileUpload = useCallback((stepId: string, file: File) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      if (result) {
+        setForm(prev => ({
+          ...prev,
+          steps: prev.steps.map(s => s.id === stepId ? { ...s, imageUrl: result } : s),
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+  }, []);
 
   const updateStep = useCallback((stepId: string, updates: Partial<WelcomeGuideStep>) => {
     setForm(prev => ({
@@ -261,25 +277,27 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
                         className="h-8 text-xs flex-1 min-w-[180px]"
                       />
                       <div className="flex gap-1.5">
-                        <label className="relative cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-input bg-background text-xs text-muted-foreground hover:bg-accent transition-colors">
+                        <input
+                          ref={el => { fileInputRefs.current[step.id] = el; }}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={e => {
+                            const file = e.target.files?.[0];
+                            if (file) handleFileUpload(step.id, file);
+                            e.target.value = '';
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs gap-1.5"
+                          onClick={() => fileInputRefs.current[step.id]?.click()}
+                        >
                           <Image size={12} />
                           {step.imageUrl ? 'Changer' : 'Image'}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="sr-only"
-                            onChange={e => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              const reader = new FileReader();
-                              reader.onload = ev => {
-                                updateStep(step.id, { imageUrl: ev.target?.result as string });
-                              };
-                              reader.readAsDataURL(file);
-                              e.target.value = '';
-                            }}
-                          />
-                        </label>
+                        </Button>
                         <div className="relative">
                           <Input
                             value={step.videoUrl || ''}
@@ -332,30 +350,38 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
             <CardContent className="space-y-3">
               <div>
                 <Label className="text-xs">Image hero</Label>
-                <label className="mt-1 flex items-center gap-2 cursor-pointer">
-                  <span className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md border border-input bg-background text-sm text-muted-foreground hover:bg-accent transition-colors">
-                    <ImageIcon size={14} />
-                    {form.landingConfig?.heroImage ? 'Changer l\'image' : 'Choisir une image'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="sr-only"
-                    onChange={e => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const reader = new FileReader();
-                      reader.onload = ev => {
+                <input
+                  ref={heroInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const result = reader.result as string;
+                      if (result) {
                         setForm(prev => ({
                           ...prev,
-                          landingConfig: { ...prev.landingConfig!, heroImage: ev.target?.result as string },
+                          landingConfig: { ...prev.landingConfig!, heroImage: result },
                         }));
-                      };
-                      reader.readAsDataURL(file);
-                      e.target.value = '';
-                    }}
-                  />
-                </label>
+                      }
+                    };
+                    reader.readAsDataURL(file);
+                    e.target.value = '';
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-1 gap-1.5"
+                  onClick={() => heroInputRef.current?.click()}
+                >
+                  <ImageIcon size={14} />
+                  {form.landingConfig?.heroImage ? 'Changer l\'image' : 'Choisir une image'}
+                </Button>
               </div>
               {form.landingConfig?.heroImage && (
                 <div className="relative rounded-xl overflow-hidden border border-border/30 group">
