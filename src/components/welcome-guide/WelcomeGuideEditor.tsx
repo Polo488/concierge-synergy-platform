@@ -43,6 +43,7 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
     },
   });
   const [activeTab, setActiveTab] = useState('steps');
+  const [isHeroUploading, setIsHeroUploading] = useState(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const heroInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -59,6 +60,28 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
       toast.error('Erreur lors de l\'upload', { id: 'img-upload' });
     }
   }, []);
+
+  const handleHeroUpload = useCallback(async (file: File) => {
+    setIsHeroUploading(true);
+    toast.loading('Upload couverture en cours…', { id: 'hero-upload' });
+
+    const url = await uploadWelcomeGuideImage(file, `hero-${template.id}`);
+
+    if (url) {
+      setForm(prev => ({
+        ...prev,
+        landingConfig: {
+          ...prev.landingConfig!,
+          heroImage: url,
+        },
+      }));
+      toast.success('Image de couverture sauvegardée', { id: 'hero-upload' });
+    } else {
+      toast.error('Erreur lors de l\'upload de la couverture', { id: 'hero-upload' });
+    }
+
+    setIsHeroUploading(false);
+  }, [template.id]);
 
   const updateStep = useCallback((stepId: string, updates: Partial<WelcomeGuideStep>) => {
     setForm(prev => ({
@@ -358,18 +381,9 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
                   className="hidden"
                   onChange={e => {
                     const file = e.target.files?.[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      const result = reader.result as string;
-                      if (result) {
-                        setForm(prev => ({
-                          ...prev,
-                          landingConfig: { ...prev.landingConfig!, heroImage: result },
-                        }));
-                      }
-                    };
-                    reader.readAsDataURL(file);
+                    if (file) {
+                      void handleHeroUpload(file);
+                    }
                     e.target.value = '';
                   }}
                 />
@@ -379,9 +393,14 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
                   size="sm"
                   className="mt-1 gap-1.5"
                   onClick={() => heroInputRef.current?.click()}
+                  disabled={isHeroUploading}
                 >
                   <ImageIcon size={14} />
-                  {form.landingConfig?.heroImage ? 'Changer l\'image' : 'Choisir une image'}
+                  {isHeroUploading
+                    ? 'Upload...'
+                    : form.landingConfig?.heroImage
+                      ? 'Changer l\'image'
+                      : 'Choisir une image'}
                 </Button>
               </div>
               {form.landingConfig?.heroImage && (
