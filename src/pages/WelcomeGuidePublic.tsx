@@ -157,8 +157,23 @@ const WelcomeGuidePublic = () => {
   const [animating, setAnimating] = useState(false);
   const [acceptedUpsells, setAcceptedUpsells] = useState<string[]>([]);
   const [hubSection, setHubSection] = useState<string>('menu');
+  const [template, setTemplate] = useState<WelcomeGuideTemplate | null>(null);
+  const [templateLoading, setTemplateLoading] = useState(true);
 
-  const template = useMemo(() => (token ? getWelcomeGuideTemplateByToken(token) : null), [token]);
+  useEffect(() => {
+    if (!token) {
+      setTemplateLoading(false);
+      return;
+    }
+    let cancelled = false;
+    getWelcomeGuideTemplateById(token).then((tpl) => {
+      if (!cancelled) {
+        setTemplate(tpl);
+        setTemplateLoading(false);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [token]);
 
   const data = useMemo(() => {
     if (!template) return MOCK_DATA;
