@@ -1,7 +1,8 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { getWelcomeGuideTemplateByToken } from '@/lib/welcomeGuideStorage';
+import { getWelcomeGuideTemplateById } from '@/lib/welcomeGuideStorage';
+import { WelcomeGuideTemplate } from '@/types/welcomeGuide';
 import confetti from 'canvas-confetti';
 import { Utensils, Bus, MapPin, Landmark } from 'lucide-react';
 import WelcomeLanding from '@/components/welcome-guide-public/WelcomeLanding';
