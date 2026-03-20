@@ -334,6 +334,60 @@ export type Database = {
           },
         ]
       }
+      welcome_guide_templates: {
+        Row: {
+          created_at: string
+          group_id: string | null
+          house_rules: Json | null
+          id: string
+          is_active: boolean
+          landing_config: Json | null
+          name: string
+          property_id: string | null
+          property_name: string | null
+          steps: Json
+          updated_at: string
+          upsells: Json
+          welcome_message: string
+          wifi_name: string | null
+          wifi_password: string | null
+        }
+        Insert: {
+          created_at?: string
+          group_id?: string | null
+          house_rules?: Json | null
+          id?: string
+          is_active?: boolean
+          landing_config?: Json | null
+          name: string
+          property_id?: string | null
+          property_name?: string | null
+          steps?: Json
+          updated_at?: string
+          upsells?: Json
+          welcome_message?: string
+          wifi_name?: string | null
+          wifi_password?: string | null
+        }
+        Update: {
+          created_at?: string
+          group_id?: string | null
+          house_rules?: Json | null
+          id?: string
+          is_active?: boolean
+          landing_config?: Json | null
+          name?: string
+          property_id?: string | null
+          property_name?: string | null
+          steps?: Json
+          updated_at?: string
+          upsells?: Json
+          welcome_message?: string
+          wifi_name?: string | null
+          wifi_password?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

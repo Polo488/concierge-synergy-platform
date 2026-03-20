@@ -1,58 +1,43 @@
 import { useState, useCallback, useEffect } from 'react';
 import { WelcomeGuideTemplate, WelcomeGuideSession, WelcomeGuideAnalytics } from '@/types/welcomeGuide';
-import { loadWelcomeGuideTemplates, saveWelcomeGuideTemplates } from '@/lib/welcomeGuideStorage';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-const MOCK_TEMPLATES: WelcomeGuideTemplate[] = [
-  {
-    id: 'tpl-1',
-    name: 'Template Lyon Centre',
-    propertyId: 'prop-1',
-    propertyName: 'Apt Bellecour – T2 Premium',
-    steps: [
-      { id: 's1', order: 1, type: 'building_arrival', title: 'Arrivée au bâtiment', description: 'Rendez-vous au 12 Place Bellecour, Lyon 2e. Le bâtiment est à droite de la pharmacie.', validationLabel: 'Oui, je suis devant le bâtiment', isOptional: false, isActive: true },
-      { id: 's2', order: 2, type: 'key_access', title: 'Récupération des clés', description: 'La boîte à clés se trouve à gauche de la porte d\'entrée. Code : 4589#', validationLabel: 'J\'ai récupéré les clés', isOptional: false, isActive: true, helpText: 'Tournez le cadran vers la droite, puis entrez le code.' },
-      { id: 's3', order: 3, type: 'apartment_access', title: 'Accès au logement', description: '3ème étage, porte gauche. Utilisez la grande clé pour la porte du bas, la petite pour l\'appartement.', validationLabel: 'Je suis entré dans le logement', isOptional: false, isActive: true },
-      { id: 's4', order: 4, type: 'welcome', title: 'Bienvenue chez vous !', description: '', validationLabel: 'C\'est noté, merci !', isOptional: false, isActive: true },
-      { id: 's5', order: 5, type: 'upsell', title: 'Services additionnels', description: 'Profitez de nos services pour un séjour encore plus agréable.', validationLabel: 'Continuer', isOptional: true, isActive: true },
-    ],
-    upsells: [
-      { id: 'u1', name: 'Check-out tardif (14h)', description: 'Profitez de votre logement jusqu\'à 14h au lieu de 11h.', price: 35, currency: '€', isActive: true },
-      { id: 'u2', name: 'Ménage supplémentaire', description: 'Un ménage complet pendant votre séjour.', price: 45, currency: '€', isActive: true },
-      { id: 'u3', name: 'Pack linge premium', description: 'Serviettes et draps supplémentaires de qualité hôtelière.', price: 20, currency: '€', isActive: true },
-    ],
-    welcomeMessage: 'Bienvenue dans votre appartement ! Nous espérons que vous passerez un excellent séjour. N\'hésitez pas à nous contacter si besoin.',
-    wifiName: 'Bellecour_Guest',
-    wifiPassword: 'Welcome2024!',
-    houseRules: ['Pas de fête ni de bruit après 22h', 'Ne pas fumer dans l\'appartement', 'Merci de trier les déchets'],
-    isActive: true,
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-03-10'),
-  },
-  {
-    id: 'tpl-2',
-    name: 'Template Paris Marais',
-    propertyId: 'prop-2',
-    propertyName: 'Studio Marais – Charme',
-    steps: [
-      { id: 's1b', order: 1, type: 'building_arrival', title: 'Arrivée au bâtiment', description: '15 Rue des Archives, Paris 4e. Digicode : 45A12.', validationLabel: 'Oui, je suis devant le bâtiment', isOptional: false, isActive: true },
-      { id: 's2b', order: 2, type: 'key_access', title: 'Récupération des clés', description: 'Boîte à clés dans le hall. Code : 7721.', validationLabel: 'J\'ai récupéré les clés', isOptional: false, isActive: true },
-      { id: 's3b', order: 3, type: 'apartment_access', title: 'Accès au logement', description: '2ème étage sans ascenseur, porte droite.', validationLabel: 'Je suis entré dans le logement', isOptional: false, isActive: true },
-      { id: 's4b', order: 4, type: 'welcome', title: 'Bienvenue !', description: '', validationLabel: 'C\'est noté !', isOptional: false, isActive: true },
-      { id: 's5b', order: 5, type: 'upsell', title: 'Extras', description: '', validationLabel: 'Continuer', isOptional: true, isActive: true },
-    ],
-    upsells: [
-      { id: 'u4', name: 'Check-out tardif (13h)', description: 'Départ repoussé à 13h.', price: 30, currency: '€', isActive: true },
-      { id: 'u5', name: 'Petit-déjeuner livré', description: 'Croissants, jus et café livrés le matin.', price: 18, currency: '€', isActive: true },
-    ],
-    welcomeMessage: 'Bienvenue au cœur du Marais ! Profitez bien de Paris.',
-    wifiName: 'Marais_Guest',
-    wifiPassword: 'Paris2024!',
-    houseRules: ['Pas de bruit après 22h', 'Ne pas fumer'],
-    isActive: true,
-    createdAt: new Date('2024-02-01'),
-    updatedAt: new Date('2024-04-05'),
-  },
-];
+// Convert DB row to app type
+const rowToTemplate = (row: any): WelcomeGuideTemplate => ({
+  id: row.id,
+  name: row.name,
+  propertyId: row.property_id || undefined,
+  propertyName: row.property_name || undefined,
+  groupId: row.group_id || undefined,
+  steps: (row.steps || []) as WelcomeGuideTemplate['steps'],
+  upsells: (row.upsells || []) as WelcomeGuideTemplate['upsells'],
+  welcomeMessage: row.welcome_message || '',
+  wifiName: row.wifi_name || undefined,
+  wifiPassword: row.wifi_password || undefined,
+  houseRules: row.house_rules || undefined,
+  landingConfig: row.landing_config || undefined,
+  isActive: row.is_active,
+  createdAt: new Date(row.created_at),
+  updatedAt: new Date(row.updated_at),
+});
+
+// Convert app type to DB row for upsert
+const templateToRow = (t: WelcomeGuideTemplate) => ({
+  id: t.id,
+  name: t.name,
+  property_id: t.propertyId || null,
+  property_name: t.propertyName || null,
+  group_id: t.groupId || null,
+  steps: JSON.parse(JSON.stringify(t.steps)),
+  upsells: JSON.parse(JSON.stringify(t.upsells)),
+  welcome_message: t.welcomeMessage,
+  wifi_name: t.wifiName || null,
+  wifi_password: t.wifiPassword || null,
+  house_rules: t.houseRules || [],
+  landing_config: t.landingConfig ? JSON.parse(JSON.stringify(t.landingConfig)) : null,
+  is_active: t.isActive,
+});
 
 const MOCK_SESSIONS: WelcomeGuideSession[] = [
   {
@@ -70,13 +55,30 @@ const MOCK_SESSIONS: WelcomeGuideSession[] = [
 ];
 
 export function useWelcomeGuide() {
-  const [templates, setTemplates] = useState<WelcomeGuideTemplate[]>(() => loadWelcomeGuideTemplates(MOCK_TEMPLATES));
+  const [templates, setTemplates] = useState<WelcomeGuideTemplate[]>([]);
   const [sessions] = useState<WelcomeGuideSession[]>(MOCK_SESSIONS);
   const [selectedTemplate, setSelectedTemplate] = useState<WelcomeGuideTemplate | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  // Load templates from DB
   useEffect(() => {
-    saveWelcomeGuideTemplates(templates);
-  }, [templates]);
+    const fetchTemplates = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('welcome_guide_templates')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading templates:', error);
+        toast.error('Erreur de chargement des templates');
+      } else {
+        setTemplates((data || []).map(rowToTemplate));
+      }
+      setLoading(false);
+    };
+    fetchTemplates();
+  }, []);
 
   const analytics: WelcomeGuideAnalytics = {
     totalSessions: sessions.length,
@@ -87,13 +89,44 @@ export function useWelcomeGuide() {
     stepDropoffRates: { 'building_arrival': 5, 'key_access': 12, 'apartment_access': 8, 'welcome': 2, 'upsell': 15 },
   };
 
-  const toggleTemplate = useCallback((id: string) => {
-    setTemplates(prev => prev.map(t => t.id === id ? { ...t, isActive: !t.isActive } : t));
+  const toggleTemplate = useCallback(async (id: string) => {
+    const tpl = templates.find(t => t.id === id);
+    if (!tpl) return;
+    const newActive = !tpl.isActive;
+    
+    const { error } = await supabase
+      .from('welcome_guide_templates')
+      .update({ is_active: newActive } as any)
+      .eq('id', id);
+
+    if (error) {
+      toast.error('Erreur lors de la mise à jour');
+    } else {
+      setTemplates(prev => prev.map(t => t.id === id ? { ...t, isActive: newActive } : t));
+    }
+  }, [templates]);
+
+  const updateTemplate = useCallback(async (updated: WelcomeGuideTemplate) => {
+    const row = templateToRow(updated);
+
+    const { error } = await supabase
+      .from('welcome_guide_templates')
+      .upsert(row as any);
+
+    if (error) {
+      console.error('Error saving template:', error);
+      toast.error('Erreur lors de la sauvegarde');
+    } else {
+      setTemplates(prev => {
+        const exists = prev.some(t => t.id === updated.id);
+        if (exists) {
+          return prev.map(t => t.id === updated.id ? { ...updated, updatedAt: new Date() } : t);
+        }
+        return [{ ...updated, updatedAt: new Date() }, ...prev];
+      });
+      toast.success('Template sauvegardé');
+    }
   }, []);
 
-  const updateTemplate = useCallback((updated: WelcomeGuideTemplate) => {
-    setTemplates(prev => prev.map(t => t.id === updated.id ? { ...updated, updatedAt: new Date() } : t));
-  }, []);
-
-  return { templates, sessions, analytics, selectedTemplate, setSelectedTemplate, toggleTemplate, updateTemplate };
+  return { templates, sessions, analytics, selectedTemplate, setSelectedTemplate, toggleTemplate, updateTemplate, loading };
 }
