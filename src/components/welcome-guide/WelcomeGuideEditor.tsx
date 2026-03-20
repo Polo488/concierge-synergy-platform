@@ -43,6 +43,7 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
     },
   });
   const [activeTab, setActiveTab] = useState('steps');
+  const [isHeroUploading, setIsHeroUploading] = useState(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const heroInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -59,6 +60,28 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
       toast.error('Erreur lors de l\'upload', { id: 'img-upload' });
     }
   }, []);
+
+  const handleHeroUpload = useCallback(async (file: File) => {
+    setIsHeroUploading(true);
+    toast.loading('Upload couverture en cours…', { id: 'hero-upload' });
+
+    const url = await uploadWelcomeGuideImage(file, `hero-${template.id}`);
+
+    if (url) {
+      setForm(prev => ({
+        ...prev,
+        landingConfig: {
+          ...prev.landingConfig!,
+          heroImage: url,
+        },
+      }));
+      toast.success('Image de couverture sauvegardée', { id: 'hero-upload' });
+    } else {
+      toast.error('Erreur lors de l\'upload de la couverture', { id: 'hero-upload' });
+    }
+
+    setIsHeroUploading(false);
+  }, [template.id]);
 
   const updateStep = useCallback((stepId: string, updates: Partial<WelcomeGuideStep>) => {
     setForm(prev => ({
