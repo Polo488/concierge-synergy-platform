@@ -381,18 +381,9 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
                   className="hidden"
                   onChange={e => {
                     const file = e.target.files?.[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      const result = reader.result as string;
-                      if (result) {
-                        setForm(prev => ({
-                          ...prev,
-                          landingConfig: { ...prev.landingConfig!, heroImage: result },
-                        }));
-                      }
-                    };
-                    reader.readAsDataURL(file);
+                    if (file) {
+                      void handleHeroUpload(file);
+                    }
                     e.target.value = '';
                   }}
                 />
@@ -402,9 +393,14 @@ export function WelcomeGuideEditor({ template, onBack, onSave }: Props) {
                   size="sm"
                   className="mt-1 gap-1.5"
                   onClick={() => heroInputRef.current?.click()}
+                  disabled={isHeroUploading}
                 >
                   <ImageIcon size={14} />
-                  {form.landingConfig?.heroImage ? 'Changer l\'image' : 'Choisir une image'}
+                  {isHeroUploading
+                    ? 'Upload...'
+                    : form.landingConfig?.heroImage
+                      ? 'Changer l\'image'
+                      : 'Choisir une image'}
                 </Button>
               </div>
               {form.landingConfig?.heroImage && (
