@@ -8,6 +8,7 @@
 //       source (text), created_at (timestamptz)
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wrench, Zap, Gift, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
