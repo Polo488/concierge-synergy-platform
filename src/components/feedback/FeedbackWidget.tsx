@@ -61,22 +61,14 @@ export function FeedbackWidget() {
   return (
     <>
       {/* Floating button */}
-      <motion.button
+      <button
+        type="button"
         onClick={() => { setOpen(true); setView('menu'); }}
         className="fixed bottom-6 right-6 z-[1000] h-11 px-5 rounded-full bg-primary text-primary-foreground flex items-center gap-2 shadow-lg hover:scale-[1.04] transition-all duration-200"
-        animate={{
-          boxShadow: [
-            '0 4px 16px rgba(255,92,26,0.30)',
-            '0 4px 28px rgba(255,92,26,0.55)',
-            '0 4px 16px rgba(255,92,26,0.30)',
-          ],
-        }}
-        transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut', repeatDelay: 3.8 }}
-        whileHover={{ scale: 1.04 }}
       >
         <MessageCircle size={18} />
         <span className="text-sm font-semibold">Donner mon avis</span>
-      </motion.button>
+      </button>
 
       {/* Modal */}
       <AnimatePresence>
