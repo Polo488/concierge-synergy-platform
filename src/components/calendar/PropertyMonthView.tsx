@@ -1,5 +1,6 @@
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+import { HelpCircle, CalendarDays, Euro, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   startOfMonth,
   endOfMonth,
@@ -15,7 +16,6 @@ import {
   getDay,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
 
@@ -209,46 +209,45 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
   return (
     <div className="flex flex-col w-full bg-white" style={{ height: 'calc(100vh - 56px)' }}>
       {/* Header */}
-      <div className="flex-shrink-0 sticky top-0 z-20 bg-white border-b" style={{ borderColor: '#EEEEEE' }}>
-        <div className="flex items-center justify-between px-3 py-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9">
-              <ChevronLeft className="h-5 w-5" />
+      <div className="flex-shrink-0 sticky top-0 z-20 bg-white">
+        {/* Title row: Planning + action icons */}
+        <div className="flex items-center justify-between px-4 pt-3 pb-1">
+          <h1 className="text-xl font-bold" style={{ color: '#1A1A2E' }}>Planning</h1>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-9 w-9" style={{ color: '#9A9AAF' }}>
+              <HelpCircle className="h-5 w-5" />
             </Button>
-            <div className="flex items-center gap-2 min-w-0">
-              {property.thumbnail && (
-                <img
-                  src={property.thumbnail}
-                  alt={property.name}
-                  className="w-8 h-8 rounded-md object-cover flex-shrink-0"
-                />
-              )}
-              <span className="font-semibold text-sm truncate" style={{ color: '#1A1A2E' }}>
-                {property.name}
-              </span>
-            </div>
+            <Button variant="ghost" size="icon" className="h-9 w-9" style={{ color: '#9A9AAF' }}>
+              <CalendarDays className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-9 w-9" style={{ color: '#9A9AAF' }}>
+              <Euro className="h-5 w-5" />
+            </Button>
           </div>
         </div>
 
-        {/* Month nav */}
-        <div className="flex items-center justify-center gap-2 pb-2">
+        {/* Month navigation row */}
+        <div className="flex items-center px-4 pb-2 gap-2">
           <Button variant="ghost" size="icon" onClick={() => navigateMonth(-1)} className="h-9 w-9">
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm font-semibold capitalize min-w-[120px] text-center" style={{ color: '#1A1A2E' }}>
-            {format(currentMonth, 'MMMM yyyy', { locale: fr })}
-          </span>
+          <Button variant="ghost" size="icon" className="h-9 w-9" style={{ color: '#9A9AAF' }}>
+            <CalendarDays className="h-4 w-4" />
+          </Button>
           <Button variant="ghost" size="icon" onClick={() => navigateMonth(1)} className="h-9 w-9">
             <ChevronRight className="h-4 w-4" />
           </Button>
+          <span className="text-sm font-semibold capitalize" style={{ color: '#1A1A2E' }}>
+            {format(currentMonth, 'MMMM yyyy', { locale: fr })}
+          </span>
         </div>
 
         {/* Week day headers */}
-        <div className="grid grid-cols-7">
+        <div className="grid grid-cols-7" style={{ borderBottom: '1px solid #EEEEEE' }}>
           {WEEK_DAYS.map(d => (
             <div
               key={d}
-              className="text-center py-1"
+              className="text-center py-1.5"
               style={{ fontSize: 11, fontWeight: 500, color: '#9A9AAF', textTransform: 'uppercase' }}
             >
               {d}
