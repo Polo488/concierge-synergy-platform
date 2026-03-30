@@ -77,6 +77,9 @@ const App = () => (
 
                     {/* Public welcome guide */}
                     <Route path="/welcome/:token" element={<WelcomeGuidePublic />} />
+
+                    {/* Beta onboarding */}
+                    <Route path="/beta-onboarding" element={<BetaOnboarding />} />
                     
                     {/* Protected app routes */}
                     <Route element={<ProtectedRoute />}>
