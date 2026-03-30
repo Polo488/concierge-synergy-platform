@@ -64,7 +64,7 @@ export function FeedbackWidget() {
       <button
         type="button"
         onClick={() => { setOpen(true); setView('menu'); }}
-        className="fixed bottom-6 right-6 z-[1000] h-11 px-5 rounded-full bg-primary text-primary-foreground flex items-center gap-2 shadow-lg hover:scale-[1.04] transition-all duration-200"
+        className="fixed bottom-6 right-6 z-[10000] pointer-events-auto h-11 px-5 rounded-full bg-primary text-primary-foreground flex items-center gap-2 shadow-lg hover:scale-[1.04] transition-all duration-200"
       >
         <MessageCircle size={18} />
         <span className="text-sm font-semibold">Donner mon avis</span>
