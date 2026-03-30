@@ -1,13 +1,19 @@
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
+import { isSameDay, startOfDay } from 'date-fns';
 import { CalendarGridHeader } from './CalendarGridHeader';
 import { PropertyRow } from './PropertyRow';
 import { CalendarLegend } from './CalendarLegend';
-import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod, DailyPrice } from '@/types/calendar';
 import { PropertyInsight } from '@/types/insights';
+
+const DAY_W = 48;
+const ROW_H = 64;
+const PROP_COL_W = 130;
+const PROP_COL_W_MOBILE = 100;
+const PROP_COL_COLLAPSED = 44;
 
 interface CalendarGridProps {
   properties: CalendarProperty[];
@@ -50,18 +56,30 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const isTablet = useIsTablet();
-  const [propertyColCollapsed, setPropertyColCollapsed] = useState(isMobile);
+  const [collapsed, setCollapsed] = useState(isMobile);
 
-  const pricesMap = React.useMemo(() => {
+  const propColWidth = collapsed ? PROP_COL_COLLAPSED : (isMobile ? PROP_COL_W_MOBILE : PROP_COL_W);
+
+  const pricesMap = useMemo(() => {
     if (!dailyPrices) return undefined;
     const map = new Map<string, number>();
     dailyPrices.forEach(dp => {
-      const key = `${dp.date.toISOString().split('T')[0]}`;
-      map.set(key, dp.price);
+      map.set(dp.date.toISOString().split('T')[0], dp.price);
     });
     return map;
   }, [dailyPrices]);
+
+  // Scroll to today on mount
+  const todayIndex = useMemo(() => {
+    const today = startOfDay(new Date());
+    return days.findIndex(d => isSameDay(d, today));
+  }, [days]);
+
+  useEffect(() => {
+    if (scrollContainerRef.current && todayIndex >= 0) {
+      scrollContainerRef.current.scrollLeft = Math.max(0, todayIndex * DAY_W - 80);
+    }
+  }, [todayIndex]);
 
   useEffect(() => {
     if (isSelecting && onDayMouseUp) {
@@ -71,42 +89,28 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     }
   }, [isSelecting, onDayMouseUp]);
 
-  // Responsive property column width
-  const propColWidth = propertyColCollapsed 
-    ? (isMobile ? 44 : 56)
-    : (isMobile ? 110 : isTablet ? 180 : 220);
-
-  // Day cell width
-  const dayCellWidth = isMobile ? 44 : 52;
-
   return (
-    <div 
-      ref={scrollContainerRef}
-      className="glass-panel rounded-2xl overflow-auto select-none h-full relative"
-      style={{ touchAction: 'pan-x pan-y' }}
-    >
-      {/* Collapse toggle */}
-      <button
-        onClick={() => setPropertyColCollapsed(!propertyColCollapsed)}
-        className="absolute top-2 z-30 bg-card border rounded-full p-1 shadow-sm hover:bg-accent transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-        style={{ left: propColWidth - 14 }}
-      >
-        {propertyColCollapsed 
-          ? <ChevronRight className="w-3 h-3" /> 
-          : <ChevronLeft className="w-3 h-3" />
-        }
-      </button>
-
-      <div style={{ minWidth: propColWidth + days.length * dayCellWidth }}>
-        <CalendarGridHeader 
-          days={days} 
+    <div className="flex flex-col h-full overflow-hidden rounded-xl border border-border/30 bg-card">
+      {/* Sticky header */}
+      <div className="flex-shrink-0 sticky top-0 z-[5]" style={{ borderBottom: '1px solid #EEEEEE', background: '#FFFFFF' }}>
+        <CalendarGridHeader
+          days={days}
           dailyPrices={pricesMap}
           onDayClick={onDayClick}
           propColWidth={propColWidth}
-          dayCellWidth={dayCellWidth}
+          dayCellWidth={DAY_W}
+          collapsed={collapsed}
+          onToggleCollapse={() => setCollapsed(!collapsed)}
         />
-        
-        <div className="divide-y divide-border/35">
+      </div>
+
+      {/* Scrollable body */}
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-auto select-none"
+        style={{ touchAction: 'pan-x pan-y' }}
+      >
+        <div style={{ minWidth: propColWidth + days.length * DAY_W }}>
           {properties.length === 0 ? (
             <div className="flex items-center justify-center py-20 text-muted-foreground">
               Aucun logement trouvé
@@ -130,8 +134,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 onInsightClick={onInsightClick}
                 isOddRow={index % 2 === 1}
                 propColWidth={propColWidth}
-                propColCollapsed={propertyColCollapsed}
-                dayCellWidth={dayCellWidth}
+                propColCollapsed={collapsed}
+                dayCellWidth={DAY_W}
               />
             ))
           )}

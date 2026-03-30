@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import { format, isSameDay, getMonth } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CalendarGridHeaderProps {
   days: Date[];
@@ -10,14 +10,18 @@ interface CalendarGridHeaderProps {
   onDayClick?: (date: Date) => void;
   propColWidth?: number;
   dayCellWidth?: number;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export const CalendarGridHeader: React.FC<CalendarGridHeaderProps> = ({
   days,
   dailyPrices,
   onDayClick,
-  propColWidth = 220,
-  dayCellWidth = 40,
+  propColWidth = 130,
+  dayCellWidth = 48,
+  collapsed = false,
+  onToggleCollapse,
 }) => {
   const today = new Date();
 
@@ -29,34 +33,37 @@ export const CalendarGridHeader: React.FC<CalendarGridHeaderProps> = ({
     days.forEach((day) => {
       const month = getMonth(day);
       const year = day.getFullYear();
-      
       if (month !== currentMonth || year !== currentYear) {
-        groups.push({
-          month: format(day, 'MMM', { locale: fr }),
-          year,
-          count: 1,
-        });
+        groups.push({ month: format(day, 'MMM', { locale: fr }), year, count: 1 });
         currentMonth = month;
         currentYear = year;
       } else {
         groups[groups.length - 1].count++;
       }
     });
-
     return groups;
   }, [days]);
 
   return (
-    <div className="sticky top-0 z-20 bg-card/95 backdrop-blur-sm border-b border-border/30">
-      {/* Month row */}
-      <div className="flex" style={{ height: 28 }}>
+    <div style={{ minWidth: propColWidth + days.length * dayCellWidth }}>
+      {/* Month row — 20px */}
+      <div className="flex" style={{ height: 20 }}>
         <div style={{ width: propColWidth, minWidth: propColWidth }} className="flex-shrink-0" />
         <div className="flex">
           {monthGroups.map((group, idx) => (
             <div
               key={`${group.month}-${group.year}-${idx}`}
-              className="text-[11px] font-semibold text-muted-foreground uppercase px-2 flex items-center"
-              style={{ width: group.count * dayCellWidth, minWidth: group.count * dayCellWidth }}
+              style={{
+                width: group.count * dayCellWidth,
+                minWidth: group.count * dayCellWidth,
+                fontSize: 11,
+                fontWeight: 600,
+                color: '#9A9AAF',
+                textTransform: 'uppercase',
+                display: 'flex',
+                alignItems: 'center',
+                paddingLeft: 8,
+              }}
             >
               {group.month} {group.year}
             </div>
@@ -64,55 +71,59 @@ export const CalendarGridHeader: React.FC<CalendarGridHeaderProps> = ({
         </div>
       </div>
 
-      {/* Days row */}
-      <div className="flex" style={{ height: 44 }}>
-        <div 
-          style={{ width: propColWidth, minWidth: propColWidth }}
-          className="flex-shrink-0 flex items-center px-3"
+      {/* Days row — 36px */}
+      <div className="flex" style={{ height: 36 }}>
+        {/* Property col header with collapse toggle */}
+        <div
+          style={{ width: propColWidth, minWidth: propColWidth, cursor: 'pointer' }}
+          className="flex-shrink-0 flex items-center justify-end pr-2"
+          onClick={onToggleCollapse}
         >
-          <span className="text-xs font-medium text-muted-foreground truncate">Logements</span>
+          {collapsed ? (
+            <ChevronRight className="w-4 h-4" style={{ color: '#9A9AAF' }} />
+          ) : (
+            <ChevronLeft className="w-4 h-4" style={{ color: '#9A9AAF' }} />
+          )}
         </div>
         <div className="flex">
           {days.map((day, idx) => {
             const isToday = isSameDay(day, today);
-            const isPast = day < today && !isToday;
-            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-            const priceKey = format(day, 'yyyy-MM-dd');
-            const price = dailyPrices?.get(priceKey);
 
             return (
               <div
                 key={idx}
                 onClick={() => onDayClick?.(day)}
-                className={cn(
-                  "flex flex-col items-center justify-center cursor-pointer transition-colors relative",
-                  "border-r border-border/35",
-                  isPast && "opacity-50",
-                  isWeekend && !isToday && "bg-muted/[0.04]",
-                  !isToday && "hover:bg-accent/10"
-                )}
-                style={{ width: dayCellWidth, minWidth: dayCellWidth }}
+                style={{
+                  width: dayCellWidth,
+                  minWidth: dayCellWidth,
+                  maxWidth: dayCellWidth,
+                  flexShrink: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  background: isToday ? 'rgba(255,92,26,0.08)' : undefined,
+                }}
               >
-                {isToday && (
-                  <div className="absolute inset-0 bg-primary/[0.06] pointer-events-none" />
-                )}
-                <span className={cn(
-                  "text-[10px] uppercase font-medium relative z-10",
-                  isToday ? "text-primary font-semibold" : "text-muted-foreground"
-                )}>
-                  {format(day, 'EEE', { locale: fr })}
-                </span>
-                <span className={cn(
-                  "text-sm font-semibold relative z-10",
-                  isToday ? "text-primary" : "text-foreground"
-                )}>
+                <span style={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: isToday ? '#FF5C1A' : '#1A1A2E',
+                  lineHeight: 1,
+                }}>
                   {format(day, 'd')}
                 </span>
-                {price && (
-                  <span className="text-[9px] text-muted-foreground relative z-10">
-                    {price}€
-                  </span>
-                )}
+                <span style={{
+                  fontSize: 10,
+                  color: isToday ? '#FF5C1A' : '#9A9AAF',
+                  lineHeight: 1,
+                  marginTop: 2,
+                  textTransform: 'uppercase',
+                }}>
+                  {format(day, 'EEE', { locale: fr })}
+                </span>
               </div>
             );
           })}

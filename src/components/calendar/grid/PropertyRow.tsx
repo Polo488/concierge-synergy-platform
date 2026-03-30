@@ -1,12 +1,13 @@
 
 import React from 'react';
 import { isSameDay, differenceInDays, startOfDay, addDays } from 'date-fns';
-import { cn } from '@/lib/utils';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
 import { BookingBlock } from './BookingBlock';
 import { BlockedBlock } from './BlockedBlock';
 import { PropertyInsightBadge } from '@/components/insights/PropertyInsightBadge';
 import { PropertyInsight } from '@/types/insights';
+
+const ROW_H = 64;
 
 interface PropertyRowProps {
   property: CalendarProperty;
@@ -43,40 +44,43 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   propertyInsights = [],
   onInsightClick,
   isOddRow = false,
-  propColWidth = 220,
+  propColWidth = 130,
   propColCollapsed = false,
-  dayCellWidth = 40,
+  dayCellWidth = 48,
 }) => {
   const today = startOfDay(new Date());
   const renderedBookingIds = new Set<number>();
   const renderedBlockedIds = new Set<number>();
   const firstVisibleDay = days[0];
   const lastVisibleDay = days[days.length - 1];
-  const rowHeight = dayCellWidth >= 52 ? 64 : 56;
 
   return (
-    <div className={cn(
-      "flex transition-all duration-200",
-      isOddRow ? "bg-muted/[0.02]" : "bg-transparent",
-      "hover:bg-accent/10"
-    )}>
-      {/* Property info - sticky left column */}
-      <div 
-        className="flex-shrink-0 flex items-center gap-2 px-2 bg-card/80 backdrop-blur-sm sticky left-0 z-20 cursor-pointer hover:bg-accent/30 transition-all duration-200 border-r border-border/20"
-        style={{ width: propColWidth, minWidth: propColWidth, height: rowHeight }}
+    <div
+      className="flex"
+      style={{ height: ROW_H, borderBottom: '1px solid #F5F5F5', position: 'relative' }}
+    >
+      {/* Property info - sticky left */}
+      <div
+        className="flex-shrink-0 flex items-center gap-2 bg-white sticky left-0 z-[4] cursor-pointer hover:bg-gray-50 transition-colors"
+        style={{
+          width: propColWidth,
+          minWidth: propColWidth,
+          maxWidth: propColWidth,
+          height: ROW_H,
+          padding: '0 8px',
+          borderRight: '1px solid #EEEEEE',
+        }}
         onClick={() => onPropertyClick?.(property)}
         title={property.name}
       >
-        <div className={cn(
-          "rounded-lg overflow-hidden bg-gradient-to-br from-muted to-muted/50 flex-shrink-0 relative ring-1 ring-border/20",
-          propColCollapsed ? "w-8 h-8" : "w-10 h-10"
-        )}>
+        <div
+          className="flex-shrink-0 rounded-lg overflow-hidden relative"
+          style={{ width: 36, height: 36, background: '#F0F0F0' }}
+        >
           {property.thumbnail ? (
             <img src={property.thumbnail} alt={property.name} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-[10px]">
-              N/A
-            </div>
+            <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-400">N/A</div>
           )}
           {propertyInsights.length > 0 && (
             <div className="absolute -top-1 -right-1" onClick={(e) => { e.stopPropagation(); onInsightClick?.(); }}>
@@ -85,43 +89,45 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
           )}
         </div>
         {!propColCollapsed && (
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-foreground truncate line-clamp-2 leading-tight" title={property.name}>
-              {property.name}
-            </p>
-            <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
-              {property.capacity} pers. • {property.pricePerNight}€
-            </p>
-          </div>
+          <span style={{
+            fontSize: 12,
+            fontWeight: 500,
+            color: '#1A1A2E',
+            maxWidth: 80,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}>
+            {property.name}
+          </span>
         )}
       </div>
 
       {/* Days grid */}
-      <div className="flex relative">
+      <div className="flex relative" style={{ height: ROW_H }}>
         {days.map((day, dayIndex) => {
           const isToday = isSameDay(day, today);
           const isPast = day < today && !isToday;
-          const isWeekend = day.getDay() === 0 || day.getDay() === 6;
           const isSelected = isDaySelected?.(property.id, day) ?? false;
           const bookings = getBookingsForProperty(property.id, day);
           const blocked = getBlockedForProperty(property.id, day);
 
           const bookingBlocks: React.ReactNode[] = [];
-          
+
           for (const booking of bookings) {
             const bookingCheckIn = startOfDay(booking.checkIn);
             const bookingCheckOut = startOfDay(booking.checkOut);
             const dayStart = startOfDay(day);
             const isThisCheckInDay = isSameDay(dayStart, bookingCheckIn);
             const isThisCheckOutDay = isSameDay(dayStart, bookingCheckOut);
-            
+
             if (renderedBookingIds.has(booking.id)) continue;
-            
+
             const isCheckInVisible = bookingCheckIn >= firstVisibleDay;
-            const shouldRender = isThisCheckInDay || 
+            const shouldRender = isThisCheckInDay ||
               (!isCheckInVisible && dayIndex === 0 && isSameDay(day, firstVisibleDay));
             const isCheckoutOnlyDay = isThisCheckOutDay && !isThisCheckInDay;
-            
+
             if (shouldRender || (isCheckoutOnlyDay && !renderedBookingIds.has(booking.id))) {
               renderedBookingIds.add(booking.id);
               const visibleStart = bookingCheckIn < firstVisibleDay ? firstVisibleDay : bookingCheckIn;
@@ -131,7 +137,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               const isEndTruncated = bookingCheckOut > addDays(lastVisibleDay, 1);
               const isCheckInDay = isSameDay(visibleStart, bookingCheckIn);
               const isCheckOutDay = isSameDay(visibleEnd, bookingCheckOut);
-              
+
               bookingBlocks.push(
                 <BookingBlock
                   key={booking.id}
@@ -154,9 +160,9 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
             const blockedStart = startOfDay(blocked.startDate);
             const blockedEnd = startOfDay(blocked.endDate);
             const isStartVisible = blockedStart >= firstVisibleDay;
-            const shouldRender = isSameDay(day, blockedStart) || 
+            const shouldRender = isSameDay(day, blockedStart) ||
               (!isStartVisible && dayIndex === 0 && isSameDay(day, firstVisibleDay));
-            
+
             if (shouldRender) {
               renderedBlockedIds.add(blocked.id);
               const visibleStart = blockedStart < firstVisibleDay ? firstVisibleDay : blockedStart;
@@ -166,7 +172,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               const isEndTruncated = blockedEnd > lastVisibleDay;
               const isStartDay = isSameDay(visibleStart, blockedStart);
               const isEndDay = isSameDay(addDays(visibleEnd, -1), blockedEnd);
-              
+
               blockedBlock = (
                 <BlockedBlock
                   key={`blocked-${blocked.id}`}
@@ -189,20 +195,33 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
           return (
             <div
               key={dayIndex}
-              className={cn(
-                "relative transition-all duration-150",
-                "border-r border-border/35",
-                isPast && !isToday && "bg-muted/[0.03]",
-                isWeekend && !isToday && !isPast && "bg-muted/[0.02]",
-                isEmpty && "cursor-pointer hover:bg-accent/10",
-                isSelected && "ring-2 ring-inset ring-primary/30 bg-primary/[0.08] rounded-sm"
-              )}
-              style={{ width: dayCellWidth, minWidth: dayCellWidth, height: rowHeight }}
+              style={{
+                width: dayCellWidth,
+                minWidth: dayCellWidth,
+                maxWidth: dayCellWidth,
+                flexShrink: 0,
+                height: ROW_H,
+                borderRight: '1px solid #F8F8F8',
+                position: 'relative',
+                background: isToday ? 'rgba(255,92,26,0.04)' : (isSelected ? 'rgba(59,130,246,0.08)' : undefined),
+                cursor: isEmpty ? 'pointer' : undefined,
+              }}
               onMouseDown={(e) => isEmpty && onDayMouseDown?.(property.id, day, e)}
               onMouseEnter={() => onDayMouseEnter?.(property.id, day)}
               onClick={(e) => { if (isEmpty && !e.defaultPrevented) onCellClick(day, property.id); }}
             >
-              {isToday && <div className="absolute inset-0 bg-primary/[0.04] pointer-events-none z-0" />}
+              {/* Today vertical line */}
+              {isToday && (
+                <div style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: 2,
+                  background: '#FF5C1A',
+                  zIndex: 3,
+                }} />
+              )}
               {bookingBlocks}
               {blockedBlock}
             </div>
