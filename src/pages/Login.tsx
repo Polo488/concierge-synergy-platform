@@ -11,13 +11,11 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, loading } = useAuth();
-  const [showPulse, setShowPulse] = useState(true);
   const [showLabel, setShowLabel] = useState(false);
 
   useEffect(() => {
     const labelTimer = setTimeout(() => setShowLabel(true), 300);
-    const pulseTimer = setTimeout(() => setShowPulse(false), 6000);
-    return () => { clearTimeout(labelTimer); clearTimeout(pulseTimer); };
+    return () => clearTimeout(labelTimer);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,8 +73,17 @@ const Login = () => {
             </div>
             <div className="grid grid-cols-2 gap-2 w-full">
               <div className="flex flex-col items-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => handleDemoLogin('admin@example.com')}
+                >
+                  Admin
+                </Button>
                 <span
-                  className="text-[11px] font-medium mb-1 block transition-opacity duration-400"
+                  className="text-[11px] font-medium mt-1 block transition-opacity duration-400"
                   style={{
                     color: '#6B7AE8',
                     opacity: showLabel ? 1 : 0,
@@ -84,40 +91,6 @@ const Login = () => {
                 >
                   👆 Commence ici
                 </span>
-                <div className="relative w-full">
-                  {showPulse && (
-                    <>
-                      <span
-                        className="absolute rounded-md pointer-events-none"
-                        style={{
-                          inset: '-6px',
-                          border: '2px solid #6B7AE8',
-                          borderRadius: 'inherit',
-                          animation: 'noe-ping 2s ease-out infinite',
-                        }}
-                      />
-                      <span
-                        className="absolute rounded-md pointer-events-none"
-                        style={{
-                          inset: '-3px',
-                          border: '2px solid #6B7AE8',
-                          borderRadius: 'inherit',
-                          animation: 'noe-ping 2s ease-out infinite',
-                          animationDelay: '0.4s',
-                        }}
-                      />
-                    </>
-                  )}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="w-full relative z-[1]"
-                    onClick={() => handleDemoLogin('admin@example.com')}
-                  >
-                    Admin
-                  </Button>
-                </div>
               </div>
               <Button
                 type="button"
