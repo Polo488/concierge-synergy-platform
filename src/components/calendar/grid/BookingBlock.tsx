@@ -11,6 +11,7 @@ interface BookingBlockProps {
   isEndTruncated: boolean;
   isPast: boolean;
   onClick: () => void;
+  cellWidth?: number;
 }
 
 // Channel colors - Soft, desaturated with transparency for calm aesthetic
@@ -115,6 +116,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   isEndTruncated,
   isPast,
   onClick,
+  cellWidth: cellWidthProp,
 }) => {
   // Color selection
   const colors = isPast 
@@ -122,7 +124,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
     : (CHANNEL_COLORS[booking.channel] || DEFAULT_COLORS);
   
   // Cell dimensions
-  const cellWidth = 40;
+  const cellWidth = cellWidthProp || 40;
   const halfCell = cellWidth / 2;
   
   // Pure rectangle positioning

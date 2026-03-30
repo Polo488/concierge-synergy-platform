@@ -12,6 +12,7 @@ interface BlockedBlockProps {
   isEndTruncated: boolean;
   onClick?: () => void;
   onCleaningIndicatorClick?: () => void;
+  cellWidth?: number;
 }
 
 // Calm, tinted color palette for blocked periods
@@ -30,8 +31,9 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
   isEndTruncated,
   onClick,
   onCleaningIndicatorClick,
+  cellWidth: cellWidthProp,
 }) => {
-  const cellWidth = 40;
+  const cellWidth = cellWidthProp || 40;
   const halfCell = cellWidth / 2;
   
   // Pure rectangle positioning (same logic as BookingBlock)
