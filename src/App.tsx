@@ -41,7 +41,7 @@ import WelcomeGuidePublic from "./pages/WelcomeGuidePublic";
 import Transitory from "./pages/Transitory";
 import IdeaBox from "./pages/IdeaBox";
 import CheckApartment from "./pages/CheckApartment";
-import BetaOnboarding from "./pages/BetaOnboarding";
+import NotFound from "./pages/NotFound";
 import NotFound from "./pages/NotFound";
 import { FeedbackWidget } from "./components/feedback/FeedbackWidget";
 
