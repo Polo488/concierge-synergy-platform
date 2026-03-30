@@ -23,8 +23,7 @@ const CHANNEL_SOLID_COLORS: Record<string, string> = {
   other: '#6366F1',
 };
 
-const PAST_BG = '#9CA3AF';
-const BLOCKED_BG = '#9CA3AF';
+const BLOCKED_BG = '#6B7280';
 
 // Channel initial in a semi-transparent white circle
 const ChannelBadge: React.FC<{ channel: string }> = ({ channel }) => {
@@ -63,9 +62,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   onClick,
   cellWidth: cellWidthProp,
 }) => {
-  const bgColor = isPast
-    ? PAST_BG
-    : (CHANNEL_SOLID_COLORS[booking.channel] || CHANNEL_SOLID_COLORS.other);
+  const bgColor = CHANNEL_SOLID_COLORS[booking.channel] || CHANNEL_SOLID_COLORS.other;
 
   const cellWidth = cellWidthProp || 40;
   const halfCell = cellWidth / 2;
