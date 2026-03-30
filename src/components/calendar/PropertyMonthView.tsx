@@ -453,7 +453,7 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
           <span>Direct</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-muted border" />
+          <div className="w-3 h-3 rounded" style={{ backgroundColor: '#9CA3AF', borderRadius: 2 }} />
           <span>Bloqué</span>
         </div>
         <div className="flex items-center gap-1 ml-4">
