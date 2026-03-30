@@ -62,9 +62,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   onClick,
   cellWidth: cellWidthProp,
 }) => {
-  const bgColor = isPast
-    ? PAST_BG
-    : (CHANNEL_SOLID_COLORS[booking.channel] || CHANNEL_SOLID_COLORS.other);
+  const bgColor = CHANNEL_SOLID_COLORS[booking.channel] || CHANNEL_SOLID_COLORS.other;
 
   const cellWidth = cellWidthProp || 40;
   const halfCell = cellWidth / 2;
