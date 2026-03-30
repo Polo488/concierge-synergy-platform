@@ -171,7 +171,7 @@ const Login = () => {
 
               {/* Mobile annotation between button and demo accounts */}
               <div className="md:hidden w-full">
-                <HandwrittenAnnotation />
+                <MobileAnnotation />
               </div>
 
               <div className="text-sm text-center text-muted-foreground mt-4">
