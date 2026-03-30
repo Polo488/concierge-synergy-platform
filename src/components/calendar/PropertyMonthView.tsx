@@ -19,7 +19,7 @@ import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, X, Euro } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ChannelIcon } from './grid/ChannelIcon';
+
 import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
 
 interface PropertyMonthViewProps {
@@ -37,11 +37,11 @@ interface PropertyMonthViewProps {
 }
 
 const CHANNEL_COLORS_MAP: Record<string, string> = {
-  airbnb: '#FF5A5F',
+  airbnb: '#FF385C',
   booking: '#003580',
   vrbo: '#3D67B1',
-  direct: '#10B981',
-  other: '#6B7280',
+  direct: '#16A34A',
+  other: '#6366F1',
 };
 
 const PAST_COLOR = '#9CA3AF';
@@ -381,7 +381,7 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
                 {booking && (
                   <div 
                     className={cn(
-                      "absolute inset-x-0 top-7 bottom-6 flex flex-col items-start justify-center px-2 cursor-pointer transition-transform hover:scale-[1.02]",
+                      "absolute inset-x-0 top-7 bottom-6 flex items-center cursor-pointer transition-transform hover:scale-[1.02] overflow-hidden",
                       isCheckIn && "ml-1",
                       isCheckOut && "mr-1"
                     )}
@@ -394,26 +394,32 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
                       onBookingClick(booking);
                     }}
                   >
-                    <div className="flex items-center gap-1 text-white">
-                      <ChannelIcon channel={booking.channel} className="w-3 h-3" />
-                      <span className="text-xs font-medium truncate max-w-[60px]">
+                    <div className="flex items-center gap-1 w-full h-full overflow-hidden" style={{ padding: '0 8px' }}>
+                      <span 
+                        className="truncate flex-1 min-w-0"
+                        style={{
+                          color: '#FFFFFF',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          lineHeight: 1,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
                         {booking.guestName.split(' ')[0]}
                       </span>
                     </div>
-                    {booking.guestsCount && (
-                      <span className="text-[10px] text-white/80">
-                        {booking.guestsCount} pers.
-                      </span>
-                    )}
                   </div>
                 )}
 
                 {/* Blocked overlay */}
                 {blocked && !booking && (
                   <div 
-                    className="absolute inset-x-1 top-7 bottom-6 flex items-center justify-center bg-muted rounded"
+                    className="absolute inset-x-1 top-7 bottom-6 flex items-center justify-center rounded overflow-hidden"
+                    style={{ backgroundColor: '#9CA3AF' }}
                   >
-                    <span className="text-xs text-muted-foreground">Bloqué</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: '#FFFFFF' }}>Bloqué</span>
                   </div>
                 )}
 
@@ -447,7 +453,7 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
           <span>Direct</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-muted border" />
+          <div className="w-3 h-3 rounded" style={{ backgroundColor: '#9CA3AF', borderRadius: 2 }} />
           <span>Bloqué</span>
         </div>
         <div className="flex items-center gap-1 ml-4">

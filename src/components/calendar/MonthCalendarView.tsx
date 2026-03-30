@@ -63,6 +63,11 @@ export const MonthCalendarView = ({
                   const property = properties.find(p => p.id === booking.propertyId);
                   const isCheckIn = isSameDay(day, booking.checkIn);
                   const isCheckOut = isSameDay(day, booking.checkOut);
+                  const channelColors: Record<string, string> = {
+                    airbnb: '#FF385C', booking: '#003580', vrbo: '#3D67B1',
+                    direct: '#16A34A', other: '#6366F1',
+                  };
+                  const bgColor = channelColors[booking.channel] || booking.color || '#6366F1';
                   
                   return (
                     <div 
@@ -71,11 +76,14 @@ export const MonthCalendarView = ({
                         e.stopPropagation();
                         showBookingDetails(booking);
                       }}
-                      className="text-xs p-1 rounded cursor-pointer truncate text-white"
+                      className="text-xs p-1 rounded-md cursor-pointer truncate overflow-hidden"
                       style={{ 
-                        backgroundColor: booking.color,
-                        borderLeft: isCheckIn ? '3px solid black' : undefined,
-                        borderRight: isCheckOut ? '3px solid black' : undefined
+                        backgroundColor: bgColor,
+                        color: '#FFFFFF',
+                        fontWeight: 600,
+                        fontSize: 11,
+                        borderLeft: isCheckIn ? '3px solid rgba(0,0,0,0.3)' : undefined,
+                        borderRight: isCheckOut ? '3px solid rgba(0,0,0,0.3)' : undefined
                       }}
                     >
                       {property?.name} - {booking.guestName}

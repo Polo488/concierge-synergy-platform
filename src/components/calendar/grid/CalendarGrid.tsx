@@ -2,6 +2,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { CalendarGridHeader } from './CalendarGridHeader';
 import { PropertyRow } from './PropertyRow';
+import { CalendarLegend } from './CalendarLegend';
 import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -136,6 +137,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
           )}
         </div>
       </div>
+
+      {/* Legend */}
+      <CalendarLegend />
     </div>
   );
 };
