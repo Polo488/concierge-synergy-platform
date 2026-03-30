@@ -256,9 +256,21 @@ const CalendarPage = () => {
         </div>
       </div>
 
-      {activeTab === 'planning' ? (
+      {selectedPropertyForMonth ? (
+        <PropertyMonthView
+          property={selectedPropertyForMonth}
+          bookings={bookings}
+          blockedPeriods={blockedPeriods}
+          currentMonth={monthViewDate}
+          onMonthChange={setMonthViewDate}
+          onClose={handleCloseMonthView}
+          onBookingClick={handleBookingClick}
+          onCellClick={handleCellClick}
+          getDailyPrice={getDailyPrice}
+          onPriceEditRequest={handleMonthViewPriceEdit}
+        />
+      ) : activeTab === 'planning' ? (
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Toolbar */}
           <div className="flex-shrink-0 px-4 md:px-6 pb-3" data-tutorial="calendar-toolbar">
             <CalendarToolbar
               currentDate={currentDate}
@@ -274,26 +286,6 @@ const CalendarPage = () => {
               onLayersChange={setLayers}
             />
           </div>
-
-          {/* Property Month View */}
-          {selectedPropertyForMonth && (
-            <div className="flex-shrink-0 px-4 md:px-6 pb-3">
-              <PropertyMonthView
-                property={selectedPropertyForMonth}
-                bookings={bookings}
-                blockedPeriods={blockedPeriods}
-                currentMonth={monthViewDate}
-                onMonthChange={setMonthViewDate}
-                onClose={handleCloseMonthView}
-                onBookingClick={handleBookingClick}
-                onCellClick={handleCellClick}
-                getDailyPrice={getDailyPrice}
-                onPriceEditRequest={handleMonthViewPriceEdit}
-              />
-            </div>
-          )}
-
-          {/* Calendar Grid - fills remaining space */}
           <div className="flex-1 overflow-hidden px-2 md:px-6 pb-2" data-tutorial="calendar-grid">
             <CalendarGrid
               properties={filteredProperties}
