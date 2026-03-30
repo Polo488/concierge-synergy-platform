@@ -1,13 +1,9 @@
 // DEVELOPER NOTE: Form responses are stored in two places:
 // 1. localStorage key "noe_beta_profile" (always, client-side)
 // 2. Supabase table "beta_profiles" if Supabase is configured
-//    → Check your Supabase dashboard > Table Editor > beta_profiles
-//    → If the table doesn't exist yet, create it with columns:
-//       id (uuid), prenom (text), email (text), logements (text),
-//       type_gestion (text), defis (text[]), channel_manager (text),
-//       source (text), created_at (timestamptz)
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wrench, Zap, Gift, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -110,7 +106,7 @@ export default function BetaCaptureModal() {
 
   if (!visible) return null;
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {visible && (
         <motion.div
@@ -118,7 +114,8 @@ export default function BetaCaptureModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          style={{ zIndex: 99999, pointerEvents: 'auto' }}
           onKeyDown={e => e.key === 'Escape' && e.preventDefault()}
         >
           <motion.div
@@ -158,153 +155,135 @@ export default function BetaCaptureModal() {
                     🔒 Bêta privée · 47 conciergeries actives
                   </div>
                   <h2 className="mt-4 text-xl md:text-2xl font-bold text-foreground leading-tight">
-                    Avant d'entrer, dis-nous qui tu es 👋
+                    Rejoins la bêta de Noé
                   </h2>
-                  <p className="mx-auto mt-2 text-sm text-muted-foreground max-w-[400px] leading-relaxed">
-                    Tes réponses façonnent directement les prochaines fonctionnalités de Noé.
+                  <p className="text-sm text-muted-foreground mt-1.5">
+                    Tu es à 30 secondes de tester l'outil. Dis-nous en un peu plus.
                   </p>
                 </div>
 
-                <div className="border-t my-6" />
-
-                {/* Form */}
-                <div className="flex flex-col gap-5">
-                  {/* Field 1 — Prénom */}
-                  <div className="space-y-1.5">
-                    <Label>Ton prénom</Label>
+                <div className="mt-6 space-y-5">
+                  {/* Prénom */}
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                    <Label htmlFor="prenom" className="text-sm font-medium">Prénom *</Label>
                     <Input
+                      id="prenom"
                       value={prenom}
                       onChange={e => setPrenom(e.target.value)}
+                      placeholder="Ton prénom"
                       className={errors.prenom ? 'border-destructive' : ''}
                     />
-                    {errors.prenom && <p className="text-xs text-destructive">{errors.prenom}</p>}
-                  </div>
+                    {errors.prenom && <p className="text-xs text-destructive mt-1">{errors.prenom}</p>}
+                  </motion.div>
 
-                  {/* Field 2 — Email */}
-                  <div className="space-y-1.5">
-                    <Label>Email</Label>
+                  {/* Email */}
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                    <Label htmlFor="email" className="text-sm font-medium">Email *</Label>
                     <Input
+                      id="email"
                       type="email"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       placeholder="ton@email.com"
                       className={errors.email ? 'border-destructive' : ''}
                     />
-                    {errors.email ? (
-                      <p className="text-xs text-destructive">{errors.email}</p>
-                    ) : (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        (On ne t'enverra pas d'emails — tu seras juste prévenu au lancement)
-                      </p>
-                    )}
-                  </div>
+                    <p className="text-xs text-muted-foreground mt-1">(On ne t'enverra pas d'emails — tu seras juste prévenu au lancement)</p>
+                    {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
+                  </motion.div>
 
-                  {/* Field 3 — Logements */}
-                  <div className="space-y-1.5">
-                    <Label>Combien de logements tu gères ?</Label>
-                    <p className="text-xs text-muted-foreground">En direct ou pour des propriétaires</p>
-                    <div className="grid grid-cols-4 gap-2">
+                  {/* Logements */}
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                    <Label className="text-sm font-medium">Nombre de logements gérés *</Label>
+                    <div className="grid grid-cols-4 gap-2 mt-2">
                       {segmentedOptions.logements.map(opt => (
-                        <Button
+                        <button
                           key={opt}
                           type="button"
-                          variant={logements === opt ? 'default' : 'outline'}
-                          size="sm"
                           onClick={() => setLogements(opt)}
-                          className={`${errors.logements && logements !== opt ? 'border-destructive' : ''}`}
+                          className={`px-3 py-2 rounded-md text-sm font-medium border transition-all ${
+                            logements === opt
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-muted/50 text-foreground border-border hover:bg-muted'
+                          }`}
                         >
                           {opt}
-                        </Button>
+                        </button>
                       ))}
                     </div>
-                    {errors.logements && <p className="text-xs text-destructive">{errors.logements}</p>}
-                  </div>
+                    {errors.logements && <p className="text-xs text-destructive mt-1">{errors.logements}</p>}
+                  </motion.div>
 
-                  {/* Field 4 — Défis */}
-                  <div className="space-y-1.5">
-                    <Label>Ton plus grand défi aujourd'hui ?</Label>
-                    <p className="text-xs text-primary font-medium">
-                      ✦ Tes choix priorisent directement notre roadmap
-                    </p>
-                    <div className="flex flex-wrap gap-2">
+                  {/* Défis */}
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+                    <Label className="text-sm font-medium">Tes plus gros défis au quotidien (max 2)</Label>
+                    <div className="flex flex-wrap gap-2 mt-2">
                       {segmentedOptions.defis.map(d => (
                         <button
                           key={d}
                           type="button"
                           onClick={() => handleDefiToggle(d)}
-                          className={`text-xs px-3 py-1.5 rounded-full border transition-all duration-150 ${
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                             defis.includes(d)
-                              ? 'bg-yellow-400 border-yellow-400 text-foreground font-semibold'
-                              : 'bg-muted border-border text-foreground hover:bg-muted/80'
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-muted/50 text-foreground border-border hover:bg-muted'
                           }`}
                         >
                           {d}
                         </button>
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
 
-                  {/* Field 5 — Channel Manager */}
-                  <div className="space-y-1.5">
-                    <Label>Tu utilises déjà un Channel Manager ?</Label>
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className="text-xs text-muted-foreground">Non</span>
+                  {/* Channel Manager */}
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium">Tu utilises un Channel Manager ?</Label>
                       <Switch checked={hasChannelManager} onCheckedChange={setHasChannelManager} />
-                      <span className="text-xs text-muted-foreground">Oui</span>
                     </div>
-                    <motion.div
-                      initial={false}
-                      animate={{ height: hasChannelManager ? 'auto' : 0, opacity: hasChannelManager ? 1 : 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="mt-2">
-                        <Input
-                          value={channelManager}
-                          onChange={e => setChannelManager(e.target.value)}
-                          placeholder="Lequel ? (Smily, Lodgify, Beds24...)"
-                        />
-                      </div>
-                    </motion.div>
-                  </div>
+                    <AnimatePresence>
+                      {hasChannelManager && (
+                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                          <Input
+                            value={channelManager}
+                            onChange={e => setChannelManager(e.target.value)}
+                            placeholder="ex: Beds24, Smily, Lodgify..."
+                            className="mt-2"
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
 
                   {/* Co-creator strip */}
-                  <div className="flex flex-col gap-2 rounded-lg bg-primary/5 border border-primary/15 p-3">
-                    {[
-                      { Icon: Wrench, text: 'Tes retours remontent dans notre backlog chaque semaine' },
-                      { Icon: Zap, text: 'Tu accèdes aux features en avant-première' },
-                      { Icon: Gift, text: 'Les 20 premiers bêta-testeurs actifs → 3 mois offerts au lancement' },
-                    ].map(({ Icon, text }) => (
-                      <div key={text} className="flex items-start gap-2">
-                        <Icon className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
-                        <span className="text-xs text-muted-foreground">{text}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+                    className="flex items-center justify-center gap-4 py-3 px-4 rounded-md bg-muted/30 border"
+                  >
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Wrench className="w-3.5 h-3.5" /> Co-création
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Zap className="w-3.5 h-3.5" /> Accès prioritaire
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Gift className="w-3.5 h-3.5" /> Offre fondateur
+                    </div>
+                  </motion.div>
 
                   {/* Submit */}
                   <motion.div
-                    animate={shake ? { x: [0, -8, 8, -6, 6, -3, 3, 0] } : {}}
-                    transition={{ duration: 0.4 }}
+                    animate={shake ? { x: [-8, 8, -6, 6, -3, 3, 0] } : {}}
+                    transition={{ duration: 0.5 }}
                   >
                     <Button
-                      type="button"
                       onClick={handleSubmit}
                       disabled={submitting}
-                      className="w-full h-12 text-base font-bold"
+                      className="w-full h-11 text-sm font-semibold"
                     >
-                      {submitting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                          Enregistrement...
-                        </>
-                      ) : (
-                        'Accéder à la bêta →'
-                      )}
+                      {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                      Accéder à la bêta →
                     </Button>
                   </motion.div>
 
-                  {/* Dev-only storage info */}
                   {isDev && (
                     <div className="border-t pt-3 mt-2 text-center">
                       <p className="text-[11px] text-muted-foreground">
@@ -318,6 +297,7 @@ export default function BetaCaptureModal() {
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

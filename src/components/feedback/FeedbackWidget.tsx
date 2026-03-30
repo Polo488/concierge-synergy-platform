@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, FileText, Calendar, Star } from 'lucide-react';
 
@@ -10,7 +11,7 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
     <div className="flex gap-1">
       {[1, 2, 3, 4, 5].map(i => (
         <button key={i} onClick={() => onChange(i)} className="transition-transform hover:scale-110">
-          <Star size={28} className={i <= value ? 'fill-[#F5C842] text-[#F5C842]' : 'text-[#EEEEEE]'} />
+          <Star size={28} className={i <= value ? 'fill-primary text-primary' : 'text-muted-foreground/30'} />
         </button>
       ))}
     </div>
@@ -25,12 +26,26 @@ export function FeedbackWidget() {
   const [missing, setMissing] = useState('');
   const [priority, setPriority] = useState('');
   const [visible, setVisible] = useState(false);
+  const [betaModalOpen, setBetaModalOpen] = useState(false);
 
   useEffect(() => {
-    setVisible(localStorage.getItem('noe_onboarding_done') === 'true');
+    setVisible(localStorage.getItem('noe_beta_done') === 'true');
   }, []);
 
-  if (!visible) return null;
+  // Watch for beta modal presence (it sets body overflow hidden)
+  useEffect(() => {
+    const check = () => {
+      const done = localStorage.getItem('noe_beta_done') === 'true';
+      setVisible(done);
+      // Beta modal is open if done is not true and we're past 3.5s
+      setBetaModalOpen(!done);
+    };
+    check();
+    const interval = setInterval(check, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!visible || betaModalOpen) return null;
 
   const prenom = (() => {
     try { return JSON.parse(localStorage.getItem('noe_beta_profile') || '{}').prenom || ''; } catch { return ''; }
@@ -43,63 +58,76 @@ export function FeedbackWidget() {
     setTimeout(() => { setOpen(false); setView('menu'); setRating(0); setLikes(''); setMissing(''); setPriority(''); }, 2000);
   };
 
-  const inputClass = "w-full px-4 py-3 rounded-[10px] bg-[#F7F7F9] border border-[#EEEEEE] text-[#1A1A2E] placeholder:text-[#7A7A8C] outline-none focus:border-[#FF5C1A] focus:shadow-[0_0_0_3px_rgba(255,92,26,0.12)] transition-all text-sm";
-
   return (
     <>
       {/* Floating button */}
-      <motion.button onClick={() => { setOpen(true); setView('menu'); }}
-        className="fixed bottom-6 right-6 z-[90] h-11 px-5 rounded-full bg-[#FF5C1A] text-white flex items-center gap-2 shadow-lg hover:scale-105 transition-transform"
-        animate={{ scale: [1, 1.04, 1], opacity: [1, 0.85, 1] }}
-        transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-        whileHover={{ scale: 1.05 }}
-        style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <motion.button
+        onClick={() => { setOpen(true); setView('menu'); }}
+        className="fixed bottom-6 right-6 z-[1000] h-11 px-5 rounded-full bg-primary text-primary-foreground flex items-center gap-2 shadow-lg hover:scale-[1.04] transition-all duration-200"
+        animate={{
+          boxShadow: [
+            '0 4px 16px rgba(255,92,26,0.30)',
+            '0 4px 28px rgba(255,92,26,0.55)',
+            '0 4px 16px rgba(255,92,26,0.30)',
+          ],
+        }}
+        transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut', repeatDelay: 3.8 }}
+        whileHover={{ scale: 1.04 }}
+      >
         <MessageCircle size={18} />
         <span className="text-sm font-semibold">Donner mon avis</span>
       </motion.button>
 
       {/* Modal */}
       <AnimatePresence>
-        {open && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-            style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setOpen(false)}>
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-[480px] rounded-[20px] p-8 relative bg-white border border-[#EEEEEE]"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
-              onClick={e => e.stopPropagation()}>
-              <button onClick={() => setOpen(false)} className="absolute top-4 right-4 text-[#7A7A8C] hover:text-[#1A1A2E] transition-colors">
+        {open && createPortal(
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 flex items-center justify-center p-4"
+            style={{ zIndex: 99998, background: 'rgba(0,0,0,0.5)' }}
+            onClick={() => setOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-[480px] rounded-lg p-8 relative bg-background border shadow-lg"
+              onClick={e => e.stopPropagation()}
+            >
+              <button onClick={() => setOpen(false)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors">
                 <X size={20} />
               </button>
 
               <AnimatePresence mode="wait">
                 {view === 'menu' && (
                   <motion.div key="menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <h2 className="font-['Syne'] text-[22px] text-[#1A1A2E] font-bold">Ton avis compte vraiment.</h2>
-                    <p className="text-[#7A7A8C] text-sm mb-6">Choisis comment tu veux nous faire un retour :</p>
+                    <h2 className="text-xl font-bold text-foreground">Ton avis compte vraiment.</h2>
+                    <p className="text-muted-foreground text-sm mb-6">Choisis comment tu veux nous faire un retour :</p>
                     <div className="space-y-3">
-                      <button onClick={() => setView('form')} className="w-full p-4 rounded-[14px] bg-[#F7F7F9] border border-[#EEEEEE] text-left flex items-start gap-3 hover:border-[#FF5C1A] hover:bg-[rgba(255,92,26,0.04)] transition-all">
-                        <FileText size={20} className="text-[#FF5C1A] mt-0.5 flex-shrink-0" />
+                      <button onClick={() => setView('form')} className="w-full p-4 rounded-lg bg-muted/50 border text-left flex items-start gap-3 hover:border-primary hover:bg-primary/5 transition-all">
+                        <FileText size={20} className="text-primary mt-0.5 flex-shrink-0" />
                         <div>
-                          <p className="font-['Syne'] text-[#1A1A2E] font-semibold text-[16px]">📝 Laisser un retour écrit</p>
-                          <p className="text-[#7A7A8C] text-[13px]">2 min • Le plus utile pour nous</p>
+                          <p className="text-foreground font-semibold">📝 Laisser un retour écrit</p>
+                          <p className="text-muted-foreground text-xs">2 min • Le plus utile pour nous</p>
                         </div>
                       </button>
                       <a href={CALENDLY_LINK} target="_blank" rel="noopener" onClick={() => setOpen(false)}
-                        className="w-full p-4 rounded-[14px] bg-[#F7F7F9] border border-[#EEEEEE] text-left flex items-start gap-3 hover:border-[#FF5C1A] hover:bg-[rgba(255,92,26,0.04)] transition-all block">
-                        <Calendar size={20} className="text-[#F5C842] mt-0.5 flex-shrink-0" />
+                        className="w-full p-4 rounded-lg bg-muted/50 border text-left flex items-start gap-3 hover:border-primary hover:bg-primary/5 transition-all block">
+                        <Calendar size={20} className="text-yellow-500 mt-0.5 flex-shrink-0" />
                         <div>
-                          <p className="font-['Syne'] text-[#1A1A2E] font-semibold text-[16px]">📅 Booker un appel de 20 min</p>
-                          <p className="text-[#7A7A8C] text-[13px]">Pour un retour en profondeur — on adore ces calls</p>
+                          <p className="text-foreground font-semibold">📅 Booker un appel de 20 min</p>
+                          <p className="text-muted-foreground text-xs">Pour un retour en profondeur — on adore ces calls</p>
                         </div>
                       </a>
                       <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Candidature Conseil Bêta Noé')}&body=${encodeURIComponent('Bonjour,\n\nJe souhaite rejoindre le conseil bêta de Noé.\nJe gère [X] logements et voici pourquoi je serais un bon candidat :\n\n')}`}
                         onClick={() => setOpen(false)}
-                        className="w-full p-4 rounded-[14px] bg-[#F7F7F9] border border-[#EEEEEE] text-left flex items-start gap-3 hover:border-[#FF5C1A] hover:bg-[rgba(255,92,26,0.04)] transition-all block">
-                        <Star size={20} className="text-[#FF5C1A] mt-0.5 flex-shrink-0" />
+                        className="w-full p-4 rounded-lg bg-muted/50 border text-left flex items-start gap-3 hover:border-primary hover:bg-primary/5 transition-all block">
+                        <Star size={20} className="text-primary mt-0.5 flex-shrink-0" />
                         <div>
-                          <p className="font-['Syne'] text-[#1A1A2E] font-semibold text-[16px]">⭐ Rejoindre le Conseil Bêta</p>
-                          <p className="text-[#7A7A8C] text-[13px]">5 places • Accès roadmap en direct + influence directe sur le produit</p>
+                          <p className="text-foreground font-semibold">⭐ Rejoindre le Conseil Bêta</p>
+                          <p className="text-muted-foreground text-xs">5 places • Accès roadmap en direct + influence directe sur le produit</p>
                         </div>
                       </a>
                     </div>
@@ -108,29 +136,32 @@ export function FeedbackWidget() {
 
                 {view === 'form' && (
                   <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <h2 className="font-['Syne'] text-[20px] text-[#1A1A2E] font-bold mb-4">📝 Ton retour</h2>
+                    <h2 className="text-lg font-bold text-foreground mb-4">📝 Ton retour</h2>
                     <div className="space-y-4">
                       <div>
-                        <label className="text-[#7A7A8C] text-sm block mb-2">Ton impression globale</label>
+                        <label className="text-muted-foreground text-sm block mb-2">Ton impression globale</label>
                         <StarRating value={rating} onChange={setRating} />
                       </div>
                       <div>
-                        <label className="text-[#7A7A8C] text-sm block mb-1.5">Ce que j'aime</label>
+                        <label className="text-muted-foreground text-sm block mb-1.5">Ce que j'aime</label>
                         <textarea value={likes} onChange={e => setLikes(e.target.value)} rows={2}
-                          className={inputClass} placeholder="Ce qui me plaît vraiment dans Noé..." />
+                          className="w-full px-4 py-3 rounded-md bg-muted/50 border text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm resize-none"
+                          placeholder="Ce qui me plaît vraiment dans Noé..." />
                       </div>
                       <div>
-                        <label className="text-[#7A7A8C] text-sm block mb-1.5">Ce qui manque</label>
+                        <label className="text-muted-foreground text-sm block mb-1.5">Ce qui manque</label>
                         <textarea value={missing} onChange={e => setMissing(e.target.value)} rows={2}
-                          className={inputClass} placeholder="J'aimerais pouvoir..." />
+                          className="w-full px-4 py-3 rounded-md bg-muted/50 border text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm resize-none"
+                          placeholder="J'aimerais pouvoir..." />
                       </div>
                       <div>
-                        <label className="text-[#7A7A8C] text-sm block mb-1.5">Ma fonctionnalité prioritaire</label>
+                        <label className="text-muted-foreground text-sm block mb-1.5">Ma fonctionnalité prioritaire</label>
                         <input value={priority} onChange={e => setPriority(e.target.value)}
-                          className={inputClass} placeholder="ex: export comptable, app mobile..." />
+                          className="w-full px-4 py-3 rounded-md bg-muted/50 border text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+                          placeholder="ex: export comptable, app mobile..." />
                       </div>
                       <button onClick={submitFeedback}
-                        className="w-full h-11 rounded-[12px] bg-[#FF5C1A] text-white font-['Syne'] font-semibold hover:bg-[#E04D10] transition-all">
+                        className="w-full h-11 rounded-md bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all">
                         Envoyer mon retour →
                       </button>
                     </div>
@@ -140,13 +171,14 @@ export function FeedbackWidget() {
                 {view === 'thanks' && (
                   <motion.div key="thanks" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                     className="text-center py-8">
-                    <p className="font-['Syne'] text-xl text-[#1A1A2E] font-bold">Merci {prenom} 🙏</p>
-                    <p className="text-[#7A7A8C] text-sm mt-2">On lit tout.</p>
+                    <p className="text-xl text-foreground font-bold">Merci {prenom} 🙏</p>
+                    <p className="text-muted-foreground text-sm mt-2">On lit tout.</p>
                   </motion.div>
                 )}
               </AnimatePresence>
             </motion.div>
-          </motion.div>
+          </motion.div>,
+          document.body
         )}
       </AnimatePresence>
     </>
