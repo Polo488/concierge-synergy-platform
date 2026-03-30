@@ -19,7 +19,7 @@ import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, X, Euro } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ChannelIcon } from './grid/ChannelIcon';
+
 import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
 
 interface PropertyMonthViewProps {
