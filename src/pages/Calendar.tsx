@@ -275,25 +275,22 @@ const CalendarPage = () => {
             />
           </div>
 
-          {/* Property Month View - full screen overlay */}
+          {/* Property Month View */}
           {selectedPropertyForMonth && (
-            <PropertyMonthView
-              property={selectedPropertyForMonth}
-              bookings={bookings}
-              blockedPeriods={blockedPeriods}
-              currentMonth={monthViewDate}
-              onMonthChange={setMonthViewDate}
-              onClose={handleCloseMonthView}
-              onBookingClick={handleBookingClick}
-              onCellClick={handleCellClick}
-              properties={properties}
-              onPropertyChange={(p) => {
-                setSelectedPropertyForMonth(p);
-                setMonthViewDate(startOfMonth(new Date()));
-              }}
-              getDailyPrice={getDailyPrice}
-              onPriceEditRequest={handleMonthViewPriceEdit}
-            />
+            <div className="flex-shrink-0 px-4 md:px-6 pb-3">
+              <PropertyMonthView
+                property={selectedPropertyForMonth}
+                bookings={bookings}
+                blockedPeriods={blockedPeriods}
+                currentMonth={monthViewDate}
+                onMonthChange={setMonthViewDate}
+                onClose={handleCloseMonthView}
+                onBookingClick={handleBookingClick}
+                onCellClick={handleCellClick}
+                getDailyPrice={getDailyPrice}
+                onPriceEditRequest={handleMonthViewPriceEdit}
+              />
+            </div>
           )}
 
           {/* Calendar Grid - fills remaining space */}
