@@ -1,5 +1,6 @@
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+import { HelpCircle, CalendarDays, Euro, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   startOfMonth,
   endOfMonth,
