@@ -111,7 +111,7 @@ export default function BetaCaptureModal() {
 
   if (!visible) return null;
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {visible && (
         <motion.div
@@ -119,7 +119,8 @@ export default function BetaCaptureModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          style={{ zIndex: 99999, pointerEvents: 'auto' }}
           onKeyDown={e => e.key === 'Escape' && e.preventDefault()}
         >
           <motion.div
@@ -128,197 +129,4 @@ export default function BetaCaptureModal() {
             exit={{ opacity: 0, scale: 0.94 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
             className="relative w-[calc(100%-32px)] max-w-[520px] max-h-[90vh] overflow-y-auto rounded-lg border bg-background p-6 md:p-8 shadow-lg"
-          >
-            {showSuccess ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex flex-col items-center justify-center py-12 text-center"
-              >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 200, damping: 12 }}
-                  className="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-primary/10"
-                >
-                  <Check className="w-8 h-8 text-primary" />
-                </motion.div>
-                <h3 className="text-2xl font-bold text-foreground">
-                  C'est noté, {prenom} 🙌
-                </h3>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Tu entres dans Noé. Bienvenue dans la bêta.
-                </p>
-              </motion.div>
-            ) : (
-              <>
-                {/* Header */}
-                <div className="flex flex-col items-center text-center">
-                  <img src={logoNoe} alt="Noé" className="h-10 w-auto mx-auto mb-5" />
-                  <div className="inline-flex items-center mx-auto rounded-full bg-primary/10 border border-primary/30 px-3 py-1 text-xs font-medium text-primary">
-                    🔒 Bêta privée · 47 conciergeries actives
-                  </div>
-                  <h2 className="mt-4 text-xl md:text-2xl font-bold text-foreground leading-tight">
-                    Avant d'entrer, dis-nous qui tu es 👋
-                  </h2>
-                  <p className="mx-auto mt-2 text-sm text-muted-foreground max-w-[400px] leading-relaxed">
-                    Tes réponses façonnent directement les prochaines fonctionnalités de Noé.
-                  </p>
-                </div>
-
-                <div className="border-t my-6" />
-
-                {/* Form */}
-                <div className="flex flex-col gap-5">
-                  {/* Field 1 — Prénom */}
-                  <div className="space-y-1.5">
-                    <Label>Ton prénom</Label>
-                    <Input
-                      value={prenom}
-                      onChange={e => setPrenom(e.target.value)}
-                      className={errors.prenom ? 'border-destructive' : ''}
-                    />
-                    {errors.prenom && <p className="text-xs text-destructive">{errors.prenom}</p>}
-                  </div>
-
-                  {/* Field 2 — Email */}
-                  <div className="space-y-1.5">
-                    <Label>Email</Label>
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      placeholder="ton@email.com"
-                      className={errors.email ? 'border-destructive' : ''}
-                    />
-                    {errors.email ? (
-                      <p className="text-xs text-destructive">{errors.email}</p>
-                    ) : (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        (On ne t'enverra pas d'emails — tu seras juste prévenu au lancement)
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Field 3 — Logements */}
-                  <div className="space-y-1.5">
-                    <Label>Combien de logements tu gères ?</Label>
-                    <p className="text-xs text-muted-foreground">En direct ou pour des propriétaires</p>
-                    <div className="grid grid-cols-4 gap-2">
-                      {segmentedOptions.logements.map(opt => (
-                        <Button
-                          key={opt}
-                          type="button"
-                          variant={logements === opt ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setLogements(opt)}
-                          className={`${errors.logements && logements !== opt ? 'border-destructive' : ''}`}
-                        >
-                          {opt}
-                        </Button>
-                      ))}
-                    </div>
-                    {errors.logements && <p className="text-xs text-destructive">{errors.logements}</p>}
-                  </div>
-
-                  {/* Field 4 — Défis */}
-                  <div className="space-y-1.5">
-                    <Label>Ton plus grand défi aujourd'hui ?</Label>
-                    <p className="text-xs text-primary font-medium">
-                      ✦ Tes choix priorisent directement notre roadmap
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {segmentedOptions.defis.map(d => (
-                        <button
-                          key={d}
-                          type="button"
-                          onClick={() => handleDefiToggle(d)}
-                          className={`text-xs px-3 py-1.5 rounded-full border transition-all duration-150 ${
-                            defis.includes(d)
-                              ? 'bg-yellow-400 border-yellow-400 text-foreground font-semibold'
-                              : 'bg-muted border-border text-foreground hover:bg-muted/80'
-                          }`}
-                        >
-                          {d}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Field 5 — Channel Manager */}
-                  <div className="space-y-1.5">
-                    <Label>Tu utilises déjà un Channel Manager ?</Label>
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className="text-xs text-muted-foreground">Non</span>
-                      <Switch checked={hasChannelManager} onCheckedChange={setHasChannelManager} />
-                      <span className="text-xs text-muted-foreground">Oui</span>
-                    </div>
-                    <motion.div
-                      initial={false}
-                      animate={{ height: hasChannelManager ? 'auto' : 0, opacity: hasChannelManager ? 1 : 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="mt-2">
-                        <Input
-                          value={channelManager}
-                          onChange={e => setChannelManager(e.target.value)}
-                          placeholder="Lequel ? (Smily, Lodgify, Beds24...)"
-                        />
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  {/* Co-creator strip */}
-                  <div className="flex flex-col gap-2 rounded-lg bg-primary/5 border border-primary/15 p-3">
-                    {[
-                      { Icon: Wrench, text: 'Tes retours remontent dans notre backlog chaque semaine' },
-                      { Icon: Zap, text: 'Tu accèdes aux features en avant-première' },
-                      { Icon: Gift, text: 'Les 20 premiers bêta-testeurs actifs → 3 mois offerts au lancement' },
-                    ].map(({ Icon, text }) => (
-                      <div key={text} className="flex items-start gap-2">
-                        <Icon className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
-                        <span className="text-xs text-muted-foreground">{text}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Submit */}
-                  <motion.div
-                    animate={shake ? { x: [0, -8, 8, -6, 6, -3, 3, 0] } : {}}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <Button
-                      type="button"
-                      onClick={handleSubmit}
-                      disabled={submitting}
-                      className="w-full h-12 text-base font-bold"
-                    >
-                      {submitting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                          Enregistrement...
-                        </>
-                      ) : (
-                        'Accéder à la bêta →'
-                      )}
-                    </Button>
-                  </motion.div>
-
-                  {/* Dev-only storage info */}
-                  {isDev && (
-                    <div className="border-t pt-3 mt-2 text-center">
-                      <p className="text-[11px] text-muted-foreground">
-                        📦 Données stockées dans : localStorage (clé: noe_beta_profile) + Supabase table: beta_profiles (si configuré)
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
 }
