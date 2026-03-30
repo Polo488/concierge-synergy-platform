@@ -12,7 +12,7 @@ const HandwrittenAnnotation = () => (
   <>
     {/* Desktop: absolute left of card */}
     <motion.div
-      className="hidden md:block absolute right-full mr-4 top-1/2 translate-y-4"
+      className="hidden md:block absolute right-full mr-[-16px] top-1/2 translate-y-4"
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.8, ease: 'easeOut' }}
@@ -34,23 +34,23 @@ const HandwrittenAnnotation = () => (
         <div>fonctionnalités</div>
       </div>
       <svg
-        width="120"
-        height="70"
-        viewBox="0 0 120 70"
+        width="110"
+        height="65"
+        viewBox="0 0 110 65"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="mx-auto mt-1"
         style={{ transform: 'rotate(-8deg)' }}
       >
         <path
-          d="M 20 5 C 30 20, 15 45, 45 55 C 65 62, 90 58, 108 48"
+          d="M 18 5 C 25 22, 12 42, 38 52 C 52 57, 72 54, 82 46"
           stroke="#6B7AE8"
           strokeWidth="2.5"
           strokeLinecap="round"
           fill="none"
         />
         <path
-          d="M 95 42 L 108 48 L 100 58"
+          d="M 70 40 L 82 46 L 73 55"
           stroke="#6B7AE8"
           strokeWidth="2.5"
           strokeLinecap="round"
