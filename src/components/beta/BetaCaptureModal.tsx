@@ -1,11 +1,24 @@
+// DEVELOPER NOTE: Form responses are stored in two places:
+// 1. localStorage key "noe_beta_profile" (always, client-side)
+// 2. Supabase table "beta_profiles" if Supabase is configured
+//    → Check your Supabase dashboard > Table Editor > beta_profiles
+//    → If the table doesn't exist yet, create it with columns:
+//       id (uuid), prenom (text), email (text), logements (text),
+//       type_gestion (text), defis (text[]), channel_manager (text),
+//       source (text), created_at (timestamptz)
+
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wrench, Zap, Gift, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 
 const segmentedOptions = {
   logements: ['1–10', '11–30', '31–60', '60+'],
-  typeGestion: ['Propriétaires tiers', 'Mes propres biens', 'Les deux'],
+  profil: ['Je suis une conciergerie', 'Je suis un propriétaire'],
   defis: [
     'Synchro des canaux', 'Gestion des ménages',
     'Facturation propriétaires', 'Messagerie voyageurs',
@@ -14,12 +27,14 @@ const segmentedOptions = {
   source: ['Groupe Facebook', 'Instagram', 'Un formateur', 'Bouche à oreille', 'Autre'],
 };
 
+const isDev = typeof window !== 'undefined' && (window.location.hostname.includes('lovable') || window.location.hostname === 'localhost');
+
 export default function BetaCaptureModal() {
   const [visible, setVisible] = useState(false);
   const [prenom, setPrenom] = useState('');
   const [email, setEmail] = useState('');
   const [logements, setLogements] = useState('');
-  const [typeGestion, setTypeGestion] = useState('');
+  const [profil, setProfil] = useState('');
   const [defis, setDefis] = useState<string[]>([]);
   const [hasChannelManager, setHasChannelManager] = useState(false);
   const [channelManager, setChannelManager] = useState('');
@@ -31,7 +46,7 @@ export default function BetaCaptureModal() {
 
   useEffect(() => {
     if (localStorage.getItem('noe_beta_done') === 'true') return;
-    const timer = setTimeout(() => setVisible(true), 1500);
+    const timer = setTimeout(() => setVisible(true), 3500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -57,7 +72,7 @@ export default function BetaCaptureModal() {
     if (!prenom.trim()) e.prenom = 'Ce champ est requis';
     if (!email.trim()) e.email = 'Ce champ est requis';
     if (!logements) e.logements = 'Ce champ est requis';
-    if (!typeGestion) e.typeGestion = 'Ce champ est requis';
+    if (!profil) e.profil = 'Ce champ est requis';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -69,27 +84,27 @@ export default function BetaCaptureModal() {
       return;
     }
     setSubmitting(true);
-    const profile = {
+    const data = {
       prenom: prenom.trim(),
       email: email.trim(),
       logements,
-      typeGestion,
+      profil,
       defis,
       channelManager: hasChannelManager ? channelManager : null,
       source: source || null,
       timestamp: new Date().toISOString(),
     };
-    localStorage.setItem('noe_beta_profile', JSON.stringify(profile));
+    localStorage.setItem('noe_beta_profile', JSON.stringify(data));
     localStorage.setItem('noe_beta_done', 'true');
     try {
       await supabase.from('beta_profiles').insert({
-        prenom: profile.prenom,
-        email: profile.email,
-        logements: profile.logements,
-        type_gestion: profile.typeGestion,
-        defis: profile.defis as any,
-        channel_manager: profile.channelManager,
-        source: profile.source,
+        prenom: data.prenom,
+        email: data.email,
+        logements: data.logements,
+        type_gestion: data.profil,
+        defis: data.defis as any,
+        channel_manager: data.channelManager,
+        source: data.source,
       });
     } catch {}
     setSubmitting(false);
@@ -110,20 +125,14 @@ export default function BetaCaptureModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
-          className="fixed inset-0 flex items-center justify-center"
-          style={{ zIndex: 9999, background: 'rgba(26,26,46,0.85)', backdropFilter: 'blur(6px)' }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.94 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="relative w-[calc(100%-32px)] max-w-[520px] max-h-[90vh] overflow-y-auto rounded-[20px]"
-            style={{
-              background: '#FFFFFF',
-              boxShadow: '0 24px 80px rgba(0,0,0,0.25)',
-              padding: 'clamp(24px, 4vw, 36px)',
-            }}
+            className="relative w-[calc(100%-32px)] max-w-[520px] max-h-[90vh] overflow-y-auto rounded-lg border bg-background p-6 md:p-8 shadow-lg"
           >
             {showSuccess ? (
               <motion.div
@@ -135,15 +144,14 @@ export default function BetaCaptureModal() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: 'spring', stiffness: 200, damping: 12 }}
-                  className="w-16 h-16 rounded-full flex items-center justify-center mb-6"
-                  style={{ background: 'rgba(255,92,26,0.12)' }}
+                  className="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-primary/10"
                 >
-                  <Check className="w-8 h-8" style={{ color: '#FF5C1A' }} />
+                  <Check className="w-8 h-8 text-primary" />
                 </motion.div>
-                <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, color: '#1A1A2E', fontWeight: 700 }}>
+                <h3 className="text-2xl font-bold text-foreground">
                   C'est noté, {prenom} 🙌
                 </h3>
-                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: '#7A7A8C', marginTop: 8 }}>
+                <p className="text-sm text-muted-foreground mt-2">
                   Tu entres dans Noé. Bienvenue dans la bêta.
                 </p>
               </motion.div>
@@ -151,86 +159,93 @@ export default function BetaCaptureModal() {
               <>
                 {/* Header */}
                 <div className="flex flex-col items-center text-center">
-                  <div className="text-3xl font-bold mb-5" style={{ color: '#FF5C1A', fontFamily: 'Syne, sans-serif' }}>
+                  <div className="text-3xl font-bold mb-5 text-primary">
                     noé
                   </div>
-                  <div
-                    className="inline-flex items-center mx-auto rounded-full"
-                    style={{
-                      background: 'rgba(255,92,26,0.10)',
-                      border: '1px solid rgba(255,92,26,0.30)',
-                      padding: '5px 14px',
-                      fontFamily: 'DM Sans, sans-serif',
-                      fontSize: 12,
-                      color: '#FF5C1A',
-                      fontWeight: 500,
-                    }}
-                  >
+                  <div className="inline-flex items-center mx-auto rounded-full bg-primary/10 border border-primary/30 px-3 py-1 text-xs font-medium text-primary">
                     🔒 Bêta privée · 47 conciergeries actives
                   </div>
-                  <h2
-                    className="mt-4"
-                    style={{
-                      fontFamily: 'Syne, sans-serif',
-                      fontSize: 'clamp(22px, 4vw, 26px)',
-                      color: '#1A1A2E',
-                      fontWeight: 700,
-                      lineHeight: 1.3,
-                    }}
-                  >
+                  <h2 className="mt-4 text-xl md:text-2xl font-bold text-foreground leading-tight">
                     Avant d'entrer, dis-nous qui tu es 👋
                   </h2>
-                  <p
-                    className="mx-auto mt-2"
-                    style={{
-                      fontFamily: 'DM Sans, sans-serif',
-                      fontSize: 15,
-                      color: '#7A7A8C',
-                      maxWidth: 400,
-                      lineHeight: 1.6,
-                    }}
-                  >
+                  <p className="mx-auto mt-2 text-sm text-muted-foreground max-w-[400px] leading-relaxed">
                     Tes réponses façonnent directement les prochaines fonctionnalités de Noé.
                   </p>
                 </div>
 
-                <div style={{ borderTop: '1px solid #EEEEEE', margin: '24px 0' }} />
+                <div className="border-t my-6" />
 
                 {/* Form */}
                 <div className="flex flex-col gap-5">
                   {/* Field 1 — Prénom */}
-                  <div>
-                    <FieldLabel>Ton prénom</FieldLabel>
-                    <FieldInput value={prenom} onChange={setPrenom} error={errors.prenom} />
-                    <FieldError error={errors.prenom} />
+                  <div className="space-y-1.5">
+                    <Label>Ton prénom</Label>
+                    <Input
+                      value={prenom}
+                      onChange={e => setPrenom(e.target.value)}
+                      className={errors.prenom ? 'border-destructive' : ''}
+                    />
+                    {errors.prenom && <p className="text-xs text-destructive">{errors.prenom}</p>}
                   </div>
 
                   {/* Field 2 — Email */}
-                  <div>
-                    <FieldLabel>Ton email pro</FieldLabel>
-                    <FieldInput value={email} onChange={setEmail} type="email" placeholder="ton@email.com" error={errors.email} />
-                    <FieldError error={errors.email} />
+                  <div className="space-y-1.5">
+                    <Label>Ton email pro</Label>
+                    <Input
+                      type="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="ton@email.com"
+                      className={errors.email ? 'border-destructive' : ''}
+                    />
+                    {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
                   </div>
 
                   {/* Field 3 — Logements */}
-                  <div>
-                    <FieldLabel>Combien de logements tu gères ?</FieldLabel>
-                    <FieldHelper>En direct ou pour des propriétaires</FieldHelper>
-                    <SegmentedGroup options={segmentedOptions.logements} value={logements} onChange={setLogements} error={errors.logements} />
-                    <FieldError error={errors.logements} />
+                  <div className="space-y-1.5">
+                    <Label>Combien de logements tu gères ?</Label>
+                    <p className="text-xs text-muted-foreground">En direct ou pour des propriétaires</p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {segmentedOptions.logements.map(opt => (
+                        <Button
+                          key={opt}
+                          type="button"
+                          variant={logements === opt ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setLogements(opt)}
+                          className={`${errors.logements && logements !== opt ? 'border-destructive' : ''}`}
+                        >
+                          {opt}
+                        </Button>
+                      ))}
+                    </div>
+                    {errors.logements && <p className="text-xs text-destructive">{errors.logements}</p>}
                   </div>
 
-                  {/* Field 4 — Type gestion */}
-                  <div>
-                    <FieldLabel>Tu gères les biens de...</FieldLabel>
-                    <SegmentedGroup options={segmentedOptions.typeGestion} value={typeGestion} onChange={setTypeGestion} error={errors.typeGestion} />
-                    <FieldError error={errors.typeGestion} />
+                  {/* Field 4 — Profil */}
+                  <div className="space-y-1.5">
+                    <Label>Tu es...</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {segmentedOptions.profil.map(opt => (
+                        <Button
+                          key={opt}
+                          type="button"
+                          variant={profil === opt ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setProfil(opt)}
+                          className={`${errors.profil && profil !== opt ? 'border-destructive' : ''}`}
+                        >
+                          {opt}
+                        </Button>
+                      ))}
+                    </div>
+                    {errors.profil && <p className="text-xs text-destructive">{errors.profil}</p>}
                   </div>
 
                   {/* Field 5 — Défis */}
-                  <div>
-                    <FieldLabel>Ton plus grand défi aujourd'hui ?</FieldLabel>
-                    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#FF5C1A', fontWeight: 500, marginBottom: 8 }}>
+                  <div className="space-y-1.5">
+                    <Label>Ton plus grand défi aujourd'hui ?</Label>
+                    <p className="text-xs text-primary font-medium">
                       ✦ Tes choix priorisent directement notre roadmap
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -239,18 +254,11 @@ export default function BetaCaptureModal() {
                           key={d}
                           type="button"
                           onClick={() => handleDefiToggle(d)}
-                          className="transition-all duration-150"
-                          style={{
-                            fontFamily: 'DM Sans, sans-serif',
-                            fontSize: 13,
-                            padding: '8px 16px',
-                            borderRadius: 99,
-                            border: defis.includes(d) ? '1px solid transparent' : '1px solid #EEEEEE',
-                            background: defis.includes(d) ? '#F5C842' : '#F7F7F9',
-                            color: '#1A1A2E',
-                            fontWeight: defis.includes(d) ? 600 : 400,
-                            cursor: 'pointer',
-                          }}
+                          className={`text-xs px-3 py-1.5 rounded-full border transition-all duration-150 ${
+                            defis.includes(d)
+                              ? 'bg-yellow-400 border-yellow-400 text-foreground font-semibold'
+                              : 'bg-muted border-border text-foreground hover:bg-muted/80'
+                          }`}
                         >
                           {d}
                         </button>
@@ -259,22 +267,12 @@ export default function BetaCaptureModal() {
                   </div>
 
                   {/* Field 6 — Channel Manager */}
-                  <div>
-                    <FieldLabel>Tu utilises déjà un Channel Manager ?</FieldLabel>
+                  <div className="space-y-1.5">
+                    <Label>Tu utilises déjà un Channel Manager ?</Label>
                     <div className="flex items-center gap-3 mt-1">
-                      <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#7A7A8C' }}>Non</span>
-                      <button
-                        type="button"
-                        onClick={() => setHasChannelManager(!hasChannelManager)}
-                        className="relative w-11 h-6 rounded-full transition-colors duration-200"
-                        style={{ background: hasChannelManager ? '#FF5C1A' : '#EEEEEE' }}
-                      >
-                        <div
-                          className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform duration-200"
-                          style={{ transform: hasChannelManager ? 'translateX(22px)' : 'translateX(2px)' }}
-                        />
-                      </button>
-                      <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#7A7A8C' }}>Oui</span>
+                      <span className="text-xs text-muted-foreground">Non</span>
+                      <Switch checked={hasChannelManager} onCheckedChange={setHasChannelManager} />
+                      <span className="text-xs text-muted-foreground">Oui</span>
                     </div>
                     <motion.div
                       initial={false}
@@ -283,33 +281,30 @@ export default function BetaCaptureModal() {
                       className="overflow-hidden"
                     >
                       <div className="mt-2">
-                        <FieldInput value={channelManager} onChange={setChannelManager} placeholder="Lequel ? (Smily, Lodgify, Beds24...)" />
+                        <Input
+                          value={channelManager}
+                          onChange={e => setChannelManager(e.target.value)}
+                          placeholder="Lequel ? (Smily, Lodgify, Beds24...)"
+                        />
                       </div>
                     </motion.div>
                   </div>
 
                   {/* Field 7 — Source */}
-                  <div>
-                    <FieldLabel>Comment tu as connu Noé ?</FieldLabel>
-                    <FieldHelper>Optionnel</FieldHelper>
+                  <div className="space-y-1.5">
+                    <Label>Comment tu as connu Noé ?</Label>
+                    <p className="text-xs text-muted-foreground">Optionnel</p>
                     <div className="flex flex-wrap gap-2">
                       {segmentedOptions.source.map(s => (
                         <button
                           key={s}
                           type="button"
                           onClick={() => setSource(source === s ? '' : s)}
-                          className="transition-all duration-150"
-                          style={{
-                            fontFamily: 'DM Sans, sans-serif',
-                            fontSize: 13,
-                            padding: '8px 16px',
-                            borderRadius: 99,
-                            border: source === s ? '1px solid transparent' : '1px solid #EEEEEE',
-                            background: source === s ? '#FF5C1A' : '#F7F7F9',
-                            color: source === s ? '#FFFFFF' : '#1A1A2E',
-                            fontWeight: source === s ? 600 : 400,
-                            cursor: 'pointer',
-                          }}
+                          className={`text-xs px-3 py-1.5 rounded-full border transition-all duration-150 ${
+                            source === s
+                              ? 'bg-primary border-primary text-primary-foreground font-semibold'
+                              : 'bg-muted border-border text-foreground hover:bg-muted/80'
+                          }`}
                         >
                           {s}
                         </button>
@@ -318,58 +313,49 @@ export default function BetaCaptureModal() {
                   </div>
 
                   {/* Co-creator strip */}
-                  <div
-                    className="flex flex-col gap-2 rounded-xl"
-                    style={{
-                      background: 'rgba(255,92,26,0.06)',
-                      border: '1px solid rgba(255,92,26,0.15)',
-                      padding: '14px 16px',
-                    }}
-                  >
+                  <div className="flex flex-col gap-2 rounded-lg bg-primary/5 border border-primary/15 p-3">
                     {[
                       { Icon: Wrench, text: 'Tes retours remontent dans notre backlog chaque semaine' },
                       { Icon: Zap, text: 'Tu accèdes aux features en avant-première' },
                       { Icon: Gift, text: 'Les 20 premiers bêta-testeurs actifs → 3 mois offerts au lancement' },
                     ].map(({ Icon, text }) => (
                       <div key={text} className="flex items-start gap-2">
-                        <Icon className="w-4 h-4 mt-0.5 shrink-0" style={{ color: '#FF5C1A' }} />
-                        <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#7A7A8C' }}>{text}</span>
+                        <Icon className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
+                        <span className="text-xs text-muted-foreground">{text}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* Submit */}
-                  <motion.button
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={submitting}
+                  <motion.div
                     animate={shake ? { x: [0, -8, 8, -6, 6, -3, 3, 0] } : {}}
                     transition={{ duration: 0.4 }}
-                    className="w-full flex items-center justify-center gap-2 transition-all duration-150"
-                    style={{
-                      height: 52,
-                      borderRadius: 12,
-                      background: '#FF5C1A',
-                      color: '#FFFFFF',
-                      fontFamily: 'Syne, sans-serif',
-                      fontSize: 16,
-                      fontWeight: 700,
-                      border: 'none',
-                      cursor: submitting ? 'not-allowed' : 'pointer',
-                      opacity: submitting ? 0.7 : 1,
-                      marginTop: 4,
-                    }}
-                    whileHover={!submitting ? { scale: 1.02, background: '#E04D10' } : {}}
                   >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Enregistrement...
-                      </>
-                    ) : (
-                      'Accéder à la bêta →'
-                    )}
-                  </motion.button>
+                    <Button
+                      type="button"
+                      onClick={handleSubmit}
+                      disabled={submitting}
+                      className="w-full h-12 text-base font-bold"
+                    >
+                      {submitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          Enregistrement...
+                        </>
+                      ) : (
+                        'Accéder à la bêta →'
+                      )}
+                    </Button>
+                  </motion.div>
+
+                  {/* Dev-only storage info */}
+                  {isDev && (
+                    <div className="border-t pt-3 mt-2 text-center">
+                      <p className="text-[11px] text-muted-foreground">
+                        📦 Données stockées dans : localStorage (clé: noe_beta_profile) + Supabase table: beta_profiles (si configuré)
+                      </p>
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -377,120 +363,5 @@ export default function BetaCaptureModal() {
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-/* ─── Sub-components ─── */
-
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <label
-      style={{
-        display: 'block',
-        fontFamily: 'DM Sans, sans-serif',
-        fontSize: 14,
-        fontWeight: 500,
-        color: '#1A1A2E',
-        marginBottom: 6,
-      }}
-    >
-      {children}
-    </label>
-  );
-}
-
-function FieldHelper({ children }: { children: React.ReactNode }) {
-  return (
-    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#9A9AAF', marginBottom: 8 }}>
-      {children}
-    </p>
-  );
-}
-
-function FieldError({ error }: { error?: string }) {
-  if (!error) return null;
-  return (
-    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#EF4444', marginTop: 4 }}>
-      {error}
-    </p>
-  );
-}
-
-function FieldInput({
-  value,
-  onChange,
-  type = 'text',
-  placeholder,
-  error,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  placeholder?: string;
-  error?: string;
-}) {
-  return (
-    <input
-      type={type}
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      placeholder={placeholder}
-      className="w-full outline-none transition-all duration-150"
-      style={{
-        fontFamily: 'DM Sans, sans-serif',
-        fontSize: 14,
-        padding: '10px 14px',
-        borderRadius: 10,
-        background: '#F7F7F9',
-        border: `1px solid ${error ? '#EF4444' : '#EEEEEE'}`,
-        color: '#1A1A2E',
-      }}
-      onFocus={e => {
-        e.currentTarget.style.borderColor = '#FF5C1A';
-        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(255,92,26,0.10)';
-      }}
-      onBlur={e => {
-        e.currentTarget.style.borderColor = error ? '#EF4444' : '#EEEEEE';
-        e.currentTarget.style.boxShadow = 'none';
-      }}
-    />
-  );
-}
-
-function SegmentedGroup({
-  options,
-  value,
-  onChange,
-  error,
-}: {
-  options: string[];
-  value: string;
-  onChange: (v: string) => void;
-  error?: string;
-}) {
-  return (
-    <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(options.length, 4)}, 1fr)` }}>
-      {options.map(opt => (
-        <button
-          key={opt}
-          type="button"
-          onClick={() => onChange(opt)}
-          className="transition-all duration-150"
-          style={{
-            fontFamily: 'DM Sans, sans-serif',
-            fontSize: 13,
-            height: 40,
-            borderRadius: 10,
-            border: value === opt ? '1px solid transparent' : `1px solid ${error ? '#EF4444' : '#EEEEEE'}`,
-            background: value === opt ? '#FF5C1A' : '#F7F7F9',
-            color: value === opt ? '#FFFFFF' : '#7A7A8C',
-            fontWeight: value === opt ? 600 : 400,
-            cursor: 'pointer',
-          }}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
   );
 }
