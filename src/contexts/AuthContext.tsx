@@ -108,10 +108,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Redirect to the default route for this role
         navigate(roleConfig.defaultRoute);
         
-        toast({
-          title: "Connexion réussie",
-          description: `Bienvenue, ${foundUser.name}`,
-        });
       } else {
         toast({
           variant: "destructive",
@@ -135,10 +131,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     localStorage.removeItem('user');
     navigate('/login');
-    toast({
-      title: "Déconnexion réussie",
-      description: "À bientôt !",
-    });
   };
 
   const register = async (email: string, password: string, name: string, role: UserRole, mustChangePassword = false) => {
