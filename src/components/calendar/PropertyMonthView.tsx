@@ -1,25 +1,22 @@
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
-import { 
-  startOfMonth, 
-  endOfMonth, 
-  startOfWeek, 
-  endOfWeek, 
-  eachDayOfInterval, 
-  isSameMonth, 
-  isSameDay, 
-  format, 
-  isWithinInterval,
-  addDays,
+import {
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  isSameMonth,
+  isSameDay,
+  format,
+  addMonths,
   startOfDay,
-  isBefore,
-  isAfter
+  differenceInDays,
+  getDay,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight, X, Euro } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
 import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
 
 interface PropertyMonthViewProps {
@@ -32,11 +29,10 @@ interface PropertyMonthViewProps {
   onBookingClick: (booking: CalendarBooking) => void;
   onCellClick: (date: Date, propertyId: number) => void;
   getDailyPrice?: (propertyId: number, date: Date) => number;
-  // Multi-day selection callback
   onPriceEditRequest?: (propertyId: number, startDate: Date, endDate: Date, currentPrice: number) => void;
 }
 
-const CHANNEL_COLORS_MAP: Record<string, string> = {
+const CHANNEL_COLORS: Record<string, string> = {
   airbnb: '#FF385C',
   booking: '#003580',
   vrbo: '#3D67B1',
@@ -44,10 +40,126 @@ const CHANNEL_COLORS_MAP: Record<string, string> = {
   other: '#6366F1',
 };
 
-const PAST_COLOR = '#9CA3AF';
+const CHANNEL_INITIALS: Record<string, string> = {
+  airbnb: 'A',
+  booking: 'B',
+  vrbo: 'V',
+  direct: 'D',
+};
 
-interface DaySelection {
-  date: Date;
+const WEEK_DAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+
+// Converts JS getDay (0=Sun) to Mon=0 index
+function dayToMonIndex(date: Date): number {
+  const d = getDay(date);
+  return d === 0 ? 6 : d - 1;
+}
+
+interface MonthData {
+  month: Date;
+  weeks: Date[][];
+}
+
+function buildMonthData(month: Date): MonthData {
+  const monthStart = startOfMonth(month);
+  const monthEnd = endOfMonth(month);
+  const calStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+  const calEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+  const allDays = eachDayOfInterval({ start: calStart, end: calEnd });
+  const weeks: Date[][] = [];
+  for (let i = 0; i < allDays.length; i += 7) {
+    weeks.push(allDays.slice(i, i + 7));
+  }
+  return { month, weeks };
+}
+
+interface BarSegment {
+  booking: CalendarBooking;
+  startCol: number; // 0-6
+  span: number;     // 1-7
+  isFirst: boolean;
+  isLast: boolean;
+  color: string;
+}
+
+function getBarColor(channel: string): string {
+  return CHANNEL_COLORS[channel?.toLowerCase()] || CHANNEL_COLORS.other;
+}
+
+function computeBarSegments(
+  week: Date[],
+  bookings: CalendarBooking[],
+  blockedPeriods: BlockedPeriod[],
+  propertyId: number
+): BarSegment[] {
+  const segments: BarSegment[] = [];
+  const weekStart = startOfDay(week[0]);
+  const weekEnd = startOfDay(week[6]);
+
+  // Bookings
+  const propBookings = bookings.filter(b => b.propertyId === propertyId);
+  for (const booking of propBookings) {
+    const bStart = startOfDay(booking.checkIn);
+    const bEnd = startOfDay(booking.checkOut);
+
+    // Skip if no overlap (checkOut is departure day, don't show bar on checkout day)
+    const effectiveEnd = new Date(bEnd.getTime() - 86400000); // last night
+    if (effectiveEnd < weekStart || bStart > weekEnd) continue;
+
+    const visStart = bStart < weekStart ? weekStart : bStart;
+    const visEnd = effectiveEnd > weekEnd ? weekEnd : effectiveEnd;
+
+    const startCol = dayToMonIndex(visStart);
+    const endCol = dayToMonIndex(visEnd);
+    const span = endCol - startCol + 1;
+
+    if (span <= 0) continue;
+
+    segments.push({
+      booking,
+      startCol,
+      span,
+      isFirst: isSameDay(visStart, bStart),
+      isLast: isSameDay(visEnd, effectiveEnd),
+      color: getBarColor(booking.channel),
+    });
+  }
+
+  // Blocked periods as fake bookings
+  const propBlocked = blockedPeriods.filter(b => b.propertyId === propertyId);
+  for (const blocked of propBlocked) {
+    const bStart = startOfDay(blocked.startDate);
+    const bEnd = startOfDay(blocked.endDate);
+    if (bEnd < weekStart || bStart > weekEnd) continue;
+
+    const visStart = bStart < weekStart ? weekStart : bStart;
+    const visEnd = bEnd > weekEnd ? weekEnd : bEnd;
+    const startCol = dayToMonIndex(visStart);
+    const endCol = dayToMonIndex(visEnd);
+    const span = endCol - startCol + 1;
+    if (span <= 0) continue;
+
+    segments.push({
+      booking: {
+        id: blocked.id,
+        propertyId: blocked.propertyId,
+        guestName: blocked.reason || 'Bloqué',
+        checkIn: blocked.startDate,
+        checkOut: blocked.endDate,
+        channel: 'blocked' as any,
+        status: 'confirmed',
+        totalPrice: 0,
+        color: '#9CA3AF',
+      } as CalendarBooking,
+      startCol,
+      span,
+      isFirst: isSameDay(visStart, bStart),
+      isLast: isSameDay(visEnd, bEnd),
+      color: '#9CA3AF',
+    });
+  }
+
+  return segments;
 }
 
 export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
@@ -59,408 +171,306 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
   onClose,
   onBookingClick,
   onCellClick,
-  getDailyPrice,
-  onPriceEditRequest,
 }) => {
   const today = startOfDay(new Date());
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Multi-day selection state
-  const [selectedDays, setSelectedDays] = useState<DaySelection[]>([]);
-  const [isSelecting, setIsSelecting] = useState(false);
-  const selectionStartRef = useRef<Date | null>(null);
-  const lastClickedRef = useRef<Date | null>(null);
+  // Build months: current -2 to current +2, expandable
+  const [monthRange, setMonthRange] = useState<{ start: number; end: number }>({ start: -2, end: 2 });
 
-  // Generate calendar days for the month grid
-  const calendarDays = useMemo(() => {
-    const monthStart = startOfMonth(currentMonth);
-    const monthEnd = endOfMonth(currentMonth);
-    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
-    
-    return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-  }, [currentMonth]);
-
-  // Get property bookings for the current month view
-  const propertyBookings = useMemo(() => {
-    const firstDay = calendarDays[0];
-    const lastDay = calendarDays[calendarDays.length - 1];
-    
-    return bookings.filter(b => {
-      if (b.propertyId !== property.id) return false;
-      const checkIn = startOfDay(b.checkIn);
-      const checkOut = startOfDay(b.checkOut);
-      // Include if any part of booking overlaps with visible range
-      return checkIn <= lastDay && checkOut >= firstDay;
-    });
-  }, [bookings, property.id, calendarDays]);
-
-  // Get blocked periods for the property
-  const propertyBlocked = useMemo(() => {
-    const firstDay = calendarDays[0];
-    const lastDay = calendarDays[calendarDays.length - 1];
-    
-    return blockedPeriods.filter(b => {
-      if (b.propertyId !== property.id) return false;
-      const start = startOfDay(b.startDate);
-      const end = startOfDay(b.endDate);
-      return start <= lastDay && end >= firstDay;
-    });
-  }, [blockedPeriods, property.id, calendarDays]);
-
-  // Get booking info for a specific day
-  const getBookingForDay = (day: Date): CalendarBooking | null => {
-    const dayStart = startOfDay(day);
-    return propertyBookings.find(b => {
-      const checkIn = startOfDay(b.checkIn);
-      const checkOut = startOfDay(b.checkOut);
-      // Include check-in to check-out day (checkout day shows departure)
-      return dayStart >= checkIn && dayStart <= checkOut;
-    }) || null;
-  };
-
-  // Check if day is blocked
-  const isBlocked = (day: Date): BlockedPeriod | null => {
-    const dayStart = startOfDay(day);
-    return propertyBlocked.find(b => {
-      const start = startOfDay(b.startDate);
-      const end = startOfDay(b.endDate);
-      return isWithinInterval(dayStart, { start, end });
-    }) || null;
-  };
-
-  // Check if this is check-in day
-  const isCheckInDay = (day: Date, booking: CalendarBooking): boolean => {
-    return isSameDay(startOfDay(day), startOfDay(booking.checkIn));
-  };
-
-  // Check if this is check-out day
-  const isCheckOutDay = (day: Date, booking: CalendarBooking): boolean => {
-    return isSameDay(startOfDay(day), startOfDay(booking.checkOut));
-  };
-
-  // Get color for booking
-  const getBookingColor = (booking: CalendarBooking, isPast: boolean): string => {
-    if (isPast) return PAST_COLOR;
-    return CHANNEL_COLORS_MAP[booking.channel] || CHANNEL_COLORS_MAP.other;
-  };
-
-  // Navigate months
-  const prevMonth = () => {
-    onMonthChange(addDays(startOfMonth(currentMonth), -1));
-  };
-
-  const nextMonth = () => {
-    onMonthChange(addDays(endOfMonth(currentMonth), 1));
-  };
-
-  const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-
-  // Group days into weeks
-  const weeks = useMemo(() => {
-    const result: Date[][] = [];
-    for (let i = 0; i < calendarDays.length; i += 7) {
-      result.push(calendarDays.slice(i, i + 7));
+  const months = useMemo(() => {
+    const result: MonthData[] = [];
+    for (let i = monthRange.start; i <= monthRange.end; i++) {
+      result.push(buildMonthData(addMonths(currentMonth, i)));
     }
     return result;
-  }, [calendarDays]);
+  }, [currentMonth, monthRange]);
 
-  // Selection helpers
-  const isDaySelected = useCallback((date: Date): boolean => {
-    const dayStart = startOfDay(date);
-    return selectedDays.some(s => isSameDay(startOfDay(s.date), dayStart));
-  }, [selectedDays]);
-
-  const getSelectionRange = useCallback((start: Date, end: Date): DaySelection[] => {
-    const startDate = startOfDay(start);
-    const endDate = startOfDay(end);
-    
-    const [rangeStart, rangeEnd] = isBefore(startDate, endDate) 
-      ? [startDate, endDate] 
-      : [endDate, startDate];
-    
-    const days = eachDayOfInterval({ start: rangeStart, end: rangeEnd });
-    return days.map(date => ({ date }));
-  }, []);
-
-  const handleDayMouseDown = useCallback((day: Date, isEmpty: boolean, event: React.MouseEvent) => {
-    if (!isEmpty) return;
-    event.preventDefault();
-    
-    const dayStart = startOfDay(day);
-    
-    if (!event.shiftKey) {
-      selectionStartRef.current = dayStart;
-      setIsSelecting(true);
-      setSelectedDays([{ date: dayStart }]);
-    }
-  }, []);
-
-  const handleDayMouseEnter = useCallback((day: Date) => {
-    if (!isSelecting || !selectionStartRef.current) return;
-    
-    const dayStart = startOfDay(day);
-    const newSelection = getSelectionRange(selectionStartRef.current, dayStart);
-    setSelectedDays(newSelection);
-  }, [isSelecting, getSelectionRange]);
-
-  const handleDayMouseUp = useCallback(() => {
-    if (isSelecting) {
-      setIsSelecting(false);
-      if (selectedDays.length > 0) {
-        lastClickedRef.current = selectedDays[0].date;
-      }
-    }
-  }, [isSelecting, selectedDays]);
-
-  const handleDayClick = useCallback((day: Date, isEmpty: boolean, event: React.MouseEvent) => {
-    if (!isEmpty) return;
-    
-    const dayStart = startOfDay(day);
-    
-    if (event.shiftKey && lastClickedRef.current) {
-      const rangeSelection = getSelectionRange(lastClickedRef.current, dayStart);
-      setSelectedDays(rangeSelection);
-    } else if (!isSelecting) {
-      setSelectedDays([{ date: dayStart }]);
-      lastClickedRef.current = dayStart;
-    }
-  }, [getSelectionRange, isSelecting]);
-
-  // Global mouseup listener
+  // IntersectionObserver to load more months
   useEffect(() => {
-    if (isSelecting) {
-      const handleGlobalMouseUp = () => handleDayMouseUp();
-      window.addEventListener('mouseup', handleGlobalMouseUp);
-      return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
-    }
-  }, [isSelecting, handleDayMouseUp]);
+    if (!sentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setMonthRange(prev => ({ ...prev, end: prev.end + 2 }));
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, []);
 
-  // Handle price edit button click
-  const handleEditPrices = () => {
-    if (selectedDays.length === 0 || !onPriceEditRequest) return;
-    
-    const sortedDays = [...selectedDays].sort((a, b) => a.date.getTime() - b.date.getTime());
-    const startDate = sortedDays[0].date;
-    const endDate = sortedDays[sortedDays.length - 1].date;
-    const currentPrice = getDailyPrice ? getDailyPrice(property.id, startDate) : property.pricePerNight;
-    
-    onPriceEditRequest(property.id, startDate, endDate, currentPrice);
-  };
-
-  const clearSelection = () => {
-    setSelectedDays([]);
-    selectionStartRef.current = null;
-    lastClickedRef.current = null;
+  const navigateMonth = (dir: number) => {
+    onMonthChange(addMonths(currentMonth, dir));
   };
 
   return (
-    <div className="bg-primary/5 rounded-lg border border-primary/20 select-none overflow-hidden">
+    <div className="flex flex-col w-full bg-white" style={{ height: 'calc(100vh - 56px)' }}>
       {/* Header */}
-      <div className="flex items-center justify-between p-3 md:p-4 border-b border-border bg-primary/10 rounded-t-lg gap-2 flex-wrap">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-            {property.thumbnail ? (
-              <img src={property.thumbnail} alt={property.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">N/A</div>
-            )}
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-sm md:text-lg font-semibold truncate">{property.name}</h2>
-            <p className="text-xs text-muted-foreground">
-              {property.capacity} pers. • {property.pricePerNight}€/nuit
-            </p>
+      <div className="flex-shrink-0 sticky top-0 z-20 bg-white border-b" style={{ borderColor: '#EEEEEE' }}>
+        <div className="flex items-center justify-between px-3 py-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9">
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <div className="flex items-center gap-2 min-w-0">
+              {property.thumbnail && (
+                <img
+                  src={property.thumbnail}
+                  alt={property.name}
+                  className="w-8 h-8 rounded-md object-cover flex-shrink-0"
+                />
+              )}
+              <span className="font-semibold text-sm truncate" style={{ color: '#1A1A2E' }}>
+                {property.name}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          {selectedDays.length > 0 && (
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-primary/20 rounded-lg">
-              <span className="text-xs font-medium">
-                {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''}
-              </span>
-              <Button size="sm" variant="secondary" onClick={handleEditPrices} className="gap-1 h-7 text-xs">
-                <Euro className="w-3 h-3" />
-                Prix
-              </Button>
-              <Button size="sm" variant="ghost" onClick={clearSelection} className="h-7 text-xs">✕</Button>
-            </div>
-          )}
-
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" onClick={prevMonth} className="h-9 w-9 min-h-[44px] min-w-[44px]">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="text-sm md:text-lg font-medium min-w-[100px] md:min-w-[180px] text-center capitalize">
-              {format(currentMonth, 'MMM yyyy', { locale: fr })}
-            </span>
-            <Button variant="outline" size="icon" onClick={nextMonth} className="h-9 w-9 min-h-[44px] min-w-[44px]">
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9 min-h-[44px] min-w-[44px]">
-            <X className="h-5 w-5" />
+        {/* Month nav */}
+        <div className="flex items-center justify-center gap-2 pb-2">
+          <Button variant="ghost" size="icon" onClick={() => navigateMonth(-1)} className="h-9 w-9">
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm font-semibold capitalize min-w-[120px] text-center" style={{ color: '#1A1A2E' }}>
+            {format(currentMonth, 'MMMM yyyy', { locale: fr })}
+          </span>
+          <Button variant="ghost" size="icon" onClick={() => navigateMonth(1)} className="h-9 w-9">
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-      </div>
 
-      {/* Calendar Grid */}
-      <div className="p-2 md:p-4">
         {/* Week day headers */}
-        <div className="grid grid-cols-7 gap-0.5 mb-1">
-          {weekDays.map(day => (
-            <div key={day} className="text-center text-[11px] font-medium text-muted-foreground uppercase py-1.5">
-              {day}
+        <div className="grid grid-cols-7">
+          {WEEK_DAYS.map(d => (
+            <div
+              key={d}
+              className="text-center py-1"
+              style={{ fontSize: 11, fontWeight: 500, color: '#9A9AAF', textTransform: 'uppercase' }}
+            >
+              {d}
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Calendar cells */}
-        <div className="grid grid-cols-7 gap-0.5">
-          {calendarDays.map((day, index) => {
-            const isCurrentMonth = isSameMonth(day, currentMonth);
-            const isToday = isSameDay(day, today);
-            const isPast = day < today && !isToday;
-            const booking = getBookingForDay(day);
-            const blocked = isBlocked(day);
-            const isEmpty = !booking && !blocked;
-            const isSelected = isDaySelected(day);
-            
-            const isCheckIn = booking ? isCheckInDay(day, booking) : false;
-            const isCheckOut = booking ? isCheckOutDay(day, booking) : false;
-            
-            const dailyPrice = getDailyPrice ? getDailyPrice(property.id, day) : property.pricePerNight;
-
-            // Determine bevel clip path for booking overlay
-            const getBevelClipPath = () => {
-              const bevelSize = 14;
-              if (isCheckIn && isCheckOut) {
-                // Single day booking - both bevels
-                return `polygon(${bevelSize}px 0, 100% 0, calc(100% - ${bevelSize}px) 100%, 0 100%)`;
-              } else if (isCheckIn) {
-                // Left bevel only
-                return `polygon(${bevelSize}px 0, 100% 0, 100% 100%, 0 100%)`;
-              } else if (isCheckOut) {
-                // Right bevel only
-                return `polygon(0 0, 100% 0, calc(100% - ${bevelSize}px) 100%, 0 100%)`;
-              }
-              return undefined;
-            };
-
-            return (
-              <div
-                key={index}
-                className={cn(
-                  "relative min-h-[56px] md:min-h-[90px] border rounded-md p-0.5 md:p-1 transition-colors",
-                  isCurrentMonth ? "bg-background" : "bg-muted/30",
-                  isToday && "ring-2 ring-primary",
-                  isEmpty && isCurrentMonth && "cursor-pointer hover:bg-accent/30",
-                  !isCurrentMonth && "opacity-50",
-                  isSelected && isEmpty && "ring-2 ring-inset ring-primary bg-primary/20"
-                )}
-                onMouseDown={(e) => handleDayMouseDown(day, isEmpty && isCurrentMonth, e)}
-                onMouseEnter={() => handleDayMouseEnter(day)}
-                onClick={(e) => {
-                  if (booking) {
-                    onBookingClick(booking);
-                  } else if (isEmpty && isCurrentMonth) {
-                    handleDayClick(day, true, e);
-                  }
-                }}
-              >
-                {/* Day number */}
-                <div className={cn(
-                  "text-sm font-medium",
-                  isToday ? "text-primary" : "text-foreground"
-                )}>
-                  {format(day, 'd')}
-                </div>
-
-                {/* Booking overlay */}
-                {booking && (
-                  <div 
-                    className={cn(
-                      "absolute inset-x-0 top-7 bottom-6 flex items-center cursor-pointer transition-transform hover:scale-[1.02] overflow-hidden",
-                      isCheckIn && "ml-1",
-                      isCheckOut && "mr-1"
-                    )}
-                    style={{
-                      backgroundColor: getBookingColor(booking, isPast && booking.checkOut < today),
-                      clipPath: getBevelClipPath(),
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onBookingClick(booking);
-                    }}
-                  >
-                    <div className="flex items-center gap-1 w-full h-full overflow-hidden" style={{ padding: '0 8px' }}>
-                      <span 
-                        className="truncate flex-1 min-w-0"
-                        style={{
-                          color: '#FFFFFF',
-                          fontSize: 11,
-                          fontWeight: 600,
-                          lineHeight: 1,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        {booking.guestName.split(' ')[0]}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Blocked overlay */}
-                {blocked && !booking && (
-                  <div 
-                    className="absolute inset-x-1 top-7 bottom-6 flex items-center justify-center rounded overflow-hidden"
-                    style={{ backgroundColor: '#9CA3AF' }}
-                  >
-                    <span style={{ fontSize: 11, fontWeight: 600, color: '#FFFFFF' }}>Bloqué</span>
-                  </div>
-                )}
-
-                {/* Daily price at bottom */}
-                <div className="absolute bottom-1 left-1 right-1 flex justify-between items-center">
-                  <span className={cn(
-                    "text-xs font-medium",
-                    booking ? "text-muted-foreground/60" : "text-muted-foreground"
-                  )}>
-                    {dailyPrice}€
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      {/* Scrollable months */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden px-0">
+        {months.map((md, mi) => (
+          <MonthBlock
+            key={format(md.month, 'yyyy-MM')}
+            monthData={md}
+            today={today}
+            bookings={bookings}
+            blockedPeriods={blockedPeriods}
+            propertyId={property.id}
+            onBookingClick={onBookingClick}
+            onCellClick={(date) => onCellClick(date, property.id)}
+            showTitle={mi > 0}
+          />
+        ))}
+        <div ref={sentinelRef} className="h-8" />
       </div>
 
       {/* Legend */}
-      <div className="px-4 pb-4 flex items-center gap-4 text-xs text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded" style={{ backgroundColor: CHANNEL_COLORS_MAP.airbnb }} />
-          <span>Airbnb</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded" style={{ backgroundColor: CHANNEL_COLORS_MAP.booking }} />
-          <span>Booking</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded" style={{ backgroundColor: CHANNEL_COLORS_MAP.direct }} />
-          <span>Direct</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded" style={{ backgroundColor: '#9CA3AF', borderRadius: 2 }} />
-          <span>Bloqué</span>
-        </div>
-        <div className="flex items-center gap-1 ml-4">
-          <div className="w-3 h-3 rounded ring-2 ring-primary bg-primary/20" />
-          <span>Sélectionné (glisser ou Shift+clic)</span>
-        </div>
+      <div
+        className="flex-shrink-0 flex items-center justify-center gap-4 bg-white"
+        style={{ height: 36, borderTop: '1px solid #EEEEEE' }}
+      >
+        {[
+          { color: '#FF385C', label: 'Airbnb' },
+          { color: '#003580', label: 'Booking' },
+          { color: '#16A34A', label: 'Direct' },
+          { color: '#9CA3AF', label: 'Bloqué' },
+        ].map(item => (
+          <div key={item.label} className="flex items-center gap-1.5">
+            <div
+              className="flex-shrink-0"
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: item.label === 'Bloqué' ? 2 : '50%',
+                backgroundColor: item.color,
+              }}
+            />
+            <span style={{ fontSize: 11, color: '#7A7A8C' }}>{item.label}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
+
+// ---------- MonthBlock ----------
+interface MonthBlockProps {
+  monthData: MonthData;
+  today: Date;
+  bookings: CalendarBooking[];
+  blockedPeriods: BlockedPeriod[];
+  propertyId: number;
+  onBookingClick: (b: CalendarBooking) => void;
+  onCellClick: (date: Date) => void;
+  showTitle: boolean;
+}
+
+const MonthBlock: React.FC<MonthBlockProps> = React.memo(({
+  monthData,
+  today,
+  bookings,
+  blockedPeriods,
+  propertyId,
+  onBookingClick,
+  onCellClick,
+  showTitle,
+}) => {
+  return (
+    <div className="pb-4">
+      {showTitle && (
+        <div className="px-3 pt-6 pb-2">
+          <span className="font-bold capitalize" style={{ fontSize: 18, color: '#1A1A2E' }}>
+            {format(monthData.month, 'MMMM yyyy', { locale: fr })}
+          </span>
+        </div>
+      )}
+
+      {monthData.weeks.map((week, wi) => {
+        const segments = computeBarSegments(week, bookings, blockedPeriods, propertyId);
+
+        return (
+          <div key={wi} className="relative" style={{ minHeight: 70 }}>
+            {/* Day cells */}
+            <div className="grid grid-cols-7">
+              {week.map((day, di) => {
+                const isCurrentMonth = isSameMonth(day, monthData.month);
+                const isToday = isSameDay(day, today);
+
+                return (
+                  <div
+                    key={di}
+                    className="relative"
+                    style={{
+                      minHeight: 70,
+                      borderRight: di < 6 ? '1px solid #F0F0F0' : undefined,
+                      borderBottom: '1px solid #F0F0F0',
+                      backgroundColor: isCurrentMonth ? '#FFFFFF' : '#FAFAFA',
+                      padding: '4px 4px',
+                      boxSizing: 'border-box',
+                      cursor: isCurrentMonth ? 'pointer' : undefined,
+                    }}
+                    onClick={() => isCurrentMonth && onCellClick(day)}
+                  >
+                    {isToday ? (
+                      <div
+                        className="flex items-center justify-center"
+                        style={{
+                          width: 26,
+                          height: 26,
+                          borderRadius: '50%',
+                          backgroundColor: '#1A1A2E',
+                          color: '#FFFFFF',
+                          fontSize: 13,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {format(day, 'd')}
+                      </div>
+                    ) : (
+                      <span
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: isCurrentMonth ? '#1A1A2E' : '#CCCCCC',
+                        }}
+                      >
+                        {format(day, 'd')}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Reservation bar segments */}
+            {segments.map((seg, si) => {
+              const borderRadius = seg.isFirst && seg.isLast
+                ? '6px'
+                : seg.isFirst
+                  ? '6px 0 0 6px'
+                  : seg.isLast
+                    ? '0 6px 6px 0'
+                    : '0';
+
+              const channel = (seg.booking.channel || '').toLowerCase();
+              const initial = CHANNEL_INITIALS[channel];
+              const barWidthPx = seg.span * (100 / 7); // approximate
+
+              return (
+                <div
+                  key={`${seg.booking.id}-${si}`}
+                  style={{
+                    position: 'absolute',
+                    top: 30,
+                    height: 30,
+                    left: `calc(${seg.startCol} * (100% / 7) + 2px)`,
+                    width: `calc(${seg.span} * (100% / 7) - 4px)`,
+                    backgroundColor: seg.color,
+                    borderRadius,
+                    zIndex: 2,
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (channel !== 'blocked') {
+                      onBookingClick(seg.booking);
+                    }
+                  }}
+                >
+                  <span
+                    style={{
+                      flex: 1,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: '#FFFFFF',
+                      paddingLeft: 8,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      minWidth: 0,
+                    }}
+                  >
+                    {seg.booking.guestName}
+                  </span>
+                  {initial && seg.span >= 2 && (
+                    <div
+                      className="flex items-center justify-center flex-shrink-0"
+                      style={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(255,255,255,0.3)',
+                        fontSize: 9,
+                        fontWeight: 700,
+                        color: '#FFFFFF',
+                        marginRight: 6,
+                      }}
+                    >
+                      {initial}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+});
+
+MonthBlock.displayName = 'MonthBlock';

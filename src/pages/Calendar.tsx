@@ -203,62 +203,76 @@ const CalendarPage = () => {
     <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 56px)' }}>
       <TutorialTrigger moduleId="calendar" />
       
-      {/* Header - compact on mobile */}
-      <div className="flex-shrink-0 px-4 md:px-6 pt-4 pb-2 space-y-3">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div className="min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold tracking-tight truncate">Planning</h1>
-            {!isMobile && (
-              <p className="text-muted-foreground text-sm">
-                Visualisez et gérez les réservations de tous vos logements
-              </p>
-            )}
-          </div>
-          
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <TutorialButton moduleId="calendar" />
-            {hasSelection && activeTab === 'planning' && !selectedPropertyForMonth && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/20 rounded-lg animate-in fade-in">
-                <span className="text-sm font-medium">
-                  {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''}
-                </span>
-                <Button size="sm" variant="secondary" onClick={handleOpenPriceEdit} className="gap-1">
-                  <Euro className="w-3 h-3" />
-                  Prix
-                </Button>
-                <Button size="sm" variant="secondary" onClick={() => {
-                  if (selectionRange) {
-                    const property = properties.find(p => p.id === selectionRange.propertyId);
-                    handleOpenBlockDialog(property, selectionRange.startDate, selectionRange.endDate);
-                    clearSelection();
-                  }
-                }} className="gap-1">
-                  <Ban className="w-3 h-3" />
-                  Bloquer
-                </Button>
-                <Button size="sm" variant="ghost" onClick={clearSelection}>✕</Button>
-              </div>
-            )}
+      {/* Header - hidden when property month view is open */}
+      {!selectedPropertyForMonth && (
+        <div className="flex-shrink-0 px-4 md:px-6 pt-4 pb-2 space-y-3">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="min-w-0">
+              <h1 className="text-lg md:text-2xl font-bold tracking-tight truncate">Planning</h1>
+              {!isMobile && (
+                <p className="text-muted-foreground text-sm">
+                  Visualisez et gérez les réservations de tous vos logements
+                </p>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <TutorialButton moduleId="calendar" />
+              {hasSelection && activeTab === 'planning' && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/20 rounded-lg animate-in fade-in">
+                  <span className="text-sm font-medium">
+                    {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''}
+                  </span>
+                  <Button size="sm" variant="secondary" onClick={handleOpenPriceEdit} className="gap-1">
+                    <Euro className="w-3 h-3" />
+                    Prix
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => {
+                    if (selectionRange) {
+                      const property = properties.find(p => p.id === selectionRange.propertyId);
+                      handleOpenBlockDialog(property, selectionRange.startDate, selectionRange.endDate);
+                      clearSelection();
+                    }
+                  }} className="gap-1">
+                    <Ban className="w-3 h-3" />
+                    Bloquer
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={clearSelection}>✕</Button>
+                </div>
+              )}
 
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'planning' | 'pricing')}>
-              <TabsList className="h-9">
-                <TabsTrigger value="planning" className="gap-1.5 text-xs md:text-sm">
-                  <CalendarDays className="w-4 h-4" />
-                  {!isMobile && 'Réservations'}
-                </TabsTrigger>
-                <TabsTrigger value="pricing" className="gap-1.5 text-xs md:text-sm">
-                  <Euro className="w-4 h-4" />
-                  {!isMobile && 'Pricing'}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'planning' | 'pricing')}>
+                <TabsList className="h-9">
+                  <TabsTrigger value="planning" className="gap-1.5 text-xs md:text-sm">
+                    <CalendarDays className="w-4 h-4" />
+                    {!isMobile && 'Réservations'}
+                  </TabsTrigger>
+                  <TabsTrigger value="pricing" className="gap-1.5 text-xs md:text-sm">
+                    <Euro className="w-4 h-4" />
+                    {!isMobile && 'Pricing'}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {activeTab === 'planning' ? (
+      {selectedPropertyForMonth ? (
+        <PropertyMonthView
+          property={selectedPropertyForMonth}
+          bookings={bookings}
+          blockedPeriods={blockedPeriods}
+          currentMonth={monthViewDate}
+          onMonthChange={setMonthViewDate}
+          onClose={handleCloseMonthView}
+          onBookingClick={handleBookingClick}
+          onCellClick={handleCellClick}
+          getDailyPrice={getDailyPrice}
+          onPriceEditRequest={handleMonthViewPriceEdit}
+        />
+      ) : activeTab === 'planning' ? (
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Toolbar */}
           <div className="flex-shrink-0 px-4 md:px-6 pb-3" data-tutorial="calendar-toolbar">
             <CalendarToolbar
               currentDate={currentDate}
@@ -274,26 +288,6 @@ const CalendarPage = () => {
               onLayersChange={setLayers}
             />
           </div>
-
-          {/* Property Month View */}
-          {selectedPropertyForMonth && (
-            <div className="flex-shrink-0 px-4 md:px-6 pb-3">
-              <PropertyMonthView
-                property={selectedPropertyForMonth}
-                bookings={bookings}
-                blockedPeriods={blockedPeriods}
-                currentMonth={monthViewDate}
-                onMonthChange={setMonthViewDate}
-                onClose={handleCloseMonthView}
-                onBookingClick={handleBookingClick}
-                onCellClick={handleCellClick}
-                getDailyPrice={getDailyPrice}
-                onPriceEditRequest={handleMonthViewPriceEdit}
-              />
-            </div>
-          )}
-
-          {/* Calendar Grid - fills remaining space */}
           <div className="flex-1 overflow-hidden px-2 md:px-6 pb-2" data-tutorial="calendar-grid">
             <CalendarGrid
               properties={filteredProperties}
