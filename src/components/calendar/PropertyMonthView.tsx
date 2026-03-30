@@ -37,11 +37,11 @@ interface PropertyMonthViewProps {
 }
 
 const CHANNEL_COLORS_MAP: Record<string, string> = {
-  airbnb: '#FF5A5F',
+  airbnb: '#FF385C',
   booking: '#003580',
   vrbo: '#3D67B1',
-  direct: '#10B981',
-  other: '#6B7280',
+  direct: '#16A34A',
+  other: '#6366F1',
 };
 
 const PAST_COLOR = '#9CA3AF';
