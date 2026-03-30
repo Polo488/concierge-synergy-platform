@@ -1,26 +1,26 @@
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
-import { 
-  startOfMonth, 
-  endOfMonth, 
-  startOfWeek, 
-  endOfWeek, 
-  eachDayOfInterval, 
-  isSameMonth, 
-  isSameDay, 
-  format, 
-  isWithinInterval,
-  addDays,
+import {
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  isSameMonth,
+  isSameDay,
+  format,
+  addMonths,
+  subMonths,
   startOfDay,
-  isBefore,
-  isAfter
+  differenceInCalendarDays,
+  getDay,
+  isWithinInterval,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight, X, Euro } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-
-import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
+import { ChevronLeft, ChevronDown } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { CalendarLegend } from './grid/CalendarLegend';
+import type { CalendarProperty, CalendarBooking, BlockedPeriod, BookingChannel } from '@/types/calendar';
 
 interface PropertyMonthViewProps {
   property: CalendarProperty;
@@ -31,12 +31,13 @@ interface PropertyMonthViewProps {
   onClose: () => void;
   onBookingClick: (booking: CalendarBooking) => void;
   onCellClick: (date: Date, propertyId: number) => void;
+  properties?: CalendarProperty[];
+  onPropertyChange?: (property: CalendarProperty) => void;
   getDailyPrice?: (propertyId: number, date: Date) => number;
-  // Multi-day selection callback
   onPriceEditRequest?: (propertyId: number, startDate: Date, endDate: Date, currentPrice: number) => void;
 }
 
-const CHANNEL_COLORS_MAP: Record<string, string> = {
+const CHANNEL_COLORS: Record<string, string> = {
   airbnb: '#FF385C',
   booking: '#003580',
   vrbo: '#3D67B1',
@@ -44,12 +45,372 @@ const CHANNEL_COLORS_MAP: Record<string, string> = {
   other: '#6366F1',
 };
 
-const PAST_COLOR = '#9CA3AF';
+const CHANNEL_INITIALS: Record<string, string> = {
+  airbnb: 'A',
+  booking: 'B',
+  vrbo: 'V',
+  direct: 'D',
+  other: '?',
+};
 
-interface DaySelection {
-  date: Date;
+const WEEK_DAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+
+// Convert JS getDay (0=Sun) to Mon-based (0=Mon, 6=Sun)
+const dayToMonIndex = (date: Date): number => {
+  const d = getDay(date);
+  return d === 0 ? 6 : d - 1;
+};
+
+interface BookingBarSegment {
+  booking: CalendarBooking;
+  startCol: number;
+  span: number;
+  isStart: boolean;
+  isEnd: boolean;
+  row: number; // for stacking
 }
 
+interface BlockBarSegment {
+  block: BlockedPeriod;
+  startCol: number;
+  span: number;
+  isStart: boolean;
+  isEnd: boolean;
+  row: number;
+}
+
+// ─── MonthGrid component ───
+const MonthGrid: React.FC<{
+  month: Date;
+  property: CalendarProperty;
+  bookings: CalendarBooking[];
+  blockedPeriods: BlockedPeriod[];
+  onBookingClick: (b: CalendarBooking) => void;
+  onCellClick: (date: Date, propertyId: number) => void;
+  getDailyPrice?: (propertyId: number, date: Date) => number;
+  isMobile: boolean;
+}> = ({ month, property, bookings, blockedPeriods, onBookingClick, onCellClick, getDailyPrice, isMobile }) => {
+  const today = startOfDay(new Date());
+  const monthStart = startOfMonth(month);
+  const monthEnd = endOfMonth(month);
+  const calStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+  const calEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+  const allDays = eachDayOfInterval({ start: calStart, end: calEnd });
+
+  const weeks: Date[][] = [];
+  for (let i = 0; i < allDays.length; i += 7) {
+    weeks.push(allDays.slice(i, i + 7));
+  }
+
+  // Filter bookings for this property + month range
+  const propBookings = useMemo(() => {
+    return bookings.filter(b => {
+      if (b.propertyId !== property.id) return false;
+      const ci = startOfDay(b.checkIn);
+      const co = startOfDay(b.checkOut);
+      return ci <= calEnd && co >= calStart;
+    });
+  }, [bookings, property.id, calStart, calEnd]);
+
+  const propBlocked = useMemo(() => {
+    return blockedPeriods.filter(b => {
+      if (b.propertyId !== property.id) return false;
+      const s = startOfDay(b.startDate);
+      const e = startOfDay(b.endDate);
+      return s <= calEnd && e >= calStart;
+    });
+  }, [blockedPeriods, property.id, calStart, calEnd]);
+
+  // For each week, compute bar segments
+  const getSegments = useCallback((week: Date[]): { bookingSegs: BookingBarSegment[]; blockSegs: BlockBarSegment[] } => {
+    const weekStart = startOfDay(week[0]);
+    const weekEnd = startOfDay(week[6]);
+
+    const bookingSegs: BookingBarSegment[] = [];
+    for (const b of propBookings) {
+      const ci = startOfDay(b.checkIn);
+      const co = startOfDay(b.checkOut);
+      // Booking occupies from checkIn to checkOut-1 (last night)
+      const lastNight = startOfDay(new Date(co.getTime() - 86400000));
+      if (lastNight < weekStart || ci > weekEnd) continue;
+
+      const segStart = ci < weekStart ? weekStart : ci;
+      const segEnd = lastNight > weekEnd ? weekEnd : lastNight;
+      const startCol = dayToMonIndex(segStart);
+      const endCol = dayToMonIndex(segEnd);
+      const span = endCol - startCol + 1;
+
+      bookingSegs.push({
+        booking: b,
+        startCol,
+        span,
+        isStart: isSameDay(segStart, ci),
+        isEnd: isSameDay(segEnd, lastNight),
+        row: 0,
+      });
+    }
+
+    const blockSegs: BlockBarSegment[] = [];
+    for (const bl of propBlocked) {
+      const s = startOfDay(bl.startDate);
+      const e = startOfDay(bl.endDate);
+      if (e < weekStart || s > weekEnd) continue;
+
+      const segStart = s < weekStart ? weekStart : s;
+      const segEnd = e > weekEnd ? weekEnd : e;
+      const startCol = dayToMonIndex(segStart);
+      const endCol = dayToMonIndex(segEnd);
+      const span = endCol - startCol + 1;
+
+      // Check if any booking covers these days
+      const isOverlapped = propBookings.some(b => {
+        const ci = startOfDay(b.checkIn);
+        const lastNight = startOfDay(new Date(startOfDay(b.checkOut).getTime() - 86400000));
+        return ci <= segEnd && lastNight >= segStart;
+      });
+      if (isOverlapped) continue;
+
+      blockSegs.push({
+        block: bl,
+        startCol,
+        span,
+        isStart: isSameDay(segStart, s),
+        isEnd: isSameDay(segEnd, e),
+        row: 0,
+      });
+    }
+
+    // Simple stacking: assign rows to avoid overlap
+    const allSegs = [...bookingSegs.map((s, i) => ({ idx: i, type: 'b' as const, startCol: s.startCol, span: s.span })),
+                     ...blockSegs.map((s, i) => ({ idx: i, type: 'bl' as const, startCol: s.startCol, span: s.span }))];
+    allSegs.sort((a, b) => a.startCol - b.startCol || b.span - a.span);
+
+    const rows: { end: number }[] = [];
+    for (const seg of allSegs) {
+      let placed = false;
+      for (let r = 0; r < rows.length; r++) {
+        if (rows[r].end <= seg.startCol) {
+          rows[r].end = seg.startCol + seg.span;
+          if (seg.type === 'b') bookingSegs[seg.idx].row = r;
+          else blockSegs[seg.idx].row = r;
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        const r = rows.length;
+        rows.push({ end: seg.startCol + seg.span });
+        if (seg.type === 'b') bookingSegs[seg.idx].row = r;
+        else blockSegs[seg.idx].row = r;
+      }
+    }
+
+    return { bookingSegs, blockSegs };
+  }, [propBookings, propBlocked]);
+
+  // Check if a day is covered by a booking or block
+  const isDayCovered = useCallback((day: Date): boolean => {
+    const d = startOfDay(day);
+    for (const b of propBookings) {
+      const ci = startOfDay(b.checkIn);
+      const lastNight = startOfDay(new Date(startOfDay(b.checkOut).getTime() - 86400000));
+      if (d >= ci && d <= lastNight) return true;
+    }
+    for (const bl of propBlocked) {
+      if (d >= startOfDay(bl.startDate) && d <= startOfDay(bl.endDate)) return true;
+    }
+    return false;
+  }, [propBookings, propBlocked]);
+
+  const cellH = isMobile ? 60 : 72;
+  const barH = isMobile ? 22 : 28;
+  const barTop = isMobile ? 26 : 32;
+  const barFontSize = isMobile ? 10 : 12;
+  const dayFontSize = isMobile ? 11 : 13;
+
+  return (
+    <div className="w-full">
+      {/* Month title */}
+      <div style={{ margin: '24px 16px 12px 16px', fontSize: 20, fontWeight: 700, color: '#1A1A2E' }}>
+        {format(month, 'MMM yyyy', { locale: fr }).replace(/^./, c => c.toUpperCase())}
+      </div>
+
+      {/* Weekday headers */}
+      <div className="grid grid-cols-7 w-full" style={{ borderBottom: '1px solid #EEEEEE' }}>
+        {WEEK_DAYS.map(d => (
+          <div key={d} style={{ height: 28, fontSize: 11, color: '#9A9AAF', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', textTransform: 'uppercase' }}>
+            {d}
+          </div>
+        ))}
+      </div>
+
+      {/* Week rows */}
+      {weeks.map((week, wi) => {
+        const { bookingSegs, blockSegs } = getSegments(week);
+        const maxRow = Math.max(0, ...bookingSegs.map(s => s.row), ...blockSegs.map(s => s.row));
+        const extraRows = maxRow > 0 ? maxRow : 0;
+        const rowH = cellH + extraRows * (barH + 4);
+
+        return (
+          <div key={wi} className="grid grid-cols-7 w-full relative" style={{ minHeight: rowH, borderBottom: '1px solid #F0F0F0' }}>
+            {/* Day cells */}
+            {week.map((day, di) => {
+              const inMonth = isSameMonth(day, month);
+              const isToday = isSameDay(day, today);
+              const covered = isDayCovered(day);
+              const price = getDailyPrice ? getDailyPrice(property.id, day) : property.pricePerNight;
+
+              return (
+                <div
+                  key={di}
+                  style={{
+                    minHeight: rowH,
+                    borderRight: di < 6 ? '1px solid #F0F0F0' : undefined,
+                    padding: '6px 4px',
+                    boxSizing: 'border-box',
+                    position: 'relative',
+                    background: !inMonth ? '#FAFAFA' : isToday ? 'rgba(255,92,26,0.04)' : '#FFFFFF',
+                    cursor: inMonth && !covered ? 'pointer' : 'default',
+                  }}
+                  onClick={() => {
+                    if (inMonth && !covered) onCellClick(day, property.id);
+                  }}
+                >
+                  {/* Day number */}
+                  {isToday ? (
+                    <div style={{
+                      position: 'absolute', top: 6, left: 6,
+                      width: 24, height: 24, borderRadius: '50%',
+                      backgroundColor: '#FF5C1A', color: '#FFFFFF',
+                      fontSize: dayFontSize, fontWeight: 600,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {format(day, 'd')}
+                    </div>
+                  ) : (
+                    <div style={{
+                      position: 'absolute', top: 6, left: 6,
+                      fontSize: dayFontSize, fontWeight: 600,
+                      color: inMonth ? '#1A1A2E' : '#CCCCCC',
+                    }}>
+                      {format(day, 'd')}
+                    </div>
+                  )}
+
+                  {/* Price on free days (desktop only) */}
+                  {!isMobile && inMonth && !covered && (
+                    <div style={{
+                      position: 'absolute', bottom: 4, left: 0, right: 0,
+                      textAlign: 'center', fontSize: 10, color: '#9A9AAF',
+                    }}>
+                      {price}€
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Booking bars - absolutely positioned */}
+            {bookingSegs.map((seg, si) => {
+              const color = CHANNEL_COLORS[seg.booking.channel] || CHANNEL_COLORS.other;
+              const initial = CHANNEL_INITIALS[seg.booking.channel] || '?';
+              const widthPercent = (seg.span / 7) * 100;
+              const leftPercent = (seg.startCol / 7) * 100;
+
+              const borderRadius = [
+                seg.isStart ? 6 : 0,
+                seg.isEnd ? 6 : 0,
+                seg.isEnd ? 6 : 0,
+                seg.isStart ? 6 : 0,
+              ].map(v => v + 'px').join(' ');
+
+              return (
+                <div
+                  key={`b-${si}`}
+                  onClick={(e) => { e.stopPropagation(); onBookingClick(seg.booking); }}
+                  style={{
+                    position: 'absolute',
+                    top: barTop + seg.row * (barH + 4),
+                    left: `calc(${leftPercent}% + 2px)`,
+                    width: `calc(${widthPercent}% - 4px)`,
+                    height: barH,
+                    backgroundColor: color,
+                    borderRadius,
+                    display: 'flex',
+                    alignItems: 'center',
+                    overflow: 'hidden',
+                    zIndex: 2,
+                    cursor: 'pointer',
+                    borderLeft: seg.isStart ? '3px solid rgba(0,0,0,0.2)' : undefined,
+                    borderRight: seg.isEnd ? '3px solid rgba(0,0,0,0.2)' : undefined,
+                  }}
+                >
+                  <span style={{
+                    color: '#FFFFFF', fontSize: barFontSize, fontWeight: 600,
+                    paddingLeft: 8, whiteSpace: 'nowrap', overflow: 'hidden',
+                    textOverflow: 'ellipsis', flex: 1, minWidth: 0,
+                  }}>
+                    {seg.booking.guestName}
+                  </span>
+                  {widthPercent > 15 && (
+                    <span style={{
+                      width: 16, height: 16, borderRadius: '50%',
+                      backgroundColor: 'rgba(255,255,255,0.3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 9, fontWeight: 700, color: '#FFFFFF',
+                      marginRight: 6, flexShrink: 0,
+                    }}>
+                      {initial}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Block bars */}
+            {blockSegs.map((seg, si) => {
+              const widthPercent = (seg.span / 7) * 100;
+              const leftPercent = (seg.startCol / 7) * 100;
+              const borderRadius = [
+                seg.isStart ? 6 : 0, seg.isEnd ? 6 : 0,
+                seg.isEnd ? 6 : 0, seg.isStart ? 6 : 0,
+              ].map(v => v + 'px').join(' ');
+
+              return (
+                <div
+                  key={`bl-${si}`}
+                  style={{
+                    position: 'absolute',
+                    top: barTop + seg.row * (barH + 4),
+                    left: `calc(${leftPercent}% + 2px)`,
+                    width: `calc(${widthPercent}% - 4px)`,
+                    height: barH,
+                    backgroundColor: '#9CA3AF',
+                    borderRadius,
+                    display: 'flex',
+                    alignItems: 'center',
+                    overflow: 'hidden',
+                    zIndex: 2,
+                  }}
+                >
+                  <span style={{
+                    color: '#FFFFFF', fontSize: barFontSize, fontWeight: 600,
+                    paddingLeft: 8, whiteSpace: 'nowrap', overflow: 'hidden',
+                    textOverflow: 'ellipsis', flex: 1,
+                  }}>
+                    Bloqué
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// ─── Main full-screen component ───
 export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
   property,
   bookings,
@@ -59,408 +420,203 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
   onClose,
   onBookingClick,
   onCellClick,
+  properties,
+  onPropertyChange,
   getDailyPrice,
   onPriceEditRequest,
 }) => {
-  const today = startOfDay(new Date());
+  const isMobile = useIsMobile();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const currentMonthRef = useRef<HTMLDivElement>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Multi-day selection state
-  const [selectedDays, setSelectedDays] = useState<DaySelection[]>([]);
-  const [isSelecting, setIsSelecting] = useState(false);
-  const selectionStartRef = useRef<Date | null>(null);
-  const lastClickedRef = useRef<Date | null>(null);
+  // Generate months: 2 past + current + 2 future initially, grow on scroll
+  const [monthRange, setMonthRange] = useState<{ past: number; future: number }>({ past: 2, future: 2 });
 
-  // Generate calendar days for the month grid
-  const calendarDays = useMemo(() => {
-    const monthStart = startOfMonth(currentMonth);
-    const monthEnd = endOfMonth(currentMonth);
-    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
-    
-    return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-  }, [currentMonth]);
-
-  // Get property bookings for the current month view
-  const propertyBookings = useMemo(() => {
-    const firstDay = calendarDays[0];
-    const lastDay = calendarDays[calendarDays.length - 1];
-    
-    return bookings.filter(b => {
-      if (b.propertyId !== property.id) return false;
-      const checkIn = startOfDay(b.checkIn);
-      const checkOut = startOfDay(b.checkOut);
-      // Include if any part of booking overlaps with visible range
-      return checkIn <= lastDay && checkOut >= firstDay;
-    });
-  }, [bookings, property.id, calendarDays]);
-
-  // Get blocked periods for the property
-  const propertyBlocked = useMemo(() => {
-    const firstDay = calendarDays[0];
-    const lastDay = calendarDays[calendarDays.length - 1];
-    
-    return blockedPeriods.filter(b => {
-      if (b.propertyId !== property.id) return false;
-      const start = startOfDay(b.startDate);
-      const end = startOfDay(b.endDate);
-      return start <= lastDay && end >= firstDay;
-    });
-  }, [blockedPeriods, property.id, calendarDays]);
-
-  // Get booking info for a specific day
-  const getBookingForDay = (day: Date): CalendarBooking | null => {
-    const dayStart = startOfDay(day);
-    return propertyBookings.find(b => {
-      const checkIn = startOfDay(b.checkIn);
-      const checkOut = startOfDay(b.checkOut);
-      // Include check-in to check-out day (checkout day shows departure)
-      return dayStart >= checkIn && dayStart <= checkOut;
-    }) || null;
-  };
-
-  // Check if day is blocked
-  const isBlocked = (day: Date): BlockedPeriod | null => {
-    const dayStart = startOfDay(day);
-    return propertyBlocked.find(b => {
-      const start = startOfDay(b.startDate);
-      const end = startOfDay(b.endDate);
-      return isWithinInterval(dayStart, { start, end });
-    }) || null;
-  };
-
-  // Check if this is check-in day
-  const isCheckInDay = (day: Date, booking: CalendarBooking): boolean => {
-    return isSameDay(startOfDay(day), startOfDay(booking.checkIn));
-  };
-
-  // Check if this is check-out day
-  const isCheckOutDay = (day: Date, booking: CalendarBooking): boolean => {
-    return isSameDay(startOfDay(day), startOfDay(booking.checkOut));
-  };
-
-  // Get color for booking
-  const getBookingColor = (booking: CalendarBooking, isPast: boolean): string => {
-    if (isPast) return PAST_COLOR;
-    return CHANNEL_COLORS_MAP[booking.channel] || CHANNEL_COLORS_MAP.other;
-  };
-
-  // Navigate months
-  const prevMonth = () => {
-    onMonthChange(addDays(startOfMonth(currentMonth), -1));
-  };
-
-  const nextMonth = () => {
-    onMonthChange(addDays(endOfMonth(currentMonth), 1));
-  };
-
-  const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-
-  // Group days into weeks
-  const weeks = useMemo(() => {
-    const result: Date[][] = [];
-    for (let i = 0; i < calendarDays.length; i += 7) {
-      result.push(calendarDays.slice(i, i + 7));
+  const months = useMemo(() => {
+    const result: Date[] = [];
+    const now = new Date();
+    for (let i = -monthRange.past; i <= monthRange.future; i++) {
+      result.push(startOfMonth(addMonths(now, i)));
     }
     return result;
-  }, [calendarDays]);
+  }, [monthRange]);
 
-  // Selection helpers
-  const isDaySelected = useCallback((date: Date): boolean => {
-    const dayStart = startOfDay(date);
-    return selectedDays.some(s => isSameDay(startOfDay(s.date), dayStart));
-  }, [selectedDays]);
-
-  const getSelectionRange = useCallback((start: Date, end: Date): DaySelection[] => {
-    const startDate = startOfDay(start);
-    const endDate = startOfDay(end);
-    
-    const [rangeStart, rangeEnd] = isBefore(startDate, endDate) 
-      ? [startDate, endDate] 
-      : [endDate, startDate];
-    
-    const days = eachDayOfInterval({ start: rangeStart, end: rangeEnd });
-    return days.map(date => ({ date }));
-  }, []);
-
-  const handleDayMouseDown = useCallback((day: Date, isEmpty: boolean, event: React.MouseEvent) => {
-    if (!isEmpty) return;
-    event.preventDefault();
-    
-    const dayStart = startOfDay(day);
-    
-    if (!event.shiftKey) {
-      selectionStartRef.current = dayStart;
-      setIsSelecting(true);
-      setSelectedDays([{ date: dayStart }]);
-    }
-  }, []);
-
-  const handleDayMouseEnter = useCallback((day: Date) => {
-    if (!isSelecting || !selectionStartRef.current) return;
-    
-    const dayStart = startOfDay(day);
-    const newSelection = getSelectionRange(selectionStartRef.current, dayStart);
-    setSelectedDays(newSelection);
-  }, [isSelecting, getSelectionRange]);
-
-  const handleDayMouseUp = useCallback(() => {
-    if (isSelecting) {
-      setIsSelecting(false);
-      if (selectedDays.length > 0) {
-        lastClickedRef.current = selectedDays[0].date;
-      }
-    }
-  }, [isSelecting, selectedDays]);
-
-  const handleDayClick = useCallback((day: Date, isEmpty: boolean, event: React.MouseEvent) => {
-    if (!isEmpty) return;
-    
-    const dayStart = startOfDay(day);
-    
-    if (event.shiftKey && lastClickedRef.current) {
-      const rangeSelection = getSelectionRange(lastClickedRef.current, dayStart);
-      setSelectedDays(rangeSelection);
-    } else if (!isSelecting) {
-      setSelectedDays([{ date: dayStart }]);
-      lastClickedRef.current = dayStart;
-    }
-  }, [getSelectionRange, isSelecting]);
-
-  // Global mouseup listener
+  // Scroll to current month on mount
   useEffect(() => {
-    if (isSelecting) {
-      const handleGlobalMouseUp = () => handleDayMouseUp();
-      window.addEventListener('mouseup', handleGlobalMouseUp);
-      return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
-    }
-  }, [isSelecting, handleDayMouseUp]);
+    const timer = setTimeout(() => {
+      currentMonthRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
-  // Handle price edit button click
-  const handleEditPrices = () => {
-    if (selectedDays.length === 0 || !onPriceEditRequest) return;
-    
-    const sortedDays = [...selectedDays].sort((a, b) => a.date.getTime() - b.date.getTime());
-    const startDate = sortedDays[0].date;
-    const endDate = sortedDays[sortedDays.length - 1].date;
-    const currentPrice = getDailyPrice ? getDailyPrice(property.id, startDate) : property.pricePerNight;
-    
-    onPriceEditRequest(property.id, startDate, endDate, currentPrice);
-  };
+  // Intersection observer to load more months
+  const bottomSentinel = useRef<HTMLDivElement>(null);
+  const topSentinel = useRef<HTMLDivElement>(null);
 
-  const clearSelection = () => {
-    setSelectedDays([]);
-    selectionStartRef.current = null;
-    lastClickedRef.current = null;
-  };
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          if (entry.target === bottomSentinel.current) {
+            setMonthRange(prev => ({ ...prev, future: prev.future + 2 }));
+          }
+        }
+      }
+    }, { rootMargin: '200px' });
+
+    if (bottomSentinel.current) observer.observe(bottomSentinel.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const allProperties = properties || [property];
 
   return (
-    <div className="bg-primary/5 rounded-lg border border-primary/20 select-none overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 md:p-4 border-b border-border bg-primary/10 rounded-t-lg gap-2 flex-wrap">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-            {property.thumbnail ? (
-              <img src={property.thumbnail} alt={property.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">N/A</div>
-            )}
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-sm md:text-lg font-semibold truncate">{property.name}</h2>
-            <p className="text-xs text-muted-foreground">
-              {property.capacity} pers. • {property.pricePerNight}€/nuit
-            </p>
-          </div>
-        </div>
+    <div
+      className="fixed inset-0 flex flex-col"
+      style={{
+        zIndex: 100,
+        backgroundColor: '#FFFFFF',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Sticky header */}
+      <div
+        className="flex items-center justify-between flex-shrink-0"
+        style={{
+          height: isMobile ? 48 : 56,
+          borderBottom: '1px solid #EEEEEE',
+          padding: '0 16px',
+          backgroundColor: '#FFFFFF',
+          zIndex: 20,
+        }}
+      >
+        {/* Left: back button */}
+        <button
+          onClick={onClose}
+          style={{
+            width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0,
+          }}
+        >
+          <ChevronLeft style={{ width: 20, height: 20, color: '#1A1A2E' }} />
+        </button>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          {selectedDays.length > 0 && (
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-primary/20 rounded-lg">
-              <span className="text-xs font-medium">
-                {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''}
-              </span>
-              <Button size="sm" variant="secondary" onClick={handleEditPrices} className="gap-1 h-7 text-xs">
-                <Euro className="w-3 h-3" />
-                Prix
-              </Button>
-              <Button size="sm" variant="ghost" onClick={clearSelection} className="h-7 text-xs">✕</Button>
+        {/* Center: property selector */}
+        <div className="relative" style={{ flex: '0 1 auto', minWidth: 0 }}>
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: '#F7F7F9', border: '1px solid #EEEEEE',
+              borderRadius: 99, height: 36, padding: '0 12px',
+              cursor: 'pointer', maxWidth: 260,
+            }}
+          >
+            {property.thumbnail && (
+              <img src={property.thumbnail} alt="" style={{ width: 24, height: 24, borderRadius: 4, objectFit: 'cover', flexShrink: 0 }} />
+            )}
+            <span style={{
+              fontSize: 13, fontWeight: 600, color: '#1A1A2E',
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+              maxWidth: 160,
+            }}>
+              {property.name}
+            </span>
+            <ChevronDown style={{ width: 16, height: 16, color: '#9A9AAF', flexShrink: 0 }} />
+          </button>
+
+          {/* Dropdown */}
+          {dropdownOpen && onPropertyChange && (
+            <div
+              className="absolute top-full left-1/2 mt-1"
+              style={{
+                transform: 'translateX(-50%)',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #EEEEEE',
+                borderRadius: 12,
+                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                zIndex: 50,
+                maxHeight: 300,
+                overflowY: 'auto',
+                width: 260,
+              }}
+            >
+              {allProperties.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => {
+                    onPropertyChange(p);
+                    setDropdownOpen(false);
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '10px 12px', width: '100%',
+                    background: p.id === property.id ? '#F7F7F9' : 'transparent',
+                    border: 'none', cursor: 'pointer', textAlign: 'left',
+                  }}
+                >
+                  {p.thumbnail && (
+                    <img src={p.thumbnail} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }} />
+                  )}
+                  <span style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {p.name}
+                  </span>
+                </button>
+              ))}
             </div>
           )}
-
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" onClick={prevMonth} className="h-9 w-9 min-h-[44px] min-w-[44px]">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="text-sm md:text-lg font-medium min-w-[100px] md:min-w-[180px] text-center capitalize">
-              {format(currentMonth, 'MMM yyyy', { locale: fr })}
-            </span>
-            <Button variant="outline" size="icon" onClick={nextMonth} className="h-9 w-9 min-h-[44px] min-w-[44px]">
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9 min-h-[44px] min-w-[44px]">
-            <X className="h-5 w-5" />
-          </Button>
         </div>
+
+        {/* Right: placeholder for action icons */}
+        <div style={{ width: 40 }} />
       </div>
 
-      {/* Calendar Grid */}
-      <div className="p-2 md:p-4">
-        {/* Week day headers */}
-        <div className="grid grid-cols-7 gap-0.5 mb-1">
-          {weekDays.map(day => (
-            <div key={day} className="text-center text-[11px] font-medium text-muted-foreground uppercase py-1.5">
-              {day}
+      {/* Scrollable months container */}
+      <div
+        ref={scrollRef}
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          WebkitOverflowScrolling: 'touch',
+          paddingBottom: 80,
+        }}
+      >
+        <div ref={topSentinel} style={{ height: 1 }} />
+
+        {months.map((m, i) => {
+          const isCurrentMonth = isSameMonth(m, new Date());
+          return (
+            <div key={format(m, 'yyyy-MM')} ref={isCurrentMonth ? currentMonthRef : undefined}>
+              <MonthGrid
+                month={m}
+                property={property}
+                bookings={bookings}
+                blockedPeriods={blockedPeriods}
+                onBookingClick={onBookingClick}
+                onCellClick={onCellClick}
+                getDailyPrice={getDailyPrice}
+                isMobile={isMobile}
+              />
             </div>
-          ))}
-        </div>
+          );
+        })}
 
-        {/* Calendar cells */}
-        <div className="grid grid-cols-7 gap-0.5">
-          {calendarDays.map((day, index) => {
-            const isCurrentMonth = isSameMonth(day, currentMonth);
-            const isToday = isSameDay(day, today);
-            const isPast = day < today && !isToday;
-            const booking = getBookingForDay(day);
-            const blocked = isBlocked(day);
-            const isEmpty = !booking && !blocked;
-            const isSelected = isDaySelected(day);
-            
-            const isCheckIn = booking ? isCheckInDay(day, booking) : false;
-            const isCheckOut = booking ? isCheckOutDay(day, booking) : false;
-            
-            const dailyPrice = getDailyPrice ? getDailyPrice(property.id, day) : property.pricePerNight;
-
-            // Determine bevel clip path for booking overlay
-            const getBevelClipPath = () => {
-              const bevelSize = 14;
-              if (isCheckIn && isCheckOut) {
-                // Single day booking - both bevels
-                return `polygon(${bevelSize}px 0, 100% 0, calc(100% - ${bevelSize}px) 100%, 0 100%)`;
-              } else if (isCheckIn) {
-                // Left bevel only
-                return `polygon(${bevelSize}px 0, 100% 0, 100% 100%, 0 100%)`;
-              } else if (isCheckOut) {
-                // Right bevel only
-                return `polygon(0 0, 100% 0, calc(100% - ${bevelSize}px) 100%, 0 100%)`;
-              }
-              return undefined;
-            };
-
-            return (
-              <div
-                key={index}
-                className={cn(
-                  "relative min-h-[56px] md:min-h-[90px] border rounded-md p-0.5 md:p-1 transition-colors",
-                  isCurrentMonth ? "bg-background" : "bg-muted/30",
-                  isToday && "ring-2 ring-primary",
-                  isEmpty && isCurrentMonth && "cursor-pointer hover:bg-accent/30",
-                  !isCurrentMonth && "opacity-50",
-                  isSelected && isEmpty && "ring-2 ring-inset ring-primary bg-primary/20"
-                )}
-                onMouseDown={(e) => handleDayMouseDown(day, isEmpty && isCurrentMonth, e)}
-                onMouseEnter={() => handleDayMouseEnter(day)}
-                onClick={(e) => {
-                  if (booking) {
-                    onBookingClick(booking);
-                  } else if (isEmpty && isCurrentMonth) {
-                    handleDayClick(day, true, e);
-                  }
-                }}
-              >
-                {/* Day number */}
-                <div className={cn(
-                  "text-sm font-medium",
-                  isToday ? "text-primary" : "text-foreground"
-                )}>
-                  {format(day, 'd')}
-                </div>
-
-                {/* Booking overlay */}
-                {booking && (
-                  <div 
-                    className={cn(
-                      "absolute inset-x-0 top-7 bottom-6 flex items-center cursor-pointer transition-transform hover:scale-[1.02] overflow-hidden",
-                      isCheckIn && "ml-1",
-                      isCheckOut && "mr-1"
-                    )}
-                    style={{
-                      backgroundColor: getBookingColor(booking, isPast && booking.checkOut < today),
-                      clipPath: getBevelClipPath(),
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onBookingClick(booking);
-                    }}
-                  >
-                    <div className="flex items-center gap-1 w-full h-full overflow-hidden" style={{ padding: '0 8px' }}>
-                      <span 
-                        className="truncate flex-1 min-w-0"
-                        style={{
-                          color: '#FFFFFF',
-                          fontSize: 11,
-                          fontWeight: 600,
-                          lineHeight: 1,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        {booking.guestName.split(' ')[0]}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Blocked overlay */}
-                {blocked && !booking && (
-                  <div 
-                    className="absolute inset-x-1 top-7 bottom-6 flex items-center justify-center rounded overflow-hidden"
-                    style={{ backgroundColor: '#9CA3AF' }}
-                  >
-                    <span style={{ fontSize: 11, fontWeight: 600, color: '#FFFFFF' }}>Bloqué</span>
-                  </div>
-                )}
-
-                {/* Daily price at bottom */}
-                <div className="absolute bottom-1 left-1 right-1 flex justify-between items-center">
-                  <span className={cn(
-                    "text-xs font-medium",
-                    booking ? "text-muted-foreground/60" : "text-muted-foreground"
-                  )}>
-                    {dailyPrice}€
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <div ref={bottomSentinel} style={{ height: 1 }} />
       </div>
 
       {/* Legend */}
-      <div className="px-4 pb-4 flex items-center gap-4 text-xs text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded" style={{ backgroundColor: CHANNEL_COLORS_MAP.airbnb }} />
-          <span>Airbnb</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded" style={{ backgroundColor: CHANNEL_COLORS_MAP.booking }} />
-          <span>Booking</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded" style={{ backgroundColor: CHANNEL_COLORS_MAP.direct }} />
-          <span>Direct</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded" style={{ backgroundColor: '#9CA3AF', borderRadius: 2 }} />
-          <span>Bloqué</span>
-        </div>
-        <div className="flex items-center gap-1 ml-4">
-          <div className="w-3 h-3 rounded ring-2 ring-primary bg-primary/20" />
-          <span>Sélectionné (glisser ou Shift+clic)</span>
-        </div>
-      </div>
+      <CalendarLegend />
+
+      {/* Close dropdown on outside click */}
+      {dropdownOpen && (
+        <div
+          className="fixed inset-0"
+          style={{ zIndex: 49 }}
+          onClick={() => setDropdownOpen(false)}
+        />
+      )}
     </div>
   );
 };
