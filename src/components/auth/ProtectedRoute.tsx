@@ -6,7 +6,6 @@ export const ProtectedRoute = () => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  // Show loading state while checking authentication
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
@@ -18,11 +17,14 @@ export const ProtectedRoute = () => {
     );
   }
 
-  // Redirect to login if not authenticated
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Render child routes if authenticated
+  // Redirect to beta onboarding if not completed
+  if (localStorage.getItem('noe_onboarding_done') !== 'true' && location.pathname !== '/beta-onboarding') {
+    return <Navigate to="/beta-onboarding" replace />;
+  }
+
   return <Outlet />;
 };
