@@ -48,6 +48,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8">
+      <BetaCaptureModal />
       <TutorialTrigger moduleId="dashboard" />
       <div data-tutorial="dashboard-header" className="flex items-center justify-between">
         <div>
