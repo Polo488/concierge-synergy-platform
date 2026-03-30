@@ -23,8 +23,7 @@ const CHANNEL_SOLID_COLORS: Record<string, string> = {
   other: '#6366F1',
 };
 
-const PAST_BG = '#9CA3AF';
-const BLOCKED_BG = '#9CA3AF';
+const BLOCKED_BG = '#6B7280';
 
 // Channel initial in a semi-transparent white circle
 const ChannelBadge: React.FC<{ channel: string }> = ({ channel }) => {
