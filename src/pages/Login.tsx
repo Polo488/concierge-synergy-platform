@@ -92,16 +92,17 @@ const MobileAnnotation = () => (
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className="mt-1"
+      style={{ marginLeft: '-30px' }}
     >
       <path
-        d="M 25 5 C 20 15, 28 25, 22 35 C 18 42, 24 45, 25 48"
+        d="M 25 5 C 20 15, 18 25, 15 35 C 13 42, 14 45, 15 48"
         stroke="#6B7AE8"
         strokeWidth="2.5"
         strokeLinecap="round"
         fill="none"
       />
       <path
-        d="M 19 40 L 25 48 L 31 40"
+        d="M 9 40 L 15 48 L 21 40"
         stroke="#6B7AE8"
         strokeWidth="2.5"
         strokeLinecap="round"
