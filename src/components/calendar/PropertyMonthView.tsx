@@ -254,79 +254,70 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
   };
 
   return (
-    <div className="bg-primary/5 rounded-lg border border-primary/20 select-none">
+    <div className="bg-primary/5 rounded-lg border border-primary/20 select-none overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-primary/10 rounded-t-lg">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted">
+      <div className="flex items-center justify-between p-3 md:p-4 border-b border-border bg-primary/10 rounded-t-lg gap-2 flex-wrap">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
             {property.thumbnail ? (
-              <img
-                src={property.thumbnail}
-                alt={property.name}
-                className="w-full h-full object-cover"
-              />
+              <img src={property.thumbnail} alt={property.name} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
-                N/A
-              </div>
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">N/A</div>
             )}
           </div>
-          <div>
-            <h2 className="text-lg font-semibold">{property.name}</h2>
-            <p className="text-sm text-muted-foreground">
-              {property.capacity} personnes • {property.pricePerNight}€/nuit
+          <div className="min-w-0">
+            <h2 className="text-sm md:text-lg font-semibold truncate">{property.name}</h2>
+            <p className="text-xs text-muted-foreground">
+              {property.capacity} pers. • {property.pricePerNight}€/nuit
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* Selection info & actions */}
+        <div className="flex items-center gap-2 flex-wrap">
           {selectedDays.length > 0 && (
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/20 rounded-lg">
-              <span className="text-sm font-medium">
-                {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''} sélectionné{selectedDays.length > 1 ? 's' : ''}
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-primary/20 rounded-lg">
+              <span className="text-xs font-medium">
+                {selectedDays.length} jour{selectedDays.length > 1 ? 's' : ''}
               </span>
-              <Button size="sm" variant="secondary" onClick={handleEditPrices} className="gap-1">
+              <Button size="sm" variant="secondary" onClick={handleEditPrices} className="gap-1 h-7 text-xs">
                 <Euro className="w-3 h-3" />
-                Modifier prix
+                Prix
               </Button>
-              <Button size="sm" variant="ghost" onClick={clearSelection}>
-                Annuler
-              </Button>
+              <Button size="sm" variant="ghost" onClick={clearSelection} className="h-7 text-xs">✕</Button>
             </div>
           )}
 
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={prevMonth}>
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="icon" onClick={prevMonth} className="h-9 w-9 min-h-[44px] min-w-[44px]">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="text-lg font-medium min-w-[180px] text-center">
-              {format(currentMonth, 'MMMM yyyy', { locale: fr })}
+            <span className="text-sm md:text-lg font-medium min-w-[100px] md:min-w-[180px] text-center capitalize">
+              {format(currentMonth, 'MMM yyyy', { locale: fr })}
             </span>
-            <Button variant="outline" size="icon" onClick={nextMonth}>
+            <Button variant="outline" size="icon" onClick={nextMonth} className="h-9 w-9 min-h-[44px] min-w-[44px]">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
           
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9 min-h-[44px] min-w-[44px]">
             <X className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
       {/* Calendar Grid */}
-      <div className="p-4">
+      <div className="p-2 md:p-4">
         {/* Week day headers */}
-        <div className="grid grid-cols-7 gap-1 mb-2">
+        <div className="grid grid-cols-7 gap-0.5 mb-1">
           {weekDays.map(day => (
-            <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
+            <div key={day} className="text-center text-[11px] font-medium text-muted-foreground uppercase py-1.5">
               {day}
             </div>
           ))}
         </div>
 
         {/* Calendar cells */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5">
           {calendarDays.map((day, index) => {
             const isCurrentMonth = isSameMonth(day, currentMonth);
             const isToday = isSameDay(day, today);
@@ -361,7 +352,7 @@ export const PropertyMonthView: React.FC<PropertyMonthViewProps> = ({
               <div
                 key={index}
                 className={cn(
-                  "relative min-h-[90px] border rounded-md p-1 transition-colors",
+                  "relative min-h-[56px] md:min-h-[90px] border rounded-md p-0.5 md:p-1 transition-colors",
                   isCurrentMonth ? "bg-background" : "bg-muted/30",
                   isToday && "ring-2 ring-primary",
                   isEmpty && isCurrentMonth && "cursor-pointer hover:bg-accent/30",

@@ -3,33 +3,19 @@ import React from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { 
-  ChevronLeft, 
-  ChevronRight, 
-  CalendarDays, 
-  RefreshCw, 
-  Plus, 
-  Layers,
-  Search,
-  Filter
+  ChevronLeft, ChevronRight, CalendarDays, RefreshCw, Plus, Layers, Search, Filter
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { useIsMobile } from '@/hooks/use-mobile';
 import type { CalendarFilters, BookingChannel, BookingStatus } from '@/types/calendar';
 import { CHANNEL_NAMES, STATUS_LABELS } from '@/types/calendar';
 
@@ -43,162 +29,108 @@ interface CalendarToolbarProps {
   onSync: () => void;
   isSyncing: boolean;
   lastSyncTime: Date | null;
-  layers?: {
-    showCleaning: boolean;
-    showMaintenance: boolean;
-  };
+  layers?: { showCleaning: boolean; showMaintenance: boolean };
   onLayersChange?: (layers: { showCleaning: boolean; showMaintenance: boolean }) => void;
 }
 
 export const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
-  currentDate,
-  filters,
-  onFiltersChange,
-  onNavigate,
-  onGoToToday,
-  onAddBooking,
-  onSync,
-  isSyncing,
-  lastSyncTime,
-  layers,
-  onLayersChange,
+  currentDate, filters, onFiltersChange, onNavigate, onGoToToday,
+  onAddBooking, onSync, isSyncing, lastSyncTime, layers, onLayersChange,
 }) => {
+  const isMobile = useIsMobile();
+
   return (
-    <div className="space-y-4">
-      {/* Top row - Navigation and actions */}
-      <div className="flex items-center justify-between gap-4">
+    <div className="space-y-3">
+      {/* Top row */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2">
-          <div className="flex items-center glass-subtle rounded-xl p-1">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => onNavigate('prev')}
-              className="rounded-lg h-9 w-9"
-            >
+          <div className="flex items-center glass-subtle rounded-xl p-0.5">
+            <Button variant="ghost" size="icon" onClick={() => onNavigate('prev')} className="rounded-lg h-9 w-9 min-h-[44px] min-w-[44px]">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="ghost" 
-              onClick={onGoToToday}
-              className="rounded-lg h-9 px-4"
-            >
-              <CalendarDays className="h-4 w-4 mr-2" />
-              Aujourd'hui
+            <Button variant="ghost" onClick={onGoToToday} className="rounded-lg h-9 px-3 min-h-[44px]">
+              <CalendarDays className="h-4 w-4 mr-1" />
+              {!isMobile && "Aujourd'hui"}
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => onNavigate('next')}
-              className="rounded-lg h-9 w-9"
-            >
+            <Button variant="ghost" size="icon" onClick={() => onNavigate('next')} className="rounded-lg h-9 w-9 min-h-[44px] min-w-[44px]">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          <span className="text-lg font-semibold ml-3 capitalize text-foreground">
-            {format(currentDate, 'MMMM yyyy', { locale: fr })}
+          <span className="text-sm md:text-lg font-semibold capitalize text-foreground">
+            {format(currentDate, isMobile ? 'MMM yyyy' : 'MMMM yyyy', { locale: fr })}
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {layers && onLayersChange && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="rounded-xl border-border/50 bg-card/50 backdrop-blur-sm">
-                  <Layers className="h-4 w-4 mr-2" />
-                  Couches
+                <Button variant="outline" size="sm" className="rounded-xl border-border/50 bg-card/50 min-h-[44px]">
+                  <Layers className="h-4 w-4" />
+                  {!isMobile && <span className="ml-1.5">Couches</span>}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="glass-panel border-0">
+              <DropdownMenuContent align="end">
                 <DropdownMenuLabel className="text-muted-foreground">Afficher</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-border/30" />
-                <DropdownMenuCheckboxItem
-                  checked={layers.showCleaning}
-                  onCheckedChange={(checked) => 
-                    onLayersChange({ ...layers, showCleaning: checked })
-                  }
-                >
+                <DropdownMenuSeparator />
+                <DropdownMenuCheckboxItem checked={layers.showCleaning} onCheckedChange={(c) => onLayersChange({ ...layers, showCleaning: c })}>
                   Tâches ménage
                 </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={layers.showMaintenance}
-                  onCheckedChange={(checked) => 
-                    onLayersChange({ ...layers, showMaintenance: checked })
-                  }
-                >
+                <DropdownMenuCheckboxItem checked={layers.showMaintenance} onCheckedChange={(c) => onLayersChange({ ...layers, showMaintenance: c })}>
                   Maintenance
                 </DropdownMenuCheckboxItem>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
 
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={onSync}
-            disabled={isSyncing}
-            className="rounded-xl border-border/50 bg-card/50 backdrop-blur-sm"
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
-            {isSyncing ? 'Sync...' : 'Synchroniser'}
+          <Button variant="outline" size="sm" onClick={onSync} disabled={isSyncing} className="rounded-xl border-border/50 bg-card/50 min-h-[44px]">
+            <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+            {!isMobile && <span className="ml-1.5">{isSyncing ? 'Sync...' : 'Sync'}</span>}
           </Button>
 
-          <Button onClick={onAddBooking} className="rounded-xl shadow-sm btn-press" data-tutorial="calendar-add">
-            <Plus className="h-4 w-4 mr-2" />
-            Ajouter une réservation
+          <Button onClick={onAddBooking} className="rounded-xl shadow-sm min-h-[44px]" data-tutorial="calendar-add">
+            <Plus className="h-4 w-4" />
+            {!isMobile && <span className="ml-1.5">Réservation</span>}
           </Button>
         </div>
       </div>
 
       {/* Filter row */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[140px] max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Rechercher un logement..."
+            placeholder="Rechercher..."
             value={filters.propertySearch}
             onChange={(e) => onFiltersChange({ propertySearch: e.target.value })}
-            className="pl-10 rounded-xl border-border/50 bg-card/50 backdrop-blur-sm focus:bg-card"
+            className="pl-9 rounded-xl border-border/50 bg-card/50 h-10 text-sm"
           />
         </div>
 
-        <Select
-          value={filters.status}
-          onValueChange={(value) => onFiltersChange({ status: value as BookingStatus | 'all' })}
-        >
-          <SelectTrigger className="w-[160px] rounded-xl border-border/50 bg-card/50 backdrop-blur-sm">
-            <Filter className="h-4 w-4 mr-2" />
+        <Select value={filters.status} onValueChange={(v) => onFiltersChange({ status: v as BookingStatus | 'all' })}>
+          <SelectTrigger className="w-[130px] md:w-[160px] rounded-xl border-border/50 bg-card/50 h-10">
+            <Filter className="h-4 w-4 mr-1" />
             <SelectValue placeholder="Statut" />
           </SelectTrigger>
-          <SelectContent className="glass-panel border-0">
-            <SelectItem value="all">Tous les statuts</SelectItem>
-            {Object.entries(STATUS_LABELS).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
+          <SelectContent>
+            <SelectItem value="all">Tous</SelectItem>
+            {Object.entries(STATUS_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
           </SelectContent>
         </Select>
 
-        <Select
-          value={filters.channel}
-          onValueChange={(value) => onFiltersChange({ channel: value as BookingChannel | 'all' })}
-        >
-          <SelectTrigger className="w-[160px] rounded-xl border-border/50 bg-card/50 backdrop-blur-sm">
+        <Select value={filters.channel} onValueChange={(v) => onFiltersChange({ channel: v as BookingChannel | 'all' })}>
+          <SelectTrigger className="w-[130px] md:w-[160px] rounded-xl border-border/50 bg-card/50 h-10">
             <SelectValue placeholder="Canal" />
           </SelectTrigger>
-          <SelectContent className="glass-panel border-0">
-            <SelectItem value="all">Tous les canaux</SelectItem>
-            {Object.entries(CHANNEL_NAMES).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
+          <SelectContent>
+            <SelectItem value="all">Tous</SelectItem>
+            {Object.entries(CHANNEL_NAMES).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
           </SelectContent>
         </Select>
 
-        {lastSyncTime && (
-          <Badge variant="secondary" className="ml-auto text-xs rounded-full px-3 py-1 bg-card/50 backdrop-blur-sm border-0">
-            Dernière sync: {format(lastSyncTime, 'HH:mm')}
+        {lastSyncTime && !isMobile && (
+          <Badge variant="secondary" className="ml-auto text-xs rounded-full px-3 py-1 bg-card/50 border-0">
+            Sync: {format(lastSyncTime, 'HH:mm')}
           </Badge>
         )}
       </div>

@@ -1,7 +1,10 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { CalendarGridHeader } from './CalendarGridHeader';
 import { PropertyRow } from './PropertyRow';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod, DailyPrice } from '@/types/calendar';
 import { PropertyInsight } from '@/types/insights';
 
@@ -16,13 +19,11 @@ interface CalendarGridProps {
   onDayClick?: (date: Date) => void;
   onPropertyClick?: (property: CalendarProperty) => void;
   onBlockedClick?: (blocked: BlockedPeriod) => void;
-  // Multi-day selection props
   isDaySelected?: (propertyId: number, date: Date) => boolean;
   onDayMouseDown?: (propertyId: number, date: Date, event: React.MouseEvent) => void;
   onDayMouseEnter?: (propertyId: number, date: Date) => void;
   onDayMouseUp?: () => void;
   isSelecting?: boolean;
-  // Insights props
   getInsightsForProperty?: (propertyId: number) => PropertyInsight[];
   onInsightClick?: () => void;
 }
@@ -47,8 +48,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   onInsightClick,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
+  const [propertyColCollapsed, setPropertyColCollapsed] = useState(isMobile);
 
-  // Convert daily prices to a Map for quick lookup
   const pricesMap = React.useMemo(() => {
     if (!dailyPrices) return undefined;
     const map = new Map<string, number>();
@@ -59,7 +62,6 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     return map;
   }, [dailyPrices]);
 
-  // Add global mouseup listener to end selection when mouse released anywhere
   useEffect(() => {
     if (isSelecting && onDayMouseUp) {
       const handleGlobalMouseUp = () => onDayMouseUp();
@@ -68,17 +70,39 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     }
   }, [isSelecting, onDayMouseUp]);
 
+  // Responsive property column width
+  const propColWidth = propertyColCollapsed 
+    ? (isMobile ? 44 : 56)
+    : (isMobile ? 110 : isTablet ? 180 : 220);
+
+  // Day cell width
+  const dayCellWidth = isMobile ? 44 : 52;
+
   return (
     <div 
       ref={scrollContainerRef}
-      className="glass-panel rounded-2xl overflow-auto select-none"
-      style={{ maxHeight: 'calc(100vh - 280px)' }}
+      className="glass-panel rounded-2xl overflow-auto select-none h-full relative"
+      style={{ touchAction: 'pan-x pan-y' }}
     >
-      <div className="min-w-max">
+      {/* Collapse toggle */}
+      <button
+        onClick={() => setPropertyColCollapsed(!propertyColCollapsed)}
+        className="absolute top-2 z-30 bg-card border rounded-full p-1 shadow-sm hover:bg-accent transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+        style={{ left: propColWidth - 14 }}
+      >
+        {propertyColCollapsed 
+          ? <ChevronRight className="w-3 h-3" /> 
+          : <ChevronLeft className="w-3 h-3" />
+        }
+      </button>
+
+      <div style={{ minWidth: propColWidth + days.length * dayCellWidth }}>
         <CalendarGridHeader 
           days={days} 
           dailyPrices={pricesMap}
           onDayClick={onDayClick}
+          propColWidth={propColWidth}
+          dayCellWidth={dayCellWidth}
         />
         
         <div className="divide-y divide-border/35">
@@ -104,6 +128,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 propertyInsights={getInsightsForProperty?.(property.id)}
                 onInsightClick={onInsightClick}
                 isOddRow={index % 2 === 1}
+                propColWidth={propColWidth}
+                propColCollapsed={propertyColCollapsed}
+                dayCellWidth={dayCellWidth}
               />
             ))
           )}
