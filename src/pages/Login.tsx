@@ -60,53 +60,6 @@ const HandwrittenAnnotation = () => (
       </svg>
     </motion.div>
 
-    {/* Mobile: between submit and demo section */}
-    <motion.div
-      className="md:hidden flex flex-col items-center my-2"
-      initial={{ opacity: 0, y: -6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.8, ease: 'easeOut' }}
-    >
-      <div
-        style={{
-          fontFamily: "'Caveat', cursive",
-          fontSize: '13px',
-          fontWeight: 400,
-          color: '#6B7AE8',
-          lineHeight: 1.4,
-          transform: 'rotate(-4deg)',
-          textAlign: 'center',
-        }}
-      >
-        <div>clique ici pour</div>
-        <div>découvrir toutes les</div>
-        <div>fonctionnalités</div>
-      </div>
-      <svg
-        width="50"
-        height="50"
-        viewBox="0 0 50 50"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="mt-1"
-      >
-        <path
-          d="M 25 5 C 20 15, 28 25, 22 35 C 18 42, 24 45, 25 48"
-          stroke="#6B7AE8"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          fill="none"
-        />
-        <path
-          d="M 19 40 L 25 48 L 31 40"
-          stroke="#6B7AE8"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
-      </svg>
-    </motion.div>
   </>
 );
 
