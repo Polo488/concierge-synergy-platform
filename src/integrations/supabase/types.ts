@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      beta_profiles: {
+        Row: {
+          channel_manager: string | null
+          created_at: string
+          defis: Json | null
+          email: string
+          id: string
+          logements: string
+          prenom: string
+          source: string | null
+          type_gestion: string
+        }
+        Insert: {
+          channel_manager?: string | null
+          created_at?: string
+          defis?: Json | null
+          email: string
+          id?: string
+          logements: string
+          prenom: string
+          source?: string | null
+          type_gestion: string
+        }
+        Update: {
+          channel_manager?: string | null
+          created_at?: string
+          defis?: Json | null
+          email?: string
+          id?: string
+          logements?: string
+          prenom?: string
+          source?: string | null
+          type_gestion?: string
+        }
+        Relationships: []
+      }
       idea_votes: {
         Row: {
           created_at: string
