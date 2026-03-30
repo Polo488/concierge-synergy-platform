@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import BetaCaptureModal from '@/components/beta/BetaCaptureModal';
 import { 
   Package, Wrench, Sparkles, Clock
 } from 'lucide-react';
