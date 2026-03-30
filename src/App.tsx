@@ -62,6 +62,7 @@ const App = () => (
                   <Toaster />
                   <Sonner />
                   <TutorialOverlay />
+                  <FeedbackWidget />
                   <Routes>
                     {/* Root redirects to login */}
                     <Route path="/" element={<Navigate to="/login" replace />} />
