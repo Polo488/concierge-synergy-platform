@@ -64,10 +64,8 @@ const App = () => (
                   <TutorialOverlay />
                   <FeedbackWidget />
                   <Routes>
-                    {/* Root → beta onboarding (public) */}
-                    <Route path="/" element={<BetaOnboarding />} />
-                    <Route path="/beta-onboarding" element={<BetaOnboarding />} />
-                    
+                    {/* Root → login */}
+                    <Route path="/" element={<Navigate to="/login" replace />} />
                     {/* Connexion redirect */}
                     <Route path="/connexion" element={<Navigate to="/login" replace />} />
                     

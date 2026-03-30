@@ -25,6 +25,7 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
+      <BetaCaptureModal />
       <Card className="w-[350px]">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
