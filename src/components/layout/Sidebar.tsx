@@ -298,8 +298,8 @@ export function Sidebar() {
             src={logoNoe} 
             alt="Noé" 
             className={cn(
-              "h-14 w-auto object-contain",
-              !isOpen && "md:h-10"
+              "h-11 w-auto object-contain",
+              !isOpen && "md:h-8"
             )}
           />
         </div>
