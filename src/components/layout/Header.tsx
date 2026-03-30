@@ -22,15 +22,17 @@ import { InsightsPanel } from '@/components/insights/InsightsPanel';
 import { useInsights } from '@/hooks/useInsights';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const { user, logout } = useAuth();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
-  // Insights state
   const {
     insights,
     unreadCount,
@@ -42,17 +44,14 @@ export function Header() {
     injectOnboardingProcesses,
   } = useInsights();
 
-  // Onboarding data for alerts
   const { allProcesses } = useOnboarding();
   
-  // Inject onboarding processes into insights
   useEffect(() => {
     injectOnboardingProcesses(allProcesses);
   }, [allProcesses, injectOnboardingProcesses]);
   
   const [isInsightsPanelOpen, setIsInsightsPanelOpen] = useState(false);
 
-  // Handle insight action
   const handleInsightAction = (action: string, propertyId: number) => {
     setIsInsightsPanelOpen(false);
     switch (action) {
@@ -72,12 +71,10 @@ export function Header() {
     }
   };
 
-  // Add scroll event listener with cleanup
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
     };
-    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -85,30 +82,58 @@ export function Header() {
   return (
     <>
       <header className={cn(
-        "sticky top-0 z-30 w-full transition-all duration-300",
+        "sticky top-0 z-[100] w-full transition-all duration-300",
         scrolled 
           ? "glass-panel border-0 rounded-none shadow-glass" 
           : "bg-transparent"
       )}>
-        <div className="container mx-auto flex h-16 items-center justify-between px-6">
-          <div className="flex items-center gap-3 w-full max-w-sm">
-            <div className={cn(
-              "flex items-center gap-2 flex-1 px-4 py-2.5 rounded-xl transition-all duration-200",
-              "bg-accent/50 hover:bg-accent/80"
-            )}>
-              <Search className="text-muted-foreground h-4 w-4" />
-              <Input 
-                placeholder={t('search')} 
-                className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground/60 h-auto p-0"
-              />
+        <div className="flex h-14 items-center justify-between px-4 md:px-6 max-w-full">
+          {/* Search - collapsible on mobile */}
+          {isMobile ? (
+            <div className="flex items-center gap-2 ml-10">
+              {searchOpen ? (
+                <div className="flex items-center gap-2 flex-1">
+                  <div className="flex items-center gap-2 flex-1 px-3 py-2 rounded-xl bg-accent/50">
+                    <Search className="text-muted-foreground h-4 w-4 flex-shrink-0" />
+                    <Input 
+                      placeholder={t('search')} 
+                      className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm h-auto p-0"
+                      autoFocus
+                      onBlur={() => setSearchOpen(false)}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <Button 
+                  size="icon" 
+                  variant="ghost" 
+                  className="rounded-full h-10 w-10 min-h-[44px] min-w-[44px]"
+                  onClick={() => setSearchOpen(true)}
+                >
+                  <Search className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              )}
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center gap-3 w-full max-w-sm">
+              <div className={cn(
+                "flex items-center gap-2 flex-1 px-4 py-2.5 rounded-xl transition-all duration-200",
+                "bg-accent/50 hover:bg-accent/80"
+              )}>
+                <Search className="text-muted-foreground h-4 w-4" />
+                <Input 
+                  placeholder={t('search')} 
+                  className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground/60 h-auto p-0"
+                />
+              </div>
+            </div>
+          )}
           
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 md:gap-1 flex-shrink-0">
             {/* Theme Toggle */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost" className="rounded-full h-9 w-9">
+                <Button size="icon" variant="ghost" className="rounded-full h-9 w-9 min-h-[44px] min-w-[44px]">
                   {resolvedTheme === 'dark' ? (
                     <Moon className="h-4 w-4 text-muted-foreground" />
                   ) : (
@@ -121,22 +146,19 @@ export function Header() {
                   onClick={() => setTheme('light')}
                   className={cn("text-sm gap-2", theme === 'light' && 'bg-muted')}
                 >
-                  <Sun className="h-4 w-4" />
-                  Clair
+                  <Sun className="h-4 w-4" /> Clair
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setTheme('dark')}
                   className={cn("text-sm gap-2", theme === 'dark' && 'bg-muted')}
                 >
-                  <Moon className="h-4 w-4" />
-                  Sombre
+                  <Moon className="h-4 w-4" /> Sombre
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setTheme('system')}
                   className={cn("text-sm gap-2", theme === 'system' && 'bg-muted')}
                 >
-                  <Monitor className="h-4 w-4" />
-                  Système
+                  <Monitor className="h-4 w-4" /> Système
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -144,7 +166,7 @@ export function Header() {
             {/* Language Toggle */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost" className="rounded-full h-9 w-9">
+                <Button size="icon" variant="ghost" className="rounded-full h-9 w-9 min-h-[44px] min-w-[44px]">
                   <Globe className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
@@ -175,7 +197,7 @@ export function Header() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full min-h-[44px] min-w-[44px]">
                     <Avatar className="h-8 w-8">
                       {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
                       <AvatarFallback className="bg-muted text-muted-foreground text-sm">
@@ -207,7 +229,7 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button size="icon" variant="ghost" className="rounded-full h-9 w-9">
+              <Button size="icon" variant="ghost" className="rounded-full h-9 w-9 min-h-[44px] min-w-[44px]">
                 <User className="h-4 w-4 text-muted-foreground" />
               </Button>
             )}
