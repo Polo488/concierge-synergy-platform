@@ -21,10 +21,7 @@ export const ProtectedRoute = () => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Redirect to beta onboarding if not completed
-  if (localStorage.getItem('noe_onboarding_done') !== 'true' && location.pathname !== '/beta-onboarding') {
-    return <Navigate to="/beta-onboarding" replace />;
-  }
+  // No beta onboarding redirect needed — it's now a public pre-login page
 
   return <Outlet />;
 };
