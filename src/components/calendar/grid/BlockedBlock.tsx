@@ -15,12 +15,7 @@ interface BlockedBlockProps {
   cellWidth?: number;
 }
 
-// Calm, tinted color palette for blocked periods
-const BLOCKED_COLORS = {
-  bg: 'rgba(120, 125, 140, 0.12)',      // Very light neutral tint
-  iconBg: 'hsl(220 10% 45%)',            // Solid grey for icon
-  text: 'hsl(220 15% 35%)',              // Dark grey for text
-};
+const BLOCKED_BG = '#9CA3AF';
 
 export const BlockedBlock: React.FC<BlockedBlockProps> = ({
   blocked,
@@ -35,14 +30,13 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
 }) => {
   const cellWidth = cellWidthProp || 40;
   const halfCell = cellWidth / 2;
-  
-  // Pure rectangle positioning (same logic as BookingBlock)
+
   const hasVisibleStart = isStartDay && !isStartTruncated;
   const hasVisibleEnd = isEndDay && !isEndTruncated;
-  
+
   let width: number;
   let leftOffset = 0;
-  
+
   if (hasVisibleStart && hasVisibleEnd) {
     width = (visibleDays - 1) * cellWidth + halfCell;
     leftOffset = halfCell;
@@ -65,59 +59,53 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
     return text.substring(0, maxLength - 1) + '…';
   };
 
-  const handleCleaningClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onCleaningIndicatorClick?.();
-  };
-
-  const handleBlockClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onClick?.();
-  };
-
   return (
     <div
       className={cn(
-        "absolute top-1 bottom-1 z-10 flex items-center gap-1 px-1.5",
-        "rounded-md",
+        "absolute top-1 bottom-1 z-10 flex items-center gap-1",
+        "rounded-lg",
         "transition-all duration-200 ease-out",
-        onClick && "cursor-pointer hover:z-20"
+        onClick && "cursor-pointer hover:z-20 hover:brightness-110"
       )}
       style={{
         width: `${Math.max(width, 20)}px`,
         left: `${leftOffset}px`,
-        backgroundColor: BLOCKED_COLORS.bg,
-        boxShadow: '0 1px 3px -1px rgba(0,0,0,0.06)',
+        backgroundColor: BLOCKED_BG,
+        overflow: 'hidden',
+        padding: '0 8px',
+        contain: 'strict',
       }}
       title={blocked.reason || 'Bloqué - Cliquez pour modifier'}
-      onClick={handleBlockClick}
+      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
     >
-      {/* Ban icon - solid, crisp */}
-      <Ban 
-        className="w-3.5 h-3.5 flex-shrink-0" 
-        style={{ color: BLOCKED_COLORS.iconBg }}
-      />
-      
-      {/* Reason text - dark for contrast */}
+      <Ban className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#FFFFFF' }} />
+
       {visibleDays > 1 && (
-        <span 
-          className="text-xs font-medium truncate"
-          style={{ color: BLOCKED_COLORS.text }}
+        <span
+          className="truncate"
+          style={{
+            color: '#FFFFFF',
+            fontSize: 12,
+            fontWeight: 600,
+            lineHeight: 1,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
         >
           {truncateReason(blocked.reason)}
         </span>
       )}
-      
-      {/* Cleaning scheduled indicator */}
+
       {hasCleaningScheduled && isEndDay && !isEndTruncated && (
-        <div 
+        <div
           className={cn(
             "absolute -right-0.5 top-1/2 -translate-y-1/2 translate-x-1/2",
             "w-5 h-5 rounded-full bg-primary flex items-center justify-center",
             "cursor-pointer hover:scale-110 transition-transform",
             "shadow-sm border-2 border-background"
           )}
-          onClick={handleCleaningClick}
+          onClick={(e) => { e.stopPropagation(); onCleaningIndicatorClick?.(); }}
           title="Ménage programmé"
         >
           <Sparkles className="w-3 h-3 text-primary-foreground" />
