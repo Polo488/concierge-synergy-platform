@@ -42,7 +42,6 @@ import Transitory from "./pages/Transitory";
 import IdeaBox from "./pages/IdeaBox";
 import CheckApartment from "./pages/CheckApartment";
 import NotFound from "./pages/NotFound";
-import NotFound from "./pages/NotFound";
 import { FeedbackWidget } from "./components/feedback/FeedbackWidget";
 
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -78,8 +77,7 @@ const App = () => (
                     {/* Public welcome guide */}
                     <Route path="/welcome/:token" element={<WelcomeGuidePublic />} />
 
-                    {/* Beta onboarding */}
-                    <Route path="/beta-onboarding" element={<BetaOnboarding />} />
+                    {/* Protected app routes */}
                     
                     {/* Protected app routes */}
                     <Route element={<ProtectedRoute />}>
