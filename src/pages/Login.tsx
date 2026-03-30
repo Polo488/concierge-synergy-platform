@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import logoNoe from '@/assets/logo-noe.png';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -26,6 +27,7 @@ const Login = () => {
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-[350px]">
         <CardHeader className="space-y-1 text-center">
+          <img src={logoNoe} alt="Noé" className="h-12 w-auto mx-auto mb-2" />
           <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
           <CardDescription>
             Connectez-vous pour accéder à votre espace

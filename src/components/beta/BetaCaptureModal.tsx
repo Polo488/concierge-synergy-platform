@@ -15,16 +15,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import logoNoe from '@/assets/logo-noe.png';
 
 const segmentedOptions = {
   logements: ['1–10', '11–30', '31–60', '60+'],
-  profil: ['Je suis une conciergerie', 'Je suis un propriétaire'],
   defis: [
     'Synchro des canaux', 'Gestion des ménages',
     'Facturation propriétaires', 'Messagerie voyageurs',
     'Suivi de performance', 'Rentabilité',
   ],
-  source: ['Groupe Facebook', 'Instagram', 'Un formateur', 'Bouche à oreille', 'Autre'],
 };
 
 const isDev = typeof window !== 'undefined' && (window.location.hostname.includes('lovable') || window.location.hostname === 'localhost');
@@ -34,11 +33,9 @@ export default function BetaCaptureModal() {
   const [prenom, setPrenom] = useState('');
   const [email, setEmail] = useState('');
   const [logements, setLogements] = useState('');
-  const [profil, setProfil] = useState('');
   const [defis, setDefis] = useState<string[]>([]);
   const [hasChannelManager, setHasChannelManager] = useState(false);
   const [channelManager, setChannelManager] = useState('');
-  const [source, setSource] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -72,7 +69,6 @@ export default function BetaCaptureModal() {
     if (!prenom.trim()) e.prenom = 'Ce champ est requis';
     if (!email.trim()) e.email = 'Ce champ est requis';
     if (!logements) e.logements = 'Ce champ est requis';
-    if (!profil) e.profil = 'Ce champ est requis';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -88,10 +84,8 @@ export default function BetaCaptureModal() {
       prenom: prenom.trim(),
       email: email.trim(),
       logements,
-      profil,
       defis,
       channelManager: hasChannelManager ? channelManager : null,
-      source: source || null,
       timestamp: new Date().toISOString(),
     };
     localStorage.setItem('noe_beta_profile', JSON.stringify(data));
@@ -101,10 +95,9 @@ export default function BetaCaptureModal() {
         prenom: data.prenom,
         email: data.email,
         logements: data.logements,
-        type_gestion: data.profil,
+        type_gestion: 'non spécifié',
         defis: data.defis as any,
         channel_manager: data.channelManager,
-        source: data.source,
       });
     } catch {}
     setSubmitting(false);
@@ -126,6 +119,7 @@ export default function BetaCaptureModal() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onKeyDown={e => e.key === 'Escape' && e.preventDefault()}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
@@ -159,9 +153,7 @@ export default function BetaCaptureModal() {
               <>
                 {/* Header */}
                 <div className="flex flex-col items-center text-center">
-                  <div className="text-3xl font-bold mb-5 text-primary">
-                    noé
-                  </div>
+                  <img src={logoNoe} alt="Noé" className="h-10 w-auto mx-auto mb-5" />
                   <div className="inline-flex items-center mx-auto rounded-full bg-primary/10 border border-primary/30 px-3 py-1 text-xs font-medium text-primary">
                     🔒 Bêta privée · 47 conciergeries actives
                   </div>
@@ -190,7 +182,7 @@ export default function BetaCaptureModal() {
 
                   {/* Field 2 — Email */}
                   <div className="space-y-1.5">
-                    <Label>Ton email pro</Label>
+                    <Label>Email</Label>
                     <Input
                       type="email"
                       value={email}
@@ -198,7 +190,13 @@ export default function BetaCaptureModal() {
                       placeholder="ton@email.com"
                       className={errors.email ? 'border-destructive' : ''}
                     />
-                    {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                    {errors.email ? (
+                      <p className="text-xs text-destructive">{errors.email}</p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        (On ne t'enverra pas d'emails — tu seras juste prévenu au lancement)
+                      </p>
+                    )}
                   </div>
 
                   {/* Field 3 — Logements */}
@@ -222,27 +220,7 @@ export default function BetaCaptureModal() {
                     {errors.logements && <p className="text-xs text-destructive">{errors.logements}</p>}
                   </div>
 
-                  {/* Field 4 — Profil */}
-                  <div className="space-y-1.5">
-                    <Label>Tu es...</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {segmentedOptions.profil.map(opt => (
-                        <Button
-                          key={opt}
-                          type="button"
-                          variant={profil === opt ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setProfil(opt)}
-                          className={`${errors.profil && profil !== opt ? 'border-destructive' : ''}`}
-                        >
-                          {opt}
-                        </Button>
-                      ))}
-                    </div>
-                    {errors.profil && <p className="text-xs text-destructive">{errors.profil}</p>}
-                  </div>
-
-                  {/* Field 5 — Défis */}
+                  {/* Field 4 — Défis */}
                   <div className="space-y-1.5">
                     <Label>Ton plus grand défi aujourd'hui ?</Label>
                     <p className="text-xs text-primary font-medium">
@@ -266,7 +244,7 @@ export default function BetaCaptureModal() {
                     </div>
                   </div>
 
-                  {/* Field 6 — Channel Manager */}
+                  {/* Field 5 — Channel Manager */}
                   <div className="space-y-1.5">
                     <Label>Tu utilises déjà un Channel Manager ?</Label>
                     <div className="flex items-center gap-3 mt-1">
@@ -288,28 +266,6 @@ export default function BetaCaptureModal() {
                         />
                       </div>
                     </motion.div>
-                  </div>
-
-                  {/* Field 7 — Source */}
-                  <div className="space-y-1.5">
-                    <Label>Comment tu as connu Noé ?</Label>
-                    <p className="text-xs text-muted-foreground">Optionnel</p>
-                    <div className="flex flex-wrap gap-2">
-                      {segmentedOptions.source.map(s => (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => setSource(source === s ? '' : s)}
-                          className={`text-xs px-3 py-1.5 rounded-full border transition-all duration-150 ${
-                            source === s
-                              ? 'bg-primary border-primary text-primary-foreground font-semibold'
-                              : 'bg-muted border-border text-foreground hover:bg-muted/80'
-                          }`}
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
                   </div>
 
                   {/* Co-creator strip */}
