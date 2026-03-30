@@ -12,7 +12,7 @@ const HandwrittenAnnotation = () => (
   <>
     {/* Desktop: absolute left of card */}
     <motion.div
-      className="hidden md:block absolute right-full mr-[-16px] top-1/2 translate-y-4"
+      className="hidden md:block absolute right-full mr-2 bottom-16"
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.8, ease: 'easeOut' }}
