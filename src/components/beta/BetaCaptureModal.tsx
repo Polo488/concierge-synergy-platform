@@ -1,11 +1,6 @@
 // DEVELOPER NOTE: Form responses are stored in two places:
 // 1. localStorage key "noe_beta_profile" (always, client-side)
 // 2. Supabase table "beta_profiles" if Supabase is configured
-//    → Check your Supabase dashboard > Table Editor > beta_profiles
-//    → If the table doesn't exist yet, create it with columns:
-//       id (uuid), prenom (text), email (text), logements (text),
-//       type_gestion (text), defis (text[]), channel_manager (text),
-//       source (text), created_at (timestamptz)
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
@@ -129,4 +124,180 @@ export default function BetaCaptureModal() {
             exit={{ opacity: 0, scale: 0.94 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
             className="relative w-[calc(100%-32px)] max-w-[520px] max-h-[90vh] overflow-y-auto rounded-lg border bg-background p-6 md:p-8 shadow-lg"
+          >
+            {showSuccess ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center justify-center py-12 text-center"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 12 }}
+                  className="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-primary/10"
+                >
+                  <Check className="w-8 h-8 text-primary" />
+                </motion.div>
+                <h3 className="text-2xl font-bold text-foreground">
+                  C'est noté, {prenom} 🙌
+                </h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Tu entres dans Noé. Bienvenue dans la bêta.
+                </p>
+              </motion.div>
+            ) : (
+              <>
+                {/* Header */}
+                <div className="flex flex-col items-center text-center">
+                  <img src={logoNoe} alt="Noé" className="h-10 w-auto mx-auto mb-5" />
+                  <div className="inline-flex items-center mx-auto rounded-full bg-primary/10 border border-primary/30 px-3 py-1 text-xs font-medium text-primary">
+                    🔒 Bêta privée · 47 conciergeries actives
+                  </div>
+                  <h2 className="mt-4 text-xl md:text-2xl font-bold text-foreground leading-tight">
+                    Rejoins la bêta de Noé
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1.5">
+                    Tu es à 30 secondes de tester l'outil. Dis-nous en un peu plus.
+                  </p>
+                </div>
+
+                <div className="mt-6 space-y-5">
+                  {/* Prénom */}
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                    <Label htmlFor="prenom" className="text-sm font-medium">Prénom *</Label>
+                    <Input
+                      id="prenom"
+                      value={prenom}
+                      onChange={e => setPrenom(e.target.value)}
+                      placeholder="Ton prénom"
+                      className={errors.prenom ? 'border-destructive' : ''}
+                    />
+                    {errors.prenom && <p className="text-xs text-destructive mt-1">{errors.prenom}</p>}
+                  </motion.div>
+
+                  {/* Email */}
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                    <Label htmlFor="email" className="text-sm font-medium">Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="ton@email.com"
+                      className={errors.email ? 'border-destructive' : ''}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">(On ne t'enverra pas d'emails — tu seras juste prévenu au lancement)</p>
+                    {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
+                  </motion.div>
+
+                  {/* Logements */}
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                    <Label className="text-sm font-medium">Nombre de logements gérés *</Label>
+                    <div className="grid grid-cols-4 gap-2 mt-2">
+                      {segmentedOptions.logements.map(opt => (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => setLogements(opt)}
+                          className={`px-3 py-2 rounded-md text-sm font-medium border transition-all ${
+                            logements === opt
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-muted/50 text-foreground border-border hover:bg-muted'
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                    {errors.logements && <p className="text-xs text-destructive mt-1">{errors.logements}</p>}
+                  </motion.div>
+
+                  {/* Défis */}
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+                    <Label className="text-sm font-medium">Tes plus gros défis au quotidien (max 2)</Label>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {segmentedOptions.defis.map(d => (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() => handleDefiToggle(d)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                            defis.includes(d)
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-muted/50 text-foreground border-border hover:bg-muted'
+                          }`}
+                        >
+                          {d}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+
+                  {/* Channel Manager */}
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium">Tu utilises un Channel Manager ?</Label>
+                      <Switch checked={hasChannelManager} onCheckedChange={setHasChannelManager} />
+                    </div>
+                    <AnimatePresence>
+                      {hasChannelManager && (
+                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                          <Input
+                            value={channelManager}
+                            onChange={e => setChannelManager(e.target.value)}
+                            placeholder="ex: Beds24, Smily, Lodgify..."
+                            className="mt-2"
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+
+                  {/* Co-creator strip */}
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+                    className="flex items-center justify-center gap-4 py-3 px-4 rounded-md bg-muted/30 border"
+                  >
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Wrench className="w-3.5 h-3.5" /> Co-création
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Zap className="w-3.5 h-3.5" /> Accès prioritaire
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Gift className="w-3.5 h-3.5" /> Offre fondateur
+                    </div>
+                  </motion.div>
+
+                  {/* Submit */}
+                  <motion.div
+                    animate={shake ? { x: [-8, 8, -6, 6, -3, 3, 0] } : {}}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={submitting}
+                      className="w-full h-11 text-sm font-semibold"
+                    >
+                      {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                      Accéder à la bêta →
+                    </Button>
+                  </motion.div>
+
+                  {isDev && (
+                    <div className="border-t pt-3 mt-2 text-center">
+                      <p className="text-[11px] text-muted-foreground">
+                        📦 Données stockées dans : localStorage (clé: noe_beta_profile) + Supabase table: beta_profiles (si configuré)
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body
+  );
 }
