@@ -16,7 +16,6 @@ import {
   getDay,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
 
