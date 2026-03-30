@@ -21,7 +21,8 @@ html, body {
 /* Responsive table wrapper */
 @layer components {
   .table-responsive {
-    @apply overflow-x-auto -webkit-overflow-scrolling-touch;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .table-responsive table {
     min-width: 600px;
