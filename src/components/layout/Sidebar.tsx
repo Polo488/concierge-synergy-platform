@@ -52,12 +52,13 @@ import {
   Bell,
   FileText,
 } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useMenuOrder } from '@/hooks/useMenuOrder';
 import { SortableSection } from './SortableSection';
 import { toast } from 'sonner';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type NavItem = {
   name: string;
@@ -82,23 +83,16 @@ export function Sidebar() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const location = useLocation();
   const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
   const { hasPermission, logout, user } = useAuth();
   const { t } = useLanguage();
   const { sectionOrder, updateOrder, getOrderedSections, isLoaded } = useMenuOrder();
   
-  // Sensors for drag and drop
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
   
-  // Define navigation sections with color system
   const navSections: NavSection[] = useMemo(() => [
     {
       id: 'pilotage',
@@ -175,13 +169,14 @@ export function Sidebar() {
     }
   ], [t]);
   
-  // Get ordered sections
   const orderedSections = useMemo(() => 
     getOrderedSections(navSections), 
     [navSections, getOrderedSections, sectionOrder]
   );
+
+  // Collapsed = icon rail on tablet, closed on mobile  
+  const isCollapsed = isTablet || (!isOpen && !isMobile);
   
-  // Close sidebar on mobile by default
   useEffect(() => {
     if (isMobile) {
       setIsOpen(false);
@@ -190,14 +185,12 @@ export function Sidebar() {
     }
   }, [isMobile]);
 
-  // Close sidebar when route changes on mobile
   useEffect(() => {
     if (isMobile) {
       setIsOpen(false);
     }
   }, [location.pathname, isMobile]);
 
-  // Auto-expand section containing active route
   useEffect(() => {
     const activeSection = navSections.find(section => 
       section.items.some(item => item.path === location.pathname)
@@ -215,7 +208,6 @@ export function Sidebar() {
     );
   };
 
-  // Filter sections based on permissions (but keep order for hidden sections)
   const visibleSections = useMemo(() => 
     orderedSections
       .map(section => ({
@@ -226,7 +218,6 @@ export function Sidebar() {
     [orderedSections, hasPermission]
   );
 
-  // Drag handlers
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
   };
@@ -255,51 +246,95 @@ export function Sidebar() {
     return null;
   }
 
+  // Render a nav link with optional tooltip (for collapsed/tablet state)
+  const renderNavLink = (item: NavItem, section: NavSection) => {
+    const isActive = location.pathname === item.path;
+    const linkContent = (
+      <Link
+        to={item.path}
+        className={cn(
+          "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
+          isActive
+            ? section.activeClass + " font-medium"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+          isCollapsed && "justify-center px-2"
+        )}
+      >
+        <item.icon size={18} className="flex-shrink-0" />
+        {!isCollapsed && <span className="text-sm truncate">{item.name}</span>}
+      </Link>
+    );
+
+    if (isCollapsed) {
+      return (
+        <TooltipProvider key={item.path} delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+            <TooltipContent side="right" sideOffset={8}>
+              <p>{item.name}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
+    return <div key={item.path}>{linkContent}</div>;
+  };
+
+  // Mobile: off-canvas sidebar
+  // Tablet: icon rail (64px)
+  // Desktop: full sidebar (240px)
+  const sidebarWidth = isMobile 
+    ? (isOpen ? "w-60" : "w-0") 
+    : isTablet 
+      ? "w-16" 
+      : (isOpen ? "w-60" : "w-16");
+
   return (
     <>
       {/* Mobile overlay */}
       {isMobile && isOpen && (
         <div 
-          className="fixed inset-0 bg-foreground/5 backdrop-blur-md z-40"
+          className="fixed inset-0 bg-black/40 z-[200]"
           onClick={() => setIsOpen(false)}
         />
       )}
       
-      {/* Sidebar toggle button for mobile */}
-      <button
-        className={cn(
-          "fixed md:hidden z-50 top-4 transition-all duration-300",
-          "glass-panel rounded-xl p-2.5",
-          isOpen ? "left-[232px]" : "left-4"
-        )}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? <X size={18} /> : <Menu size={18} />}
-      </button>
+      {/* Mobile hamburger button */}
+      {isMobile && (
+        <button
+          className={cn(
+            "fixed z-[250] top-4 transition-all duration-300",
+            "glass-panel rounded-xl p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center",
+            isOpen ? "left-[232px]" : "left-3"
+          )}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
+      )}
       
-      {/* Sidebar container - Glass floating panel */}
+      {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-out",
-          "glass-panel flex flex-col",
-          isOpen ? "w-60" : "w-0 md:w-[68px]",
-          "overflow-hidden",
-          isMobile ? "" : "m-3 rounded-2xl h-[calc(100%-24px)]"
+          "fixed left-0 top-0 h-full transition-all duration-300 ease-out",
+          "glass-panel flex flex-col overflow-hidden",
+          sidebarWidth,
+          isMobile ? "z-[210]" : "z-40",
+          !isMobile && "m-3 rounded-2xl h-[calc(100%-24px)]"
         )}
       >
         {/* Logo */}
-        <div 
-          className={cn(
-            "h-16 flex items-center justify-center px-5",
-            !isOpen && "md:px-0"
-          )}
-        >
+        <div className={cn(
+          "h-16 flex items-center justify-center px-5 flex-shrink-0",
+          isCollapsed && "px-0"
+        )}>
           <img 
             src={logoNoe} 
             alt="Noé" 
             className={cn(
-              "h-11 w-auto object-contain",
-              !isOpen && "md:h-8"
+              "h-11 w-auto object-contain max-w-full",
+              isCollapsed && "h-8"
             )}
           />
         </div>
@@ -307,38 +342,34 @@ export function Sidebar() {
         {/* User info */}
         {user && (
           <div className={cn(
-            "py-4 px-4",
-            !isOpen && "md:flex md:justify-center md:py-4"
+            "py-4 px-4 flex-shrink-0",
+            isCollapsed && "flex justify-center py-4 px-2"
           )}>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0 ring-1 ring-primary/10">
                 {user.avatar ? (
-                  <img 
-                    src={user.avatar}
-                    alt={user.name}
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
                 ) : (
                   <span className="font-medium text-primary text-sm">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
-              <div className={cn("flex-1 min-w-0", !isOpen && "md:hidden")}>
-                <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
-                <p className="text-xs text-muted-foreground">{user.role}</p>
-              </div>
+              {!isCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+                  <p className="text-xs text-muted-foreground">{user.role}</p>
+                </div>
+              )}
             </div>
           </div>
         )}
         
-        {/* Subtle separator */}
-        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent flex-shrink-0" />
         
-        {/* Navigation sections */}
+        {/* Navigation */}
         <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
           {user?.role === 'owner' ? (
-            /* Sidebar for owner with dedicated sections */
             <div className="space-y-1">
               {[
                 { name: 'Tableau de bord', path: '/app/owner', icon: LayoutDashboard },
@@ -347,21 +378,43 @@ export function Sidebar() {
                 { name: 'Documents', path: '/app/owner/documents', icon: FileText },
                 { name: 'Revenus', path: '/app/owner/revenue', icon: TrendingUp },
                 { name: 'Notifications', path: '/app/owner/notifications', icon: Bell },
-              ].map(item => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
-                    location.pathname === item.path
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                  )}
-                >
-                  <item.icon size={18} />
-                  <span className={cn("text-sm", !isOpen && "md:hidden")}>{item.name}</span>
-                </Link>
-              ))}
+              ].map(item => {
+                const isActive = location.pathname === item.path;
+                const link = (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
+                      isActive
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+                      isCollapsed && "justify-center px-2"
+                    )}
+                  >
+                    <item.icon size={18} className="flex-shrink-0" />
+                    {!isCollapsed && <span className="text-sm">{item.name}</span>}
+                  </Link>
+                );
+                if (isCollapsed) {
+                  return (
+                    <TooltipProvider key={item.path} delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>{link}</TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={8}><p>{item.name}</p></TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  );
+                }
+                return link;
+              })}
+            </div>
+          ) : isCollapsed ? (
+            /* Collapsed: show flat icon list */
+            <div className="space-y-1">
+              {visibleSections.flatMap(section => 
+                section.items.map(item => renderNavLink(item, section))
+              )}
             </div>
           ) : (
             <DndContext
@@ -379,13 +432,12 @@ export function Sidebar() {
                     key={section.id}
                     section={section}
                     isExpanded={expandedSections.includes(section.id)}
-                    isOpen={isOpen}
+                    isOpen={!isCollapsed}
                     onToggle={() => toggleSection(section.id)}
                   />
                 ))}
               </SortableContext>
               
-              {/* Drag overlay for visual feedback */}
               <DragOverlay>
                 {activeSection ? (
                   <div className={cn(
@@ -402,41 +454,50 @@ export function Sidebar() {
           )}
         </nav>
         
-        {/* Logout button */}
-        <div className="px-3 pb-3">
-          <button
-            onClick={logout}
-            className={cn(
-              "flex items-center w-full gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
-              "text-muted-foreground hover:text-foreground hover:bg-accent/50",
-              !isOpen && "md:justify-center"
-            )}
-          >
-            <LogOut size={18} />
-            <span className={cn(
-              "text-sm",
-              !isOpen && "md:hidden"
-            )}>
-              Déconnexion
-            </span>
-          </button>
+        {/* Logout */}
+        <div className="px-3 pb-3 flex-shrink-0">
+          {isCollapsed ? (
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={logout}
+                    className="flex items-center justify-center w-full py-2.5 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  >
+                    <LogOut size={18} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={8}><p>Déconnexion</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <button
+              onClick={logout}
+              className="flex items-center w-full gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-accent/50"
+            >
+              <LogOut size={18} />
+              <span className="text-sm">Déconnexion</span>
+            </button>
+          )}
         </div>
         
-        {/* Collapse button (desktop only) */}
-        <div className="hidden md:flex p-3 justify-center">
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-accent/50"
-          >
-            <ChevronLeft 
-              size={16} 
-              className={cn(
-                "transition-transform duration-300",
-                !isOpen && "rotate-180"
-              )} 
-            />
-          </button>
-        </div>
+        {/* Collapse toggle (desktop only) */}
+        {!isMobile && !isTablet && (
+          <div className="flex p-3 justify-center flex-shrink-0">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-accent/50"
+            >
+              <ChevronLeft 
+                size={16} 
+                className={cn(
+                  "transition-transform duration-300",
+                  !isOpen && "rotate-180"
+                )} 
+              />
+            </button>
+          </div>
+        )}
       </aside>
     </>
   );

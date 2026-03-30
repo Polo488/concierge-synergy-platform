@@ -66,7 +66,7 @@ const Dashboard = () => {
       </div>
 
       {/* Daily Activity: Tabs and Agenda preview side by side */}
-      <div className="grid gap-6 lg:grid-cols-2" data-tutorial="dashboard-activity">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-[1fr_380px]" data-tutorial="dashboard-activity">
         <DailyActivityTabs 
           checkIns={checkIns} 
           checkOuts={checkOuts} 
@@ -80,7 +80,7 @@ const Dashboard = () => {
       </div>
       
       {/* Charts */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
         <DashboardCard 
           title="Vue d'ensemble (revenus € )"
           actions={<Button variant="ghost" size="sm">Voir tout</Button>}
@@ -133,7 +133,7 @@ const Dashboard = () => {
       </div>
       
       {/* Module previews */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <DashboardCard 
           title="Maintenance" 
           actions={<Button variant="ghost" size="sm">Voir tout</Button>}

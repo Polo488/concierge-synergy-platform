@@ -19,17 +19,18 @@ interface KPICardProps {
 const KPICard = ({ title, value, icon, onClick, iconColorClass, iconBgClass }: KPICardProps) => (
   <div 
     className={cn(
-      "bg-card rounded-xl p-5 cursor-pointer transition-all duration-200",
-      "hover:shadow-card"
+      "bg-card rounded-xl cursor-pointer transition-all duration-200",
+      "hover:shadow-card",
+      "p-5 max-md:p-3"
     )}
     onClick={onClick}
   >
     <div className="flex items-center justify-between">
       <div className="space-y-1">
-        <p className="text-sm text-muted-foreground font-medium">{title}</p>
-        <p className="text-3xl font-semibold text-foreground">{value}</p>
+        <p className="text-sm max-md:text-[11px] text-muted-foreground font-medium">{title}</p>
+        <p className="text-3xl max-md:text-xl font-semibold text-foreground">{value}</p>
       </div>
-      <div className={cn("p-3 rounded-xl", iconBgClass)}>
+      <div className={cn("p-3 max-md:p-2 rounded-xl", iconBgClass)}>
         <div className={iconColorClass}>{icon}</div>
       </div>
     </div>
@@ -75,7 +76,7 @@ export const DailyKPICards = ({ stats }: DailyKPICardsProps) => {
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
       {kpiCards.map((kpi) => (
         <KPICard
           key={kpi.title}
