@@ -41,7 +41,6 @@ import WelcomeGuidePublic from "./pages/WelcomeGuidePublic";
 import Transitory from "./pages/Transitory";
 import IdeaBox from "./pages/IdeaBox";
 import CheckApartment from "./pages/CheckApartment";
-import BetaOnboarding from "./pages/BetaOnboarding";
 import NotFound from "./pages/NotFound";
 import { FeedbackWidget } from "./components/feedback/FeedbackWidget";
 
@@ -64,10 +63,8 @@ const App = () => (
                   <TutorialOverlay />
                   <FeedbackWidget />
                   <Routes>
-                    {/* Root → beta onboarding (public) */}
-                    <Route path="/" element={<BetaOnboarding />} />
-                    <Route path="/beta-onboarding" element={<BetaOnboarding />} />
-                    
+                    {/* Root → login */}
+                    <Route path="/" element={<Navigate to="/login" replace />} />
                     {/* Connexion redirect */}
                     <Route path="/connexion" element={<Navigate to="/login" replace />} />
                     
@@ -80,8 +77,7 @@ const App = () => (
                     {/* Public welcome guide */}
                     <Route path="/welcome/:token" element={<WelcomeGuidePublic />} />
 
-                    {/* Beta onboarding */}
-                    <Route path="/beta-onboarding" element={<BetaOnboarding />} />
+                    {/* Protected app routes */}
                     
                     {/* Protected app routes */}
                     <Route element={<ProtectedRoute />}>

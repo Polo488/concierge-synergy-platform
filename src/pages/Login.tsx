@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import BetaCaptureModal from '@/components/beta/BetaCaptureModal';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -24,6 +25,7 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
+      <BetaCaptureModal />
       <Card className="w-[350px]">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
