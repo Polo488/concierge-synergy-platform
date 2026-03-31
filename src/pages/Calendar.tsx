@@ -379,6 +379,10 @@ const CalendarPage = () => {
         onSubmit={handleBlockSubmit}
         onDelete={handleBlockDelete}
       />
+      <DemoReservationModal
+        open={demoModalOpen}
+        onClose={() => setDemoModalOpen(false)}
+      />
     </div>
   );
 };
