@@ -994,14 +994,6 @@ const Billing = () => {
               Nous contacter pour en savoir plus
             </button>
 
-            {/* Secondary link */}
-            <button
-              onClick={() => setShowPreview(true)}
-              className="mt-3 underline cursor-pointer transition-colors hover:opacity-70"
-              style={{ fontSize: 13, color: '#7A7A8C' }}
-            >
-              Voir un aperçu du module →
-            </button>
           </div>
         </div>
       )}
