@@ -926,7 +926,6 @@ const Billing = () => {
         </DialogContent>
       </Dialog>
     </div>
-      </div>
 
       {/* Premium overlay */}
       {!showPreview && (
