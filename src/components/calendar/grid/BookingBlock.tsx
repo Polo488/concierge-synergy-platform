@@ -63,16 +63,16 @@ interface BookingBlockProps {
  */
 const getClipPath = (hasVisibleCheckIn: boolean, hasVisibleCheckOut: boolean): string | undefined => {
   if (hasVisibleCheckIn && hasVisibleCheckOut) {
-    // Case A: notch left + arrow right
-    return 'polygon(10px 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0% 50%)';
+    // Case A: inward notch left + inward notch right
+    return 'polygon(8px 0%, 100% 0%, calc(100% - 12px) 50%, 100% 100%, 8px 100%, 0% 50%)';
   }
   if (!hasVisibleCheckIn && hasVisibleCheckOut) {
-    // Case B: flat left + arrow right
-    return 'polygon(0% 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%)';
+    // Case B: flat left + inward notch right
+    return 'polygon(0% 0%, 100% 0%, calc(100% - 12px) 50%, 100% 100%, 0% 100%)';
   }
   if (hasVisibleCheckIn && !hasVisibleCheckOut) {
-    // Case C: notch left + flat right
-    return 'polygon(10px 0%, 100% 0%, 100% 100%, 10px 100%, 0% 50%)';
+    // Case C: inward notch left + flat right
+    return 'polygon(8px 0%, 100% 0%, 100% 100%, 8px 100%, 0% 50%)';
   }
   // Case D: both truncated → no clip-path
   return undefined;
