@@ -60,7 +60,8 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   }
 
   const finalWidth = Math.max(width, 16);
-  const leftOffset = 0; // Always start at left edge of first visible cell
+  // Checkin always starts at 50% of the first cell (24px offset)
+  const leftOffset = hasVisibleCheckIn ? 24 : 0;
 
   // Checkin dark block width
   const showCheckinBlock = hasVisibleCheckIn;
