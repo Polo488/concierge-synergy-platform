@@ -71,8 +71,8 @@ export const CalendarGridHeader: React.FC<CalendarGridHeaderProps> = ({
         </div>
       </div>
 
-      {/* Days row — 36px */}
-      <div className="flex" style={{ height: 36 }}>
+      {/* Days row — 34px */}
+      <div className="flex" style={{ height: 34 }}>
         {/* Property col header with collapse toggle */}
         <div
           style={{ width: propColWidth, minWidth: propColWidth, cursor: 'pointer' }}
