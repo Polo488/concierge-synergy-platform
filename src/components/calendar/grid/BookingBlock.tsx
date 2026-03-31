@@ -14,7 +14,7 @@ const PLATFORM_COLORS: Record<string, { dark: string; light: string; text: strin
 
 const BAR_H = 26;
 const BAR_TOP = 13;
-const CHECKIN_BLOCK_W = 48;
+const CHECKIN_BLOCK_W = 24;
 
 interface BookingBlockProps {
   booking: CalendarBooking;
@@ -60,7 +60,8 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   }
 
   const finalWidth = Math.max(width, 16);
-  const leftOffset = 0; // Always start at left edge of first visible cell
+  // Checkin always starts at 50% of the first cell (24px offset)
+  const leftOffset = hasVisibleCheckIn ? 24 : 0;
 
   // Checkin dark block width
   const showCheckinBlock = hasVisibleCheckIn;
@@ -71,6 +72,9 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   // Body (light part) width
   const bodyWidth = finalWidth - checkinBlockW;
   const showBody = bodyWidth > 0;
+
+  // Border-radius for checkin block
+  const checkinRadius = !showBody ? 6 : '6px 0 0 6px';
 
   // Content visibility based on body width
   const showName = bodyWidth >= 50;
@@ -126,7 +130,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
           height: '100%',
           background: colors.dark,
           flexShrink: 0,
-          borderRadius: !showBody ? 6 : undefined,
+          borderRadius: checkinRadius,
         }} />
       )}
 
