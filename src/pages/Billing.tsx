@@ -472,7 +472,7 @@ const Billing = () => {
   return (
     <div className="relative">
       {/* Blurred content */}
-      <div className={`space-y-8 ${!showPreview ? 'blur-[4px] pointer-events-none select-none' : ''} transition-all duration-500`}>
+      <div className="space-y-8 blur-[4px] pointer-events-none select-none">
       <TutorialTrigger moduleId="billing" />
       
       <div className="flex items-center justify-between" data-tutorial="billing-header">
