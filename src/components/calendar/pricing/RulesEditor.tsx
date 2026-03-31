@@ -134,7 +134,7 @@ export const RulesEditor: React.FC<RulesEditorProps> = ({
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-lg">Règles de tarification</h3>
+            <h3 className="font-semibold text-base md:text-lg whitespace-normal">Règles de tarification</h3>
             <p className="text-sm text-muted-foreground">
               {rules.length} règle{rules.length > 1 ? 's' : ''} configurée{rules.length > 1 ? 's' : ''}
             </p>

@@ -119,7 +119,7 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
                   <div
                     key={dayIndex}
                     className={cn(
-                      "w-20 min-w-[80px] p-1 border-r border-border relative",
+                      "w-16 min-w-[64px] md:w-20 md:min-w-[80px] p-1 border-r border-border relative",
                       isToday && "bg-primary/5",
                       isPast && "bg-muted/30 opacity-60",
                       isWeekend && !isToday && "bg-muted/10",
