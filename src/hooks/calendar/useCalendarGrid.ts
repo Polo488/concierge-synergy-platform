@@ -22,56 +22,56 @@ const generateMockBookings = (): CalendarBooking[] => {
   const d = (m: number, day: number) => new Date(2026, m - 1, day);
   return [
     // Property 1 — Appart. Port
-    { id: 101, propertyId: 1, guestName: 'Marie Dubois', checkIn: d(3,20), checkOut: d(3,25), status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 375 },
-    { id: 102, propertyId: 1, guestName: 'Lena Schmidt', checkIn: d(3,25), checkOut: d(3,30), status: 'confirmed', channel: 'booking', nightlyRate: 95, guestsCount: 3, totalAmount: 490 },
-    { id: 103, propertyId: 1, guestName: 'Tom Nguyen', checkIn: d(3,30), checkOut: d(4,5), status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 320 },
-    { id: 104, propertyId: 1, guestName: 'Clara Martin', checkIn: d(4,5), checkOut: d(4,11), status: 'confirmed', channel: 'direct', nightlyRate: 95, guestsCount: 2, totalAmount: 280 },
-    // Property 2 — Studio 8
-    { id: 201, propertyId: 2, guestName: 'Martin Dupont', checkIn: d(3,18), checkOut: d(3,23), status: 'confirmed', channel: 'airbnb', nightlyRate: 65, guestsCount: 1, totalAmount: 195 },
-    { id: 202, propertyId: 2, guestName: 'Sophie Lef.', checkIn: d(3,23), checkOut: d(3,28), status: 'confirmed', channel: 'booking', nightlyRate: 65, guestsCount: 2, totalAmount: 260 },
-    { id: 203, propertyId: 2, guestName: 'Karim Benz.', checkIn: d(3,28), checkOut: d(4,3), status: 'confirmed', channel: 'direct', nightlyRate: 65, guestsCount: 2, totalAmount: 420 },
-    { id: 204, propertyId: 2, guestName: 'Julia Ross', checkIn: d(4,3), checkOut: d(4,9), status: 'confirmed', channel: 'airbnb', nightlyRate: 65, guestsCount: 1, totalAmount: 350 },
-    { id: 205, propertyId: 2, guestName: 'Nadia Petit', checkIn: d(4,9), checkOut: d(4,14), status: 'confirmed', channel: 'booking', nightlyRate: 65, guestsCount: 2, totalAmount: 275 },
-    // Property 3 — Loft 72
-    { id: 301, propertyId: 3, guestName: 'David Chen', checkIn: d(3,15), checkOut: d(3,22), status: 'confirmed', channel: 'booking', nightlyRate: 85, guestsCount: 4, totalAmount: 680 },
-    { id: 302, propertyId: 3, guestName: 'Emma Wilson', checkIn: d(3,22), checkOut: d(3,28), status: 'confirmed', channel: 'airbnb', nightlyRate: 85, guestsCount: 3, totalAmount: 560 },
-    { id: 303, propertyId: 3, guestName: 'Paul Durand', checkIn: d(3,28), checkOut: d(4,3), status: 'confirmed', channel: 'direct', nightlyRate: 85, guestsCount: 2, totalAmount: 390 },
-    { id: 304, propertyId: 3, guestName: 'Sarah Müller', checkIn: d(4,3), checkOut: d(4,9), status: 'confirmed', channel: 'booking', nightlyRate: 85, guestsCount: 3, totalAmount: 480 },
+    { id: 101, propertyId: 1, guestName: 'Marie Dubois', checkIn: d(3,16), checkOut: d(3,21), status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 375 },
+    { id: 102, propertyId: 1, guestName: 'Lena Schmidt', checkIn: d(3,22), checkOut: d(3,28), status: 'confirmed', channel: 'booking', nightlyRate: 95, guestsCount: 3, totalAmount: 490 },
+    { id: 103, propertyId: 1, guestName: 'Tom Nguyen', checkIn: d(3,28), checkOut: d(4,2), status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 320 },
+    { id: 104, propertyId: 1, guestName: 'Clara Martin', checkIn: d(4,5), checkOut: d(4,10), status: 'confirmed', channel: 'direct', nightlyRate: 95, guestsCount: 2, totalAmount: 280 },
+    // Property 2 — Studio 8 (Martin OUT 19 + Sophie IN 19 = same day)
+    { id: 201, propertyId: 2, guestName: 'Martin Dupont', checkIn: d(3,15), checkOut: d(3,19), status: 'confirmed', channel: 'airbnb', nightlyRate: 65, guestsCount: 1, totalAmount: 195 },
+    { id: 202, propertyId: 2, guestName: 'Sophie Lef.', checkIn: d(3,19), checkOut: d(3,23), status: 'confirmed', channel: 'booking', nightlyRate: 65, guestsCount: 2, totalAmount: 260 },
+    { id: 203, propertyId: 2, guestName: 'Karim Benz.', checkIn: d(3,25), checkOut: d(4,1), status: 'confirmed', channel: 'direct', nightlyRate: 65, guestsCount: 2, totalAmount: 420 },
+    { id: 204, propertyId: 2, guestName: 'Julia Ross', checkIn: d(4,5), checkOut: d(4,10), status: 'confirmed', channel: 'airbnb', nightlyRate: 65, guestsCount: 1, totalAmount: 350 },
+    { id: 205, propertyId: 2, guestName: 'Nadia Petit', checkIn: d(4,15), checkOut: d(4,20), status: 'confirmed', channel: 'booking', nightlyRate: 65, guestsCount: 2, totalAmount: 275 },
+    // Property 3 — Loft 72 (David OUT 22 + Paul IN 22 = same day)
+    { id: 301, propertyId: 3, guestName: 'David Chen', checkIn: d(3,16), checkOut: d(3,22), status: 'confirmed', channel: 'booking', nightlyRate: 85, guestsCount: 4, totalAmount: 680 },
+    { id: 302, propertyId: 3, guestName: 'Paul Durand', checkIn: d(3,22), checkOut: d(3,27), status: 'confirmed', channel: 'direct', nightlyRate: 85, guestsCount: 2, totalAmount: 390 },
+    { id: 303, propertyId: 3, guestName: 'Sarah Müller', checkIn: d(4,1), checkOut: d(4,6), status: 'confirmed', channel: 'booking', nightlyRate: 85, guestsCount: 3, totalAmount: 480 },
+    { id: 304, propertyId: 3, guestName: 'Emma Wilson', checkIn: d(4,10), checkOut: d(4,15), status: 'confirmed', channel: 'airbnb', nightlyRate: 85, guestsCount: 3, totalAmount: 560 },
     // Property 4 — Maison
-    { id: 401, propertyId: 4, guestName: 'Famille Moreau', checkIn: d(3,24), checkOut: d(3,30), status: 'confirmed', channel: 'airbnb', nightlyRate: 120, guestsCount: 6, totalAmount: 1200 },
-    { id: 402, propertyId: 4, guestName: 'Thomas Bern.', checkIn: d(4,2), checkOut: d(4,8), status: 'confirmed', channel: 'direct', nightlyRate: 120, guestsCount: 4, totalAmount: 840 },
-    { id: 403, propertyId: 4, guestName: 'Isabelle Roy', checkIn: d(4,12), checkOut: d(4,18), status: 'confirmed', channel: 'booking', nightlyRate: 120, guestsCount: 5, totalAmount: 980 },
-    { id: 404, propertyId: 4, guestName: 'Lucas Petit', checkIn: d(4,22), checkOut: d(4,28), status: 'confirmed', channel: 'airbnb', nightlyRate: 120, guestsCount: 4, totalAmount: 760 },
-    // Property 5 — Appart. 2
+    { id: 401, propertyId: 4, guestName: 'Famille Moreau', checkIn: d(3,18), checkOut: d(3,24), status: 'confirmed', channel: 'airbnb', nightlyRate: 120, guestsCount: 6, totalAmount: 1200 },
+    { id: 402, propertyId: 4, guestName: 'Thomas Bern.', checkIn: d(3,28), checkOut: d(4,3), status: 'confirmed', channel: 'direct', nightlyRate: 120, guestsCount: 4, totalAmount: 840 },
+    { id: 403, propertyId: 4, guestName: 'Isabelle Roy', checkIn: d(4,10), checkOut: d(4,16), status: 'confirmed', channel: 'booking', nightlyRate: 120, guestsCount: 5, totalAmount: 980 },
+    { id: 404, propertyId: 4, guestName: 'Lucas Petit', checkIn: d(4,20), checkOut: d(4,26), status: 'confirmed', channel: 'airbnb', nightlyRate: 120, guestsCount: 4, totalAmount: 760 },
+    // Property 5 — Appart. 2 (Rémi OUT 21 + Anne IN 21 = same day)
     { id: 501, propertyId: 5, guestName: 'Rémi Laurent', checkIn: d(3,17), checkOut: d(3,21), status: 'confirmed', channel: 'booking', nightlyRate: 90, guestsCount: 2, totalAmount: 310 },
-    { id: 502, propertyId: 5, guestName: 'Anne Faure', checkIn: d(3,23), checkOut: d(3,29), status: 'confirmed', channel: 'airbnb', nightlyRate: 90, guestsCount: 2, totalAmount: 420 },
-    { id: 503, propertyId: 5, guestName: 'Mehdi Alami', checkIn: d(3,31), checkOut: d(4,5), status: 'confirmed', channel: 'direct', nightlyRate: 90, guestsCount: 3, totalAmount: 380 },
-    { id: 504, propertyId: 5, guestName: 'Chloe Dubois', checkIn: d(4,8), checkOut: d(4,14), status: 'confirmed', channel: 'airbnb', nightlyRate: 90, guestsCount: 2, totalAmount: 290 },
-    { id: 505, propertyId: 5, guestName: 'Pierre Blanc', checkIn: d(4,17), checkOut: d(4,23), status: 'confirmed', channel: 'booking', nightlyRate: 90, guestsCount: 2, totalAmount: 350 },
-    // Property 6 — Studio 1
-    { id: 601, propertyId: 6, guestName: 'Yuki Tanaka', checkIn: d(3,16), checkOut: d(3,20), status: 'confirmed', channel: 'airbnb', nightlyRate: 70, guestsCount: 1, totalAmount: 180 },
-    { id: 602, propertyId: 6, guestName: 'Marco Rossi', checkIn: d(3,24), checkOut: d(4,1), status: 'confirmed', channel: 'booking', nightlyRate: 70, guestsCount: 2, totalAmount: 560 },
-    { id: 603, propertyId: 6, guestName: 'Fatima Zahra', checkIn: d(4,4), checkOut: d(4,10), status: 'confirmed', channel: 'direct', nightlyRate: 70, guestsCount: 2, totalAmount: 410 },
-    { id: 604, propertyId: 6, guestName: 'Oliver Smith', checkIn: d(4,15), checkOut: d(4,21), status: 'confirmed', channel: 'airbnb', nightlyRate: 70, guestsCount: 2, totalAmount: 370 },
-    // Property 7 — Appart. 3
-    { id: 701, propertyId: 7, guestName: 'Julie Perrin', checkIn: d(3,19), checkOut: d(3,25), status: 'confirmed', channel: 'booking', nightlyRate: 110, guestsCount: 2, totalAmount: 340 },
-    { id: 702, propertyId: 7, guestName: 'Max Hofmann', checkIn: d(3,25), checkOut: d(4,1), status: 'confirmed', channel: 'airbnb', nightlyRate: 110, guestsCount: 3, totalAmount: 520 },
-    { id: 703, propertyId: 7, guestName: 'Camille Noir', checkIn: d(4,1), checkOut: d(4,8), status: 'confirmed', channel: 'direct', nightlyRate: 110, guestsCount: 2, totalAmount: 460 },
-    { id: 704, propertyId: 7, guestName: 'Hassan Diop', checkIn: d(4,8), checkOut: d(4,14), status: 'confirmed', channel: 'booking', nightlyRate: 110, guestsCount: 3, totalAmount: 390 },
+    { id: 502, propertyId: 5, guestName: 'Anne Faure', checkIn: d(3,21), checkOut: d(3,26), status: 'confirmed', channel: 'airbnb', nightlyRate: 90, guestsCount: 2, totalAmount: 420 },
+    { id: 503, propertyId: 5, guestName: 'Mehdi Alami', checkIn: d(3,30), checkOut: d(4,4), status: 'confirmed', channel: 'direct', nightlyRate: 90, guestsCount: 3, totalAmount: 380 },
+    { id: 504, propertyId: 5, guestName: 'Chloe Dubois', checkIn: d(4,8), checkOut: d(4,13), status: 'confirmed', channel: 'airbnb', nightlyRate: 90, guestsCount: 2, totalAmount: 290 },
+    { id: 505, propertyId: 5, guestName: 'Pierre Blanc', checkIn: d(4,18), checkOut: d(4,23), status: 'confirmed', channel: 'booking', nightlyRate: 90, guestsCount: 2, totalAmount: 350 },
+    // Property 6 — Studio 15
+    { id: 601, propertyId: 6, guestName: 'Yuki Tanaka', checkIn: d(3,16), checkOut: d(3,19), status: 'confirmed', channel: 'airbnb', nightlyRate: 70, guestsCount: 1, totalAmount: 180 },
+    { id: 602, propertyId: 6, guestName: 'Marco Rossi', checkIn: d(3,23), checkOut: d(3,30), status: 'confirmed', channel: 'booking', nightlyRate: 70, guestsCount: 2, totalAmount: 560 },
+    { id: 603, propertyId: 6, guestName: 'Fatima Zahra', checkIn: d(4,3), checkOut: d(4,8), status: 'confirmed', channel: 'direct', nightlyRate: 70, guestsCount: 2, totalAmount: 410 },
+    { id: 604, propertyId: 6, guestName: 'Oliver Smith', checkIn: d(4,14), checkOut: d(4,19), status: 'confirmed', channel: 'airbnb', nightlyRate: 70, guestsCount: 2, totalAmount: 370 },
+    // Property 7 — Appart. 3 (Julie OUT 22 + Max IN 22 = same day)
+    { id: 701, propertyId: 7, guestName: 'Julie Perrin', checkIn: d(3,17), checkOut: d(3,22), status: 'confirmed', channel: 'booking', nightlyRate: 110, guestsCount: 2, totalAmount: 340 },
+    { id: 702, propertyId: 7, guestName: 'Max Hofmann', checkIn: d(3,22), checkOut: d(3,27), status: 'confirmed', channel: 'airbnb', nightlyRate: 110, guestsCount: 3, totalAmount: 520 },
+    { id: 703, propertyId: 7, guestName: 'Camille Noir', checkIn: d(4,1), checkOut: d(4,7), status: 'confirmed', channel: 'direct', nightlyRate: 110, guestsCount: 2, totalAmount: 460 },
+    { id: 704, propertyId: 7, guestName: 'Hassan Diop', checkIn: d(4,12), checkOut: d(4,17), status: 'confirmed', channel: 'booking', nightlyRate: 110, guestsCount: 3, totalAmount: 390 },
     // Property 8 — Duplex
-    { id: 801, propertyId: 8, guestName: 'Elena Volkov', checkIn: d(3,20), checkOut: d(3,27), status: 'confirmed', channel: 'airbnb', nightlyRate: 130, guestsCount: 4, totalAmount: 890 },
-    { id: 802, propertyId: 8, guestName: 'Jean Dupuis', checkIn: d(3,27), checkOut: d(4,2), status: 'confirmed', channel: 'booking', nightlyRate: 130, guestsCount: 3, totalAmount: 720 },
-    { id: 803, propertyId: 8, guestName: 'Amira Ben Ali', checkIn: d(4,2), checkOut: d(4,8), status: 'confirmed', channel: 'direct', nightlyRate: 130, guestsCount: 2, totalAmount: 580 },
-    { id: 804, propertyId: 8, guestName: 'Chris Taylor', checkIn: d(4,8), checkOut: d(4,15), status: 'confirmed', channel: 'airbnb', nightlyRate: 130, guestsCount: 4, totalAmount: 840 },
-    // Property 9 — Studio 4
-    { id: 901, propertyId: 9, guestName: 'Léa Bonnet', checkIn: d(3,15), checkOut: d(3,19), status: 'confirmed', channel: 'direct', nightlyRate: 75, guestsCount: 1, totalAmount: 160 },
-    { id: 902, propertyId: 9, guestName: 'Ryo Yamamoto', checkIn: d(3,21), checkOut: d(3,26), status: 'confirmed', channel: 'airbnb', nightlyRate: 75, guestsCount: 2, totalAmount: 220 },
-    { id: 903, propertyId: 9, guestName: 'Ingrid Berg', checkIn: d(3,28), checkOut: d(4,3), status: 'confirmed', channel: 'booking', nightlyRate: 75, guestsCount: 2, totalAmount: 315 },
-    { id: 904, propertyId: 9, guestName: 'Moussa Diallo', checkIn: d(4,6), checkOut: d(4,11), status: 'confirmed', channel: 'airbnb', nightlyRate: 75, guestsCount: 2, totalAmount: 280 },
-    { id: 905, propertyId: 9, guestName: 'Victoria Cruz', checkIn: d(4,14), checkOut: d(4,20), status: 'confirmed', channel: 'direct', nightlyRate: 75, guestsCount: 1, totalAmount: 195 },
-    // Property 10 — Suite
-    { id: 1001, propertyId: 10, guestName: 'Antoine Leroy', checkIn: d(3,16), checkOut: d(3,23), status: 'confirmed', channel: 'booking', nightlyRate: 250, guestsCount: 3, totalAmount: 750 },
-    { id: 1002, propertyId: 10, guestName: 'Priya Sharma', checkIn: d(3,26), checkOut: d(4,1), status: 'confirmed', channel: 'airbnb', nightlyRate: 250, guestsCount: 2, totalAmount: 620 },
+    { id: 801, propertyId: 8, guestName: 'Elena Volkov', checkIn: d(3,18), checkOut: d(3,25), status: 'confirmed', channel: 'airbnb', nightlyRate: 130, guestsCount: 4, totalAmount: 890 },
+    { id: 802, propertyId: 8, guestName: 'Jean Dupuis', checkIn: d(3,28), checkOut: d(4,3), status: 'confirmed', channel: 'booking', nightlyRate: 130, guestsCount: 3, totalAmount: 720 },
+    { id: 803, propertyId: 8, guestName: 'Amira Ben Ali', checkIn: d(4,6), checkOut: d(4,11), status: 'confirmed', channel: 'direct', nightlyRate: 130, guestsCount: 2, totalAmount: 580 },
+    { id: 804, propertyId: 8, guestName: 'Chris Taylor', checkIn: d(4,17), checkOut: d(4,23), status: 'confirmed', channel: 'airbnb', nightlyRate: 130, guestsCount: 4, totalAmount: 840 },
+    // Property 9 — Studio 42 (Léa OUT 18 + Ingrid IN 18 = same day)
+    { id: 901, propertyId: 9, guestName: 'Léa Bonnet', checkIn: d(3,15), checkOut: d(3,18), status: 'confirmed', channel: 'direct', nightlyRate: 75, guestsCount: 1, totalAmount: 160 },
+    { id: 902, propertyId: 9, guestName: 'Ingrid Berg', checkIn: d(3,18), checkOut: d(3,24), status: 'confirmed', channel: 'booking', nightlyRate: 75, guestsCount: 2, totalAmount: 315 },
+    { id: 903, propertyId: 9, guestName: 'Ryo Yamamoto', checkIn: d(3,28), checkOut: d(4,2), status: 'confirmed', channel: 'airbnb', nightlyRate: 75, guestsCount: 2, totalAmount: 220 },
+    { id: 904, propertyId: 9, guestName: 'Moussa Diallo', checkIn: d(4,7), checkOut: d(4,12), status: 'confirmed', channel: 'airbnb', nightlyRate: 75, guestsCount: 2, totalAmount: 280 },
+    { id: 905, propertyId: 9, guestName: 'Victoria Cruz', checkIn: d(4,17), checkOut: d(4,22), status: 'confirmed', channel: 'direct', nightlyRate: 75, guestsCount: 1, totalAmount: 195 },
+    // Property 10 — Penthouse
+    { id: 1001, propertyId: 10, guestName: 'Antoine Leroy', checkIn: d(3,16), checkOut: d(3,22), status: 'confirmed', channel: 'booking', nightlyRate: 250, guestsCount: 3, totalAmount: 750 },
+    { id: 1002, propertyId: 10, guestName: 'Priya Sharma', checkIn: d(3,25), checkOut: d(3,31), status: 'confirmed', channel: 'airbnb', nightlyRate: 250, guestsCount: 2, totalAmount: 620 },
     { id: 1003, propertyId: 10, guestName: 'Roberto Luca', checkIn: d(4,4), checkOut: d(4,10), status: 'confirmed', channel: 'direct', nightlyRate: 250, guestsCount: 4, totalAmount: 880 },
     { id: 1004, propertyId: 10, guestName: 'Sandra Koch', checkIn: d(4,13), checkOut: d(4,19), status: 'confirmed', channel: 'booking', nightlyRate: 250, guestsCount: 3, totalAmount: 710 },
     { id: 1005, propertyId: 10, guestName: 'Kevin Okafor', checkIn: d(4,22), checkOut: d(4,28), status: 'confirmed', channel: 'airbnb', nightlyRate: 250, guestsCount: 2, totalAmount: 540 },
