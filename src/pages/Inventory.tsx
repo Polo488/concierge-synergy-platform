@@ -23,6 +23,7 @@ interface InventoryItem {
   stock: number;
   min: number;
   status: 'low' | 'ok';
+  orderUrl?: string;
 }
 
 const initialConsummables: InventoryItem[] = [
