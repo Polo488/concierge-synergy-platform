@@ -383,13 +383,6 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
             </div>
           )}
 
-          {/* SLA indicator */}
-          {sla?.isAwaitingResponse && sla.status !== 'ok' && (
-            <div className="flex items-center gap-1 mt-1" style={{ background: '#FFF8F0', borderRadius: 4, padding: '1px 5px', display: 'inline-flex' }}>
-              <Clock size={9} style={{ color: '#FF5C1A' }} />
-              <span style={{ fontSize: 10, color: '#FF5C1A' }}>{formatSLATime(sla.minutesSinceLastGuestMessage)}</span>
-            </div>
-          )}
         </div>
 
         {/* Unread dot */}
