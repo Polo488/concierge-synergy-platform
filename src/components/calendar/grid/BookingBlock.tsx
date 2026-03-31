@@ -63,16 +63,16 @@ interface BookingBlockProps {
  */
 const getClipPath = (hasVisibleCheckIn: boolean, hasVisibleCheckOut: boolean): string | undefined => {
   if (hasVisibleCheckIn && hasVisibleCheckOut) {
-    // Case A: notch left + arrow right
-    return 'polygon(10px 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0% 50%)';
+    // Case A: inward notch left + inward notch right
+    return 'polygon(8px 0%, 100% 0%, calc(100% - 12px) 50%, 100% 100%, 8px 100%, 0% 50%)';
   }
   if (!hasVisibleCheckIn && hasVisibleCheckOut) {
-    // Case B: flat left + arrow right
-    return 'polygon(0% 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%)';
+    // Case B: flat left + inward notch right
+    return 'polygon(0% 0%, 100% 0%, calc(100% - 12px) 50%, 100% 100%, 0% 100%)';
   }
   if (hasVisibleCheckIn && !hasVisibleCheckOut) {
-    // Case C: notch left + flat right
-    return 'polygon(10px 0%, 100% 0%, 100% 100%, 10px 100%, 0% 50%)';
+    // Case C: inward notch left + flat right
+    return 'polygon(8px 0%, 100% 0%, 100% 100%, 8px 100%, 0% 50%)';
   }
   // Case D: both truncated → no clip-path
   return undefined;
@@ -185,6 +185,21 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
         </span>
       )}
 
+      {/* Total price */}
+      {showPrice && totalPrice && (
+        <span style={{
+          flexShrink: 0,
+          fontSize: 10,
+          fontWeight: 700,
+          color: 'rgba(255,255,255,0.95)',
+          marginRight: 4,
+          pointerEvents: 'none',
+          lineHeight: 1,
+        }}>
+          {totalPrice}€
+        </span>
+      )}
+
       {/* Guests count */}
       {showGuests && guests && (
         <span style={{
@@ -195,23 +210,8 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
           marginRight: 4,
           pointerEvents: 'none',
         }}>
-          <Users size={10} color="white" style={{ opacity: 0.85 }} />
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.9)', lineHeight: 1 }}>{guests}</span>
-        </span>
-      )}
-
-      {/* Total price */}
-      {showPrice && totalPrice && (
-        <span style={{
-          flexShrink: 0,
-          fontSize: 10,
-          fontWeight: 600,
-          color: 'rgba(255,255,255,0.95)',
-          marginRight: 4,
-          pointerEvents: 'none',
-          lineHeight: 1,
-        }}>
-          {totalPrice}€
+          <Users size={10} color="rgba(255,255,255,0.85)" />
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.85)', lineHeight: 1 }}>{guests}</span>
         </span>
       )}
 

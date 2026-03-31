@@ -55,7 +55,7 @@ export const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          <span className="text-sm font-semibold capitalize text-foreground">
+          <span className="text-[15px] font-semibold capitalize text-foreground whitespace-nowrap">
             {format(currentDate, 'MMM yyyy', { locale: fr })}
           </span>
         </div>
