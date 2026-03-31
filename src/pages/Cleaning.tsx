@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { CleaningProvider } from '@/contexts/CleaningContext';
+import { CleaningProvider } from '@/contexts/cleaning/CleaningContext';
 import { CleaningStats } from '@/components/cleaning/CleaningStats';
 import { CleaningActions } from '@/components/cleaning/CleaningActions';
 import { CleaningTabs } from '@/components/cleaning/CleaningTabs';

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Search, AlertTriangle, Plus } from 'lucide-react';
 import { CleaningTaskList } from '@/components/cleaning/CleaningTaskList';
 import { CleaningIssuesList } from '@/components/cleaning/CleaningIssuesList';
-import { useCleaning } from '@/contexts/CleaningContext';
+import { useCleaning } from '@/contexts/cleaning/CleaningContext';
 import { useOperations } from '@/contexts/OperationsContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';

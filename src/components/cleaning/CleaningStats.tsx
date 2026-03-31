@@ -1,7 +1,7 @@
 
 import { StatCard } from '@/components/dashboard/StatCard';
 import { Clock, Sparkles, Calendar as CalendarIcon, CheckCircle } from 'lucide-react';
-import { useCleaning } from '@/contexts/CleaningContext';
+import { useCleaning } from '@/contexts/cleaning/CleaningContext';
 
 export const CleaningStats = () => {
   const { 

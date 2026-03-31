@@ -1,5 +1,5 @@
 
-import { useCleaning } from '@/contexts/CleaningContext';
+import { useCleaning } from '@/contexts/cleaning/CleaningContext';
 import { CleaningAgentAssignDialog } from './CleaningAgentAssignDialog';
 import { CleaningTaskDetailsDialog } from './CleaningTaskDetailsDialog';
 import { ProblemReportDialog } from './ProblemReportDialog';

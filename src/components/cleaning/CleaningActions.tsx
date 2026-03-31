@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Tag, Download, Calendar as CalendarIcon, Sparkles, Plus } from 'lucide-react';
-import { useCleaning } from '@/contexts/CleaningContext';
+import { useCleaning } from '@/contexts/cleaning/CleaningContext';
 
 interface CleaningActionsProps {
   onAddTask?: () => void;
