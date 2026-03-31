@@ -220,8 +220,14 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     document.documentElement.lang = language;
   }, [language]);
 
-  const t = (key: string): string => {
-    return translations[language][key] || key;
+  const t = (key: string, params?: Record<string, any>): string => {
+    let value = translations[language][key] || key;
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        value = value.replace(`{${k}}`, String(v));
+      });
+    }
+    return value;
   };
 
   return (
