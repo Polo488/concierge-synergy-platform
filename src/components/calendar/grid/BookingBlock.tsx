@@ -3,44 +3,18 @@ import React from 'react';
 import { Users } from 'lucide-react';
 import type { CalendarBooking } from '@/types/calendar';
 
-const CHANNEL_SOLID_COLORS: Record<string, string> = {
-  airbnb: '#FF385C',
-  booking: '#003580',
-  'booking.com': '#003580',
-  vrbo: '#3D67B1',
-  direct: '#16A34A',
-  blocked: '#6B7280',
-  block: '#6B7280',
-  other: '#6366F1',
+const PLATFORM_COLORS: Record<string, { dark: string; light: string; text: string }> = {
+  airbnb:        { dark: '#E8002A', light: '#FFB3C1', text: '#9D0018' },
+  booking:       { dark: '#00358B', light: '#B3CAFE', text: '#002060' },
+  'booking.com': { dark: '#00358B', light: '#B3CAFE', text: '#002060' },
+  direct:        { dark: '#15803D', light: '#BBF7D0', text: '#14532D' },
+  vrbo:          { dark: '#00358B', light: '#B3CAFE', text: '#002060' },
+  other:         { dark: '#4F46E5', light: '#C7D2FE', text: '#3730A3' },
 };
 
-const BAR_H = 28;
-const BAR_TOP = 14;
-
-const ChannelBadge: React.FC<{ channel: string; show: boolean }> = ({ channel, show }) => {
-  if (!show) return null;
-  const letter = channel === 'airbnb' ? 'A.'
-    : channel === 'booking' ? 'B.'
-    : channel === 'vrbo' ? 'V.'
-    : channel === 'direct' ? 'D.'
-    : '•';
-
-  return (
-    <span style={{
-      flexShrink: 0,
-      fontSize: 9,
-      fontWeight: 700,
-      color: '#FFFFFF',
-      background: 'rgba(255,255,255,0.2)',
-      borderRadius: 3,
-      padding: '1px 4px',
-      marginRight: 8,
-      lineHeight: 1,
-    }}>
-      {letter}
-    </span>
-  );
-};
+const BAR_H = 26;
+const BAR_TOP = 13;
+const CHECKIN_BLOCK_W = 48;
 
 interface BookingBlockProps {
   booking: CalendarBooking;
@@ -54,30 +28,6 @@ interface BookingBlockProps {
   cellWidth?: number;
 }
 
-/**
- * Chevron clip-path cases:
- * A: both check-in & check-out visible → notch left + arrow right
- * B: truncated start, check-out visible → flat left + arrow right
- * C: check-in visible, truncated end → notch left + flat right
- * D: both truncated → flat rectangle
- */
-const getClipPath = (hasVisibleCheckIn: boolean, hasVisibleCheckOut: boolean): string | undefined => {
-  if (hasVisibleCheckIn && hasVisibleCheckOut) {
-    // Case A: inward notch left + inward notch right
-    return 'polygon(8px 0%, 100% 0%, calc(100% - 12px) 50%, 100% 100%, 8px 100%, 0% 50%)';
-  }
-  if (!hasVisibleCheckIn && hasVisibleCheckOut) {
-    // Case B: flat left + inward notch right
-    return 'polygon(0% 0%, 100% 0%, calc(100% - 12px) 50%, 100% 100%, 0% 100%)';
-  }
-  if (hasVisibleCheckIn && !hasVisibleCheckOut) {
-    // Case C: inward notch left + flat right
-    return 'polygon(8px 0%, 100% 0%, 100% 100%, 8px 100%, 0% 50%)';
-  }
-  // Case D: both truncated → no clip-path
-  return undefined;
-};
-
 export const BookingBlock: React.FC<BookingBlockProps> = ({
   booking,
   visibleDays,
@@ -89,57 +39,63 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   onClick,
   cellWidth: cellWidthProp,
 }) => {
+  const cellWidth = cellWidthProp || 48;
+  const checkoutFraction = 0.4;
+
   const platform = String(
     (booking as any).platform || (booking as any).source || booking.channel || (booking as any).ota || ''
   ).toLowerCase();
 
-  const bgColor = CHANNEL_SOLID_COLORS[platform] || CHANNEL_SOLID_COLORS.other;
-  const cellWidth = cellWidthProp || 48;
-  const halfCell = cellWidth / 2;
+  const colors = PLATFORM_COLORS[platform] || PLATFORM_COLORS.other;
 
   const hasVisibleCheckIn = isCheckInDay && !isStartTruncated;
   const hasVisibleCheckOut = isCheckOutDay && !isEndTruncated;
 
+  // Width: checkout day always occupies 40% of its cell
   let width: number;
-  let leftOffset = 0;
-
-  if (hasVisibleCheckIn && hasVisibleCheckOut) {
-    width = (visibleDays - 1) * cellWidth + halfCell;
-    leftOffset = halfCell;
-  } else if (hasVisibleCheckIn && !hasVisibleCheckOut) {
-    width = visibleDays * cellWidth - halfCell;
-    leftOffset = halfCell;
-  } else if (!hasVisibleCheckIn && hasVisibleCheckOut) {
-    width = (visibleDays - 1) * cellWidth + halfCell;
-    leftOffset = 0;
+  if (hasVisibleCheckOut) {
+    width = (visibleDays - 1) * cellWidth + Math.round(cellWidth * checkoutFraction);
   } else {
     width = visibleDays * cellWidth;
-    leftOffset = 0;
   }
 
-  const finalWidth = Math.max(width, 20);
-  const clipPath = getClipPath(hasVisibleCheckIn, hasVisibleCheckOut);
+  const finalWidth = Math.max(width, 16);
+  const leftOffset = 0; // Always start at left edge of first visible cell
 
-  // Content visibility rules based on width
-  const showName = finalWidth >= 40;
-  const showBadge = finalWidth > 72;
-  const showGuests = finalWidth > 100;
-  const showPrice = finalWidth > 140;
+  // Checkin dark block width
+  const showCheckinBlock = hasVisibleCheckIn;
+  const checkinBlockW = showCheckinBlock
+    ? Math.min(CHECKIN_BLOCK_W, finalWidth)
+    : 0;
+
+  // Body (light part) width
+  const bodyWidth = finalWidth - checkinBlockW;
+  const showBody = bodyWidth > 0;
+
+  // Content visibility based on body width
+  const showName = bodyWidth >= 50;
+  const showBadge = bodyWidth >= 90;
+  const showPrice = bodyWidth >= 130;
+  const showGuests = bodyWidth >= 170;
+
+  const guests = booking.guestsCount;
+  const totalPrice = booking.totalAmount;
+
+  const badgeLetter = platform === 'airbnb' ? 'A.'
+    : (platform === 'booking' || platform === 'booking.com') ? 'B.'
+    : platform === 'direct' ? 'D.'
+    : '•';
 
   const getDisplayName = (): string => {
     const name = booking.guestName || '?';
-    if (!showName) return '';
-    const availableWidth = finalWidth - (showBadge ? 50 : 20) - (showGuests ? 30 : 0) - (showPrice ? 40 : 0);
-    if (availableWidth < 20) return '';
-    if (availableWidth < 40) return name.length > 4 ? name.substring(0, 3) + '…' : name;
-    if (availableWidth < 60) return name.length > 8 ? name.substring(0, 7) + '…' : name;
-    if (availableWidth < 100) return name.length > 12 ? name.substring(0, 11) + '…' : name;
-    return name.length > 18 ? name.substring(0, 17) + '…' : name;
+    if (bodyWidth < 70) return name.length > 6 ? name.substring(0, 5) + '…' : name;
+    if (bodyWidth < 100) return name.length > 10 ? name.substring(0, 9) + '…' : name;
+    if (bodyWidth < 140) return name.length > 14 ? name.substring(0, 13) + '…' : name;
+    return name.length > 20 ? name.substring(0, 19) + '…' : name;
   };
 
-  const displayName = getDisplayName();
-  const guests = booking.guestsCount;
-  const totalPrice = booking.totalAmount;
+  // z-index: checkin bars overlay checkout bars
+  const zIndex = hasVisibleCheckIn ? 3 : 2;
 
   return (
     <div
@@ -150,73 +106,106 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
         left: leftOffset,
         width: finalWidth,
         height: BAR_H,
-        background: bgColor,
-        color: '#FFFFFF',
-        clipPath: clipPath,
-        zIndex: 2,
-        overflow: 'hidden',
-        cursor: 'pointer',
         display: 'flex',
-        alignItems: 'center',
-        contain: 'strict',
+        overflow: 'hidden',
+        borderRadius: 6,
+        zIndex,
+        cursor: 'pointer',
         opacity: isPast ? 0.55 : 1,
+        contain: 'layout style',
         transition: 'filter 0.15s',
       }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.filter = 'brightness(1.1)'; }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.filter = 'brightness(1.08)'; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.filter = 'none'; }}
-      title={`${booking.guestName}${guests ? ` • ${guests} pers.` : ''}${totalPrice ? ` • ${totalPrice}€` : ''} • ${booking.channel}`}
+      title={`${booking.guestName}${guests ? ` • ${guests} pers.` : ''}${totalPrice ? ` • ${totalPrice}€` : ''} • ${platform}`}
     >
-      {/* Name */}
-      {displayName && (
-        <span style={{
-          fontSize: 11,
-          fontWeight: 600,
-          color: '#FFFFFF',
-          paddingLeft: hasVisibleCheckIn ? 12 : 8,
+      {/* Part 1: Checkin dark block */}
+      {showCheckinBlock && (
+        <div style={{
+          width: checkinBlockW,
+          height: '100%',
+          background: colors.dark,
+          flexShrink: 0,
+          borderRadius: !showBody ? 6 : undefined,
+        }} />
+      )}
+
+      {/* Part 2: Light body */}
+      {showBody && (
+        <div style={{
           flex: 1,
-          minWidth: 0,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          pointerEvents: 'none',
-          lineHeight: 1,
-        }}>
-          {displayName}
-        </span>
-      )}
-
-      {/* Total price */}
-      {showPrice && totalPrice && (
-        <span style={{
-          flexShrink: 0,
-          fontSize: 10,
-          fontWeight: 700,
-          color: 'rgba(255,255,255,0.95)',
-          marginRight: 4,
-          pointerEvents: 'none',
-          lineHeight: 1,
-        }}>
-          {totalPrice}€
-        </span>
-      )}
-
-      {/* Guests count */}
-      {showGuests && guests && (
-        <span style={{
-          flexShrink: 0,
+          height: '100%',
+          background: hasVisibleCheckIn ? colors.light : colors.light,
           display: 'flex',
           alignItems: 'center',
-          gap: 2,
-          marginRight: 4,
-          pointerEvents: 'none',
+          overflow: 'hidden',
+          // If no checkin block, apply left border-radius too
+          borderRadius: !showCheckinBlock ? 6 : undefined,
         }}>
-          <Users size={10} color="rgba(255,255,255,0.85)" />
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.85)', lineHeight: 1 }}>{guests}</span>
-        </span>
-      )}
+          {showName && (
+            <span style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: colors.text,
+              paddingLeft: 6,
+              flex: 1,
+              minWidth: 0,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              pointerEvents: 'none',
+              lineHeight: 1,
+            }}>
+              {getDisplayName()}
+            </span>
+          )}
 
-      {/* Channel badge */}
-      <ChannelBadge channel={booking.channel} show={showBadge} />
+          {showPrice && totalPrice && (
+            <span style={{
+              flexShrink: 0,
+              fontSize: 10,
+              fontWeight: 700,
+              color: colors.text,
+              marginRight: 3,
+              pointerEvents: 'none',
+              lineHeight: 1,
+            }}>
+              {totalPrice}€
+            </span>
+          )}
+
+          {showGuests && guests && (
+            <span style={{
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              marginRight: 3,
+              pointerEvents: 'none',
+              opacity: 0.8,
+            }}>
+              <Users size={10} color={colors.text} />
+              <span style={{ fontSize: 10, color: colors.text, lineHeight: 1 }}>{guests}</span>
+            </span>
+          )}
+
+          {showBadge && (
+            <span style={{
+              flexShrink: 0,
+              fontSize: 9,
+              fontWeight: 700,
+              color: '#FFFFFF',
+              background: colors.dark,
+              borderRadius: 3,
+              padding: '1px 4px',
+              marginRight: 6,
+              lineHeight: 1,
+            }}>
+              {badgeLetter}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 };

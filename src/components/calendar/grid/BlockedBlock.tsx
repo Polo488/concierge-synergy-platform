@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Ban, Sparkles } from 'lucide-react';
@@ -15,7 +16,8 @@ interface BlockedBlockProps {
   cellWidth?: number;
 }
 
-const BLOCKED_BG = '#9CA3AF';
+const BAR_H = 26;
+const BAR_TOP = 13;
 
 export const BlockedBlock: React.FC<BlockedBlockProps> = ({
   blocked,
@@ -28,27 +30,15 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
   onCleaningIndicatorClick,
   cellWidth: cellWidthProp,
 }) => {
-  const cellWidth = cellWidthProp || 40;
-  const halfCell = cellWidth / 2;
-
-  const hasVisibleStart = isStartDay && !isStartTruncated;
+  const cellWidth = cellWidthProp || 48;
   const hasVisibleEnd = isEndDay && !isEndTruncated;
 
+  // Same width rule: end day occupies 40%
   let width: number;
-  let leftOffset = 0;
-
-  if (hasVisibleStart && hasVisibleEnd) {
-    width = (visibleDays - 1) * cellWidth + halfCell;
-    leftOffset = halfCell;
-  } else if (hasVisibleStart && !hasVisibleEnd) {
-    width = visibleDays * cellWidth - halfCell;
-    leftOffset = halfCell;
-  } else if (!hasVisibleStart && hasVisibleEnd) {
-    width = (visibleDays - 1) * cellWidth + halfCell;
-    leftOffset = 0;
+  if (hasVisibleEnd) {
+    width = (visibleDays - 1) * cellWidth + Math.round(cellWidth * 0.4);
   } else {
     width = visibleDays * cellWidth;
-    leftOffset = 0;
   }
 
   const hasCleaningScheduled = blocked.cleaningSchedule?.enabled;
@@ -62,32 +52,33 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
   return (
     <div
       className={cn(
-        "absolute z-10 flex items-center gap-1",
-        "transition-all duration-200 ease-out",
-        onClick && "cursor-pointer hover:z-20 hover:brightness-110"
+        "absolute flex items-center gap-1",
+        onClick && "cursor-pointer hover:brightness-110"
       )}
       style={{
-        top: 14,
-        height: 28,
+        top: BAR_TOP,
+        height: BAR_H,
         borderRadius: 6,
         width: `${Math.max(width, 20)}px`,
-        left: `${leftOffset}px`,
-        backgroundColor: BLOCKED_BG,
+        left: 0,
+        backgroundColor: '#E5E7EB',
+        border: '1px solid #D1D5DB',
         overflow: 'hidden',
         padding: '0 8px',
-        contain: 'strict',
+        contain: 'layout style',
+        zIndex: 2,
       }}
       title={blocked.reason || 'Bloqué - Cliquez pour modifier'}
       onClick={(e) => { e.stopPropagation(); onClick?.(); }}
     >
-      <Ban className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#FFFFFF' }} />
+      <Ban className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#6B7280' }} />
 
-      {visibleDays > 1 && (
+      {width > 48 && (
         <span
           className="truncate"
           style={{
-            color: '#FFFFFF',
-            fontSize: 12,
+            color: '#6B7280',
+            fontSize: 11,
             fontWeight: 600,
             lineHeight: 1,
             whiteSpace: 'nowrap',
