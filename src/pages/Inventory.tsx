@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { 
   Package, Filter, PlusCircle, Search, 
   AlertTriangle, Check, Plus, Minus,
-  Settings, ShoppingCart
+  Settings, ShoppingCart, CheckCircle, X,
+  ExternalLink, Link as LinkIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
