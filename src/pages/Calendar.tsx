@@ -276,9 +276,14 @@ const CalendarPage = () => {
           <div className="flex-shrink-0 px-4 md:px-6 pb-3" data-tutorial="calendar-toolbar">
             <CalendarToolbar
               currentDate={currentDate}
+              filters={filters}
+              onFiltersChange={setFilters}
               onNavigate={navigateWeeks}
               onGoToToday={goToToday}
               onAddBooking={handleAddBooking}
+              onSync={handleSync}
+              isSyncing={isSyncing}
+              lastSyncTime={lastSyncTime}
               layers={layers}
               onLayersChange={setLayers}
             />
