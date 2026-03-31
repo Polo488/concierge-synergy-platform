@@ -97,7 +97,7 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
           {properties.map((property) => (
             <div key={property.id} className="flex hover:bg-accent/10 transition-colors">
               {/* Property name column */}
-              <div className="w-[200px] min-w-[200px] p-3 border-r border-border sticky left-0 bg-background z-20">
+              <div className="w-[140px] min-w-[140px] md:w-[180px] md:min-w-[180px] p-2 md:p-3 border-r border-border sticky left-0 bg-background z-20">
                 <p className="text-sm font-medium truncate" title={property.name}>
                   {property.name}
                 </p>
