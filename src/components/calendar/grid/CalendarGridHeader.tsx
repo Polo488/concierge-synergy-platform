@@ -56,7 +56,7 @@ export const CalendarGridHeader: React.FC<CalendarGridHeaderProps> = ({
               style={{
                 width: group.count * dayCellWidth,
                 minWidth: group.count * dayCellWidth,
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: 600,
                 color: '#9A9AAF',
                 textTransform: 'uppercase',
