@@ -22,6 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Euro, Bell, Ban } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { CalendarBooking, CalendarProperty, BookingChannel, BlockedPeriod } from '@/types/calendar';
+import { DemoReservationModal } from '@/components/calendar/DemoReservationModal';
 
 const CalendarPage = () => {
   const isMobile = useIsMobile();
