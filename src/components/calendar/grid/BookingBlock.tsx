@@ -185,6 +185,21 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
         </span>
       )}
 
+      {/* Total price */}
+      {showPrice && totalPrice && (
+        <span style={{
+          flexShrink: 0,
+          fontSize: 10,
+          fontWeight: 700,
+          color: 'rgba(255,255,255,0.95)',
+          marginRight: 4,
+          pointerEvents: 'none',
+          lineHeight: 1,
+        }}>
+          {totalPrice}€
+        </span>
+      )}
+
       {/* Guests count */}
       {showGuests && guests && (
         <span style={{
@@ -195,23 +210,8 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
           marginRight: 4,
           pointerEvents: 'none',
         }}>
-          <Users size={10} color="white" style={{ opacity: 0.85 }} />
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.9)', lineHeight: 1 }}>{guests}</span>
-        </span>
-      )}
-
-      {/* Total price */}
-      {showPrice && totalPrice && (
-        <span style={{
-          flexShrink: 0,
-          fontSize: 10,
-          fontWeight: 600,
-          color: 'rgba(255,255,255,0.95)',
-          marginRight: 4,
-          pointerEvents: 'none',
-          lineHeight: 1,
-        }}>
-          {totalPrice}€
+          <Users size={10} color="rgba(255,255,255,0.85)" />
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.85)', lineHeight: 1 }}>{guests}</span>
         </span>
       )}
 
