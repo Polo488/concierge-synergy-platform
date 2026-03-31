@@ -1,4 +1,3 @@
-
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -18,21 +17,23 @@ export const PropertySearchFilters = ({
   onFilterChange 
 }: PropertySearchFiltersProps) => {
   return (
-    <div className="flex flex-wrap gap-3 items-center">
-      <div className="flex items-center gap-2 max-w-sm flex-1">
-        <Search className="h-4 w-4 text-muted-foreground" />
+    <div className="space-y-3">
+      {/* Search bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input 
-          placeholder="Rechercher par numéro, adresse ou propriétaire..." 
-          className="h-9" 
+          placeholder="Rechercher par numéro, adresse..." 
+          className="h-11 pl-9 rounded-xl bg-muted/50 border-border"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
         />
       </div>
       
-      <div className="flex items-center gap-2">
+      {/* Filters row */}
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
         <Select value={filterType} onValueChange={onFilterChange}>
-          <SelectTrigger className="w-[180px] h-9">
-            <SelectValue placeholder="Type de bien" />
+          <SelectTrigger className="h-9 w-auto min-w-[140px] shrink-0 rounded-lg text-xs">
+            <SelectValue placeholder="Tous les types" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tous les types</SelectItem>
@@ -44,8 +45,8 @@ export const PropertySearchFilters = ({
             <SelectItem value="T6+">T6+</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" className="gap-1">
-          <SlidersHorizontal className="h-4 w-4" />
+        <Button variant="outline" size="sm" className="h-9 gap-1 text-xs shrink-0 whitespace-nowrap">
+          <SlidersHorizontal className="h-3.5 w-3.5" />
           Filtres avancés
         </Button>
       </div>
