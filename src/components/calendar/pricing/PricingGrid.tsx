@@ -65,7 +65,7 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
       <div className="min-w-max">
         {/* Header row with dates */}
         <div className="flex sticky top-0 z-30 bg-muted/80 backdrop-blur-sm border-b border-border">
-          <div className="w-[200px] min-w-[200px] p-3 font-medium text-sm border-r border-border sticky left-0 bg-muted/80 z-40">
+          <div className="w-[140px] min-w-[140px] md:w-[180px] md:min-w-[180px] p-2 md:p-3 font-medium text-sm border-r border-border sticky left-0 bg-muted/80 z-40">
             Logement
           </div>
           {days.map((day, index) => {
@@ -76,7 +76,7 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
               <div
                 key={index}
                 className={cn(
-                  "w-20 min-w-[80px] p-2 text-center border-r border-border",
+                  "w-16 min-w-[64px] md:w-20 md:min-w-[80px] p-1 md:p-2 text-center border-r border-border",
                   isToday && "bg-primary/10",
                   isWeekend && !isToday && "bg-muted/50"
                 )}
@@ -97,7 +97,7 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
           {properties.map((property) => (
             <div key={property.id} className="flex hover:bg-accent/10 transition-colors">
               {/* Property name column */}
-              <div className="w-[200px] min-w-[200px] p-3 border-r border-border sticky left-0 bg-background z-20">
+              <div className="w-[140px] min-w-[140px] md:w-[180px] md:min-w-[180px] p-2 md:p-3 border-r border-border sticky left-0 bg-background z-20">
                 <p className="text-sm font-medium truncate" title={property.name}>
                   {property.name}
                 </p>
@@ -119,7 +119,7 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
                   <div
                     key={dayIndex}
                     className={cn(
-                      "w-20 min-w-[80px] p-1 border-r border-border relative",
+                      "w-16 min-w-[64px] md:w-20 md:min-w-[80px] p-1 border-r border-border relative",
                       isToday && "bg-primary/5",
                       isPast && "bg-muted/30 opacity-60",
                       isWeekend && !isToday && "bg-muted/10",

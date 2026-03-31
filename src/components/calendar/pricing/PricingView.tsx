@@ -14,8 +14,8 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Ban, Tag, Hash, Percent, StickyNote } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PricingViewProps {
   properties: CalendarProperty[];
@@ -23,6 +23,7 @@ interface PricingViewProps {
 }
 
 export const PricingView: React.FC<PricingViewProps> = ({ properties, days }) => {
+  const isMobile = useIsMobile();
   const {
     rules,
     addRule,
@@ -38,13 +39,12 @@ export const PricingView: React.FC<PricingViewProps> = ({ properties, days }) =>
   const [contextMenuCell, setContextMenuCell] = useState<{ propertyId: number; date: Date } | null>(null);
 
   const handlePriceEdit = (propertyId: number, date: Date, newPrice: number) => {
-    // Create a price override rule for this specific date
     addRule({
       propertyId,
       name: `Prix manuel - ${date.toLocaleDateString('fr-FR')}`,
       type: 'price_override',
       enabled: true,
-      priority: 100, // High priority to override other rules
+      priority: 100,
       startDate: date,
       endDate: date,
       priceAdjustment: Math.round(((newPrice / properties.find(p => p.id === propertyId)!.pricePerNight) - 1) * 100),
@@ -123,10 +123,11 @@ export const PricingView: React.FC<PricingViewProps> = ({ properties, days }) =>
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <div className="h-full">
-          <ResizablePanelGroup direction="horizontal">
-            <ResizablePanel defaultSize={70} minSize={50}>
-              <div className="h-full p-4">
+        <div className="w-full overflow-x-hidden flex flex-col" style={{ height: '100%' }}>
+          {isMobile ? (
+            /* Mobile: stacked layout */
+            <div className="flex flex-col gap-3 p-3 w-full overflow-x-hidden">
+              <div className="w-full overflow-x-auto">
                 <PricingGrid
                   properties={properties}
                   days={days}
@@ -136,22 +137,44 @@ export const PricingView: React.FC<PricingViewProps> = ({ properties, days }) =>
                   rules={rules}
                 />
               </div>
-            </ResizablePanel>
-            
-            <ResizableHandle withHandle />
-            
-            <ResizablePanel defaultSize={30} minSize={20}>
-              <RulesEditor
-                rules={rules}
-                properties={properties}
-                onAddRule={addRule}
-                onUpdateRule={updateRule}
-                onDeleteRule={deleteRule}
-                onDuplicateRule={duplicateRule}
-                onApplyToAll={applyRuleToAll}
-              />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+              <div className="w-full">
+                <RulesEditor
+                  rules={rules}
+                  properties={properties}
+                  onAddRule={addRule}
+                  onUpdateRule={updateRule}
+                  onDeleteRule={deleteRule}
+                  onDuplicateRule={duplicateRule}
+                  onApplyToAll={applyRuleToAll}
+                />
+              </div>
+            </div>
+          ) : (
+            /* Desktop: side by side grid */
+            <div className="grid grid-cols-[1fr_340px] gap-4 p-4 w-full overflow-x-hidden" style={{ height: '100%' }}>
+              <div className="overflow-x-auto overflow-y-auto min-w-0">
+                <PricingGrid
+                  properties={properties}
+                  days={days}
+                  getDailyPricing={getDailyPricing}
+                  onPriceEdit={handlePriceEdit}
+                  onCellRightClick={handleCellRightClick}
+                  rules={rules}
+                />
+              </div>
+              <div className="overflow-y-auto min-w-0 border border-border rounded-lg">
+                <RulesEditor
+                  rules={rules}
+                  properties={properties}
+                  onAddRule={addRule}
+                  onUpdateRule={updateRule}
+                  onDeleteRule={deleteRule}
+                  onDuplicateRule={duplicateRule}
+                  onApplyToAll={applyRuleToAll}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </ContextMenuTrigger>
       
