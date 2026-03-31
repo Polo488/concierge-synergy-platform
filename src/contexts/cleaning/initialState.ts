@@ -2,14 +2,14 @@
 import { format } from 'date-fns';
 import { CleaningTask, NewCleaningTask, CleaningStatus, CleaningPhoto } from '@/types/cleaning';
 
-const makePhotos = (seeds: string[], agent: string, datePrefix: string): CleaningPhoto[] =>
-  seeds.map((seed, i) => ({
-    id: `${seed}-${i}`,
-    url: `https://picsum.photos/seed/${seed}/400/400`,
-    caption: seed.replace(/\d/g, '').replace(/([A-Z])/g, ' $1').trim(),
-    timestamp: `${datePrefix}T${String(11 + Math.floor(i * 0.4)).padStart(2, '0')}:${String(15 + i * 8).padStart(2, '0')}:00`,
-    agent,
-  }));
+import photoSalon from '@/assets/cleaning/photo-salon.jpg';
+import photoCuisine from '@/assets/cleaning/photo-cuisine.jpg';
+import photoChambre from '@/assets/cleaning/photo-chambre.jpg';
+import photoSdb from '@/assets/cleaning/photo-sdb.jpg';
+import photoEntree from '@/assets/cleaning/photo-entree.jpg';
+import photoChambre2 from '@/assets/cleaning/photo-chambre2.jpg';
+import photoSdb2 from '@/assets/cleaning/photo-sdb2.jpg';
+import photoCuisine2 from '@/assets/cleaning/photo-cuisine2.jpg';
 
 // Initial sample cleaning tasks
 export const initialTodayTasks: CleaningTask[] = [
@@ -68,7 +68,13 @@ export const initialTodayTasks: CleaningTask[] = [
     consumables: ['Capsules café x6', 'Gel douche x2', 'Shampoing x2'],
     comments: '',
     problems: [],
-    photos: makePhotos(['room1', 'room2', 'room3', 'room4', 'room5'], 'Sophie Renard', '2026-03-31'),
+    photos: [
+      { id: 'p1', url: photoSalon, caption: 'Salon', timestamp: '2026-03-31T11:23:00', agent: 'Sophie Renard' },
+      { id: 'p2', url: photoCuisine, caption: 'Cuisine', timestamp: '2026-03-31T11:31:00', agent: 'Sophie Renard' },
+      { id: 'p3', url: photoChambre, caption: 'Chambre principale', timestamp: '2026-03-31T11:45:00', agent: 'Sophie Renard' },
+      { id: 'p4', url: photoSdb, caption: 'Salle de bain', timestamp: '2026-03-31T11:52:00', agent: 'Sophie Renard' },
+      { id: 'p5', url: photoEntree, caption: 'Entrée', timestamp: '2026-03-31T12:01:00', agent: 'Sophie Renard' },
+    ],
   }
 ];
 
@@ -116,7 +122,12 @@ export const initialCompletedTasks: CleaningTask[] = [
     consumables: ['Capsules café x2', 'Sachets thé x2', 'Gel douche x1'],
     comments: '',
     problems: [],
-    photos: makePhotos(['bed1', 'bath1', 'kitchen1', 'living1'], 'Lucas Martin', '2026-03-30'),
+    photos: [
+      { id: 'p6', url: photoChambre2, caption: 'Chambre', timestamp: '2026-03-30T11:20:00', agent: 'Lucas Martin' },
+      { id: 'p7', url: photoSdb2, caption: 'Salle de bain', timestamp: '2026-03-30T11:28:00', agent: 'Lucas Martin' },
+      { id: 'p8', url: photoCuisine2, caption: 'Cuisine', timestamp: '2026-03-30T11:35:00', agent: 'Lucas Martin' },
+      { id: 'p9', url: photoEntree, caption: 'Entrée', timestamp: '2026-03-30T11:40:00', agent: 'Lucas Martin' },
+    ],
   },
   {
     id: 7,
@@ -130,7 +141,11 @@ export const initialCompletedTasks: CleaningTask[] = [
     consumables: ['Capsules café x4', 'Sachets thé x2', 'Gel douche x1', 'Shampoing x1'],
     comments: '',
     problems: [],
-    photos: makePhotos(['hall1', 'sofa1', 'window1'], 'Marie Lambert', '2026-03-30'),
+    photos: [
+      { id: 'p10', url: photoSalon, caption: 'Salon', timestamp: '2026-03-30T14:05:00', agent: 'Marie Lambert' },
+      { id: 'p11', url: photoChambre, caption: 'Chambre', timestamp: '2026-03-30T14:12:00', agent: 'Marie Lambert' },
+      { id: 'p12', url: photoSdb, caption: 'Salle de bain', timestamp: '2026-03-30T14:18:00', agent: 'Marie Lambert' },
+    ],
   }
 ];
 
