@@ -526,6 +526,7 @@ const Inventory = () => {
                 placeholder="https://www.amazon.fr/dp/..."
               />
             </div>
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setNewItemDialogOpen(false)}>Annuler</Button>
             <Button onClick={handleAddItem}>Ajouter l'article</Button>
