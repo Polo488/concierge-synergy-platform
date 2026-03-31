@@ -46,8 +46,8 @@ export const CalendarGridHeader: React.FC<CalendarGridHeaderProps> = ({
 
   return (
     <div style={{ minWidth: propColWidth + days.length * dayCellWidth }}>
-      {/* Month row — 20px */}
-      <div className="flex" style={{ height: 20 }}>
+      {/* Month row — 18px */}
+      <div className="flex" style={{ height: 18 }}>
         <div style={{ width: propColWidth, minWidth: propColWidth }} className="flex-shrink-0" />
         <div className="flex">
           {monthGroups.map((group, idx) => (
