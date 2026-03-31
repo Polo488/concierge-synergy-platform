@@ -13,9 +13,9 @@ const CHANNEL_SOLID_COLORS: Record<string, string> = {
   other: '#6366F1',
 };
 
-const BAR_H = 36;
+const BAR_H = 28;
 const BAR_TOP = 14;
-const BAR_RADIUS = 10;
+const BAR_RADIUS = 6;
 
 const ChannelBadge: React.FC<{ channel: string; show: boolean }> = ({ channel, show }) => {
   if (!show) return null;
@@ -108,7 +108,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   };
 
   const displayName = getDisplayName();
-  const showBadge = finalWidth > 80;
+  const showBadge = finalWidth > 72;
 
   return (
     <div

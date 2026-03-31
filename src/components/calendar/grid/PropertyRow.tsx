@@ -7,7 +7,7 @@ import { BlockedBlock } from './BlockedBlock';
 import { PropertyInsightBadge } from '@/components/insights/PropertyInsightBadge';
 import { PropertyInsight } from '@/types/insights';
 
-const ROW_H = 64;
+const ROW_H = 56;
 
 interface PropertyRowProps {
   property: CalendarProperty;
@@ -74,8 +74,8 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
         title={property.name}
       >
         <div
-          className="flex-shrink-0 rounded-lg overflow-hidden relative"
-          style={{ width: 36, height: 36, background: '#F0F0F0' }}
+          className="flex-shrink-0 overflow-hidden relative"
+          style={{ width: 32, height: 32, borderRadius: 6, background: '#F0F0F0' }}
         >
           {property.thumbnail ? (
             <img src={property.thumbnail} alt={property.name} className="w-full h-full object-cover" />

@@ -46,8 +46,8 @@ export const CalendarGridHeader: React.FC<CalendarGridHeaderProps> = ({
 
   return (
     <div style={{ minWidth: propColWidth + days.length * dayCellWidth }}>
-      {/* Month row — 20px */}
-      <div className="flex" style={{ height: 20 }}>
+      {/* Month row — 18px */}
+      <div className="flex" style={{ height: 18 }}>
         <div style={{ width: propColWidth, minWidth: propColWidth }} className="flex-shrink-0" />
         <div className="flex">
           {monthGroups.map((group, idx) => (
@@ -56,7 +56,7 @@ export const CalendarGridHeader: React.FC<CalendarGridHeaderProps> = ({
               style={{
                 width: group.count * dayCellWidth,
                 minWidth: group.count * dayCellWidth,
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: 600,
                 color: '#9A9AAF',
                 textTransform: 'uppercase',
@@ -71,8 +71,8 @@ export const CalendarGridHeader: React.FC<CalendarGridHeaderProps> = ({
         </div>
       </div>
 
-      {/* Days row — 36px */}
-      <div className="flex" style={{ height: 36 }}>
+      {/* Days row — 34px */}
+      <div className="flex" style={{ height: 34 }}>
         {/* Property col header with collapse toggle */}
         <div
           style={{ width: propColWidth, minWidth: propColWidth, cursor: 'pointer' }}

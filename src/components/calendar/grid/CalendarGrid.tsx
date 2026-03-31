@@ -10,9 +10,9 @@ import type { CalendarProperty, CalendarBooking, BlockedPeriod, DailyPrice } fro
 import { PropertyInsight } from '@/types/insights';
 
 const DAY_W = 48;
-const ROW_H = 64;
+const ROW_H = 56;
 const PROP_COL_W = 160;
-const PROP_COL_W_MOBILE = 120;
+const PROP_COL_W_MOBILE = 130;
 const PROP_COL_COLLAPSED = 44;
 
 interface CalendarGridProps {
