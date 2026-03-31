@@ -462,63 +462,37 @@ const ClientsManager: React.FC = () => {
         </p>
       </div>
 
-      {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Clients</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between">
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Total</p>
-                <p className="text-2xl font-bold">{stats.totalClients}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Signés</p>
-                <p className="text-2xl font-bold text-green-600">{stats.signedClients}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">En prospection</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.prospectingClients}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Stats pills */}
+      <div className="flex gap-2.5 px-4 mb-4" style={{ flexWrap: 'nowrap' }}>
+        <div className="flex-1 rounded-xl border border-border bg-white p-3 flex flex-col items-center gap-1" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <span className="text-xl font-bold" style={{ color: '#1A1A2E', fontFamily: 'DM Sans, sans-serif' }}>{stats.totalClients}</span>
+          <span className="text-[10px] whitespace-nowrap text-center" style={{ color: '#9A9AAF', fontFamily: 'DM Sans, sans-serif' }}>Total</span>
+        </div>
+        <div className="flex-1 rounded-xl border border-border bg-white p-3 flex flex-col items-center gap-1" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <span className="text-xl font-bold" style={{ color: '#16A34A', fontFamily: 'DM Sans, sans-serif' }}>{stats.signedClients}</span>
+          <span className="text-[10px] whitespace-nowrap text-center" style={{ color: '#9A9AAF', fontFamily: 'DM Sans, sans-serif' }}>Signés</span>
+        </div>
+        <div className="flex-1 rounded-xl border border-border bg-white p-3 flex flex-col items-center gap-1" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <span className="text-xl font-bold" style={{ color: '#4F46E5', fontFamily: 'DM Sans, sans-serif' }}>{stats.prospectingClients}</span>
+          <span className="text-[10px] whitespace-nowrap text-center" style={{ color: '#9A9AAF', fontFamily: 'DM Sans, sans-serif' }}>En prospection</span>
+        </div>
+      </div>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Valeur business</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between">
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Potentiel total</p>
-                <p className="text-2xl font-bold">{formatCurrency(stats.totalPotentialValue)}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Valeur signée</p>
-                <p className="text-2xl font-bold text-green-600">{formatCurrency(stats.signedValue)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Types de clients</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              {Object.entries(typeLabels).map(([type, label]) => (
-                <div key={type} className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${typeColors[type as ClientType].replace("text-", "bg-").replace("-100", "-600")}`}></div>
-                  <span className="text-xs">{label}: {stats.clientsByType[type] || 0}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Valeur business */}
+      <div className="mx-4 mb-4 rounded-[14px] border border-border bg-white p-4 box-border" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <p className="text-[13px] font-semibold uppercase tracking-wide mb-3" style={{ color: '#7A7A8C', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.5px' }}>
+          VALEUR BUSINESS
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1">
+            <span className="text-[11px]" style={{ color: '#9A9AAF', fontFamily: 'DM Sans, sans-serif' }}>Potentiel total</span>
+            <span className="text-lg font-bold truncate" style={{ color: '#1A1A2E', fontFamily: 'DM Sans, sans-serif' }}>{formatCurrency(stats.totalPotentialValue)}</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-[11px]" style={{ color: '#9A9AAF', fontFamily: 'DM Sans, sans-serif' }}>Valeur signée</span>
+            <span className="text-lg font-bold truncate" style={{ color: '#16A34A', fontFamily: 'DM Sans, sans-serif' }}>{formatCurrency(stats.signedValue)}</span>
+          </div>
+        </div>
       </div>
 
       {/* Filtres */}
