@@ -28,27 +28,27 @@ interface InventoryItem {
 }
 
 const initialConsummables: InventoryItem[] = [
-  { id: 1, name: 'Papier toilette', category: 'Consommables', stock: 15, min: 20, status: 'low' },
-  { id: 2, name: 'Savon liquide', category: 'Consommables', stock: 23, min: 15, status: 'low' },
-  { id: 3, name: 'Éponges', category: 'Consommables', stock: 45, min: 20, status: 'ok' },
+  { id: 1, name: 'Papier toilette', category: 'Consommables', stock: 15, min: 20, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B07XQDZJKY' },
+  { id: 2, name: 'Savon liquide', category: 'Consommables', stock: 23, min: 15, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B01N7SM8GS' },
+  { id: 3, name: 'Éponges', category: 'Consommables', stock: 45, min: 20, status: 'ok', orderUrl: 'https://www.amazon.fr/dp/B07V5FVSML' },
   { id: 4, name: 'Produit vaisselle', category: 'Consommables', stock: 32, min: 15, status: 'ok' },
   { id: 5, name: 'Liquide vaisselle', category: 'Consommables', stock: 28, min: 15, status: 'ok' },
-  { id: 6, name: 'Gel douche', category: 'Consommables', stock: 8, min: 20, status: 'low' },
-  { id: 7, name: 'Shampoing', category: 'Consommables', stock: 12, min: 20, status: 'low' },
+  { id: 6, name: 'Gel douche', category: 'Consommables', stock: 8, min: 20, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B08C7GCHGN' },
+  { id: 7, name: 'Shampoing', category: 'Consommables', stock: 12, min: 20, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B08C7GCHGN' },
 ];
 
 const initialLinen: InventoryItem[] = [
   { id: 10, name: 'Draps 2 personnes', category: 'Linge', stock: 18, min: 10, status: 'ok' },
-  { id: 11, name: 'Draps 1 personne', category: 'Linge', stock: 6, min: 10, status: 'low' },
+  { id: 11, name: 'Draps 1 personne', category: 'Linge', stock: 6, min: 10, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B09XYZEXAMPLE' },
   { id: 12, name: 'Serviettes bain', category: 'Linge', stock: 24, min: 15, status: 'ok' },
   { id: 13, name: 'Serviettes main', category: 'Linge', stock: 30, min: 20, status: 'ok' },
   { id: 14, name: 'Taies d\'oreiller', category: 'Linge', stock: 14, min: 20, status: 'low' },
 ];
 
 const initialMaintenance: InventoryItem[] = [
-  { id: 20, name: 'Ampoules LED', category: 'Maintenance', stock: 8, min: 5, status: 'ok' },
-  { id: 21, name: 'Pile AA', category: 'Maintenance', stock: 12, min: 10, status: 'ok' },
-  { id: 22, name: 'Ruban adhésif', category: 'Maintenance', stock: 3, min: 5, status: 'low' },
+  { id: 20, name: 'Ampoules LED', category: 'Maintenance', stock: 8, min: 5, status: 'ok', orderUrl: 'https://www.amazon.fr/dp/B07XYZLED' },
+  { id: 21, name: 'Pile AA', category: 'Maintenance', stock: 12, min: 10, status: 'ok', orderUrl: 'https://www.amazon.fr/dp/B07XYZPILE' },
+  { id: 22, name: 'Ruban adhésif', category: 'Maintenance', stock: 3, min: 5, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B07XYZRUBAN' },
 ];
 
 const categories = [
