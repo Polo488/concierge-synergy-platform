@@ -140,7 +140,7 @@ const Inventory = () => {
   };
 
   const handleAddItem = () => {
-    const { name, category, stock, min } = newItemData;
+    const { name, category, stock, min, orderUrl } = newItemData;
     if (!name.trim()) { toast.error("Veuillez entrer un nom"); return; }
     const stockNum = parseInt(stock, 10) || 0;
     const minNum = parseInt(min, 10) || 0;
@@ -150,7 +150,8 @@ const Inventory = () => {
       category,
       stock: stockNum,
       min: minNum,
-      status: stockNum < minNum ? 'low' : 'ok'
+      status: stockNum < minNum ? 'low' : 'ok',
+      orderUrl: orderUrl.trim() || undefined
     };
     switch(category) {
       case 'Consommables': setConsummables(prev => [...prev, newItem]); break;
@@ -159,7 +160,28 @@ const Inventory = () => {
     }
     toast.success(`Article "${name}" ajouté avec succès`);
     setNewItemDialogOpen(false);
-    setNewItemData({ name: '', category: 'Consommables', stock: '0', min: '10' });
+    setNewItemData({ name: '', category: 'Consommables', stock: '0', min: '10', orderUrl: '' });
+  };
+
+  const handleOrderClick = (item: InventoryItem) => {
+    if (item.orderUrl) {
+      window.open(item.orderUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      toast.info('Aucun lien de commande configuré. Cliquez sur "Gérer" pour ajouter un lien.');
+    }
+  };
+
+  const handleSaveOrderUrl = () => {
+    if (!currentItem) return;
+    const updateFn = (prev: InventoryItem[]) => prev.map(item =>
+      item.id === currentItem.id ? { ...item, orderUrl: editOrderUrl.trim() || undefined } : item
+    );
+    switch(currentItem.category) {
+      case 'Consommables': setConsummables(updateFn); break;
+      case 'Linge': setLinen(updateFn); break;
+      case 'Maintenance': setMaintenance(updateFn); break;
+    }
+    toast.success('Lien de commande mis à jour');
   };
 
   const getStockRatio = (stock: number, min: number) => stock / min;
