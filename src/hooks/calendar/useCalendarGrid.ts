@@ -23,9 +23,9 @@ const generateMockBookings = (): CalendarBooking[] => {
   return [
     // Property 1 — Appart. Port
     { id: 101, propertyId: 1, guestName: 'Marie Dubois', checkIn: d(3,20), checkOut: d(3,25), status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 375 },
-    { id: 102, propertyId: 1, guestName: 'Lena Schmidt', checkIn: d(3,27), checkOut: d(4,2), status: 'confirmed', channel: 'booking', nightlyRate: 95, guestsCount: 3, totalAmount: 490 },
-    { id: 103, propertyId: 1, guestName: 'Tom Nguyen', checkIn: d(4,5), checkOut: d(4,11), status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 320 },
-    { id: 104, propertyId: 1, guestName: 'Clara Martin', checkIn: d(4,14), checkOut: d(4,19), status: 'confirmed', channel: 'direct', nightlyRate: 95, guestsCount: 2, totalAmount: 280 },
+    { id: 102, propertyId: 1, guestName: 'Lena Schmidt', checkIn: d(3,25), checkOut: d(3,30), status: 'confirmed', channel: 'booking', nightlyRate: 95, guestsCount: 3, totalAmount: 490 },
+    { id: 103, propertyId: 1, guestName: 'Tom Nguyen', checkIn: d(3,30), checkOut: d(4,5), status: 'confirmed', channel: 'airbnb', nightlyRate: 95, guestsCount: 2, totalAmount: 320 },
+    { id: 104, propertyId: 1, guestName: 'Clara Martin', checkIn: d(4,5), checkOut: d(4,11), status: 'confirmed', channel: 'direct', nightlyRate: 95, guestsCount: 2, totalAmount: 280 },
     // Property 2 — Studio 8
     { id: 201, propertyId: 2, guestName: 'Martin Dupont', checkIn: d(3,18), checkOut: d(3,23), status: 'confirmed', channel: 'airbnb', nightlyRate: 65, guestsCount: 1, totalAmount: 195 },
     { id: 202, propertyId: 2, guestName: 'Sophie Lef.', checkIn: d(3,24), checkOut: d(3,28), status: 'confirmed', channel: 'booking', nightlyRate: 65, guestsCount: 2, totalAmount: 260 },
