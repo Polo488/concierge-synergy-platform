@@ -130,7 +130,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
           height: '100%',
           background: colors.dark,
           flexShrink: 0,
-          borderRadius: !showBody ? 6 : undefined,
+          borderRadius: checkinRadius,
         }} />
       )}
 
