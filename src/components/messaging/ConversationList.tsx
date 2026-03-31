@@ -123,30 +123,11 @@ export const ConversationList: React.FC<ConversationListProps> = ({
         <div className="flex items-center justify-between mb-3">
           <h2 style={{ fontSize: 22, fontWeight: 700, color: '#1A1A2E' }}>Messages</h2>
           <div className="flex items-center gap-2">
-            {totalSLA > 0 && (
-              <div className="inline-flex items-center gap-1 rounded-full" style={{ background: '#FFF1F0', border: '1px solid #FFCCC7', padding: '4px 10px' }}>
-                <Clock size={12} style={{ color: '#FF4D4F' }} />
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#FF4D4F' }}>{totalSLA} SLA</span>
-              </div>
-            )}
             <button className="flex items-center justify-center rounded-full" style={{ width: 36, height: 36, background: '#FF5C1A' }}>
               <Pencil size={16} color="white" />
             </button>
           </div>
         </div>
-
-        {/* SLA Alert Banner */}
-        {totalSLA > 0 && (
-          <div className="flex items-center gap-2 mb-3 rounded-xl" style={{ background: '#FFF8F0', borderLeft: '3px solid #FF5C1A', padding: '10px 14px' }}>
-            <Clock size={15} style={{ color: '#FF5C1A' }} />
-            <span style={{ fontSize: 13, color: '#92400E' }}>
-              {(stats.slaCritical ?? 0) > 0 
-                ? `${stats.slaCritical} message${(stats.slaCritical ?? 0) > 1 ? 's' : ''} sans réponse depuis +30 min`
-                : `${stats.slaWarning} message${(stats.slaWarning ?? 0) > 1 ? 's' : ''} sans réponse depuis +15 min`
-              }
-            </span>
-          </div>
-        )}
 
         {/* Status filter pills */}
         <div className="flex gap-1.5 pb-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
