@@ -449,6 +449,33 @@ const Inventory = () => {
                 </div>
               </div>
             </div>
+            <div className="space-y-2 pt-2 border-t border-border">
+              <Label htmlFor="orderUrl" className="flex items-center gap-1.5">
+                <LinkIcon className="h-3.5 w-3.5" />
+                Lien de commande
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Collez l'URL du site où acheter ce produit. Le bouton "Commander" ouvrira ce lien.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  id="orderUrl"
+                  value={editOrderUrl}
+                  onChange={(e) => setEditOrderUrl(e.target.value)}
+                  placeholder="https://www.amazon.fr/dp/..."
+                  className="flex-1"
+                />
+                <Button size="sm" variant="outline" onClick={handleSaveOrderUrl}>
+                  Enregistrer
+                </Button>
+              </div>
+              {currentItem?.orderUrl && (
+                <a href={currentItem.orderUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                  <ExternalLink className="h-3 w-3" />
+                  Voir le lien actuel
+                </a>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
