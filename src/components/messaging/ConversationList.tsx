@@ -297,13 +297,12 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   onClick,
   isLast,
 }) => {
-  const { guest, reservation, lastMessagePreview, lastMessageAt, isUnread, tags, sla } = conversation;
+  const { guest, reservation, lastMessagePreview, lastMessageAt, isUnread, tags } = conversation;
   const channel = reservation.channel;
   const avatarColor = CHANNEL_AVATAR_COLORS[channel] || '#6366F1';
   const badgeLetter = CHANNEL_BADGE_LETTER[channel] || 'X';
 
   const timeText = formatDistanceToNow(lastMessageAt, { addSuffix: false, locale: fr });
-  const isUrgentTime = sla?.isAwaitingResponse && sla.status !== 'ok';
 
   return (
     <div
