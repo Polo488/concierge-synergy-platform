@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { 
   Package, Filter, PlusCircle, Search, 
-  AlertTriangle, Check, Plus, Minus,
+  AlertTriangle, Plus, Minus,
   Settings, ShoppingCart, CheckCircle, X,
   ExternalLink, Link as LinkIcon
 } from 'lucide-react';
@@ -11,7 +11,6 @@ import {
   Table, TableBody, TableCell, TableHead, 
   TableHeader, TableRow 
 } from '@/components/ui/table';
-import { StatCard } from '@/components/dashboard/StatCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
@@ -29,8 +28,8 @@ interface InventoryItem {
 
 const initialConsummables: InventoryItem[] = [
   { id: 1, name: 'Papier toilette', category: 'Consommables', stock: 15, min: 20, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B07XQDZJKY' },
-  { id: 2, name: 'Savon liquide', category: 'Consommables', stock: 23, min: 15, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B01N7SM8GS' },
-  { id: 3, name: 'Éponges', category: 'Consommables', stock: 45, min: 20, status: 'ok', orderUrl: 'https://www.amazon.fr/dp/B07V5FVSML' },
+  { id: 2, name: 'Savon liquide', category: 'Consommables', stock: 23, min: 15, status: 'ok', orderUrl: 'https://www.amazon.fr/dp/B01N7SM8GS' },
+  { id: 3, name: 'Éponges', category: 'Consommables', stock: 45, min: 20, status: 'ok' },
   { id: 4, name: 'Produit vaisselle', category: 'Consommables', stock: 32, min: 15, status: 'ok' },
   { id: 5, name: 'Liquide vaisselle', category: 'Consommables', stock: 28, min: 15, status: 'ok' },
   { id: 6, name: 'Gel douche', category: 'Consommables', stock: 8, min: 20, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B08C7GCHGN' },
@@ -47,7 +46,7 @@ const initialLinen: InventoryItem[] = [
 
 const initialMaintenance: InventoryItem[] = [
   { id: 20, name: 'Ampoules LED', category: 'Maintenance', stock: 8, min: 5, status: 'ok', orderUrl: 'https://www.amazon.fr/dp/B07XYZLED' },
-  { id: 21, name: 'Pile AA', category: 'Maintenance', stock: 12, min: 10, status: 'ok', orderUrl: 'https://www.amazon.fr/dp/B07XYZPILE' },
+  { id: 21, name: 'Pile AA', category: 'Maintenance', stock: 12, min: 10, status: 'ok' },
   { id: 22, name: 'Ruban adhésif', category: 'Maintenance', stock: 3, min: 5, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B07XYZRUBAN' },
 ];
 
@@ -65,61 +64,60 @@ const Inventory = () => {
   const [maintenance, setMaintenance] = useState<InventoryItem[]>(initialMaintenance);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const [showLowStockOnly, setShowLowStockOnly] = useState(false);
   
   const [manageDialogOpen, setManageDialogOpen] = useState(false);
   const [newItemDialogOpen, setNewItemDialogOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<InventoryItem | null>(null);
   const [adjustmentAmount, setAdjustmentAmount] = useState<string>('1');
   const [newItemData, setNewItemData] = useState({
-    name: '',
-    category: 'Consommables',
-    stock: '0',
-    min: '10',
-    orderUrl: ''
+    name: '', category: 'Consommables', stock: '0', min: '10', orderUrl: ''
   });
   const [editOrderUrl, setEditOrderUrl] = useState('');
 
   const allItems = [...consummables, ...linen, ...maintenance];
-  const alertsCount = allItems.filter(item => item.status === 'low').length;
 
   useEffect(() => {
     document.title = 'Entrepôt - GESTION BNB LYON';
   }, []);
 
-  const filterItems = (items: InventoryItem[]) => {
-    if (!searchQuery.trim()) return items;
-    return items.filter(item => 
-      item.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  };
-
-  const getDisplayItems = () => {
+  const getCategoryItems = () => {
     switch (activeCategory) {
-      case 'consumables': return filterItems(consummables);
-      case 'linen': return filterItems(linen);
-      case 'maintenance': return filterItems(maintenance);
-      default: return filterItems(allItems);
+      case 'consumables': return consummables;
+      case 'linen': return linen;
+      case 'maintenance': return maintenance;
+      default: return allItems;
     }
   };
 
+  const displayItems = useMemo(() => {
+    let items = getCategoryItems();
+    if (searchQuery.trim()) {
+      items = items.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    if (showLowStockOnly) {
+      items = items.filter(item => item.status === 'low');
+      items.sort((a, b) => (a.stock / a.min) - (b.stock / b.min));
+    }
+    return items;
+  }, [consummables, linen, maintenance, searchQuery, activeCategory, showLowStockOnly]);
+
+  const lowStockInCategory = useMemo(() => {
+    return getCategoryItems().filter(item => item.status === 'low').length;
+  }, [consummables, linen, maintenance, activeCategory]);
+
+  const totalLowStock = allItems.filter(item => item.status === 'low').length;
+  const totalOk = allItems.filter(item => item.status === 'ok').length;
+
   const updateInventoryItem = (category: string, itemId: number, newStock: number) => {
     const updateStatus = (stock: number, min: number): 'low' | 'ok' => stock < min ? 'low' : 'ok';
+    const updater = (prev: InventoryItem[]) => prev.map(item =>
+      item.id === itemId ? { ...item, stock: newStock, status: updateStatus(newStock, item.min) } : item
+    );
     switch(category) {
-      case 'Consommables':
-        setConsummables(prev => prev.map(item => 
-          item.id === itemId ? { ...item, stock: newStock, status: updateStatus(newStock, item.min) } : item
-        ));
-        break;
-      case 'Linge':
-        setLinen(prev => prev.map(item => 
-          item.id === itemId ? { ...item, stock: newStock, status: updateStatus(newStock, item.min) } : item
-        ));
-        break;
-      case 'Maintenance':
-        setMaintenance(prev => prev.map(item => 
-          item.id === itemId ? { ...item, stock: newStock, status: updateStatus(newStock, item.min) } : item
-        ));
-        break;
+      case 'Consommables': setConsummables(updater); break;
+      case 'Linge': setLinen(updater); break;
+      case 'Maintenance': setMaintenance(updater); break;
     }
   };
 
@@ -146,11 +144,8 @@ const Inventory = () => {
     const stockNum = parseInt(stock, 10) || 0;
     const minNum = parseInt(min, 10) || 0;
     const newItem: InventoryItem = {
-      id: Date.now(),
-      name: name.trim(),
-      category,
-      stock: stockNum,
-      min: minNum,
+      id: Date.now(), name: name.trim(), category,
+      stock: stockNum, min: minNum,
       status: stockNum < minNum ? 'low' : 'ok',
       orderUrl: orderUrl.trim() || undefined
     };
@@ -168,7 +163,7 @@ const Inventory = () => {
     if (item.orderUrl) {
       window.open(item.orderUrl, '_blank', 'noopener,noreferrer');
     } else {
-      toast.info('Aucun lien de commande configuré. Cliquez sur "Gérer" pour ajouter un lien.');
+      toast.info('Aucun lien de commande configuré. Cliquez sur "Gérer" pour en ajouter un.');
     }
   };
 
@@ -185,38 +180,27 @@ const Inventory = () => {
     toast.success('Lien de commande mis à jour');
   };
 
-  const getStockRatio = (stock: number, min: number) => stock / min;
-  const getProgressColor = (ratio: number) => {
+  const getStockRatio = (stock: number, min: number) => min > 0 ? stock / min : 1;
+  const getProgressColorClass = (ratio: number) => {
     if (ratio >= 1.5) return 'bg-[hsl(142,72%,29%)]';
     if (ratio >= 1.0) return 'bg-[hsl(38,92%,50%)]';
     return 'bg-[hsl(0,72%,51%)]';
   };
   const getProgressWidth = (stock: number, min: number) => Math.min((stock / (min * 2)) * 100, 100);
 
-  const displayItems = getDisplayItems();
-
-  // Mobile card for an item
+  // Mobile card
   const renderMobileCard = (item: InventoryItem) => {
     const ratio = getStockRatio(item.stock, item.min);
     return (
       <div key={item.id} className="bg-card rounded-xl border border-border p-3.5 mb-2 shadow-sm">
-        {/* Line 1: Name + Status */}
         <div className="flex items-start justify-between gap-2">
-          <span className="text-sm font-semibold text-foreground truncate max-w-[180px]">
-            {item.name}
-          </span>
+          <span className="text-sm font-semibold text-foreground truncate max-w-[180px]">{item.name}</span>
           {item.status === 'low' ? (
-            <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-[hsl(0,86%,94%)] text-[hsl(0,72%,51%)] whitespace-nowrap">
-              Stock bas
-            </span>
+            <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-[hsl(0,86%,94%)] text-[hsl(0,72%,51%)] whitespace-nowrap">Stock bas</span>
           ) : (
-            <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-[hsl(142,76%,92%)] text-[hsl(142,72%,29%)] whitespace-nowrap">
-              OK
-            </span>
+            <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-[hsl(142,76%,92%)] text-[hsl(142,72%,29%)] whitespace-nowrap">OK</span>
           )}
         </div>
-
-        {/* Line 2: Stock values */}
         <div className="flex items-center gap-4 mt-2">
           <div className="flex items-baseline gap-1">
             <span className="text-[22px] font-bold text-foreground">{item.stock}</span>
@@ -228,31 +212,16 @@ const Inventory = () => {
             <span className="text-[13px] font-semibold text-muted-foreground">{item.min}</span>
           </div>
         </div>
-
-        {/* Line 3: Progress bar */}
         <div className="mt-2.5 h-1.5 rounded-full bg-muted overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all ${getProgressColor(ratio)}`}
-            style={{ width: `${getProgressWidth(item.stock, item.min)}%` }}
-          />
+          <div className={`h-full rounded-full transition-all ${getProgressColorClass(ratio)}`} style={{ width: `${getProgressWidth(item.stock, item.min)}%` }} />
         </div>
-
-        {/* Line 4: Actions */}
         <div className="flex justify-end gap-2 mt-3">
-          <button
-            onClick={() => handleManageItem(item)}
-            className="flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-card text-xs text-foreground hover:bg-accent/50 transition-colors"
-          >
-            <Settings className="h-3 w-3" />
-            Gérer
+          <button onClick={() => handleManageItem(item)} className="flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-card text-xs text-foreground hover:bg-accent/50 transition-colors">
+            <Settings className="h-3 w-3" /> Gérer
           </button>
           {item.status === 'low' && (
-            <button
-              onClick={() => handleOrderClick(item)}
-              className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
-            >
-              <ShoppingCart className="h-3 w-3" />
-              Commander
+            <button onClick={() => handleOrderClick(item)} className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">
+              <ShoppingCart className="h-3 w-3" /> Commander
               {item.orderUrl && <ExternalLink className="h-3 w-3" />}
             </button>
           )}
@@ -261,55 +230,61 @@ const Inventory = () => {
     );
   };
 
-  // Desktop table
+  // Desktop table with progress bars
   const renderDesktopTable = (items: InventoryItem[]) => (
     <Table>
       <TableHeader>
         <TableRow className="border-b-2 border-border">
-          <TableHead className="text-[11px] uppercase tracking-wider text-muted-foreground min-w-[140px]">Nom</TableHead>
-          <TableHead className="text-[11px] uppercase tracking-wider text-muted-foreground min-w-[100px]">Stock</TableHead>
-          <TableHead className="text-[11px] uppercase tracking-wider text-muted-foreground min-w-[80px]">Minimum</TableHead>
-          <TableHead className="text-[11px] uppercase tracking-wider text-muted-foreground min-w-[90px]">Statut</TableHead>
-          <TableHead className="text-[11px] uppercase tracking-wider text-muted-foreground min-w-[100px] text-right">Actions</TableHead>
+          <TableHead className="text-[11px] uppercase tracking-wider text-muted-foreground" style={{ minWidth: 160 }}>Nom</TableHead>
+          <TableHead className="text-[11px] uppercase tracking-wider text-muted-foreground" style={{ minWidth: 180 }}>Stock</TableHead>
+          <TableHead className="text-[11px] uppercase tracking-wider text-muted-foreground" style={{ minWidth: 100 }}>Statut</TableHead>
+          <TableHead className="text-[11px] uppercase tracking-wider text-muted-foreground text-right" style={{ minWidth: 140 }}>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {items.map((item) => (
-          <TableRow key={item.id} className="h-14 border-b border-border/50">
-            <TableCell className="font-medium text-foreground">{item.name}</TableCell>
-            <TableCell>
-              <span className="text-sm font-semibold text-foreground">{item.stock}</span>
-              <span className="text-[11px] text-muted-foreground ml-1">unités</span>
-            </TableCell>
-            <TableCell className="text-muted-foreground">{item.min}</TableCell>
-            <TableCell>
-              {item.status === 'low' ? (
-                <span className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-[hsl(0,86%,94%)] text-[hsl(0,72%,51%)]">
-                  Stock bas
-                </span>
-              ) : (
-                <span className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-[hsl(142,76%,92%)] text-[hsl(142,72%,29%)]">
-                  OK
-                </span>
-              )}
-            </TableCell>
-            <TableCell className="text-right">
-              <div className="flex items-center justify-end gap-2">
-                {item.status === 'low' && (
-                  <Button size="sm" className="gap-1 h-[30px] text-xs" onClick={() => handleOrderClick(item)}>
-                    <ShoppingCart className="h-3 w-3" />
-                    Commander
-                    {item.orderUrl && <ExternalLink className="h-3 w-3" />}
-                  </Button>
+        {items.map((item) => {
+          const ratio = getStockRatio(item.stock, item.min);
+          return (
+            <TableRow key={item.id} className="border-b border-border/50" style={{ minHeight: 64 }}>
+              <TableCell className="font-medium text-foreground py-3">{item.name}</TableCell>
+              <TableCell className="py-3">
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-[15px] font-bold text-foreground">{item.stock}</span>
+                    <span className="text-[11px] text-muted-foreground">unités</span>
+                    <span className="text-[11px] text-muted-foreground">/ min. {item.min}</span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${getProgressColorClass(ratio)}`}
+                      style={{ width: `${getProgressWidth(item.stock, item.min)}%` }}
+                    />
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell className="py-3">
+                {item.status === 'low' ? (
+                  <span className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-[hsl(0,86%,94%)] text-[hsl(0,72%,51%)]">Stock bas</span>
+                ) : (
+                  <span className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-[hsl(142,76%,92%)] text-[hsl(142,72%,29%)]">OK</span>
                 )}
-                <Button variant="outline" size="sm" className="h-[30px] text-xs gap-1" onClick={() => handleManageItem(item)}>
-                  <Settings className="h-3 w-3" />
-                  Gérer
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
+              </TableCell>
+              <TableCell className="text-right py-3">
+                <div className="flex items-center justify-end gap-2">
+                  {item.status === 'low' && (
+                    <button onClick={() => handleOrderClick(item)} className="flex items-center gap-1 h-[30px] px-2.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">
+                      <ShoppingCart className="h-3 w-3" /> Commander
+                      {item.orderUrl && <ExternalLink className="h-3 w-3" />}
+                    </button>
+                  )}
+                  <button onClick={() => handleManageItem(item)} className="flex items-center gap-1 h-[30px] px-2.5 rounded-md border border-border bg-card text-xs text-foreground hover:bg-accent/50 transition-colors">
+                    <Settings className="h-3 w-3" /> Gérer
+                  </button>
+                </div>
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );
@@ -319,8 +294,7 @@ const Inventory = () => {
       <Package className="h-10 w-10 text-muted-foreground/40 mb-3" />
       <p className="text-sm text-muted-foreground mb-4">Aucun article dans cette catégorie</p>
       <Button size="sm" onClick={() => setNewItemDialogOpen(true)} className="gap-1.5">
-        <Plus className="h-3.5 w-3.5" />
-        Ajouter un article
+        <Plus className="h-3.5 w-3.5" /> Ajouter un article
       </Button>
     </div>
   );
@@ -330,37 +304,41 @@ const Inventory = () => {
       {/* Page header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Entrepôt</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Gestion des stocks et consommables
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">Gestion des stocks et consommables</p>
       </div>
       
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard 
-          title="Total articles" 
-          value={allItems.length.toString()} 
-          icon={<Package className="h-5 w-5" />}
-        />
-        <StatCard 
-          title="Alertes stock" 
-          value={alertsCount.toString()} 
-          icon={<AlertTriangle className="h-5 w-5" />}
-          change={{ value: alertsCount, type: alertsCount > 0 ? 'increase' : 'decrease' }}
-        />
-        <StatCard 
-          title="Consommables" 
-          value={consummables.length.toString()} 
-          icon={<Check className="h-5 w-5" />}
-        />
-        <StatCard 
-          title="Linge" 
-          value={linen.length.toString()} 
-          icon={<Check className="h-5 w-5" />}
-        />
+      {/* KPI Cards */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="flex items-center gap-2.5 rounded-xl border border-[hsl(258,89%,85%)] bg-[hsl(258,89%,97%)] p-3 md:p-3.5">
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[hsl(258,89%,90%)]">
+            <Package className="h-5 w-5 text-[hsl(258,89%,52%)]" />
+          </div>
+          <div>
+            <p className="text-xl font-bold text-foreground">{allItems.length}</p>
+            <p className="text-[11px] text-muted-foreground">Articles</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5 rounded-xl border border-[hsl(0,93%,85%)] bg-[hsl(0,86%,97%)] p-3 md:p-3.5">
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[hsl(0,86%,90%)]">
+            <AlertTriangle className={`h-5 w-5 text-[hsl(0,72%,51%)] ${totalLowStock > 0 ? 'animate-pulse' : ''}`} />
+          </div>
+          <div>
+            <p className={`text-xl font-bold ${totalLowStock > 0 ? 'text-[hsl(0,72%,51%)]' : 'text-foreground'}`}>{totalLowStock}</p>
+            <p className="text-[11px] text-muted-foreground">Stock bas</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5 rounded-xl border border-[hsl(142,76%,82%)] bg-[hsl(142,76%,97%)] p-3 md:p-3.5">
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[hsl(142,76%,90%)]">
+            <CheckCircle className="h-5 w-5 text-[hsl(142,72%,29%)]" />
+          </div>
+          <div>
+            <p className="text-xl font-bold text-foreground">{totalOk}</p>
+            <p className="text-[11px] text-muted-foreground">En stock</p>
+          </div>
+        </div>
       </div>
       
-      {/* Section header */}
+      {/* Section */}
       <div className="bg-card rounded-xl border border-border p-4">
         {/* Title + buttons */}
         <div className="flex items-center justify-between gap-2 mb-3">
@@ -371,8 +349,7 @@ const Inventory = () => {
               {!isMobile && 'Filtrer'}
             </Button>
             <Button size="sm" className="h-9 gap-1.5 text-xs whitespace-nowrap" onClick={() => setNewItemDialogOpen(true)}>
-              <PlusCircle className="h-3.5 w-3.5" />
-              Ajouter
+              <PlusCircle className="h-3.5 w-3.5" /> Ajouter
             </Button>
           </div>
         </div>
@@ -388,22 +365,52 @@ const Inventory = () => {
           />
         </div>
 
-        {/* Category tabs */}
-        <div className="flex gap-1 overflow-x-auto pb-1 mb-4 scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
-          {categories.map(cat => (
-            <button
-              key={cat.key}
-              onClick={() => setActiveCategory(cat.key)}
-              className={`whitespace-nowrap shrink-0 px-4 py-2 rounded-full text-[13px] transition-colors ${
-                activeCategory === cat.key
-                  ? 'bg-foreground text-background font-semibold'
-                  : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
+        {/* Category tabs + low stock filter */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+          <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {categories.map(cat => (
+              <button
+                key={cat.key}
+                onClick={() => setActiveCategory(cat.key)}
+                className={`whitespace-nowrap shrink-0 px-4 py-2 rounded-full text-[13px] transition-colors ${
+                  activeCategory === cat.key
+                    ? 'bg-foreground text-background font-semibold'
+                    : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+          
+          {/* Low stock filter */}
+          <button
+            onClick={() => setShowLowStockOnly(prev => !prev)}
+            className={`relative flex items-center gap-1.5 h-8 px-3 rounded-full text-xs whitespace-nowrap shrink-0 transition-colors border ${
+              showLowStockOnly
+                ? 'bg-[hsl(0,86%,97%)] border-[hsl(0,72%,51%)] text-[hsl(0,72%,51%)] font-semibold'
+                : 'bg-card border-border text-muted-foreground hover:bg-muted/50'
+            }`}
+          >
+            {showLowStockOnly ? <X className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5 text-[hsl(38,92%,50%)]" />}
+            Stock bas ({lowStockInCategory})
+            {lowStockInCategory > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-[18px] h-[18px] rounded-full bg-[hsl(0,72%,51%)] text-white text-[10px] font-bold">
+                {lowStockInCategory}
+              </span>
+            )}
+          </button>
         </div>
+
+        {/* Low stock alert banner */}
+        {showLowStockOnly && displayItems.length > 0 && (
+          <div className="flex items-center gap-2 rounded-xl bg-[hsl(0,86%,97%)] p-2.5 px-3.5 mb-3 border border-[hsl(0,93%,90%)]">
+            <AlertTriangle className="h-4 w-4 text-[hsl(0,72%,51%)] shrink-0" />
+            <span className="text-[13px] font-semibold text-[hsl(0,72%,51%)]">
+              {displayItems.length} article{displayItems.length > 1 ? 's' : ''} nécessite{displayItems.length > 1 ? 'nt' : ''} un réapprovisionnement
+            </span>
+          </div>
+        )}
 
         {/* Content */}
         {displayItems.length === 0 ? (
@@ -424,55 +431,34 @@ const Inventory = () => {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Stock actuel: {currentItem?.stock} unités</Label>
-              <p className="text-sm text-muted-foreground">
-                Minimum requis: {currentItem?.min} unités
-              </p>
+              <p className="text-sm text-muted-foreground">Minimum requis: {currentItem?.min} unités</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="adjustment">Quantité à ajuster</Label>
               <div className="flex items-center">
-                <Input
-                  id="adjustment"
-                  value={adjustmentAmount}
-                  onChange={(e) => setAdjustmentAmount(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="w-24 mr-4"
-                />
+                <Input id="adjustment" value={adjustmentAmount} onChange={(e) => setAdjustmentAmount(e.target.value.replace(/[^0-9]/g, ''))} className="w-24 mr-4" />
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" className="gap-1" onClick={() => handleAdjustStock(false)}>
-                    <Minus className="h-4 w-4" />
-                    Retirer
+                    <Minus className="h-4 w-4" /> Retirer
                   </Button>
                   <Button size="sm" className="gap-1" onClick={() => handleAdjustStock(true)}>
-                    <Plus className="h-4 w-4" />
-                    Ajouter
+                    <Plus className="h-4 w-4" /> Ajouter
                   </Button>
                 </div>
               </div>
             </div>
             <div className="space-y-2 pt-2 border-t border-border">
               <Label htmlFor="orderUrl" className="flex items-center gap-1.5">
-                <LinkIcon className="h-3.5 w-3.5" />
-                Lien de commande
+                <LinkIcon className="h-3.5 w-3.5" /> Lien de commande
               </Label>
-              <p className="text-xs text-muted-foreground">
-                Collez l'URL du site où acheter ce produit. Le bouton "Commander" ouvrira ce lien.
-              </p>
+              <p className="text-xs text-muted-foreground">Collez l'URL du site où acheter ce produit.</p>
               <div className="flex gap-2">
-                <Input
-                  id="orderUrl"
-                  value={editOrderUrl}
-                  onChange={(e) => setEditOrderUrl(e.target.value)}
-                  placeholder="https://www.amazon.fr/dp/..."
-                  className="flex-1"
-                />
-                <Button size="sm" variant="outline" onClick={handleSaveOrderUrl}>
-                  Enregistrer
-                </Button>
+                <Input id="orderUrl" value={editOrderUrl} onChange={(e) => setEditOrderUrl(e.target.value)} placeholder="https://www.amazon.fr/dp/..." className="flex-1" />
+                <Button size="sm" variant="outline" onClick={handleSaveOrderUrl}>Enregistrer</Button>
               </div>
               {currentItem?.orderUrl && (
                 <a href={currentItem.orderUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
-                  <ExternalLink className="h-3 w-3" />
-                  Voir le lien actuel
+                  <ExternalLink className="h-3 w-3" /> Voir le lien actuel
                 </a>
               )}
             </div>
@@ -493,12 +479,7 @@ const Inventory = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="category">Catégorie</Label>
-              <select
-                id="category"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={newItemData.category}
-                onChange={(e) => setNewItemData({...newItemData, category: e.target.value})}
-              >
+              <select id="category" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={newItemData.category} onChange={(e) => setNewItemData({...newItemData, category: e.target.value})}>
                 <option value="Consommables">Consommables</option>
                 <option value="Linge">Linge</option>
                 <option value="Maintenance">Maintenance</option>
@@ -516,15 +497,9 @@ const Inventory = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="newOrderUrl" className="flex items-center gap-1.5">
-                <LinkIcon className="h-3.5 w-3.5" />
-                Lien de commande (optionnel)
+                <LinkIcon className="h-3.5 w-3.5" /> Lien de commande (optionnel)
               </Label>
-              <Input
-                id="newOrderUrl"
-                value={newItemData.orderUrl}
-                onChange={(e) => setNewItemData({...newItemData, orderUrl: e.target.value})}
-                placeholder="https://www.amazon.fr/dp/..."
-              />
+              <Input id="newOrderUrl" value={newItemData.orderUrl} onChange={(e) => setNewItemData({...newItemData, orderUrl: e.target.value})} placeholder="https://www.amazon.fr/dp/..." />
             </div>
           </div>
           <DialogFooter>
