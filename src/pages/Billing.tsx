@@ -468,19 +468,11 @@ const Billing = () => {
   
   const stats = calculateStats();
 
-  const [showPreview, setShowPreview] = useState(false);
-
-  useEffect(() => {
-    if (showPreview) {
-      const timer = setTimeout(() => setShowPreview(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [showPreview]);
 
   return (
     <div className="relative">
       {/* Blurred content */}
-      <div className={`space-y-8 ${!showPreview ? 'blur-[4px] pointer-events-none select-none' : ''} transition-all duration-500`}>
+      <div className="space-y-8 blur-[4px] pointer-events-none select-none">
       <TutorialTrigger moduleId="billing" />
       
       <div className="flex items-center justify-between" data-tutorial="billing-header">
@@ -928,7 +920,7 @@ const Billing = () => {
     </div>
 
       {/* Premium overlay */}
-      {!showPreview && (
+      {(
         <div className="absolute inset-0 z-10 flex items-start justify-center" style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(2px)' }}>
           <div className="flex flex-col items-center px-5 py-8 max-w-md w-full overflow-y-auto" style={{ maxHeight: '100%' }}>
             {/* Badge */}
@@ -1002,14 +994,6 @@ const Billing = () => {
               Nous contacter pour en savoir plus
             </button>
 
-            {/* Secondary link */}
-            <button
-              onClick={() => setShowPreview(true)}
-              className="mt-3 underline cursor-pointer transition-colors hover:opacity-70"
-              style={{ fontSize: 13, color: '#7A7A8C' }}
-            >
-              Voir un aperçu du module →
-            </button>
           </div>
         </div>
       )}
