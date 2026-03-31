@@ -6,7 +6,7 @@ type Language = 'fr' | 'en';
 type LanguageContextType = {
   language: Language;
   setLanguage: (language: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, any>) => string;
 };
 
 const translations: Record<Language, Record<string, string>> = {
