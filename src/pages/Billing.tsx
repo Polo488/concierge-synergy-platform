@@ -468,8 +468,19 @@ const Billing = () => {
   
   const stats = calculateStats();
 
+  const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    if (showPreview) {
+      const timer = setTimeout(() => setShowPreview(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPreview]);
+
   return (
-    <div className="space-y-8">
+    <div className="relative">
+      {/* Blurred content */}
+      <div className={`space-y-8 ${!showPreview ? 'blur-[4px] pointer-events-none select-none' : ''} transition-all duration-500`}>
       <TutorialTrigger moduleId="billing" />
       
       <div className="flex items-center justify-between" data-tutorial="billing-header">
