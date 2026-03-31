@@ -55,9 +55,9 @@ const generateMockBookings = (): CalendarBooking[] => {
     { id: 604, propertyId: 6, guestName: 'Oliver Smith', checkIn: d(4,15), checkOut: d(4,21), status: 'confirmed', channel: 'airbnb', nightlyRate: 70, guestsCount: 2, totalAmount: 370 },
     // Property 7 — Appart. 3
     { id: 701, propertyId: 7, guestName: 'Julie Perrin', checkIn: d(3,19), checkOut: d(3,25), status: 'confirmed', channel: 'booking', nightlyRate: 110, guestsCount: 2, totalAmount: 340 },
-    { id: 702, propertyId: 7, guestName: 'Max Hofmann', checkIn: d(3,27), checkOut: d(4,2), status: 'confirmed', channel: 'airbnb', nightlyRate: 110, guestsCount: 3, totalAmount: 520 },
-    { id: 703, propertyId: 7, guestName: 'Camille Noir', checkIn: d(4,5), checkOut: d(4,12), status: 'confirmed', channel: 'direct', nightlyRate: 110, guestsCount: 2, totalAmount: 460 },
-    { id: 704, propertyId: 7, guestName: 'Hassan Diop', checkIn: d(4,16), checkOut: d(4,22), status: 'confirmed', channel: 'booking', nightlyRate: 110, guestsCount: 3, totalAmount: 390 },
+    { id: 702, propertyId: 7, guestName: 'Max Hofmann', checkIn: d(3,25), checkOut: d(4,1), status: 'confirmed', channel: 'airbnb', nightlyRate: 110, guestsCount: 3, totalAmount: 520 },
+    { id: 703, propertyId: 7, guestName: 'Camille Noir', checkIn: d(4,1), checkOut: d(4,8), status: 'confirmed', channel: 'direct', nightlyRate: 110, guestsCount: 2, totalAmount: 460 },
+    { id: 704, propertyId: 7, guestName: 'Hassan Diop', checkIn: d(4,8), checkOut: d(4,14), status: 'confirmed', channel: 'booking', nightlyRate: 110, guestsCount: 3, totalAmount: 390 },
     // Property 8 — Duplex
     { id: 801, propertyId: 8, guestName: 'Elena Volkov', checkIn: d(3,20), checkOut: d(3,27), status: 'confirmed', channel: 'airbnb', nightlyRate: 130, guestsCount: 4, totalAmount: 890 },
     { id: 802, propertyId: 8, guestName: 'Jean Dupuis', checkIn: d(3,29), checkOut: d(4,4), status: 'confirmed', channel: 'booking', nightlyRate: 130, guestsCount: 3, totalAmount: 720 },
