@@ -310,7 +310,7 @@ const ClientsManager: React.FC = () => {
 
   const formatCurrency = (amount: number | undefined) => {
     if (amount === undefined) return "N/A";
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
   };
 
   // Filtrer les clients par statut
