@@ -125,6 +125,7 @@ const Inventory = () => {
   const handleManageItem = (item: InventoryItem) => {
     setCurrentItem(item);
     setAdjustmentAmount('1');
+    setEditOrderUrl(item.orderUrl || '');
     setManageDialogOpen(true);
   };
 
