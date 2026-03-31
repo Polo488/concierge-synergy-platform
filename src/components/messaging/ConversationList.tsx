@@ -109,8 +109,6 @@ export const ConversationList: React.FC<ConversationListProps> = ({
     onFiltersChange({ ...filters, tags: newTags });
   };
 
-  const totalSLA = (stats.slaCritical ?? 0) + (stats.slaWarning ?? 0);
-
   const statusFilters: { key: ConversationStatus | 'all'; label: string; count: number }[] = [
     { key: 'all', label: 'Tous', count: stats.total },
     { key: 'open', label: 'Ouverts', count: stats.open },
