@@ -14,7 +14,7 @@ const PLATFORM_COLORS: Record<string, { dark: string; light: string; text: strin
 
 const BAR_H = 26;
 const BAR_TOP = 13;
-const CHECKIN_BLOCK_W = 48;
+const CHECKIN_BLOCK_W = 24;
 
 interface BookingBlockProps {
   booking: CalendarBooking;
