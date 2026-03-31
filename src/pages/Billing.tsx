@@ -920,7 +920,7 @@ const Billing = () => {
     </div>
 
       {/* Premium overlay */}
-      {!showPreview && (
+      {(
         <div className="absolute inset-0 z-10 flex items-start justify-center" style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(2px)' }}>
           <div className="flex flex-col items-center px-5 py-8 max-w-md w-full overflow-y-auto" style={{ maxHeight: '100%' }}>
             {/* Badge */}
