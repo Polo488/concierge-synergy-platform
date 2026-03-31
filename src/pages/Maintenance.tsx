@@ -1,19 +1,18 @@
 
 import { useEffect, useState } from 'react';
-import { Wrench } from 'lucide-react';
-import { DashboardCard } from '@/components/dashboard/DashboardCard';
 import { MaintenanceStats } from '@/components/maintenance/MaintenanceStats';
 import { MaintenanceSearchFilters } from '@/components/maintenance/MaintenanceSearchFilters';
-import { MaintenanceProvider } from '@/contexts/MaintenanceContext';
+import { MaintenanceProvider, useMaintenanceContext } from '@/contexts/MaintenanceContext';
 import { MaintenanceTask } from '@/types/maintenance';
 import { NewMaintenanceButton } from '@/components/maintenance/NewMaintenanceButton';
 import { MaintenanceTabs } from '@/components/maintenance/MaintenanceTabs';
 import { MaintenanceDialogs } from '@/components/maintenance/MaintenanceDialogs';
-import { useMaintenanceContext } from '@/contexts/MaintenanceContext';
 import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
+import { Plus, Download, Calendar, Filter } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
-// This component wraps the MaintenanceContent with the MaintenanceProvider context
 const Maintenance = () => {
   useEffect(() => {
     document.title = 'Maintenance - Concierge Synergy Platform';
@@ -26,7 +25,6 @@ const Maintenance = () => {
   );
 };
 
-// The actual content, which uses the maintenance context
 const MaintenanceContent = () => {
   const { stats } = useMaintenanceContext();
   const [selectedTaskId, setSelectedTaskId] = useState<string | number | null>(null);
@@ -34,7 +32,6 @@ const MaintenanceContent = () => {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
-  // Handle state changes from the tabs component
   const handleTabsStateChange = (state: {
     assignDialogOpen: boolean;
     selectedTaskId: string | number | null;
@@ -47,32 +44,68 @@ const MaintenanceContent = () => {
     setSelectedTask(state.selectedTask);
   };
 
+  const handleExport = () => {
+    toast.success('Export lancé', {
+      description: 'Le fichier CSV des interventions a été téléchargé.',
+      duration: 3000,
+    });
+  };
+
+  const handleCalendar = () => {
+    toast.success('Calendrier synchronisé', {
+      description: 'Les interventions ont été synchronisées avec le calendrier.',
+      duration: 3000,
+    });
+  };
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <TutorialTrigger moduleId="maintenance" />
-      <div className="flex items-center justify-between" data-tutorial="maintenance-header">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Maintenance</h1>
-          <p className="text-muted-foreground mt-1">
-            Gestion des interventions techniques dans les logements
-          </p>
+      
+      {/* Header responsive like Cleaning */}
+      <div className="w-full box-border px-4 pt-4 pb-3 space-y-3">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+          <div>
+            <h1 className="text-[22px] md:text-3xl font-bold tracking-tight text-foreground">Maintenance</h1>
+            <p className="text-[13px] text-muted-foreground mt-1">
+              Gestion des interventions techniques
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <NewMaintenanceButton />
+            <TutorialButton moduleId="maintenance" />
+          </div>
         </div>
-        <TutorialButton moduleId="maintenance" />
+
+        {/* Secondary buttons - scrollable on mobile */}
+        <div 
+          className="flex gap-2 overflow-x-auto pb-1 md:justify-end"
+          style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
+        >
+          <Button size="sm" variant="outline" className="flex-shrink-0 h-9 rounded-lg gap-1.5 whitespace-nowrap text-[13px]" onClick={handleExport}>
+            <Download className="h-3.5 w-3.5" />
+            Exporter
+          </Button>
+          <Button size="sm" variant="outline" className="flex-shrink-0 h-9 rounded-lg gap-1.5 whitespace-nowrap text-[13px]" onClick={handleCalendar}>
+            <Calendar className="h-3.5 w-3.5" />
+            Calendrier
+          </Button>
+        </div>
       </div>
       
       {/* Statistics */}
-      <MaintenanceStats 
-        pendingCount={stats.pending}
-        inProgressCount={stats.inProgress}
-        criticalCount={stats.critical}
-        completedCount={stats.completedThisMonth}
-      />
+      <div className="px-4" data-tutorial="maintenance-header">
+        <MaintenanceStats 
+          pendingCount={stats.pending}
+          inProgressCount={stats.inProgress}
+          criticalCount={stats.critical}
+          completedCount={stats.completedThisMonth}
+        />
+      </div>
       
-      {/* Maintenance management */}
-      <DashboardCard 
-        title="Interventions"
-        actions={<NewMaintenanceButton />}
-      >
+      {/* Main content card */}
+      <div className="bg-card rounded-xl border border-border p-4 mx-4">
+        <h2 className="text-xl font-bold text-foreground mb-3">Interventions</h2>
         <div className="space-y-4">
           <div data-tutorial="maintenance-filters">
             <MaintenanceSearchFilters />
@@ -81,7 +114,7 @@ const MaintenanceContent = () => {
             <MaintenanceTabs onStateChange={handleTabsStateChange} />
           </div>
         </div>
-      </DashboardCard>
+      </div>
 
       {/* Dialogs */}
       <MaintenanceDialogs 

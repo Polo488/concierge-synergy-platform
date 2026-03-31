@@ -56,10 +56,19 @@ export const MaintenanceTabs: React.FC<MaintenanceTabsProps> = ({ onStateChange 
   
   return (
     <Tabs defaultValue="pending">
-      <TabsList className="w-full max-w-md grid grid-cols-3">
-        <TabsTrigger value="pending">En attente ({stats.pending})</TabsTrigger>
-        <TabsTrigger value="inProgress">En cours ({stats.inProgress})</TabsTrigger>
-        <TabsTrigger value="completed">Terminées</TabsTrigger>
+      <TabsList 
+        className="w-full grid grid-cols-3 h-auto p-1"
+        style={{ scrollbarWidth: 'none' }}
+      >
+        <TabsTrigger value="pending" className="text-[12px] md:text-sm py-2 px-2 whitespace-nowrap">
+          En attente ({stats.pending})
+        </TabsTrigger>
+        <TabsTrigger value="inProgress" className="text-[12px] md:text-sm py-2 px-2 whitespace-nowrap">
+          En cours ({stats.inProgress})
+        </TabsTrigger>
+        <TabsTrigger value="completed" className="text-[12px] md:text-sm py-2 px-2 whitespace-nowrap">
+          Terminées
+        </TabsTrigger>
       </TabsList>
       
       <TabsContent value="pending" className="animate-slide-up">

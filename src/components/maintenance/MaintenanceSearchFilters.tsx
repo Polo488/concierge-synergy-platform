@@ -24,42 +24,45 @@ export const MaintenanceSearchFilters = ({
   };
 
   return (
-    <div className="flex flex-wrap gap-3 items-center">
-      <div className="flex items-center gap-2 max-w-sm flex-1">
-        <Search className="h-4 w-4 text-muted-foreground" />
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 w-full">
+        <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         <Input 
           placeholder="Rechercher une intervention..." 
-          className="h-9" 
+          className="h-9 w-full" 
           onChange={handleSearchChange}
         />
       </div>
       
-      <div className="flex items-center gap-2">
+      <div 
+        className="flex gap-2 overflow-x-auto pb-1"
+        style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
+      >
         <Button 
           variant="outline" 
           size="sm" 
-          className="gap-1"
+          className="flex-shrink-0 gap-1.5 whitespace-nowrap text-[13px] h-8 rounded-lg"
           onClick={onFilterByDate}
         >
-          <Calendar className="h-4 w-4" />
+          <Calendar className="h-3.5 w-3.5" />
           Date
         </Button>
         <Button 
           variant="outline" 
           size="sm" 
-          className="gap-1"
+          className="flex-shrink-0 gap-1.5 whitespace-nowrap text-[13px] h-8 rounded-lg"
           onClick={onFilterByTechnician}
         >
-          <User className="h-4 w-4" />
+          <User className="h-3.5 w-3.5" />
           Technicien
         </Button>
         <Button 
           variant="outline" 
           size="sm" 
-          className="gap-1"
+          className="flex-shrink-0 gap-1.5 whitespace-nowrap text-[13px] h-8 rounded-lg"
           onClick={onFilterByUrgency}
         >
-          <BadgeAlert className="h-4 w-4" />
+          <BadgeAlert className="h-3.5 w-3.5" />
           Urgence
         </Button>
       </div>
