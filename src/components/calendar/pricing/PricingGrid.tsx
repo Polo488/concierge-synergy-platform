@@ -76,7 +76,7 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
               <div
                 key={index}
                 className={cn(
-                  "w-20 min-w-[80px] p-2 text-center border-r border-border",
+                  "w-16 min-w-[64px] md:w-20 md:min-w-[80px] p-1 md:p-2 text-center border-r border-border",
                   isToday && "bg-primary/10",
                   isWeekend && !isToday && "bg-muted/50"
                 )}
