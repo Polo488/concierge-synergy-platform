@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { 
   Package, Filter, PlusCircle, Search, 
   AlertTriangle, Check, Plus, Minus,
-  Settings, ShoppingCart
+  Settings, ShoppingCart, CheckCircle, X,
+  ExternalLink, Link as LinkIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,30 +24,31 @@ interface InventoryItem {
   stock: number;
   min: number;
   status: 'low' | 'ok';
+  orderUrl?: string;
 }
 
 const initialConsummables: InventoryItem[] = [
-  { id: 1, name: 'Papier toilette', category: 'Consommables', stock: 15, min: 20, status: 'low' },
-  { id: 2, name: 'Savon liquide', category: 'Consommables', stock: 23, min: 15, status: 'low' },
-  { id: 3, name: 'Éponges', category: 'Consommables', stock: 45, min: 20, status: 'ok' },
+  { id: 1, name: 'Papier toilette', category: 'Consommables', stock: 15, min: 20, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B07XQDZJKY' },
+  { id: 2, name: 'Savon liquide', category: 'Consommables', stock: 23, min: 15, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B01N7SM8GS' },
+  { id: 3, name: 'Éponges', category: 'Consommables', stock: 45, min: 20, status: 'ok', orderUrl: 'https://www.amazon.fr/dp/B07V5FVSML' },
   { id: 4, name: 'Produit vaisselle', category: 'Consommables', stock: 32, min: 15, status: 'ok' },
   { id: 5, name: 'Liquide vaisselle', category: 'Consommables', stock: 28, min: 15, status: 'ok' },
-  { id: 6, name: 'Gel douche', category: 'Consommables', stock: 8, min: 20, status: 'low' },
-  { id: 7, name: 'Shampoing', category: 'Consommables', stock: 12, min: 20, status: 'low' },
+  { id: 6, name: 'Gel douche', category: 'Consommables', stock: 8, min: 20, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B08C7GCHGN' },
+  { id: 7, name: 'Shampoing', category: 'Consommables', stock: 12, min: 20, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B08C7GCHGN' },
 ];
 
 const initialLinen: InventoryItem[] = [
   { id: 10, name: 'Draps 2 personnes', category: 'Linge', stock: 18, min: 10, status: 'ok' },
-  { id: 11, name: 'Draps 1 personne', category: 'Linge', stock: 6, min: 10, status: 'low' },
+  { id: 11, name: 'Draps 1 personne', category: 'Linge', stock: 6, min: 10, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B09XYZEXAMPLE' },
   { id: 12, name: 'Serviettes bain', category: 'Linge', stock: 24, min: 15, status: 'ok' },
   { id: 13, name: 'Serviettes main', category: 'Linge', stock: 30, min: 20, status: 'ok' },
   { id: 14, name: 'Taies d\'oreiller', category: 'Linge', stock: 14, min: 20, status: 'low' },
 ];
 
 const initialMaintenance: InventoryItem[] = [
-  { id: 20, name: 'Ampoules LED', category: 'Maintenance', stock: 8, min: 5, status: 'ok' },
-  { id: 21, name: 'Pile AA', category: 'Maintenance', stock: 12, min: 10, status: 'ok' },
-  { id: 22, name: 'Ruban adhésif', category: 'Maintenance', stock: 3, min: 5, status: 'low' },
+  { id: 20, name: 'Ampoules LED', category: 'Maintenance', stock: 8, min: 5, status: 'ok', orderUrl: 'https://www.amazon.fr/dp/B07XYZLED' },
+  { id: 21, name: 'Pile AA', category: 'Maintenance', stock: 12, min: 10, status: 'ok', orderUrl: 'https://www.amazon.fr/dp/B07XYZPILE' },
+  { id: 22, name: 'Ruban adhésif', category: 'Maintenance', stock: 3, min: 5, status: 'low', orderUrl: 'https://www.amazon.fr/dp/B07XYZRUBAN' },
 ];
 
 const categories = [
@@ -72,8 +74,10 @@ const Inventory = () => {
     name: '',
     category: 'Consommables',
     stock: '0',
-    min: '10'
+    min: '10',
+    orderUrl: ''
   });
+  const [editOrderUrl, setEditOrderUrl] = useState('');
 
   const allItems = [...consummables, ...linen, ...maintenance];
   const alertsCount = allItems.filter(item => item.status === 'low').length;
@@ -122,6 +126,7 @@ const Inventory = () => {
   const handleManageItem = (item: InventoryItem) => {
     setCurrentItem(item);
     setAdjustmentAmount('1');
+    setEditOrderUrl(item.orderUrl || '');
     setManageDialogOpen(true);
   };
 
@@ -136,7 +141,7 @@ const Inventory = () => {
   };
 
   const handleAddItem = () => {
-    const { name, category, stock, min } = newItemData;
+    const { name, category, stock, min, orderUrl } = newItemData;
     if (!name.trim()) { toast.error("Veuillez entrer un nom"); return; }
     const stockNum = parseInt(stock, 10) || 0;
     const minNum = parseInt(min, 10) || 0;
@@ -146,7 +151,8 @@ const Inventory = () => {
       category,
       stock: stockNum,
       min: minNum,
-      status: stockNum < minNum ? 'low' : 'ok'
+      status: stockNum < minNum ? 'low' : 'ok',
+      orderUrl: orderUrl.trim() || undefined
     };
     switch(category) {
       case 'Consommables': setConsummables(prev => [...prev, newItem]); break;
@@ -155,7 +161,28 @@ const Inventory = () => {
     }
     toast.success(`Article "${name}" ajouté avec succès`);
     setNewItemDialogOpen(false);
-    setNewItemData({ name: '', category: 'Consommables', stock: '0', min: '10' });
+    setNewItemData({ name: '', category: 'Consommables', stock: '0', min: '10', orderUrl: '' });
+  };
+
+  const handleOrderClick = (item: InventoryItem) => {
+    if (item.orderUrl) {
+      window.open(item.orderUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      toast.info('Aucun lien de commande configuré. Cliquez sur "Gérer" pour ajouter un lien.');
+    }
+  };
+
+  const handleSaveOrderUrl = () => {
+    if (!currentItem) return;
+    const updateFn = (prev: InventoryItem[]) => prev.map(item =>
+      item.id === currentItem.id ? { ...item, orderUrl: editOrderUrl.trim() || undefined } : item
+    );
+    switch(currentItem.category) {
+      case 'Consommables': setConsummables(updateFn); break;
+      case 'Linge': setLinen(updateFn); break;
+      case 'Maintenance': setMaintenance(updateFn); break;
+    }
+    toast.success('Lien de commande mis à jour');
   };
 
   const getStockRatio = (stock: number, min: number) => stock / min;
@@ -221,11 +248,12 @@ const Inventory = () => {
           </button>
           {item.status === 'low' && (
             <button
-              onClick={() => toast.info('Fonctionnalité bientôt disponible')}
+              onClick={() => handleOrderClick(item)}
               className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
             >
               <ShoppingCart className="h-3 w-3" />
               Commander
+              {item.orderUrl && <ExternalLink className="h-3 w-3" />}
             </button>
           )}
         </div>
@@ -266,9 +294,19 @@ const Inventory = () => {
               )}
             </TableCell>
             <TableCell className="text-right">
-              <Button variant="outline" size="sm" onClick={() => handleManageItem(item)}>
-                Gérer
-              </Button>
+              <div className="flex items-center justify-end gap-2">
+                {item.status === 'low' && (
+                  <Button size="sm" className="gap-1 h-[30px] text-xs" onClick={() => handleOrderClick(item)}>
+                    <ShoppingCart className="h-3 w-3" />
+                    Commander
+                    {item.orderUrl && <ExternalLink className="h-3 w-3" />}
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" className="h-[30px] text-xs gap-1" onClick={() => handleManageItem(item)}>
+                  <Settings className="h-3 w-3" />
+                  Gérer
+                </Button>
+              </div>
             </TableCell>
           </TableRow>
         ))}
@@ -411,6 +449,33 @@ const Inventory = () => {
                 </div>
               </div>
             </div>
+            <div className="space-y-2 pt-2 border-t border-border">
+              <Label htmlFor="orderUrl" className="flex items-center gap-1.5">
+                <LinkIcon className="h-3.5 w-3.5" />
+                Lien de commande
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Collez l'URL du site où acheter ce produit. Le bouton "Commander" ouvrira ce lien.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  id="orderUrl"
+                  value={editOrderUrl}
+                  onChange={(e) => setEditOrderUrl(e.target.value)}
+                  placeholder="https://www.amazon.fr/dp/..."
+                  className="flex-1"
+                />
+                <Button size="sm" variant="outline" onClick={handleSaveOrderUrl}>
+                  Enregistrer
+                </Button>
+              </div>
+              {currentItem?.orderUrl && (
+                <a href={currentItem.orderUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                  <ExternalLink className="h-3 w-3" />
+                  Voir le lien actuel
+                </a>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -448,6 +513,18 @@ const Inventory = () => {
                 <Label htmlFor="min">Stock minimum</Label>
                 <Input id="min" value={newItemData.min} onChange={(e) => setNewItemData({...newItemData, min: e.target.value.replace(/[^0-9]/g, '')})} placeholder="10" />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="newOrderUrl" className="flex items-center gap-1.5">
+                <LinkIcon className="h-3.5 w-3.5" />
+                Lien de commande (optionnel)
+              </Label>
+              <Input
+                id="newOrderUrl"
+                value={newItemData.orderUrl}
+                onChange={(e) => setNewItemData({...newItemData, orderUrl: e.target.value})}
+                placeholder="https://www.amazon.fr/dp/..."
+              />
             </div>
           </div>
           <DialogFooter>
