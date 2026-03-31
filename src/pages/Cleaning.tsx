@@ -1,6 +1,5 @@
 
 import { useEffect } from 'react';
-import { DashboardCard } from '@/components/dashboard/DashboardCard';
 import { CleaningProvider } from '@/contexts/CleaningContext';
 import { CleaningStats } from '@/components/cleaning/CleaningStats';
 import { CleaningActions } from '@/components/cleaning/CleaningActions';
@@ -17,13 +16,13 @@ const Cleaning = () => {
   const isCleaningAgent = user?.role === 'cleaning';
   
   useEffect(() => {
-    document.title = t('cleaning.page.title');
-  }, [t]);
+    document.title = 'Ménage';
+  }, []);
 
   return (
     <CleaningProvider>
       <TutorialTrigger moduleId="cleaning" />
-      <div className="space-y-8">
+      <div className="space-y-4">
         {!isCleaningAgent && (
           <div data-tutorial="cleaning-actions">
             <CleaningActions />
@@ -32,15 +31,15 @@ const Cleaning = () => {
         
         {!isCleaningAgent && <CleaningStats />}
         
-        <DashboardCard 
-          title={isCleaningAgent ? t('cleaning.agent.title') : t('cleaning.planning.title')}
-          subtitle={isCleaningAgent ? t('cleaning.agent.description') : undefined}
-          actions={<TutorialButton moduleId="cleaning" />}
-        >
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-xl font-bold text-foreground">Ménage</h2>
+            <TutorialButton moduleId="cleaning" />
+          </div>
           <div data-tutorial="cleaning-header">
             <CleaningTabs initialTab={isCleaningAgent ? 'today' : undefined} />
           </div>
-        </DashboardCard>
+        </div>
 
         <CleaningDialogs />
       </div>
@@ -49,4 +48,3 @@ const Cleaning = () => {
 };
 
 export default Cleaning;
-

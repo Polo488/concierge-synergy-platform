@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Eye, Trash2, AlertTriangle, MoreHorizontal, Play, CheckCircle, UserPlus } from 'lucide-react';
+import { ChevronDown, Eye, Trash2, AlertTriangle, MoreHorizontal, Play, CheckCircle, UserPlus, Clock } from 'lucide-react';
 import { CleaningTask, CleaningStatus } from '@/types/cleaning';
 import {
   DropdownMenu,
@@ -47,89 +46,67 @@ export const CleaningTaskCard = ({
   const getStatusBadge = (status: CleaningStatus) => {
     switch(status) {
       case 'todo':
-        return <Badge variant="info">À faire</Badge>;
+        return <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap flex-shrink-0 bg-[hsl(30,100%,94%)] text-[hsl(21,100%,45%)] border-0 hover:bg-[hsl(30,100%,94%)]">À faire</Badge>;
       case 'inProgress':
-        return <Badge variant="warning">En cours</Badge>;
+        return <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap flex-shrink-0 bg-[hsl(210,100%,94%)] text-[hsl(213,84%,24%)] border-0 hover:bg-[hsl(210,100%,94%)]">En cours</Badge>;
       case 'completed':
-        return <Badge variant="success">Terminé</Badge>;
+        return <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap flex-shrink-0 bg-[hsl(120,39%,93%)] text-[hsl(120,30%,34%)] border-0 hover:bg-[hsl(120,39%,93%)]">Terminé</Badge>;
       case 'scheduled':
-        return <Badge variant="pending">Planifié</Badge>;
+        return <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap flex-shrink-0 bg-muted text-muted-foreground border-0 hover:bg-muted">Planifié</Badge>;
       default:
         return null;
     }
   };
+
+  const getActionButton = () => {
+    if (task.status === 'todo') {
+      return (
+        <Button 
+          size="sm" 
+          className="h-9 rounded-full px-4 text-[13px] font-semibold whitespace-nowrap flex-shrink-0 bg-primary hover:bg-primary/90"
+          onClick={() => onStartCleaning(task)}
+        >
+          <Play className="h-3.5 w-3.5 mr-1.5" />
+          Commencer
+        </Button>
+      );
+    }
+    if (task.status === 'inProgress') {
+      return (
+        <Button 
+          size="sm" 
+          className="h-9 rounded-full px-4 text-[13px] font-semibold whitespace-nowrap flex-shrink-0 bg-[hsl(142,76%,36%)] hover:bg-[hsl(142,76%,30%)]"
+          onClick={() => onCompleteCleaning(task)}
+        >
+          <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+          Terminer
+        </Button>
+      );
+    }
+    return null;
+  };
   
   return (
-    <Card className={`p-4 mb-3 transition-all duration-150 ${labelsDialogOpen && isTaskSelected ? 'ring-2 ring-primary' : ''} ${isExpanded ? 'shadow-card' : ''}`}>
-      <div className="flex justify-between items-start gap-4">
-        <div 
-          className={`flex-1 min-w-0 ${labelsDialogOpen ? "cursor-pointer" : ""}`} 
-          onClick={labelsDialogOpen ? () => onSelectTask(task) : undefined}
-        >
-          <div className="flex items-center gap-2 flex-wrap">
-            {getStatusBadge(task.status)}
-            <h3 className="font-medium text-foreground truncate">{task.property}</h3>
-            {labelsDialogOpen && (
-              <div className="ml-auto">
-                <input 
-                  type="checkbox" 
-                  checked={isTaskSelected}
-                  onChange={() => onSelectTask(task)}
-                  className="h-4 w-4 rounded"
-                />
-              </div>
-            )}
+    <div className={`bg-card rounded-[14px] border border-border p-4 shadow-sm transition-all duration-150 ${labelsDialogOpen && isTaskSelected ? 'ring-2 ring-primary' : ''}`}>
+      {/* Header: badge + action + menu */}
+      <div className="flex items-center gap-2">
+        {getStatusBadge(task.status)}
+        {labelsDialogOpen && (
+          <div className="ml-auto">
+            <input 
+              type="checkbox" 
+              checked={isTaskSelected}
+              onChange={() => onSelectTask?.(task)}
+              className="h-4 w-4 rounded"
+            />
           </div>
-          <div className="text-sm text-muted-foreground mt-1.5">
-            {task.date ? (
-              <span>{task.date} · {task.startTime} - {task.endTime}</span>
-            ) : (
-              <span>Check-out: {task.checkoutTime} · Check-in: {task.checkinTime}</span>
-            )}
-          </div>
-          {task.cleaningAgent && (
-            <div className="flex items-center gap-2 mt-2">
-              <Avatar className="h-5 w-5">
-                <AvatarFallback className="text-2xs bg-muted text-muted-foreground">
-                  {task.cleaningAgent.split(' ').map((n: string) => n[0]).join('')}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-xs text-muted-foreground">{task.cleaningAgent}</span>
-            </div>
-          )}
-          {task.comments && (
-            <div className="mt-2 text-sm text-muted-foreground bg-muted/30 rounded-lg px-3 py-2">
-              {task.comments}
-            </div>
-          )}
-        </div>
-        
+        )}
         {!labelsDialogOpen && (
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            {task.status === 'todo' && (
-              <Button 
-                size="sm" 
-                className="h-8 px-3 text-sm"
-                onClick={() => onStartCleaning(task)}
-              >
-                <Play className="h-3.5 w-3.5 mr-1.5" />
-                Commencer
-              </Button>
-            )}
-            {task.status === 'inProgress' && (
-              <Button 
-                size="sm" 
-                className="h-8 px-3 text-sm"
-                onClick={() => onCompleteCleaning(task)}
-              >
-                <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
-                Terminer
-              </Button>
-            )}
-            
+          <div className="flex items-center gap-1.5 ml-auto flex-shrink-0">
+            {getActionButton()}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost" className="h-8 w-8">
+                <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg bg-muted/50 text-muted-foreground flex-shrink-0">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -159,7 +136,7 @@ export const CleaningTaskCard = ({
                 {task.status === 'completed' && onReportIssue && (
                   <DropdownMenuItem 
                     onClick={() => onReportIssue(task)}
-                    className="text-status-error focus:text-status-error"
+                    className="text-destructive focus:text-destructive"
                   >
                     <AlertTriangle className="h-4 w-4 mr-2" />
                     Signaler problème
@@ -167,7 +144,7 @@ export const CleaningTaskCard = ({
                 )}
                 <DropdownMenuItem 
                   onClick={() => onDelete?.(task)}
-                  className="text-status-error focus:text-status-error"
+                  className="text-destructive focus:text-destructive"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Supprimer
@@ -177,13 +154,55 @@ export const CleaningTaskCard = ({
           </div>
         )}
       </div>
+
+      {/* Property name */}
+      <h3 className="text-[15px] font-bold text-foreground mt-2.5 truncate">{task.property}</h3>
+
+      {/* Times - single line */}
+      <div className="flex items-center gap-4 mt-1.5">
+        {task.date ? (
+          <span className="text-xs text-muted-foreground">{task.date} · {task.startTime} - {task.endTime}</span>
+        ) : (
+          <>
+            <div className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Départ</span>
+              <span className="text-[13px] font-semibold text-foreground">{task.checkoutTime}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Arrivée</span>
+              <span className="text-[13px] font-semibold text-foreground">{task.checkinTime}</span>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Agent */}
+      {task.cleaningAgent && (
+        <div className="flex items-center gap-2 mt-2">
+          <Avatar className="h-7 w-7">
+            <AvatarFallback className="text-[11px] bg-muted-foreground text-primary-foreground">
+              {task.cleaningAgent.split(' ').map((n: string) => n[0]).join('')}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-[13px] text-foreground">{task.cleaningAgent}</span>
+        </div>
+      )}
+
+      {/* Note / instruction */}
+      {task.comments && (
+        <div className="mt-2.5 bg-[hsl(30,100%,97%)] border-l-[3px] border-l-primary rounded-r-lg px-3 py-2.5">
+          <p className="text-[13px] text-muted-foreground leading-relaxed break-words">{task.comments}</p>
+        </div>
+      )}
       
-      {/* Expandable details for linens and consumables */}
+      {/* Expandable details */}
       {(task.linens?.length > 0 || task.consumables?.length > 0) && (
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
           <CollapsibleTrigger asChild>
-            <button className="flex items-center gap-1 mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors">
-              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+            <button className="flex items-center gap-1 mt-3 text-[13px] text-primary font-medium hover:text-primary/80 transition-colors">
+              <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
               {isExpanded ? 'Masquer les détails' : 'Voir les détails'}
             </button>
           </CollapsibleTrigger>
@@ -216,6 +235,6 @@ export const CleaningTaskCard = ({
           </CollapsibleContent>
         </Collapsible>
       )}
-    </Card>
+    </div>
   );
 };

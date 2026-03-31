@@ -1,6 +1,5 @@
 
 import { useState, useMemo } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, AlertTriangle, Plus } from 'lucide-react';
@@ -14,6 +13,15 @@ import { useAuth } from '@/contexts/AuthContext';
 interface CleaningTabsProps {
   initialTab?: 'today' | 'tomorrow' | 'completed' | 'issues';
 }
+
+type TabValue = 'today' | 'tomorrow' | 'completed' | 'issues';
+
+const tabs: { value: TabValue; label: string; agentOnly?: boolean }[] = [
+  { value: 'today', label: "Aujourd'hui" },
+  { value: 'tomorrow', label: 'Demain' },
+  { value: 'completed', label: 'Terminés' },
+  { value: 'issues', label: 'Problèmes' },
+];
 
 export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,32 +48,26 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
     handleResolveIssue: localHandleResolveIssue,
   } = useCleaning();
 
-  // Get issues and repasse tasks from messaging/operations context
   const { 
     cleaningIssuesFromMessaging, 
     repasseTasksFromMessaging,
     resolveCleaningIssue: messagingResolveIssue 
   } = useOperations();
 
-  // Merge all cleaning issues (local + from messaging)
   const allCleaningIssues = useMemo(() => {
     const allIssues = [...localCleaningIssues, ...cleaningIssuesFromMessaging];
-    // Sort by creation date, most recent first
     return allIssues.sort((a, b) => 
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }, [localCleaningIssues, cleaningIssuesFromMessaging]);
 
-  // Merge repasse tasks into today's tasks
   const allTodayTasks = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     const todayRepasses = repasseTasksFromMessaging.filter(t => t.date === today);
     return [...todayCleaningTasks, ...todayRepasses];
   }, [todayCleaningTasks, repasseTasksFromMessaging]);
 
-  // Handle resolve for both local and messaging issues
   const handleResolveIssue = (issueId: number) => {
-    // Check if it's a messaging issue
     const isMessagingIssue = cleaningIssuesFromMessaging.some(i => i.id === issueId);
     if (isMessagingIssue) {
       messagingResolveIssue(issueId);
@@ -74,9 +76,8 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
     }
   };
 
-  const filterTasks = (tasks) => {
+  const filterTasks = (tasks: any[]) => {
     if (!searchTerm) return tasks;
-    
     const searchLower = searchTerm.toLowerCase();
     return tasks.filter(task => 
       task.property.toLowerCase().includes(searchLower) || 
@@ -84,77 +85,47 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
     );
   };
 
-  // If user is a cleaning agent, filter tasks assigned to them
-  const filterTasksByRole = (tasks) => {
+  const filterTasksByRole = (tasks: any[]) => {
     if (!isCleaningAgent || !user) return tasks;
     return tasks.filter(task => task.cleaningAgent === user.name);
   };
 
-  // Combined filtering
-  const getFilteredTasks = (tasks) => {
+  const getFilteredTasks = (tasks: any[]) => {
     return filterTasks(filterTasksByRole(tasks));
   };
 
   const openIssuesCount = allCleaningIssues.filter(i => i.status === 'open').length;
 
-  return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2" defaultValue={initialTab}>
-      <TabsList 
-        className={`grid w-full max-w-lg ${isCleaningAgent ? 'grid-cols-3' : 'grid-cols-4'}`}
-        data-tutorial="cleaning-tabs"
-      >
-        <TabsTrigger value="today">{t('cleaning.tabs.today')}</TabsTrigger>
-        {!isCleaningAgent && (
-          <TabsTrigger value="tomorrow">{t('cleaning.tabs.tomorrow')}</TabsTrigger>
-        )}
-        <TabsTrigger value="completed">{t('cleaning.tabs.completed')}</TabsTrigger>
-        <TabsTrigger value="issues" className="flex items-center gap-1.5">
-          <AlertTriangle className="h-3.5 w-3.5" />
-          {t('cleaning.tabs.issues') || 'Problèmes'}
-          {openIssuesCount > 0 && (
-            <span className="ml-1 bg-destructive text-destructive-foreground text-xs px-1.5 py-0.5 rounded-full">
-              {openIssuesCount}
-            </span>
-          )}
-        </TabsTrigger>
-      </TabsList>
-      
-      <div className="my-4">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder={t('cleaning.search.placeholder')}
-            className="pl-8"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+  const visibleTabs = tabs.filter(tab => {
+    if (tab.value === 'tomorrow' && isCleaningAgent) return false;
+    return true;
+  });
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'today':
+        return (
+          <CleaningTaskList
+            tasks={getFilteredTasks(allTodayTasks)}
+            emptyMessage="Aucune tâche pour aujourd'hui"
+            labelsDialogOpen={false}
+            selectedTasks={selectedTasks}
+            onSelectTask={isCleaningAgent ? undefined : handleSelectTask}
+            onStartCleaning={handleStartCleaning}
+            onCompleteCleaning={handleCompleteCleaning}
+            onOpenDetails={openDetailsDialog}
+            onAssign={isCleaningAgent ? undefined : openAssignDialog}
+            onReportProblem={openProblemDialog}
+            onReportIssue={!isCleaningAgent ? openIssueDialog : undefined}
+            onDelete={isCleaningAgent ? undefined : openDeleteDialog}
+            isCleaningAgent={isCleaningAgent}
           />
-        </div>
-      </div>
-      
-      <TabsContent value="today" className="space-y-4" data-tutorial="cleaning-task">
-        <CleaningTaskList
-          tasks={getFilteredTasks(allTodayTasks)}
-          emptyMessage={t('cleaning.empty.today')}
-          labelsDialogOpen={false}
-          selectedTasks={selectedTasks}
-          onSelectTask={isCleaningAgent ? undefined : handleSelectTask}
-          onStartCleaning={handleStartCleaning}
-          onCompleteCleaning={handleCompleteCleaning}
-          onOpenDetails={openDetailsDialog}
-          onAssign={isCleaningAgent ? undefined : openAssignDialog}
-          onReportProblem={openProblemDialog}
-          onReportIssue={!isCleaningAgent ? openIssueDialog : undefined}
-          onDelete={isCleaningAgent ? undefined : openDeleteDialog}
-          isCleaningAgent={isCleaningAgent}
-        />
-      </TabsContent>
-      
-      {!isCleaningAgent && (
-        <TabsContent value="tomorrow" className="space-y-4">
+        );
+      case 'tomorrow':
+        return (
           <CleaningTaskList
             tasks={getFilteredTasks(tomorrowCleaningTasks)}
-            emptyMessage={t('cleaning.empty.tomorrow')}
+            emptyMessage="Aucune tâche pour demain"
             labelsDialogOpen={false}
             selectedTasks={selectedTasks}
             onSelectTask={handleSelectTask}
@@ -167,48 +138,101 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
             onDelete={openDeleteDialog}
             isCleaningAgent={false}
           />
-        </TabsContent>
-      )}
-      
-      <TabsContent value="completed" className="space-y-4">
-        <CleaningTaskList
-          tasks={getFilteredTasks(completedCleaningTasks)}
-          emptyMessage={t('cleaning.empty.completed')}
-          labelsDialogOpen={false}
-          selectedTasks={selectedTasks}
-          onSelectTask={isCleaningAgent ? undefined : handleSelectTask}
-          onStartCleaning={isCleaningAgent ? undefined : handleStartCleaning}
-          onCompleteCleaning={isCleaningAgent ? undefined : handleCompleteCleaning}
-          onOpenDetails={openDetailsDialog}
-          onAssign={isCleaningAgent ? undefined : openAssignDialog}
-          onReportProblem={isCleaningAgent ? undefined : openProblemDialog}
-          onReportIssue={!isCleaningAgent ? openIssueDialog : undefined}
-          onDelete={isCleaningAgent ? undefined : openDeleteDialog}
-          isCleaningAgent={isCleaningAgent}
-        />
-      </TabsContent>
+        );
+      case 'completed':
+        return (
+          <CleaningTaskList
+            tasks={getFilteredTasks(completedCleaningTasks)}
+            emptyMessage="Aucune tâche terminée"
+            labelsDialogOpen={false}
+            selectedTasks={selectedTasks}
+            onSelectTask={isCleaningAgent ? undefined : handleSelectTask}
+            onStartCleaning={isCleaningAgent ? undefined : handleStartCleaning}
+            onCompleteCleaning={isCleaningAgent ? undefined : handleCompleteCleaning}
+            onOpenDetails={openDetailsDialog}
+            onAssign={isCleaningAgent ? undefined : openAssignDialog}
+            onReportProblem={isCleaningAgent ? undefined : openProblemDialog}
+            onReportIssue={!isCleaningAgent ? openIssueDialog : undefined}
+            onDelete={isCleaningAgent ? undefined : openDeleteDialog}
+            isCleaningAgent={isCleaningAgent}
+          />
+        );
+      case 'issues':
+        return (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-muted-foreground">
+                Signalements de problèmes de ménage
+              </p>
+              {!isCleaningAgent && (
+                <Button onClick={() => openIssueDialog()} size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Signaler
+                </Button>
+              )}
+            </div>
+            <CleaningIssuesList
+              issues={allCleaningIssues}
+              onResolve={!isCleaningAgent ? handleResolveIssue : undefined}
+              onViewRepasseTask={(taskId) => {
+                const task = allTodayTasks.find(t => t.id === taskId);
+                if (task) openDetailsDialog(task);
+              }}
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
-      <TabsContent value="issues" className="space-y-4">
-        <div className="flex justify-between items-center">
-          <p className="text-sm text-muted-foreground">
-            Signalements de problèmes de ménage avec suivi et repasses
-          </p>
-          {!isCleaningAgent && (
-            <Button onClick={() => openIssueDialog()} size="sm">
-              <Plus className="h-4 w-4 mr-1" />
-              Signaler un problème
-            </Button>
-          )}
+  return (
+    <div className="mt-2">
+      {/* Custom tabs */}
+      <div 
+        className="flex overflow-x-auto border-b border-border gap-1 px-0 scrollbar-hide"
+        style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
+        data-tutorial="cleaning-tabs"
+      >
+        {visibleTabs.map((tab) => (
+          <button
+            key={tab.value}
+            onClick={() => setActiveTab(tab.value)}
+            className={`whitespace-nowrap px-4 py-2.5 text-[13px] flex-shrink-0 transition-colors border-b-2 flex items-center gap-1.5 ${
+              activeTab === tab.value
+                ? 'text-primary border-primary font-semibold'
+                : 'text-muted-foreground border-transparent hover:text-foreground'
+            }`}
+          >
+            {tab.value === 'issues' && <AlertTriangle className="h-3.5 w-3.5" />}
+            {tab.label}
+            {tab.value === 'issues' && openIssuesCount > 0 && (
+              <span className="ml-1 bg-destructive text-destructive-foreground text-xs px-1.5 py-0.5 rounded-full">
+                {openIssuesCount}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+      
+      {/* Search */}
+      <div className="my-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Rechercher un logement, agent..."
+            className="pl-10 h-11 rounded-[10px] bg-muted/50 border-border text-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-        <CleaningIssuesList
-          issues={allCleaningIssues}
-          onResolve={!isCleaningAgent ? handleResolveIssue : undefined}
-          onViewRepasseTask={(taskId) => {
-            const task = allTodayTasks.find(t => t.id === taskId);
-            if (task) openDetailsDialog(task);
-          }}
-        />
-      </TabsContent>
-    </Tabs>
+      </div>
+      
+      {/* Tab content */}
+      <div data-tutorial="cleaning-task">
+        {renderTabContent()}
+      </div>
+    </div>
   );
 };
