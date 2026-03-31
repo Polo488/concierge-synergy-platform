@@ -90,9 +90,10 @@ const CalendarPage = () => {
   } | null>(null);
   const [layers, setLayers] = useState({ showCleaning: false, showMaintenance: false });
 
-  const handleBookingClick = (booking: CalendarBooking) => {
-    setSelectedBooking(booking);
-    setIsDetailsOpen(true);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
+
+  const handleBookingClick = (_booking: CalendarBooking) => {
+    setDemoModalOpen(true);
   };
 
   const handleCellClick = (date: Date, propertyId: number) => {
