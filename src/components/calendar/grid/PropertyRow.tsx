@@ -126,9 +126,8 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
             const isCheckInVisible = bookingCheckIn >= firstVisibleDay;
             const shouldRender = isThisCheckInDay ||
               (!isCheckInVisible && dayIndex === 0 && isSameDay(day, firstVisibleDay));
-            const isCheckoutOnlyDay = isThisCheckOutDay && !isThisCheckInDay;
-
-            if (shouldRender || (isCheckoutOnlyDay && !renderedBookingIds.has(booking.id))) {
+            // Don't render checkout-only days separately — width already covers them
+            if (shouldRender) {
               renderedBookingIds.add(booking.id);
               const visibleStart = bookingCheckIn < firstVisibleDay ? firstVisibleDay : bookingCheckIn;
               const visibleEnd = bookingCheckOut > addDays(lastVisibleDay, 1) ? addDays(lastVisibleDay, 1) : bookingCheckOut;
