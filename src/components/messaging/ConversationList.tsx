@@ -345,8 +345,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
             </span>
             <span className="flex-shrink-0 whitespace-nowrap" style={{
               fontSize: 12,
-              color: isUrgentTime ? '#FF5C1A' : '#8E8E93',
-              fontWeight: isUrgentTime ? 600 : 400,
+              color: '#8E8E93',
             }}>
               {timeText}
             </span>
