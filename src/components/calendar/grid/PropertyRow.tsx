@@ -137,6 +137,20 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               const isCheckInDay = isSameDay(visibleStart, bookingCheckIn);
               const isCheckOutDay = isSameDay(visibleEnd, bookingCheckOut);
 
+              // DEBUG: trace bar positioning
+              if (booking.guestName.includes('Sarah') || booking.guestName.includes('Julia')) {
+                console.log('BAR POSITION DEBUG:', {
+                  guest: booking.guestName,
+                  checkIn: booking.checkIn.toISOString(),
+                  checkOut: booking.checkOut.toISOString(),
+                  renderedInCellDayIndex: dayIndex,
+                  renderedInCellDate: day.toISOString(),
+                  visibleDays,
+                  isCheckInDay,
+                  isCheckOutDay,
+                });
+              }
+
               bookingBlocks.push(
                 <BookingBlock
                   key={booking.id}
