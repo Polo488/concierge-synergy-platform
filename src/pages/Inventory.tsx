@@ -294,9 +294,19 @@ const Inventory = () => {
               )}
             </TableCell>
             <TableCell className="text-right">
-              <Button variant="outline" size="sm" onClick={() => handleManageItem(item)}>
-                Gérer
-              </Button>
+              <div className="flex items-center justify-end gap-2">
+                {item.status === 'low' && (
+                  <Button size="sm" className="gap-1 h-[30px] text-xs" onClick={() => handleOrderClick(item)}>
+                    <ShoppingCart className="h-3 w-3" />
+                    Commander
+                    {item.orderUrl && <ExternalLink className="h-3 w-3" />}
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" className="h-[30px] text-xs gap-1" onClick={() => handleManageItem(item)}>
+                  <Settings className="h-3 w-3" />
+                  Gérer
+                </Button>
+              </div>
             </TableCell>
           </TableRow>
         ))}
