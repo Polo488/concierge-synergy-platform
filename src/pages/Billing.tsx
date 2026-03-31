@@ -468,14 +468,6 @@ const Billing = () => {
   
   const stats = calculateStats();
 
-  const [showPreview, setShowPreview] = useState(false);
-
-  useEffect(() => {
-    if (showPreview) {
-      const timer = setTimeout(() => setShowPreview(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [showPreview]);
 
   return (
     <div className="relative">
