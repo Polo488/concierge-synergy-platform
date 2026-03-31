@@ -119,7 +119,7 @@ interface UseCalendarGridReturn {
 }
 
 export function useCalendarGrid(daysToShow: number = 60): UseCalendarGridReturn {
-  const [currentDate, setCurrentDate] = useState<Date>(startOfDay(new Date(2026, 2, 25))));
+  const [currentDate, setCurrentDate] = useState<Date>(startOfDay(new Date(2026, 2, 25)));
   const [properties] = useState<CalendarProperty[]>(generateMockProperties);
   const [bookings, setBookings] = useState<CalendarBooking[]>(generateMockBookings);
   const [blockedPeriods] = useState<BlockedPeriod[]>(generateMockBlockedPeriods);
