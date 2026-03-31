@@ -53,6 +53,14 @@ export interface CleaningTaskRating {
   ratedBy: string;
 }
 
+export interface CleaningPhoto {
+  id: string;
+  url: string;
+  caption: string;
+  timestamp: string;
+  agent: string;
+}
+
 export interface CleaningTask {
   id: number;
   property: string;
@@ -71,6 +79,7 @@ export interface CleaningTask {
   taskType?: 'standard' | 'repasse';
   linkedIssueId?: number;
   originalTaskId?: number;
+  photos?: CleaningPhoto[];
 }
 
 export interface NewCleaningTask {

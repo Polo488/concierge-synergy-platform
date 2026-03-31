@@ -1,6 +1,15 @@
 
 import { format } from 'date-fns';
-import { CleaningTask, NewCleaningTask, CleaningStatus } from '@/types/cleaning';
+import { CleaningTask, NewCleaningTask, CleaningStatus, CleaningPhoto } from '@/types/cleaning';
+
+const makePhotos = (seeds: string[], agent: string, datePrefix: string): CleaningPhoto[] =>
+  seeds.map((seed, i) => ({
+    id: `${seed}-${i}`,
+    url: `https://picsum.photos/seed/${seed}/400/400`,
+    caption: seed.replace(/\d/g, '').replace(/([A-Z])/g, ' $1').trim(),
+    timestamp: `${datePrefix}T${String(11 + Math.floor(i * 0.4)).padStart(2, '0')}:${String(15 + i * 8).padStart(2, '0')}:00`,
+    agent,
+  }));
 
 // Initial sample cleaning tasks
 export const initialTodayTasks: CleaningTask[] = [
@@ -58,7 +67,8 @@ export const initialTodayTasks: CleaningTask[] = [
     linens: ['Draps king size x2', 'Serviettes bain x4', 'Serviettes main x4'],
     consumables: ['Capsules café x6', 'Gel douche x2', 'Shampoing x2'],
     comments: '',
-    problems: []
+    problems: [],
+    photos: makePhotos(['room1', 'room2', 'room3', 'room4', 'room5'], 'Sophie Renard', '2026-03-31'),
   }
 ];
 
@@ -105,7 +115,8 @@ export const initialCompletedTasks: CleaningTask[] = [
     linens: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1', 'Housse de couette simple x1', 'Taie d\'oreiller x1'],
     consumables: ['Capsules café x2', 'Sachets thé x2', 'Gel douche x1'],
     comments: '',
-    problems: []
+    problems: [],
+    photos: makePhotos(['bed1', 'bath1', 'kitchen1', 'living1'], 'Lucas Martin', '2026-03-30'),
   },
   {
     id: 7,
@@ -118,7 +129,8 @@ export const initialCompletedTasks: CleaningTask[] = [
     linens: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2', 'Housse de couette queen x1', 'Taies d\'oreiller x2'],
     consumables: ['Capsules café x4', 'Sachets thé x2', 'Gel douche x1', 'Shampoing x1'],
     comments: '',
-    problems: []
+    problems: [],
+    photos: makePhotos(['hall1', 'sofa1', 'window1'], 'Marie Lambert', '2026-03-30'),
   }
 ];
 
