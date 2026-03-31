@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { 
   Receipt, Download, Filter, PlusCircle, 
   Search, CreditCard, ArrowUpDown, BarChart, ArrowUp,
-  FileText, RefreshCw, CheckCircle, AlertTriangle, FileSpreadsheet
+  FileText, RefreshCw, CheckCircle, AlertTriangle, FileSpreadsheet,
+  Shield, BadgeCheck, Calculator, MessageCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
