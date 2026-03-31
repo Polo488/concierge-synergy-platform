@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Users } from 'lucide-react';
 import type { CalendarBooking } from '@/types/calendar';
 
 const CHANNEL_SOLID_COLORS: Record<string, string> = {
@@ -15,7 +16,6 @@ const CHANNEL_SOLID_COLORS: Record<string, string> = {
 
 const BAR_H = 28;
 const BAR_TOP = 14;
-const BAR_RADIUS = 6;
 
 const ChannelBadge: React.FC<{ channel: string; show: boolean }> = ({ channel, show }) => {
   if (!show) return null;
@@ -32,9 +32,9 @@ const ChannelBadge: React.FC<{ channel: string; show: boolean }> = ({ channel, s
       fontWeight: 700,
       color: '#FFFFFF',
       background: 'rgba(255,255,255,0.2)',
-      borderRadius: 4,
-      padding: '2px 4px',
-      marginRight: 6,
+      borderRadius: 3,
+      padding: '1px 4px',
+      marginRight: 8,
       lineHeight: 1,
     }}>
       {letter}
@@ -53,6 +53,30 @@ interface BookingBlockProps {
   onClick: () => void;
   cellWidth?: number;
 }
+
+/**
+ * Chevron clip-path cases:
+ * A: both check-in & check-out visible → notch left + arrow right
+ * B: truncated start, check-out visible → flat left + arrow right
+ * C: check-in visible, truncated end → notch left + flat right
+ * D: both truncated → flat rectangle
+ */
+const getClipPath = (hasVisibleCheckIn: boolean, hasVisibleCheckOut: boolean): string | undefined => {
+  if (hasVisibleCheckIn && hasVisibleCheckOut) {
+    // Case A: notch left + arrow right
+    return 'polygon(10px 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0% 50%)';
+  }
+  if (!hasVisibleCheckIn && hasVisibleCheckOut) {
+    // Case B: flat left + arrow right
+    return 'polygon(0% 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%)';
+  }
+  if (hasVisibleCheckIn && !hasVisibleCheckOut) {
+    // Case C: notch left + flat right
+    return 'polygon(10px 0%, 100% 0%, 100% 100%, 10px 100%, 0% 50%)';
+  }
+  // Case D: both truncated → no clip-path
+  return undefined;
+};
 
 export const BookingBlock: React.FC<BookingBlockProps> = ({
   booking,
@@ -94,21 +118,28 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   }
 
   const finalWidth = Math.max(width, 20);
+  const clipPath = getClipPath(hasVisibleCheckIn, hasVisibleCheckOut);
 
-  // Smart name truncation
+  // Content visibility rules based on width
+  const showName = finalWidth >= 40;
+  const showBadge = finalWidth > 72;
+  const showGuests = finalWidth > 100;
+  const showPrice = finalWidth > 140;
+
   const getDisplayName = (): string => {
     const name = booking.guestName || '?';
-    if (finalWidth < 40) return '';
-    const availableWidth = finalWidth - 40;
-    if (availableWidth < 30) return '';
-    if (availableWidth < 50) return name.length > 4 ? name.substring(0, 3) + '…' : name;
-    if (availableWidth < 80) return name.length > 8 ? name.substring(0, 7) + '…' : name;
-    if (availableWidth < 120) return name.length > 12 ? name.substring(0, 11) + '…' : name;
+    if (!showName) return '';
+    const availableWidth = finalWidth - (showBadge ? 50 : 20) - (showGuests ? 30 : 0) - (showPrice ? 40 : 0);
+    if (availableWidth < 20) return '';
+    if (availableWidth < 40) return name.length > 4 ? name.substring(0, 3) + '…' : name;
+    if (availableWidth < 60) return name.length > 8 ? name.substring(0, 7) + '…' : name;
+    if (availableWidth < 100) return name.length > 12 ? name.substring(0, 11) + '…' : name;
     return name.length > 18 ? name.substring(0, 17) + '…' : name;
   };
 
   const displayName = getDisplayName();
-  const showBadge = finalWidth > 72;
+  const guests = booking.guestsCount;
+  const totalPrice = booking.totalAmount;
 
   return (
     <div
@@ -121,7 +152,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
         height: BAR_H,
         background: bgColor,
         color: '#FFFFFF',
-        borderRadius: BAR_RADIUS,
+        clipPath: clipPath,
         zIndex: 2,
         overflow: 'hidden',
         cursor: 'pointer',
@@ -133,16 +164,17 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
       }}
       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.filter = 'brightness(1.1)'; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.filter = 'none'; }}
-      title={`${booking.guestName}${booking.nightlyRate ? ` • ${booking.nightlyRate}€/nuit` : ''} • ${booking.channel}`}
+      title={`${booking.guestName}${guests ? ` • ${guests} pers.` : ''}${totalPrice ? ` • ${totalPrice}€` : ''} • ${booking.channel}`}
     >
       {/* Name */}
       {displayName && (
         <span style={{
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: 600,
           color: '#FFFFFF',
-          paddingLeft: 8,
+          paddingLeft: hasVisibleCheckIn ? 12 : 8,
           flex: 1,
+          minWidth: 0,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -150,6 +182,36 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
           lineHeight: 1,
         }}>
           {displayName}
+        </span>
+      )}
+
+      {/* Guests count */}
+      {showGuests && guests && (
+        <span style={{
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          marginRight: 4,
+          pointerEvents: 'none',
+        }}>
+          <Users size={10} color="white" style={{ opacity: 0.85 }} />
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.9)', lineHeight: 1 }}>{guests}</span>
+        </span>
+      )}
+
+      {/* Total price */}
+      {showPrice && totalPrice && (
+        <span style={{
+          flexShrink: 0,
+          fontSize: 10,
+          fontWeight: 600,
+          color: 'rgba(255,255,255,0.95)',
+          marginRight: 4,
+          pointerEvents: 'none',
+          lineHeight: 1,
+        }}>
+          {totalPrice}€
         </span>
       )}
 
