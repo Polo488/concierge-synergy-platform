@@ -91,26 +91,24 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 
   return (
     <div className="flex flex-col h-full overflow-hidden rounded-xl border border-border/30 bg-card">
-      {/* Sticky header */}
-      <div className="flex-shrink-0 sticky top-0 z-[5]" style={{ borderBottom: '1px solid #EEEEEE', background: '#FFFFFF' }}>
-        <CalendarGridHeader
-          days={days}
-          dailyPrices={pricesMap}
-          onDayClick={onDayClick}
-          propColWidth={propColWidth}
-          dayCellWidth={DAY_W}
-          collapsed={collapsed}
-          onToggleCollapse={() => setCollapsed(!collapsed)}
-        />
-      </div>
-
-      {/* Scrollable body */}
       <div
         ref={scrollContainerRef}
         className="flex-1 overflow-auto select-none"
         style={{ touchAction: 'pan-x pan-y' }}
       >
         <div style={{ minWidth: propColWidth + days.length * DAY_W }}>
+          <div className="sticky top-0 z-[5]" style={{ borderBottom: '1px solid #EEEEEE', background: '#FFFFFF' }}>
+            <CalendarGridHeader
+              days={days}
+              dailyPrices={pricesMap}
+              onDayClick={onDayClick}
+              propColWidth={propColWidth}
+              dayCellWidth={DAY_W}
+              collapsed={collapsed}
+              onToggleCollapse={() => setCollapsed(!collapsed)}
+            />
+          </div>
+
           {properties.length === 0 ? (
             <div className="flex items-center justify-center py-20 text-muted-foreground">
               Aucun logement trouvé
@@ -142,7 +140,6 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
         </div>
       </div>
 
-      {/* Legend */}
       <CalendarLegend />
     </div>
   );
