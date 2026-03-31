@@ -1,42 +1,21 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { 
-  Send, 
-  Paperclip, 
-  MessageSquarePlus,
-  Zap,
-  Flag,
-  MoreHorizontal,
-  CheckCircle2,
-  Clock,
-  CircleDot,
-  Bot,
-  StickyNote,
-  Image as ImageIcon,
-  Sparkles
+  ArrowUp, ChevronLeft, Phone, Video, Info,
+  Zap, StickyNote, Paperclip, MessageCircle,
+  Sparkles, Bot, Image as ImageIcon
 } from 'lucide-react';
 import { 
   Conversation, 
@@ -44,20 +23,28 @@ import {
   QuickReplyTemplate,
   ConversationStatus,
   ConversationTag,
-  CHANNEL_ICONS,
   TAG_LABELS,
   TAG_COLORS,
-  STATUS_LABELS,
-  STATUS_COLORS,
 } from '@/types/messaging';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Badge } from '@/components/ui/badge';
+
+const CHANNEL_AVATAR_COLORS: Record<string, string> = {
+  airbnb: '#FF385C',
+  booking: '#003580',
+  direct: '#16A34A',
+  vrbo: '#6366F1',
+  expedia: '#F59E0B',
+  email: '#6366F1',
+  sms: '#16A34A',
+  whatsapp: '#25D366',
+};
+
+function getInitials(name: string) {
+  return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+}
 
 interface MessageThreadProps {
   conversation: Conversation | null;
@@ -66,6 +53,8 @@ interface MessageThreadProps {
   onUpdateStatus: (conversationId: string, status: ConversationStatus) => void;
   onToggleTag: (conversationId: string, tag: ConversationTag) => void;
   onTogglePriority: (conversationId: string) => void;
+  onBack?: () => void;
+  isMobile?: boolean;
 }
 
 export const MessageThread: React.FC<MessageThreadProps> = ({
@@ -75,6 +64,8 @@ export const MessageThread: React.FC<MessageThreadProps> = ({
   onUpdateStatus,
   onToggleTag,
   onTogglePriority,
+  onBack,
+  isMobile,
 }) => {
   const [messageText, setMessageText] = useState('');
   const [isInternalNote, setIsInternalNote] = useState(false);
@@ -105,346 +96,248 @@ export const MessageThread: React.FC<MessageThreadProps> = ({
 
   const insertQuickReply = (template: QuickReplyTemplate) => {
     if (!conversation) return;
-    
     let content = template.content;
-    // Replace variables with actual values
     content = content.replace('{{guest_first_name}}', conversation.guest.firstName);
     content = content.replace('{{property_address}}', conversation.reservation.propertyAddress);
     content = content.replace('{{access_code}}', conversation.reservation.accessCode || 'N/A');
     content = content.replace('{{wifi_network}}', conversation.reservation.wifiNetwork || 'N/A');
     content = content.replace('{{wifi_password}}', conversation.reservation.wifiPassword || 'N/A');
-    
     setMessageText(content);
     textareaRef.current?.focus();
   };
 
-  const allTags: ConversationTag[] = [
-    'check-in-issue',
-    'check-out-issue',
-    'upsell',
-    'complaint',
-    'maintenance',
-    'cleaning',
-    'urgent',
-    'vip',
-  ];
-
+  // Empty state
   if (!conversation) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-muted/20">
-        <div className="text-center text-muted-foreground">
-          <MessageSquarePlus className="h-16 w-16 mx-auto mb-4 opacity-30" />
-          <p className="text-lg">Sélectionnez une conversation</p>
-          <p className="text-sm">pour afficher les messages</p>
-        </div>
+      <div className="flex-1 flex flex-col items-center justify-center h-full" style={{ background: '#F2F2F7' }}>
+        <MessageCircle size={48} style={{ color: '#C7C7CC' }} />
+        <p style={{ fontSize: 15, color: '#8E8E93', marginTop: 12 }}>Sélectionnez une conversation</p>
       </div>
     );
   }
 
+  const avatarColor = CHANNEL_AVATAR_COLORS[conversation.reservation.channel] || '#6366F1';
+
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full" style={{ background: '#FFFFFF' }}>
       {/* Header */}
-      <div className="p-4 border-b">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">{CHANNEL_ICONS[conversation.reservation.channel]}</span>
-              <div>
-                <h3 className="font-semibold">{conversation.guest.name}</h3>
-                <p className="text-sm text-muted-foreground">{conversation.reservation.propertyName}</p>
-              </div>
-            </div>
-          </div>
+      <div className="flex items-center gap-3 sticky top-0 z-10" style={{
+        background: '#FFFFFF', borderBottom: '1px solid #F0F0F0', padding: '12px 16px',
+      }}>
+        {/* Back button (mobile) */}
+        {isMobile && onBack && (
+          <button onClick={onBack} className="flex items-center gap-0.5 flex-shrink-0" style={{ color: '#FF5C1A', background: 'none', border: 'none', cursor: 'pointer' }}>
+            <ChevronLeft size={24} />
+            <span style={{ fontSize: 16 }}>Retour</span>
+          </button>
+        )}
 
-          <div className="flex items-center gap-2">
-            {/* Status selector */}
-            <Select
-              value={conversation.status}
-              onValueChange={(value) => onUpdateStatus(conversation.id, value as ConversationStatus)}
-            >
-              <SelectTrigger className="w-32 h-8">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="open">
-                  <div className="flex items-center gap-2">
-                    <CircleDot className="h-3.5 w-3.5 text-green-500" />
-                    Ouvert
-                  </div>
-                </SelectItem>
-                <SelectItem value="pending">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-3.5 w-3.5 text-yellow-500" />
-                    En attente
-                  </div>
-                </SelectItem>
-                <SelectItem value="resolved">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-gray-500" />
-                    Résolu
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Priority toggle */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={conversation.isPriority ? 'destructive' : 'outline'}
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => onTogglePriority(conversation.id)}
-                >
-                  <Flag className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {conversation.isPriority ? 'Retirer priorité' : 'Marquer prioritaire'}
-              </TooltipContent>
-            </Tooltip>
-
-            {/* Tags menu */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8">
-                  Tags
-                  {conversation.tags.length > 0 && (
-                    <Badge variant="secondary" className="ml-1 h-4 px-1">
-                      {conversation.tags.length}
-                    </Badge>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56 p-2">
-                <div className="flex flex-wrap gap-1">
-                  {allTags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant={conversation.tags.includes(tag) ? 'default' : 'outline'}
-                      className={cn(
-                        'cursor-pointer text-xs',
-                        conversation.tags.includes(tag) && TAG_COLORS[tag]
-                      )}
-                      onClick={() => onToggleTag(conversation.id, tag)}
-                    >
-                      {TAG_LABELS[tag]}
-                    </Badge>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
+        {/* Avatar */}
+        <div className="flex items-center justify-center rounded-full flex-shrink-0" style={{ width: 40, height: 40, background: avatarColor }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF' }}>{getInitials(conversation.guest.name)}</span>
         </div>
 
-        {/* Active tags display */}
-        {conversation.tags.length > 0 && (
-          <div className="flex gap-1 mt-2">
-            {conversation.tags.map((tag) => (
-              <Badge
-                key={tag}
-                variant="outline"
-                className={cn('text-xs', TAG_COLORS[tag])}
-              >
-                {TAG_LABELS[tag]}
-              </Badge>
-            ))}
-          </div>
-        )}
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <p className="truncate" style={{ fontSize: 15, fontWeight: 600, color: '#1A1A2E' }}>{conversation.guest.name}</p>
+          <p className="truncate" style={{ fontSize: 12, color: '#8E8E93' }}>{conversation.reservation.propertyName}</p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-5 flex-shrink-0">
+          <Phone size={22} style={{ color: '#FF5C1A', cursor: 'pointer' }} />
+          {!isMobile && <Video size={22} style={{ color: '#FF5C1A', cursor: 'pointer' }} />}
+          <Info size={22} style={{ color: '#FF5C1A', cursor: 'pointer' }} />
+        </div>
       </div>
 
-      {/* Messages */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
-          {conversation.messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
-          ))}
+      {/* Messages zone */}
+      <ScrollArea className="flex-1" style={{ background: '#F2F2F7' }}>
+        <div className="flex flex-col gap-1 p-4">
+          {conversation.messages.map((message, idx) => {
+            const prevMsg = idx > 0 ? conversation.messages[idx - 1] : null;
+            const showTimestamp = !prevMsg || 
+              (message.timestamp.getTime() - prevMsg.timestamp.getTime() > 10 * 60 * 1000);
+
+            return (
+              <React.Fragment key={message.id}>
+                {showTimestamp && (
+                  <p className="text-center my-2" style={{ fontSize: 11, color: '#8E8E93' }}>
+                    {format(message.timestamp, "d MMM 'à' HH:mm", { locale: fr })}
+                  </p>
+                )}
+                <MessageBubble message={message} />
+              </React.Fragment>
+            );
+          })}
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
 
-      {/* Message input */}
-      <div className="p-4 border-t">
-        {/* Internal note toggle */}
+      {/* Input zone */}
+      <div style={{
+        background: '#FFFFFF', borderTop: '1px solid #F0F0F0',
+        padding: '10px 16px', paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))',
+      }}>
         {isInternalNote && (
-          <div className="flex items-center gap-2 mb-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
-            <StickyNote className="h-4 w-4 text-amber-600" />
-            <span className="text-sm text-amber-700 font-medium">Note interne (non visible par le voyageur)</span>
+          <div className="flex items-center gap-2 mb-2 rounded-lg" style={{ padding: '6px 10px', background: '#FFF7ED', border: '1px solid #FDE68A' }}>
+            <StickyNote size={14} style={{ color: '#D97706' }} />
+            <span style={{ fontSize: 12, color: '#92400E', fontWeight: 500 }}>Note interne (non visible par le voyageur)</span>
           </div>
         )}
 
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <Textarea
-              ref={textareaRef}
-              value={messageText}
-              onChange={(e) => setMessageText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={isInternalNote ? "Ajouter une note interne..." : "Écrire un message..."}
-              className={cn(
-                "min-h-[80px] resize-none pr-24",
-                isInternalNote && "border-amber-300 bg-amber-50/50"
-              )}
-            />
-
-            {/* Quick actions */}
-            <div className="absolute bottom-2 right-2 flex gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-7 w-7"
-                    onClick={() => setIsInternalNote(!isInternalNote)}
-                  >
-                    <StickyNote className={cn(
-                      "h-4 w-4",
-                      isInternalNote && "text-amber-600"
-                    )} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Note interne</TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-7 w-7">
-                    <Paperclip className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Joindre un fichier</TooltipContent>
-              </Tooltip>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            {/* Quick replies */}
+        <div className="flex items-end gap-2">
+          {/* Quick actions */}
+          <div className="flex gap-1 flex-shrink-0">
+            <button onClick={() => setIsInternalNote(!isInternalNote)} className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: '50%', background: 'none', border: 'none', cursor: 'pointer' }}>
+              <StickyNote size={20} style={{ color: isInternalNote ? '#D97706' : '#8E8E93' }} />
+            </button>
+            <button className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: '50%', background: 'none', border: 'none', cursor: 'pointer' }}>
+              <Paperclip size={20} style={{ color: '#8E8E93' }} />
+            </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="h-10 w-10">
-                  <Zap className="h-4 w-4" />
-                </Button>
+                <button className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: '50%', background: 'none', border: 'none', cursor: 'pointer' }}>
+                  <Zap size={20} style={{ color: '#8E8E93' }} />
+                </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64">
-                <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                  Réponses rapides
-                </div>
-                {quickReplies.map((template) => (
-                  <DropdownMenuItem
-                    key={template.id}
-                    onClick={() => insertQuickReply(template)}
-                  >
+              <DropdownMenuContent align="start" className="w-64">
+                <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Réponses rapides</div>
+                {quickReplies.map(template => (
+                  <DropdownMenuItem key={template.id} onClick={() => insertQuickReply(template)}>
                     <div>
-                      <p className="font-medium">{template.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {template.content.substring(0, 50)}...
-                      </p>
+                      <p className="font-medium text-sm">{template.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{template.content.substring(0, 50)}...</p>
                     </div>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {/* Send button */}
-            <Button 
-              onClick={handleSend} 
-              disabled={!messageText.trim()}
-              className={cn(
-                "h-10",
-                isInternalNote && "bg-amber-500 hover:bg-amber-600"
-              )}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
           </div>
+
+          {/* Text input */}
+          <textarea
+            ref={textareaRef}
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={isInternalNote ? "Note interne..." : "Message..."}
+            rows={1}
+            className="flex-1 outline-none resize-none"
+            style={{
+              minHeight: 36, maxHeight: 120,
+              borderRadius: 18, background: '#F2F2F7', border: 'none',
+              padding: '8px 14px', fontSize: 14, color: '#1A1A2E',
+              lineHeight: '20px',
+            }}
+          />
+
+          {/* Send button */}
+          <button
+            onClick={handleSend}
+            disabled={!messageText.trim()}
+            className="flex items-center justify-center rounded-full flex-shrink-0 transition-opacity"
+            style={{
+              width: 36, height: 36,
+              background: messageText.trim() ? '#FF5C1A' : '#C7C7CC',
+              border: 'none', cursor: messageText.trim() ? 'pointer' : 'default',
+            }}
+          >
+            <ArrowUp size={18} color="white" />
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-interface MessageBubbleProps {
-  message: Message;
-}
-
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
+// Message bubble component
+const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
   const isTeam = message.sender === 'team' || message.sender === 'system';
   const isSystem = message.sender === 'system';
   const isInternal = message.isInternal;
 
-  return (
-    <div className={cn(
-      'flex',
-      isTeam ? 'justify-end' : 'justify-start'
-    )}>
-      <div className={cn(
-        'max-w-[75%] rounded-lg px-4 py-2.5',
-        isInternal && 'border-2 border-amber-300 bg-amber-50',
-        !isInternal && isSystem && 'bg-muted border border-dashed',
-        !isInternal && !isSystem && isTeam && 'bg-primary text-primary-foreground',
-        !isInternal && !isSystem && !isTeam && 'bg-muted'
-      )}>
-        {/* Header */}
-        <div className={cn(
-          'flex items-center gap-2 mb-1',
-          isTeam && !isInternal && !isSystem && 'text-primary-foreground/80'
-        )}>
-          {isInternal && (
-            <StickyNote className="h-3.5 w-3.5 text-amber-600" />
-          )}
-          {isSystem && (
-            <Bot className="h-3.5 w-3.5 text-muted-foreground" />
-          )}
-          <span className={cn(
-            'text-xs font-medium',
-            isInternal && 'text-amber-700',
-            !isInternal && !isSystem && !isTeam && 'text-foreground'
-          )}>
-            {message.senderName}
-          </span>
-          <span className={cn(
-            'text-xs',
-            isTeam && !isInternal && !isSystem ? 'text-primary-foreground/60' : 'text-muted-foreground'
-          )}>
-            {format(message.timestamp, 'HH:mm', { locale: fr })}
-          </span>
-          {message.isAutomated && (
-            <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">
-              <Sparkles className="h-2.5 w-2.5 mr-0.5" />
-              Auto
-            </Badge>
-          )}
+  if (isSystem) {
+    return (
+      <div className="flex justify-center my-1">
+        <div className="rounded-full px-3 py-1 flex items-center gap-1" style={{ background: '#E5E5EA' }}>
+          <Bot size={12} style={{ color: '#8E8E93' }} />
+          <span style={{ fontSize: 12, color: '#8E8E93' }}>{message.content}</span>
         </div>
+      </div>
+    );
+  }
 
-        {/* Content */}
-        <p className={cn(
-          'text-sm whitespace-pre-wrap',
-          isInternal && 'text-amber-800',
-        )}>
+  if (isInternal) {
+    return (
+      <div className="flex justify-end mb-1">
+        <div className="rounded-2xl px-3.5 py-2.5" style={{
+          maxWidth: '75%',
+          background: '#FFFBEB', border: '1px solid #FDE68A',
+          borderRadius: '18px 18px 4px 18px',
+        }}>
+          <div className="flex items-center gap-1 mb-1">
+            <StickyNote size={12} style={{ color: '#D97706' }} />
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#92400E' }}>{message.senderName}</span>
+            <span style={{ fontSize: 11, color: '#B45309' }}>
+              {format(message.timestamp, 'HH:mm', { locale: fr })}
+            </span>
+          </div>
+          <p style={{ fontSize: 14, color: '#78350F', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+            {message.content}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn('flex mb-1', isTeam ? 'justify-end' : 'justify-start')}>
+      <div style={{
+        maxWidth: '75%',
+        padding: '10px 14px',
+        background: isTeam ? '#FF5C1A' : '#FFFFFF',
+        borderRadius: isTeam ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+        boxShadow: isTeam ? 'none' : '0 1px 3px rgba(0,0,0,0.08)',
+      }}>
+        {/* Sender name for guest messages */}
+        {!isTeam && (
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#8E8E93' }}>{message.senderName}</span>
+            <span style={{ fontSize: 11, color: '#C7C7CC' }}>
+              {format(message.timestamp, 'HH:mm', { locale: fr })}
+            </span>
+          </div>
+        )}
+
+        <p style={{
+          fontSize: 14,
+          color: isTeam ? '#FFFFFF' : '#1A1A2E',
+          lineHeight: 1.5,
+          whiteSpace: 'pre-wrap',
+        }}>
           {message.content}
         </p>
 
-        {/* Automation rule info */}
-        {message.isAutomated && message.automationRuleName && (
-          <p className="text-xs text-muted-foreground mt-1 italic">
-            Règle: {message.automationRuleName}
+        {/* Time for team messages */}
+        {isTeam && (
+          <p className="text-right mt-0.5" style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>
+            {format(message.timestamp, 'HH:mm', { locale: fr })}
+            {message.isAutomated && (
+              <span className="ml-1 inline-flex items-center gap-0.5">
+                <Sparkles size={9} /> Auto
+              </span>
+            )}
           </p>
         )}
 
         {/* Attachments */}
         {message.attachments && message.attachments.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {message.attachments.map((attachment) => (
-              <div
-                key={attachment.id}
-                className="flex items-center gap-1 px-2 py-1 bg-background/50 rounded text-xs"
-              >
-                {attachment.type === 'image' ? (
-                  <ImageIcon className="h-3 w-3" />
-                ) : (
-                  <Paperclip className="h-3 w-3" />
-                )}
-                {attachment.name}
+          <div className="flex flex-wrap gap-1.5 mt-1.5">
+            {message.attachments.map(att => (
+              <div key={att.id} className="flex items-center gap-1 rounded-lg px-2 py-1" style={{ background: isTeam ? 'rgba(255,255,255,0.2)' : '#F2F2F7', fontSize: 12 }}>
+                {att.type === 'image' ? <ImageIcon size={12} /> : <Paperclip size={12} />}
+                <span style={{ color: isTeam ? '#FFFFFF' : '#1A1A2E' }}>{att.name}</span>
               </div>
             ))}
           </div>

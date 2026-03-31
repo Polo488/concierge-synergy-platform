@@ -1,34 +1,14 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { 
-  Search, 
-  Filter, 
-  Bell, 
-  Clock,
-  MessageCircle,
-  AlertCircle,
-  AlertTriangle,
-  Timer
+  Search, Clock, Pencil, ChevronDown, Filter,
+  MessageCircle
 } from 'lucide-react';
 import { 
   Conversation, 
   MessagingFilters, 
-  CHANNEL_ICONS, 
-  CHANNEL_COLORS,
   TAG_LABELS,
-  TAG_COLORS,
-  STATUS_COLORS,
   ConversationStatus,
   MessageChannel,
   ConversationTag
@@ -64,6 +44,50 @@ interface ConversationListProps {
   };
 }
 
+const CHANNEL_AVATAR_COLORS: Record<string, string> = {
+  airbnb: '#FF385C',
+  booking: '#003580',
+  direct: '#16A34A',
+  vrbo: '#6366F1',
+  expedia: '#F59E0B',
+  email: '#6366F1',
+  sms: '#16A34A',
+  whatsapp: '#25D366',
+};
+
+const CHANNEL_BADGE_LETTER: Record<string, string> = {
+  airbnb: 'A',
+  booking: 'B',
+  direct: 'D',
+  vrbo: 'V',
+  expedia: 'E',
+  email: 'E',
+  sms: 'S',
+  whatsapp: 'W',
+};
+
+const TAG_PILL_STYLES: Record<string, { bg: string; color: string }> = {
+  'check-in-issue': { bg: '#FFF0F0', color: '#DC2626' },
+  'check-out-issue': { bg: '#FFF0F0', color: '#DC2626' },
+  'urgent': { bg: '#FFF0F0', color: '#DC2626' },
+  'vip': { bg: '#F5F3FF', color: '#7C3AED' },
+  'upsell': { bg: '#F0FDF4', color: '#16A34A' },
+  'complaint': { bg: '#FFF0F0', color: '#DC2626' },
+  'maintenance': { bg: '#FFF7ED', color: '#EA580C' },
+  'cleaning': { bg: '#F0FDF4', color: '#16A34A' },
+};
+
+function getInitials(name: string) {
+  return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+}
+
+function formatSLATime(minutes: number | null): string {
+  if (!minutes) return '';
+  if (minutes < 60) return `${minutes}min`;
+  const h = Math.floor(minutes / 60);
+  return `${h}h`;
+}
+
 export const ConversationList: React.FC<ConversationListProps> = ({
   conversations,
   selectedConversationId,
@@ -74,14 +98,8 @@ export const ConversationList: React.FC<ConversationListProps> = ({
   stats,
 }) => {
   const allTags: ConversationTag[] = [
-    'check-in-issue',
-    'check-out-issue',
-    'upsell',
-    'complaint',
-    'maintenance',
-    'cleaning',
-    'urgent',
-    'vip',
+    'check-in-issue', 'check-out-issue', 'upsell', 'complaint',
+    'maintenance', 'cleaning', 'urgent', 'vip',
   ];
 
   const toggleTagFilter = (tag: ConversationTag) => {
@@ -91,37 +109,39 @@ export const ConversationList: React.FC<ConversationListProps> = ({
     onFiltersChange({ ...filters, tags: newTags });
   };
 
+  const totalSLA = (stats.slaCritical ?? 0) + (stats.slaWarning ?? 0);
+
+  const statusFilters: { key: ConversationStatus | 'all'; label: string; count: number }[] = [
+    { key: 'all', label: 'Tous', count: stats.total },
+    { key: 'open', label: 'Ouverts', count: stats.open },
+    { key: 'pending', label: 'En attente', count: stats.pending },
+  ];
+
   return (
-    <div className="flex flex-col h-full border-r bg-background">
-      {/* Header with stats */}
-      <div className="p-4 border-b space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Conversations</h2>
+    <div className="flex flex-col h-full" style={{ background: '#FFFFFF', borderRight: '1px solid #F0F0F0' }}>
+      {/* Header */}
+      <div style={{ padding: '16px 16px 0 16px', borderBottom: '1px solid #F0F0F0' }}>
+        {/* Title row */}
+        <div className="flex items-center justify-between mb-3">
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#1A1A2E' }}>Messages</h2>
           <div className="flex items-center gap-2">
-            {(stats.slaCritical ?? 0) > 0 && (
-              <Badge variant="destructive" className="rounded-full animate-pulse">
-                <AlertTriangle className="h-3 w-3 mr-1" />
-                {stats.slaCritical} SLA
-              </Badge>
+            {totalSLA > 0 && (
+              <div className="inline-flex items-center gap-1 rounded-full" style={{ background: '#FFF1F0', border: '1px solid #FFCCC7', padding: '4px 10px' }}>
+                <Clock size={12} style={{ color: '#FF4D4F' }} />
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#FF4D4F' }}>{totalSLA} SLA</span>
+              </div>
             )}
-            {stats.unread > 0 && (
-              <Badge variant="destructive" className="rounded-full">
-                {stats.unread}
-              </Badge>
-            )}
+            <button className="flex items-center justify-center rounded-full" style={{ width: 36, height: 36, background: '#FF5C1A' }}>
+              <Pencil size={16} color="white" />
+            </button>
           </div>
         </div>
 
         {/* SLA Alert Banner */}
-        {((stats.slaCritical ?? 0) > 0 || (stats.slaWarning ?? 0) > 0) && (
-          <div className={cn(
-            "flex items-center gap-2 p-2 rounded-lg text-xs",
-            (stats.slaCritical ?? 0) > 0 
-              ? "bg-destructive/10 text-destructive border border-destructive/20"
-              : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
-          )}>
-            <Timer className="h-4 w-4" />
-            <span>
+        {totalSLA > 0 && (
+          <div className="flex items-center gap-2 mb-3 rounded-xl" style={{ background: '#FFF8F0', borderLeft: '3px solid #FF5C1A', padding: '10px 14px' }}>
+            <Clock size={15} style={{ color: '#FF5C1A' }} />
+            <span style={{ fontSize: 13, color: '#92400E' }}>
               {(stats.slaCritical ?? 0) > 0 
                 ? `${stats.slaCritical} message${(stats.slaCritical ?? 0) > 1 ? 's' : ''} sans réponse depuis +30 min`
                 : `${stats.slaWarning} message${(stats.slaWarning ?? 0) > 1 ? 's' : ''} sans réponse depuis +15 min`
@@ -130,88 +150,98 @@ export const ConversationList: React.FC<ConversationListProps> = ({
           </div>
         )}
 
-        {/* Quick stats */}
-        <div className="flex gap-2 text-xs">
-          <Badge 
-            variant={filters.status === 'all' ? 'default' : 'outline'} 
-            className="cursor-pointer"
-            onClick={() => onFiltersChange({ ...filters, status: 'all' })}
-          >
-            Tous ({stats.total})
-          </Badge>
-          <Badge 
-            variant={filters.status === 'open' ? 'default' : 'outline'}
-            className="cursor-pointer"
-            onClick={() => onFiltersChange({ ...filters, status: 'open' })}
-          >
-            Ouverts ({stats.open})
-          </Badge>
-          <Badge 
-            variant={filters.status === 'pending' ? 'default' : 'outline'}
-            className="cursor-pointer"
-            onClick={() => onFiltersChange({ ...filters, status: 'pending' })}
-          >
-            En attente ({stats.pending})
-          </Badge>
+        {/* Status filter pills */}
+        <div className="flex gap-1.5 pb-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+          {statusFilters.map(f => {
+            const isActive = filters.status === f.key;
+            return (
+              <button
+                key={f.key}
+                onClick={() => onFiltersChange({ ...filters, status: f.key })}
+                className="flex items-center gap-1.5 rounded-full whitespace-nowrap flex-shrink-0"
+                style={{
+                  height: 32,
+                  padding: '0 14px',
+                  fontSize: 13,
+                  fontWeight: isActive ? 600 : 400,
+                  background: isActive ? '#1A1A2E' : '#F2F2F7',
+                  color: isActive ? '#FFFFFF' : '#6B7280',
+                  cursor: 'pointer',
+                  border: 'none',
+                }}
+              >
+                {f.label}
+                <span className="rounded-full" style={{
+                  padding: '1px 6px',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  background: isActive ? 'rgba(255,255,255,0.25)' : '#E5E5EA',
+                }}>
+                  {f.count}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Search and filters */}
-      <div className="p-3 border-b space-y-2">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
+      {/* Search + filters */}
+      <div style={{ padding: '10px 16px' }}>
+        <div className="relative mb-2">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2" size={16} style={{ color: '#8E8E93' }} />
+          <input
             placeholder="Rechercher..."
             value={filters.search}
             onChange={(e) => onFiltersChange({ ...filters, search: e.target.value })}
-            className="pl-9 h-9"
+            className="w-full outline-none"
+            style={{
+              height: 36,
+              borderRadius: 10,
+              background: '#F2F2F7',
+              border: 'none',
+              padding: '0 12px 0 36px',
+              fontSize: 14,
+              color: '#1A1A2E',
+            }}
           />
         </div>
-
         <div className="flex gap-2">
-          <Select
+          <select
             value={filters.propertyId}
-            onValueChange={(value) => onFiltersChange({ ...filters, propertyId: value })}
+            onChange={(e) => onFiltersChange({ ...filters, propertyId: e.target.value })}
+            className="flex-1 outline-none appearance-none cursor-pointer"
+            style={{
+              height: 32, borderRadius: 99, background: '#F2F2F7', border: 'none',
+              padding: '0 12px', fontSize: 13, color: '#1A1A2E',
+            }}
           >
-            <SelectTrigger className="h-8 text-xs flex-1">
-              <SelectValue placeholder="Propriété" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Toutes les propriétés</SelectItem>
-              {properties.map((prop) => (
-                <SelectItem key={prop.id} value={prop.id}>
-                  {prop.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select
+            <option value="all">Toutes les propriétés</option>
+            {properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+          <select
             value={filters.channel}
-            onValueChange={(value) => onFiltersChange({ ...filters, channel: value as MessageChannel | 'all' })}
+            onChange={(e) => onFiltersChange({ ...filters, channel: e.target.value as MessageChannel | 'all' })}
+            className="outline-none appearance-none cursor-pointer"
+            style={{
+              height: 32, borderRadius: 99, background: '#F2F2F7', border: 'none',
+              padding: '0 12px', fontSize: 13, color: '#1A1A2E', width: 100,
+            }}
           >
-            <SelectTrigger className="h-8 text-xs w-28">
-              <SelectValue placeholder="Canal" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous</SelectItem>
-              <SelectItem value="airbnb">🏠 Airbnb</SelectItem>
-              <SelectItem value="booking">🅱️ Booking</SelectItem>
-              <SelectItem value="direct">📧 Direct</SelectItem>
-              <SelectItem value="vrbo">🏡 VRBO</SelectItem>
-            </SelectContent>
-          </Select>
-
+            <option value="all">Canal</option>
+            <option value="airbnb">Airbnb</option>
+            <option value="booking">Booking</option>
+            <option value="direct">Direct</option>
+          </select>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 px-2">
-                <Filter className="h-4 w-4" />
+              <button className="flex items-center justify-center rounded-full relative" style={{ width: 32, height: 32, background: '#F2F2F7', border: 'none', cursor: 'pointer' }}>
+                <Filter size={14} style={{ color: '#8E8E93' }} />
                 {filters.tags.length > 0 && (
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+                  <span className="absolute -top-1 -right-1 rounded-full flex items-center justify-center" style={{ width: 16, height: 16, background: '#FF5C1A', color: '#FFF', fontSize: 9, fontWeight: 700 }}>
                     {filters.tags.length}
-                  </Badge>
+                  </span>
                 )}
-              </Button>
+              </button>
             </PopoverTrigger>
             <PopoverContent className="w-56 p-3">
               <div className="space-y-3">
@@ -219,9 +249,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                   <Checkbox 
                     id="unread-only" 
                     checked={filters.unreadOnly}
-                    onCheckedChange={(checked) => 
-                      onFiltersChange({ ...filters, unreadOnly: checked as boolean })
-                    }
+                    onCheckedChange={(checked) => onFiltersChange({ ...filters, unreadOnly: checked as boolean })}
                   />
                   <Label htmlFor="unread-only" className="text-sm">Non lus uniquement</Label>
                 </div>
@@ -230,14 +258,19 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                   <Label className="text-xs text-muted-foreground">Tags</Label>
                   <div className="flex flex-wrap gap-1">
                     {allTags.map((tag) => (
-                      <Badge
+                      <button
                         key={tag}
-                        variant={filters.tags.includes(tag) ? 'default' : 'outline'}
-                        className="cursor-pointer text-xs"
                         onClick={() => toggleTagFilter(tag)}
+                        className="rounded-full text-xs px-2 py-0.5 cursor-pointer border"
+                        style={{
+                          background: filters.tags.includes(tag) ? (TAG_PILL_STYLES[tag]?.bg || '#F2F2F7') : '#F2F2F7',
+                          color: filters.tags.includes(tag) ? (TAG_PILL_STYLES[tag]?.color || '#6B7280') : '#6B7280',
+                          borderColor: filters.tags.includes(tag) ? 'currentColor' : 'transparent',
+                          fontWeight: filters.tags.includes(tag) ? 600 : 400,
+                        }}
                       >
                         {TAG_LABELS[tag]}
-                      </Badge>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -249,19 +282,20 @@ export const ConversationList: React.FC<ConversationListProps> = ({
 
       {/* Conversation list */}
       <ScrollArea className="flex-1">
-        <div className="divide-y">
+        <div>
           {conversations.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">
-              <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-30" />
-              <p>Aucune conversation trouvée</p>
+            <div className="flex flex-col items-center justify-center py-16">
+              <MessageCircle size={48} style={{ color: '#C7C7CC' }} />
+              <p style={{ fontSize: 15, color: '#8E8E93', marginTop: 12 }}>Aucune conversation</p>
             </div>
           ) : (
-            conversations.map((conversation) => (
+            conversations.map((conversation, idx) => (
               <ConversationItem
                 key={conversation.id}
                 conversation={conversation}
                 isSelected={selectedConversationId === conversation.id}
                 onClick={() => onSelectConversation(conversation.id)}
+                isLast={idx === conversations.length - 1}
               />
             ))
           )}
@@ -275,120 +309,125 @@ interface ConversationItemProps {
   conversation: Conversation;
   isSelected: boolean;
   onClick: () => void;
+  isLast: boolean;
 }
 
 const ConversationItem: React.FC<ConversationItemProps> = ({
   conversation,
   isSelected,
   onClick,
+  isLast,
 }) => {
-  const { guest, reservation, lastMessagePreview, lastMessageAt, isUnread, isPriority, tags, sla } = conversation;
+  const { guest, reservation, lastMessagePreview, lastMessageAt, isUnread, tags, sla } = conversation;
+  const channel = reservation.channel;
+  const avatarColor = CHANNEL_AVATAR_COLORS[channel] || '#6366F1';
+  const badgeLetter = CHANNEL_BADGE_LETTER[channel] || 'X';
 
-  const getSLAIndicator = () => {
-    if (!sla?.isAwaitingResponse) return null;
-    
-    if (sla.status === 'critical') {
-      return (
-        <div className="flex items-center gap-1 text-destructive animate-pulse">
-          <AlertTriangle className="h-3.5 w-3.5" />
-          <span className="text-[10px] font-medium">{sla.minutesSinceLastGuestMessage}min</span>
-        </div>
-      );
-    }
-    
-    if (sla.status === 'warning') {
-      return (
-        <div className="flex items-center gap-1 text-amber-500">
-          <Timer className="h-3.5 w-3.5" />
-          <span className="text-[10px] font-medium">{sla.minutesSinceLastGuestMessage}min</span>
-        </div>
-      );
-    }
-    
-    return null;
-  };
+  const timeText = formatDistanceToNow(lastMessageAt, { addSuffix: false, locale: fr });
+  const isUrgentTime = sla?.isAwaitingResponse && sla.status !== 'ok';
 
   return (
     <div
       onClick={onClick}
-      className={cn(
-        'p-3 cursor-pointer transition-colors hover:bg-muted/50',
-        isSelected && 'bg-muted',
-        isUnread && 'bg-primary/5',
-        sla?.status === 'critical' && 'border-l-2 border-l-destructive bg-destructive/5',
-        sla?.status === 'warning' && !sla?.status && 'border-l-2 border-l-amber-500 bg-amber-50/50'
-      )}
+      className="relative cursor-pointer transition-colors"
+      style={{
+        padding: '12px 16px',
+        background: isSelected ? '#F2F2F7' : isUnread ? '#FFFBF8' : '#FFFFFF',
+      }}
     >
       <div className="flex items-start gap-3">
-        {/* Channel icon with SLA ring */}
-        <div className={cn(
-          'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm border relative',
-          CHANNEL_COLORS[reservation.channel],
-          sla?.status === 'critical' && 'ring-2 ring-destructive ring-offset-1',
-          sla?.status === 'warning' && 'ring-2 ring-amber-500 ring-offset-1'
-        )}>
-          {CHANNEL_ICONS[reservation.channel]}
+        {/* Avatar */}
+        <div className="relative flex-shrink-0">
+          <div
+            className="flex items-center justify-center rounded-full"
+            style={{ width: 48, height: 48, background: avatarColor }}
+          >
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#FFFFFF' }}>
+              {getInitials(guest.name)}
+            </span>
+          </div>
+          {/* Channel badge */}
+          <div
+            className="absolute flex items-center justify-center rounded-full"
+            style={{
+              width: 18, height: 18, bottom: 0, right: 0,
+              background: avatarColor, border: '2px solid #FFFFFF',
+            }}
+          >
+            <span style={{ fontSize: 8, fontWeight: 700, color: '#FFFFFF' }}>{badgeLetter}</span>
+          </div>
         </div>
 
-        <div className="flex-1 min-w-0 space-y-1">
-          {/* Header row */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className={cn(
-                'font-medium truncate',
-                isUnread && 'font-semibold'
-              )}>
-                {guest.name}
-              </span>
-              {isPriority && (
-                <AlertCircle className="h-3.5 w-3.5 text-destructive flex-shrink-0" />
-              )}
-              {isUnread && (
-                <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
-              )}
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {getSLAIndicator()}
-              <span className="text-xs text-muted-foreground">
-                {formatDistanceToNow(lastMessageAt, { addSuffix: false, locale: fr })}
-              </span>
-            </div>
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          {/* Name + time */}
+          <div className="flex items-baseline justify-between gap-2 mb-0.5">
+            <span className="truncate flex-1 min-w-0" style={{ fontSize: 15, fontWeight: 600, color: '#1A1A2E' }}>
+              {guest.name}
+            </span>
+            <span className="flex-shrink-0 whitespace-nowrap" style={{
+              fontSize: 12,
+              color: isUrgentTime ? '#FF5C1A' : '#8E8E93',
+              fontWeight: isUrgentTime ? 600 : 400,
+            }}>
+              {timeText}
+            </span>
           </div>
 
-          {/* Property name */}
-          <p className="text-xs text-muted-foreground truncate">
+          {/* Property */}
+          <p className="truncate" style={{ fontSize: 12, color: '#8E8E93', marginBottom: 3 }}>
             {reservation.propertyName}
           </p>
 
-          {/* Message preview */}
-          <p className={cn(
-            'text-sm truncate',
-            isUnread ? 'text-foreground' : 'text-muted-foreground'
-          )}>
+          {/* Preview */}
+          <p className="truncate" style={{
+            fontSize: 14,
+            color: isUnread ? '#1A1A2E' : '#8E8E93',
+            fontWeight: isUnread ? 500 : 400,
+          }}>
             {lastMessagePreview}
           </p>
 
           {/* Tags */}
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 pt-1">
-              {tags.slice(0, 3).map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="outline"
-                  className={cn('text-[10px] px-1.5 py-0', TAG_COLORS[tag])}
-                >
-                  {TAG_LABELS[tag]}
-                </Badge>
-              ))}
-              {tags.length > 3 && (
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                  +{tags.length - 3}
-                </Badge>
-              )}
+            <div className="flex gap-1 mt-1.5 overflow-hidden flex-nowrap">
+              {tags.slice(0, 3).map(tag => {
+                const style = TAG_PILL_STYLES[tag] || { bg: '#F2F2F7', color: '#6B7280' };
+                return (
+                  <span
+                    key={tag}
+                    className="rounded-full flex-shrink-0 whitespace-nowrap"
+                    style={{ padding: '2px 8px', fontSize: 10, fontWeight: 600, background: style.bg, color: style.color }}
+                  >
+                    {TAG_LABELS[tag]}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+
+          {/* SLA indicator */}
+          {sla?.isAwaitingResponse && sla.status !== 'ok' && (
+            <div className="flex items-center gap-1 mt-1" style={{ background: '#FFF8F0', borderRadius: 4, padding: '1px 5px', display: 'inline-flex' }}>
+              <Clock size={9} style={{ color: '#FF5C1A' }} />
+              <span style={{ fontSize: 10, color: '#FF5C1A' }}>{formatSLATime(sla.minutesSinceLastGuestMessage)}</span>
             </div>
           )}
         </div>
+
+        {/* Unread dot */}
+        {isUnread && (
+          <div className="absolute flex-shrink-0" style={{
+            width: 10, height: 10, borderRadius: '50%', background: '#FF5C1A',
+            right: 16, top: '50%', transform: 'translateY(-50%)',
+          }} />
+        )}
       </div>
+
+      {/* Separator */}
+      {!isLast && (
+        <div style={{ height: 1, background: '#F2F2F7', marginLeft: 76, marginTop: 12 }} />
+      )}
     </div>
   );
 };
