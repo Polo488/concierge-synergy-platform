@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { CleaningTask } from "@/types/cleaning";
 import { Input } from "@/components/ui/input";
 import { Edit2, Check, X, AlertTriangle } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface CleaningTaskDetailsDialogProps {
   open: boolean;
@@ -30,10 +30,12 @@ export const CleaningTaskDetailsDialog = ({
   const [checkinTime, setCheckinTime] = useState("");
 
   // Initialize editing state when dialog opens with a new task
-  if (currentTask && open && (checkoutTime !== currentTask.checkoutTime || checkinTime !== currentTask.checkinTime)) {
-    setCheckoutTime(currentTask.checkoutTime || "");
-    setCheckinTime(currentTask.checkinTime || "");
-  }
+  useEffect(() => {
+    if (currentTask && open) {
+      setCheckoutTime(currentTask.checkoutTime || "");
+      setCheckinTime(currentTask.checkinTime || "");
+    }
+  }, [currentTask, open]);
 
   const handleStartEditingTimes = () => {
     if (currentTask) {
