@@ -7,7 +7,7 @@ import { BlockedBlock } from './BlockedBlock';
 import { PropertyInsightBadge } from '@/components/insights/PropertyInsightBadge';
 import { PropertyInsight } from '@/types/insights';
 
-const ROW_H = 64;
+const ROW_H = 56;
 
 interface PropertyRowProps {
   property: CalendarProperty;
