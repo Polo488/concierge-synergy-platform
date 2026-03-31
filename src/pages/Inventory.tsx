@@ -73,8 +73,10 @@ const Inventory = () => {
     name: '',
     category: 'Consommables',
     stock: '0',
-    min: '10'
+    min: '10',
+    orderUrl: ''
   });
+  const [editOrderUrl, setEditOrderUrl] = useState('');
 
   const allItems = [...consummables, ...linen, ...maintenance];
   const alertsCount = allItems.filter(item => item.status === 'low').length;
