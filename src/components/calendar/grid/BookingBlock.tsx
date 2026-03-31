@@ -52,11 +52,13 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   const hasVisibleCheckOut = isCheckOutDay && !isEndTruncated;
 
   // Width: checkout day always occupies 40% of its cell
+  // When checkin is visible, bar starts at +24px offset, so subtract that from width
+  const checkinOffset = hasVisibleCheckIn ? 24 : 0;
   let width: number;
   if (hasVisibleCheckOut) {
-    width = (visibleDays - 1) * cellWidth + Math.round(cellWidth * checkoutFraction);
+    width = (visibleDays - 1) * cellWidth + Math.round(cellWidth * checkoutFraction) - checkinOffset;
   } else {
-    width = visibleDays * cellWidth;
+    width = visibleDays * cellWidth - checkinOffset;
   }
 
   const finalWidth = Math.max(width, 16);
