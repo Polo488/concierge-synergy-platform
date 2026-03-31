@@ -310,7 +310,7 @@ const ClientsManager: React.FC = () => {
 
   const formatCurrency = (amount: number | undefined) => {
     if (amount === undefined) return "N/A";
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
   };
 
   // Filtrer les clients par statut
@@ -352,243 +352,147 @@ const ClientsManager: React.FC = () => {
   const stats = calculateStats();
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Gestion des Clients</h2>
-          <p className="text-muted-foreground">
-            Suivez vos clients et prospects pour les locations moyenne durée
-          </p>
-        </div>
+    <div className="w-full overflow-x-hidden">
+      {/* Breadcrumb */}
+      <p className="text-xs whitespace-nowrap mb-2 px-4" style={{ color: '#9A9AAF', fontFamily: 'DM Sans, sans-serif' }}>
+        Gestion des clients
+      </p>
 
-        <Dialog open={openDialog} onOpenChange={(open) => {
-          setOpenDialog(open);
-          if (!open) resetForm();
-        }}>
-          <DialogTrigger asChild>
-            <Button className="gap-1">
-              <UserPlus className="h-4 w-4" />
-              Ajouter un client
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[625px]">
-            <DialogHeader>
-              <DialogTitle>{isEditing ? "Modifier le client" : "Nouveau client"}</DialogTitle>
-              <DialogDescription>
-                {isEditing 
-                  ? "Modifiez les informations du client."
-                  : "Entrez les informations du nouveau client."}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Nom / Société
-                </Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={clientForm.name || ""}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                />
+      {/* Header */}
+      <div className="flex flex-col gap-3 px-4 mb-4 md:flex-row md:justify-between md:items-center md:px-6">
+        <div className="flex justify-between items-start gap-3 md:flex-col md:gap-1">
+          <div>
+            <h2 className="text-xl font-bold whitespace-nowrap" style={{ color: '#1A1A2E', fontFamily: 'DM Sans, sans-serif' }}>
+              Gestion des Clients
+            </h2>
+            <p className="text-[13px] mt-1 hidden md:block" style={{ color: '#7A7A8C', fontFamily: 'DM Sans, sans-serif' }}>
+              Suivez vos clients et prospects
+            </p>
+          </div>
+
+          <Dialog open={openDialog} onOpenChange={(open) => {
+            setOpenDialog(open);
+            if (!open) resetForm();
+          }}>
+            <DialogTrigger asChild>
+              <button
+                className="flex items-center gap-1.5 shrink-0 rounded-full text-white text-[13px] font-semibold h-[38px] px-3.5"
+                style={{ background: '#FF5C1A', fontFamily: 'DM Sans, sans-serif', whiteSpace: 'nowrap' }}
+              >
+                <UserPlus size={14} />
+                <span className="hidden sm:inline">Ajouter un client</span>
+                <span className="sm:hidden">+ Client</span>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[625px]">
+              <DialogHeader>
+                <DialogTitle>{isEditing ? "Modifier le client" : "Nouveau client"}</DialogTitle>
+                <DialogDescription>
+                  {isEditing 
+                    ? "Modifiez les informations du client."
+                    : "Entrez les informations du nouveau client."}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">Nom / Société</Label>
+                  <Input id="name" name="name" value={clientForm.name || ""} onChange={handleInputChange} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="email" className="text-right">Email</Label>
+                  <Input id="email" name="email" type="email" value={clientForm.email || ""} onChange={handleInputChange} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="phone" className="text-right">Téléphone</Label>
+                  <Input id="phone" name="phone" value={clientForm.phone || ""} onChange={handleInputChange} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="type" className="text-right">Type de client</Label>
+                  <Select value={clientForm.type} onValueChange={(value) => handleSelectChange("type", value)}>
+                    <SelectTrigger className="col-span-3"><SelectValue placeholder="Sélectionner un type" /></SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(typeLabels).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="status" className="text-right">Statut</Label>
+                  <Select value={clientForm.status} onValueChange={(value) => handleSelectChange("status", value)}>
+                    <SelectTrigger className="col-span-3"><SelectValue placeholder="Sélectionner un statut" /></SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(statusLabels).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="contactDate" className="text-right">Date 1er contact</Label>
+                  <Input id="contactDate" name="contactDate" type="date" value={clientForm.contactDate || ""} onChange={handleInputChange} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="lastContactDate" className="text-right">Dernier contact</Label>
+                  <Input id="lastContactDate" name="lastContactDate" type="date" value={clientForm.lastContactDate || ""} onChange={handleInputChange} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="assignedTo" className="text-right">Assigné à</Label>
+                  <Input id="assignedTo" name="assignedTo" value={clientForm.assignedTo || ""} onChange={handleInputChange} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="potentialValue" className="text-right">Valeur potentielle (€)</Label>
+                  <Input id="potentialValue" name="potentialValue" type="number" value={clientForm.potentialValue || ""} onChange={handleInputChange} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="notes" className="text-right">Notes</Label>
+                  <Textarea id="notes" name="notes" value={clientForm.notes || ""} onChange={handleInputChange} className="col-span-3" />
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="email" className="text-right">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={clientForm.email || ""}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="phone" className="text-right">
-                  Téléphone
-                </Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  value={clientForm.phone || ""}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="type" className="text-right">
-                  Type de client
-                </Label>
-                <Select 
-                  value={clientForm.type} 
-                  onValueChange={(value) => handleSelectChange("type", value)}
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Sélectionner un type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(typeLabels).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="status" className="text-right">
-                  Statut
-                </Label>
-                <Select 
-                  value={clientForm.status} 
-                  onValueChange={(value) => handleSelectChange("status", value)}
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Sélectionner un statut" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(statusLabels).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="contactDate" className="text-right">
-                  Date 1er contact
-                </Label>
-                <Input
-                  id="contactDate"
-                  name="contactDate"
-                  type="date"
-                  value={clientForm.contactDate || ""}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="lastContactDate" className="text-right">
-                  Dernier contact
-                </Label>
-                <Input
-                  id="lastContactDate"
-                  name="lastContactDate"
-                  type="date"
-                  value={clientForm.lastContactDate || ""}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="assignedTo" className="text-right">
-                  Assigné à
-                </Label>
-                <Input
-                  id="assignedTo"
-                  name="assignedTo"
-                  value={clientForm.assignedTo || ""}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="potentialValue" className="text-right">
-                  Valeur potentielle (€)
-                </Label>
-                <Input
-                  id="potentialValue"
-                  name="potentialValue"
-                  type="number"
-                  value={clientForm.potentialValue || ""}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-start gap-4">
-                <Label htmlFor="notes" className="text-right pt-2">
-                  Notes
-                </Label>
-                <Textarea
-                  id="notes"
-                  name="notes"
-                  value={clientForm.notes || ""}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                  rows={3}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit" onClick={handleAddOrUpdateClient}>
-                {isEditing ? "Mettre à jour" : "Ajouter"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter>
+                <Button type="submit" onClick={handleAddOrUpdateClient}>
+                  {isEditing ? "Mettre à jour" : "Ajouter"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+        <p className="text-[13px] md:hidden" style={{ color: '#7A7A8C', fontFamily: 'DM Sans, sans-serif', lineHeight: 1.4 }}>
+          Suivez vos clients et prospects
+        </p>
       </div>
 
-      {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Clients</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between">
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Total</p>
-                <p className="text-2xl font-bold">{stats.totalClients}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Signés</p>
-                <p className="text-2xl font-bold text-green-600">{stats.signedClients}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">En prospection</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.prospectingClients}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Stats pills */}
+      <div className="flex gap-2.5 px-4 mb-4" style={{ flexWrap: 'nowrap' }}>
+        <div className="flex-1 rounded-xl border border-border bg-white p-3 flex flex-col items-center gap-1" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <span className="text-xl font-bold" style={{ color: '#1A1A2E', fontFamily: 'DM Sans, sans-serif' }}>{stats.totalClients}</span>
+          <span className="text-[10px] whitespace-nowrap text-center" style={{ color: '#9A9AAF', fontFamily: 'DM Sans, sans-serif' }}>Total</span>
+        </div>
+        <div className="flex-1 rounded-xl border border-border bg-white p-3 flex flex-col items-center gap-1" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <span className="text-xl font-bold" style={{ color: '#16A34A', fontFamily: 'DM Sans, sans-serif' }}>{stats.signedClients}</span>
+          <span className="text-[10px] whitespace-nowrap text-center" style={{ color: '#9A9AAF', fontFamily: 'DM Sans, sans-serif' }}>Signés</span>
+        </div>
+        <div className="flex-1 rounded-xl border border-border bg-white p-3 flex flex-col items-center gap-1" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <span className="text-xl font-bold" style={{ color: '#4F46E5', fontFamily: 'DM Sans, sans-serif' }}>{stats.prospectingClients}</span>
+          <span className="text-[10px] whitespace-nowrap text-center" style={{ color: '#9A9AAF', fontFamily: 'DM Sans, sans-serif' }}>En prospection</span>
+        </div>
+      </div>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Valeur business</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between">
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Potentiel total</p>
-                <p className="text-2xl font-bold">{formatCurrency(stats.totalPotentialValue)}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Valeur signée</p>
-                <p className="text-2xl font-bold text-green-600">{formatCurrency(stats.signedValue)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Types de clients</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              {Object.entries(typeLabels).map(([type, label]) => (
-                <div key={type} className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${typeColors[type as ClientType].replace("text-", "bg-").replace("-100", "-600")}`}></div>
-                  <span className="text-xs">{label}: {stats.clientsByType[type] || 0}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Valeur business */}
+      <div className="mx-4 mb-4 rounded-[14px] border border-border bg-white p-4 box-border" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <p className="text-[13px] font-semibold uppercase tracking-wide mb-3" style={{ color: '#7A7A8C', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.5px' }}>
+          VALEUR BUSINESS
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1">
+            <span className="text-[11px]" style={{ color: '#9A9AAF', fontFamily: 'DM Sans, sans-serif' }}>Potentiel total</span>
+            <span className="text-lg font-bold truncate" style={{ color: '#1A1A2E', fontFamily: 'DM Sans, sans-serif' }}>{formatCurrency(stats.totalPotentialValue)}</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-[11px]" style={{ color: '#9A9AAF', fontFamily: 'DM Sans, sans-serif' }}>Valeur signée</span>
+            <span className="text-lg font-bold truncate" style={{ color: '#16A34A', fontFamily: 'DM Sans, sans-serif' }}>{formatCurrency(stats.signedValue)}</span>
+          </div>
+        </div>
       </div>
 
       {/* Filtres */}
