@@ -6,7 +6,7 @@ type Language = 'fr' | 'en';
 type LanguageContextType = {
   language: Language;
   setLanguage: (language: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, any>) => string;
 };
 
 const translations: Record<Language, Record<string, string>> = {
@@ -45,6 +45,33 @@ const translations: Record<Language, Record<string, string>> = {
     'cleaning.empty.today': 'Aucun ménage prévu aujourd\'hui',
     'cleaning.empty.tomorrow': 'Aucun ménage prévu demain',
     'cleaning.empty.completed': 'Aucun ménage terminé',
+    'cleaning.no.agent': 'Non assigné',
+    'cleaning.toast.started.title': 'Ménage commencé',
+    'cleaning.toast.started.description': 'Ménage en cours pour {property}',
+    'cleaning.toast.completed.title': 'Ménage terminé',
+    'cleaning.toast.completed.description': 'Ménage terminé pour {property}',
+    'cleaning.toast.agent.title': 'Agent assigné',
+    'cleaning.toast.agent.description': '{agent} assigné à {property}',
+    'cleaning.toast.problem.title': 'Problème signalé',
+    'cleaning.toast.problem.description': 'Problème signalé pour {property}',
+    'cleaning.toast.export.title': 'Export en cours',
+    'cleaning.toast.export.description': 'Vos données sont en cours d\'exportation',
+    'cleaning.toast.sync.title': 'Synchronisation',
+    'cleaning.toast.sync.description': 'Planning synchronisé avec succès',
+    'cleaning.toast.date.title': 'Calendrier',
+    'cleaning.toast.date.description': 'Vue calendrier au {date}',
+    'cleaning.toast.added.title': 'Tâche ajoutée',
+    'cleaning.toast.added.description': 'Ménage ajouté pour {property}',
+    'cleaning.toast.deleted.title': 'Tâche supprimée',
+    'cleaning.toast.deleted.description': 'Ménage supprimé pour {property}',
+    'cleaning.toast.labels.error.title': 'Aucune tâche sélectionnée',
+    'cleaning.toast.labels.error.description': 'Veuillez sélectionner au moins une tâche',
+    'cleaning.toast.labels.success.title': 'Étiquettes générées',
+    'cleaning.toast.labels.success.description': '{count} étiquettes générées',
+    'cleaning.toast.comments.title': 'Commentaire mis à jour',
+    'cleaning.toast.comments.description': 'Commentaire mis à jour pour {property}',
+    'cleaning.toast.times.title': 'Horaires mis à jour',
+    'cleaning.toast.times.description': 'Horaires mis à jour pour {property}',
     // Calendar
     'calendar': 'Calendrier',
     'calendar.description': 'Suivez les réservations et la disponibilité de vos propriétés.',
@@ -125,6 +152,33 @@ const translations: Record<Language, Record<string, string>> = {
     'cleaning.empty.today': 'No cleaning scheduled for today',
     'cleaning.empty.tomorrow': 'No cleaning scheduled for tomorrow',
     'cleaning.empty.completed': 'No completed cleanings',
+    'cleaning.no.agent': 'Unassigned',
+    'cleaning.toast.started.title': 'Cleaning started',
+    'cleaning.toast.started.description': 'Cleaning in progress for {property}',
+    'cleaning.toast.completed.title': 'Cleaning completed',
+    'cleaning.toast.completed.description': 'Cleaning completed for {property}',
+    'cleaning.toast.agent.title': 'Agent assigned',
+    'cleaning.toast.agent.description': '{agent} assigned to {property}',
+    'cleaning.toast.problem.title': 'Problem reported',
+    'cleaning.toast.problem.description': 'Problem reported for {property}',
+    'cleaning.toast.export.title': 'Exporting',
+    'cleaning.toast.export.description': 'Your data is being exported',
+    'cleaning.toast.sync.title': 'Sync',
+    'cleaning.toast.sync.description': 'Schedule synced successfully',
+    'cleaning.toast.date.title': 'Calendar',
+    'cleaning.toast.date.description': 'Calendar view for {date}',
+    'cleaning.toast.added.title': 'Task added',
+    'cleaning.toast.added.description': 'Cleaning added for {property}',
+    'cleaning.toast.deleted.title': 'Task deleted',
+    'cleaning.toast.deleted.description': 'Cleaning deleted for {property}',
+    'cleaning.toast.labels.error.title': 'No task selected',
+    'cleaning.toast.labels.error.description': 'Please select at least one task',
+    'cleaning.toast.labels.success.title': 'Labels generated',
+    'cleaning.toast.labels.success.description': '{count} labels generated',
+    'cleaning.toast.comments.title': 'Comment updated',
+    'cleaning.toast.comments.description': 'Comment updated for {property}',
+    'cleaning.toast.times.title': 'Times updated',
+    'cleaning.toast.times.description': 'Times updated for {property}',
     // Calendar
     'calendar': 'Calendar',
     'calendar.description': 'Track bookings and availability of your properties.',
@@ -175,7 +229,7 @@ const translations: Record<Language, Record<string, string>> = {
 const LanguageContext = createContext<LanguageContextType>({
   language: 'fr',
   setLanguage: () => {},
-  t: (key: string) => key
+  t: (key: string) => key,
 });
 
 export const useLanguage = () => useContext(LanguageContext);
@@ -193,8 +247,14 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     document.documentElement.lang = language;
   }, [language]);
 
-  const t = (key: string): string => {
-    return translations[language][key] || key;
+  const t = (key: string, params?: Record<string, any>): string => {
+    let value = translations[language][key] || key;
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        value = value.replace(`{${k}}`, String(v));
+      });
+    }
+    return value;
   };
 
   return (
