@@ -1,6 +1,7 @@
 
 import { CleaningTask } from '@/types/cleaning';
 import { CleaningTaskCard } from './CleaningTaskCard';
+import { CheckCircle } from 'lucide-react';
 
 interface CleaningTaskListProps {
   tasks: CleaningTask[];
@@ -34,7 +35,7 @@ export const CleaningTaskList = ({
   isCleaningAgent = false
 }: CleaningTaskListProps) => {
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {tasks.map((task) => (
         <CleaningTaskCard
           key={task.id}
@@ -54,8 +55,9 @@ export const CleaningTaskList = ({
       ))}
       
       {tasks.length === 0 && (
-        <div className="text-center p-4">
-          <p className="text-muted-foreground">{emptyMessage}</p>
+        <div className="text-center py-10">
+          <CheckCircle className="h-12 w-12 text-[hsl(142,76%,36%)] mx-auto mb-3" />
+          <p className="text-[15px] text-muted-foreground">{emptyMessage}</p>
         </div>
       )}
     </div>
