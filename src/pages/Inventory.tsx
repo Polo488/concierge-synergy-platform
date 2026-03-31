@@ -514,7 +514,18 @@ const Inventory = () => {
                 <Input id="min" value={newItemData.min} onChange={(e) => setNewItemData({...newItemData, min: e.target.value.replace(/[^0-9]/g, '')})} placeholder="10" />
               </div>
             </div>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="newOrderUrl" className="flex items-center gap-1.5">
+                <LinkIcon className="h-3.5 w-3.5" />
+                Lien de commande (optionnel)
+              </Label>
+              <Input
+                id="newOrderUrl"
+                value={newItemData.orderUrl}
+                onChange={(e) => setNewItemData({...newItemData, orderUrl: e.target.value})}
+                placeholder="https://www.amazon.fr/dp/..."
+              />
+            </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setNewItemDialogOpen(false)}>Annuler</Button>
             <Button onClick={handleAddItem}>Ajouter l'article</Button>
