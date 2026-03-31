@@ -62,12 +62,14 @@ export const BlockedBlock: React.FC<BlockedBlockProps> = ({
   return (
     <div
       className={cn(
-        "absolute top-1 bottom-1 z-10 flex items-center gap-1",
-        "rounded-lg",
+        "absolute z-10 flex items-center gap-1",
         "transition-all duration-200 ease-out",
         onClick && "cursor-pointer hover:z-20 hover:brightness-110"
       )}
       style={{
+        top: 14,
+        height: 28,
+        borderRadius: 6,
         width: `${Math.max(width, 20)}px`,
         left: `${leftOffset}px`,
         backgroundColor: BLOCKED_BG,
