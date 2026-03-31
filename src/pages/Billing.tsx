@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { 
   Receipt, Download, Filter, PlusCircle, 
   Search, CreditCard, ArrowUpDown, BarChart, ArrowUp,
-  FileText, RefreshCw, CheckCircle, AlertTriangle, FileSpreadsheet
+  FileText, RefreshCw, CheckCircle, AlertTriangle, FileSpreadsheet,
+  Shield, BadgeCheck, Calculator, MessageCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -467,8 +468,19 @@ const Billing = () => {
   
   const stats = calculateStats();
 
+  const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    if (showPreview) {
+      const timer = setTimeout(() => setShowPreview(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPreview]);
+
   return (
-    <div className="space-y-8">
+    <div className="relative">
+      {/* Blurred content */}
+      <div className={`space-y-8 ${!showPreview ? 'blur-[4px] pointer-events-none select-none' : ''} transition-all duration-500`}>
       <TutorialTrigger moduleId="billing" />
       
       <div className="flex items-center justify-between" data-tutorial="billing-header">
@@ -913,6 +925,94 @@ const Billing = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+
+      {/* Premium overlay */}
+      {!showPreview && (
+        <div className="absolute inset-0 z-10 flex items-start justify-center" style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(2px)' }}>
+          <div className="flex flex-col items-center px-5 py-8 max-w-md w-full overflow-y-auto" style={{ maxHeight: '100%' }}>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 mb-5" style={{ background: '#FFF7ED', border: '1px solid #FED7AA' }}>
+              <Shield size={16} style={{ color: '#EA580C' }} />
+              <span className="text-xs font-semibold" style={{ color: '#EA580C' }}>Fonctionnalité réglementée</span>
+            </div>
+
+            {/* Title */}
+            <h2 className="text-center font-bold mb-2" style={{ fontSize: '22px', color: '#1A1A2E', lineHeight: 1.3, fontFamily: 'Syne, sans-serif' }}>
+              La facturation, on s'en occupe.
+            </h2>
+
+            {/* Subtitle */}
+            <p className="text-center mb-6" style={{ fontSize: '14px', color: '#7A7A8C', lineHeight: 1.6, maxWidth: '300px' }}>
+              Génération automatique des factures propriétaires et des bons d'acompte, conforme à votre situation.
+            </p>
+
+            {/* Explanation cards */}
+            <div className="flex flex-col gap-2.5 w-full mb-6">
+              {/* Card 1 */}
+              <div className="flex gap-3 items-start rounded-[14px] border p-3.5 shadow-sm" style={{ background: '#FFFFFF', borderColor: '#EEEEEE' }}>
+                <div className="flex-shrink-0 flex items-center justify-center rounded-[10px]" style={{ width: 36, height: 36, background: '#F0FDF4' }}>
+                  <BadgeCheck size={18} style={{ color: '#16A34A' }} />
+                </div>
+                <div>
+                  <p className="text-[13px] font-bold" style={{ color: '#1A1A2E' }}>Avec Carte G</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#7A7A8C', lineHeight: 1.5 }}>
+                    Noé est plateforme agréée. Facturation propriétaire automatique, conforme loi Hoguet et obligations comptables mandant.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div className="flex gap-3 items-start rounded-[14px] border p-3.5 shadow-sm" style={{ background: '#FFFFFF', borderColor: '#EEEEEE' }}>
+                <div className="flex-shrink-0 flex items-center justify-center rounded-[10px]" style={{ width: 36, height: 36, background: '#EEF2FF' }}>
+                  <FileText size={18} style={{ color: '#4F46E5' }} />
+                </div>
+                <div>
+                  <p className="text-[13px] font-bold" style={{ color: '#1A1A2E' }}>Sans Carte G</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#7A7A8C', lineHeight: 1.5 }}>
+                    Génération de vos factures de prestation de services. Suivi des paiements, relances automatiques et export comptable.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div className="flex gap-3 items-start rounded-[14px] border p-3.5 shadow-sm" style={{ background: '#FFFFFF', borderColor: '#EEEEEE' }}>
+                <div className="flex-shrink-0 flex items-center justify-center rounded-[10px]" style={{ width: 36, height: 36, background: '#FFF7ED' }}>
+                  <Calculator size={18} style={{ color: '#EA580C' }} />
+                </div>
+                <div>
+                  <p className="text-[13px] font-bold" style={{ color: '#1A1A2E' }}>Comptabilité mandante</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#7A7A8C', lineHeight: 1.5 }}>
+                    Reversements propriétaires, bons d'acompte (BA), suivi des encaissements et tableaux de bord financiers par logement.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Separator */}
+            <div className="w-full mb-5" style={{ height: 1, background: '#EEEEEE' }} />
+
+            {/* CTA */}
+            <button
+              onClick={() => window.open('mailto:contact@noe.app?subject=Module%20Facturation%20No%C3%A9&body=Bonjour%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20le%20module%20facturation%20de%20No%C3%A9.', '_blank')}
+              className="w-full flex items-center justify-center gap-2 rounded-[14px] font-bold text-white transition-colors hover:opacity-90"
+              style={{ height: 52, background: '#FF5C1A', fontSize: 15 }}
+            >
+              <MessageCircle size={18} />
+              Nous contacter pour en savoir plus
+            </button>
+
+            {/* Secondary link */}
+            <button
+              onClick={() => setShowPreview(true)}
+              className="mt-3 underline cursor-pointer transition-colors hover:opacity-70"
+              style={{ fontSize: 13, color: '#7A7A8C' }}
+            >
+              Voir un aperçu du module →
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

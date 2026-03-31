@@ -196,6 +196,10 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-4px)" },
         },
+        "billing-pulse": {
+          "0%, 100%": { transform: "scale(1)", boxShadow: "0 0 0 0 rgba(255,92,26,0.4)" },
+          "50%": { transform: "scale(1.1)", boxShadow: "0 0 0 6px rgba(255,92,26,0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",

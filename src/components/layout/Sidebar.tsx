@@ -249,11 +249,12 @@ export function Sidebar() {
   // Render a nav link with optional tooltip (for collapsed/tablet state)
   const renderNavLink = (item: NavItem, section: NavSection) => {
     const isActive = location.pathname === item.path;
+    const isBilling = item.path === '/app/billing';
     const linkContent = (
       <Link
         to={item.path}
         className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
+          "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 relative",
           isActive
             ? section.activeClass + " font-medium"
             : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
@@ -262,6 +263,9 @@ export function Sidebar() {
       >
         <item.icon size={18} className="flex-shrink-0" />
         {!isCollapsed && <span className="text-sm truncate">{item.name}</span>}
+        {isBilling && (
+          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full border-2 border-background animate-[billing-pulse_2s_ease-in-out_infinite]" style={{ background: '#FF5C1A' }} />
+        )}
       </Link>
     );
 
