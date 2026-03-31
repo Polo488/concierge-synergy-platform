@@ -69,6 +69,9 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
     ? Math.min(CHECKIN_BLOCK_W, finalWidth)
     : 0;
 
+  // Border-radius for checkin block
+  const checkinRadius = !showBody ? 6 : '6px 0 0 6px';
+
   // Body (light part) width
   const bodyWidth = finalWidth - checkinBlockW;
   const showBody = bodyWidth > 0;
