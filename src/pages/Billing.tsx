@@ -984,15 +984,15 @@ const Billing = () => {
             {/* Separator */}
             <div className="w-full mb-5" style={{ height: 1, background: '#EEEEEE' }} />
 
-            {/* CTA */}
-            <button
-              onClick={() => window.open('mailto:contact@noe.app?subject=Module%20Facturation%20No%C3%A9&body=Bonjour%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20le%20module%20facturation%20de%20No%C3%A9.', '_blank')}
-              className="w-full flex items-center justify-center gap-2 rounded-[14px] font-bold text-white transition-colors hover:opacity-90"
-              style={{ height: 52, background: '#FF5C1A', fontSize: 15 }}
-            >
-              <MessageCircle size={18} />
-              Nous contacter pour en savoir plus
-            </button>
+            {/* Mention */}
+            <div className="w-full text-center rounded-[14px] border p-4" style={{ background: '#F0FDF4', borderColor: '#BBF7D0' }}>
+              <p className="font-bold" style={{ fontSize: 15, color: '#15803D' }}>
+                ⚡ Facturation complète en 30 min max
+              </p>
+              <p className="mt-1" style={{ fontSize: 13, color: '#166534' }}>
+                Peu importe le nombre de biens gérés.
+              </p>
+            </div>
 
           </div>
         </div>
