@@ -22,6 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Euro, Bell, Ban } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { CalendarBooking, CalendarProperty, BookingChannel, BlockedPeriod } from '@/types/calendar';
+import { DemoReservationModal } from '@/components/calendar/DemoReservationModal';
 
 const CalendarPage = () => {
   const isMobile = useIsMobile();
@@ -90,9 +91,10 @@ const CalendarPage = () => {
   } | null>(null);
   const [layers, setLayers] = useState({ showCleaning: false, showMaintenance: false });
 
-  const handleBookingClick = (booking: CalendarBooking) => {
-    setSelectedBooking(booking);
-    setIsDetailsOpen(true);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
+
+  const handleBookingClick = (_booking: CalendarBooking) => {
+    setDemoModalOpen(true);
   };
 
   const handleCellClick = (date: Date, propertyId: number) => {
@@ -376,6 +378,10 @@ const CalendarPage = () => {
         ]}
         onSubmit={handleBlockSubmit}
         onDelete={handleBlockDelete}
+      />
+      <DemoReservationModal
+        open={demoModalOpen}
+        onClose={() => setDemoModalOpen(false)}
       />
     </div>
   );
