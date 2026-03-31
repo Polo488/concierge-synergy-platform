@@ -65,7 +65,7 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
       <div className="min-w-max">
         {/* Header row with dates */}
         <div className="flex sticky top-0 z-30 bg-muted/80 backdrop-blur-sm border-b border-border">
-          <div className="w-[200px] min-w-[200px] p-3 font-medium text-sm border-r border-border sticky left-0 bg-muted/80 z-40">
+          <div className="w-[140px] min-w-[140px] md:w-[180px] md:min-w-[180px] p-2 md:p-3 font-medium text-sm border-r border-border sticky left-0 bg-muted/80 z-40">
             Logement
           </div>
           {days.map((day, index) => {
