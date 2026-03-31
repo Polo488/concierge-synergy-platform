@@ -248,11 +248,12 @@ const Inventory = () => {
           </button>
           {item.status === 'low' && (
             <button
-              onClick={() => toast.info('Fonctionnalité bientôt disponible')}
+              onClick={() => handleOrderClick(item)}
               className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
             >
               <ShoppingCart className="h-3 w-3" />
               Commander
+              {item.orderUrl && <ExternalLink className="h-3 w-3" />}
             </button>
           )}
         </div>
