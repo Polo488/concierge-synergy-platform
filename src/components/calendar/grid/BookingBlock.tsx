@@ -108,7 +108,7 @@ export const BookingBlock: React.FC<BookingBlockProps> = ({
   };
 
   const displayName = getDisplayName();
-  const showBadge = finalWidth > 80;
+  const showBadge = finalWidth > 72;
 
   return (
     <div
