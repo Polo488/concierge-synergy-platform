@@ -28,10 +28,10 @@ const generateMockBookings = (): CalendarBooking[] => {
     { id: 104, propertyId: 1, guestName: 'Clara Martin', checkIn: d(4,5), checkOut: d(4,11), status: 'confirmed', channel: 'direct', nightlyRate: 95, guestsCount: 2, totalAmount: 280 },
     // Property 2 — Studio 8
     { id: 201, propertyId: 2, guestName: 'Martin Dupont', checkIn: d(3,18), checkOut: d(3,23), status: 'confirmed', channel: 'airbnb', nightlyRate: 65, guestsCount: 1, totalAmount: 195 },
-    { id: 202, propertyId: 2, guestName: 'Sophie Lef.', checkIn: d(3,24), checkOut: d(3,28), status: 'confirmed', channel: 'booking', nightlyRate: 65, guestsCount: 2, totalAmount: 260 },
-    { id: 203, propertyId: 2, guestName: 'Karim Benz.', checkIn: d(4,1), checkOut: d(4,7), status: 'confirmed', channel: 'direct', nightlyRate: 65, guestsCount: 2, totalAmount: 420 },
-    { id: 204, propertyId: 2, guestName: 'Julia Ross', checkIn: d(4,10), checkOut: d(4,16), status: 'confirmed', channel: 'airbnb', nightlyRate: 65, guestsCount: 1, totalAmount: 350 },
-    { id: 205, propertyId: 2, guestName: 'Nadia Petit', checkIn: d(4,20), checkOut: d(4,25), status: 'confirmed', channel: 'booking', nightlyRate: 65, guestsCount: 2, totalAmount: 275 },
+    { id: 202, propertyId: 2, guestName: 'Sophie Lef.', checkIn: d(3,23), checkOut: d(3,28), status: 'confirmed', channel: 'booking', nightlyRate: 65, guestsCount: 2, totalAmount: 260 },
+    { id: 203, propertyId: 2, guestName: 'Karim Benz.', checkIn: d(3,28), checkOut: d(4,3), status: 'confirmed', channel: 'direct', nightlyRate: 65, guestsCount: 2, totalAmount: 420 },
+    { id: 204, propertyId: 2, guestName: 'Julia Ross', checkIn: d(4,3), checkOut: d(4,9), status: 'confirmed', channel: 'airbnb', nightlyRate: 65, guestsCount: 1, totalAmount: 350 },
+    { id: 205, propertyId: 2, guestName: 'Nadia Petit', checkIn: d(4,9), checkOut: d(4,14), status: 'confirmed', channel: 'booking', nightlyRate: 65, guestsCount: 2, totalAmount: 275 },
     // Property 3 — Loft 72
     { id: 301, propertyId: 3, guestName: 'David Chen', checkIn: d(3,15), checkOut: d(3,22), status: 'confirmed', channel: 'booking', nightlyRate: 85, guestsCount: 4, totalAmount: 680 },
     { id: 302, propertyId: 3, guestName: 'Emma Wilson', checkIn: d(3,25), checkOut: d(3,31), status: 'confirmed', channel: 'airbnb', nightlyRate: 85, guestsCount: 3, totalAmount: 560 },
