@@ -23,8 +23,7 @@ const Feedbacks = () => {
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
-      const { data, error } = await supabase
-        .from('feedbacks')
+      const { data, error } = await (supabase.from as any)('feedbacks')
         .select('*')
         .order('created_at', { ascending: false });
 
