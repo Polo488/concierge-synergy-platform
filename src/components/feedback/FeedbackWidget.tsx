@@ -73,19 +73,27 @@ export function FeedbackWidget() {
     }, 2000);
   };
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <>
-      <button
-        type="button"
-        onClick={() => { setOpen(true); setView('menu'); }}
-        className="fixed bottom-6 right-6 z-[100000] pointer-events-auto h-11 px-5 rounded-full bg-primary text-primary-foreground flex items-center gap-2 shadow-lg hover:scale-[1.04] transition-all duration-200"
-      >
-        <MessageCircle size={18} />
-        <span className="text-sm font-semibold">Donner mon avis</span>
-      </button>
+      {!open && (
+        <div className="fixed inset-0 z-[100000] pointer-events-none">
+          <div className="absolute bottom-6 right-6 pointer-events-auto">
+            <button
+              type="button"
+              onClick={() => { setOpen(true); setView('menu'); }}
+              className="h-11 px-5 rounded-full bg-primary text-primary-foreground flex items-center gap-2 shadow-lg hover:scale-[1.04] transition-all duration-200"
+            >
+              <MessageCircle size={18} />
+              <span className="text-sm font-semibold">Donner mon avis</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       <AnimatePresence>
-        {open && createPortal(
+        {open && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -182,10 +190,10 @@ export function FeedbackWidget() {
                 )}
               </AnimatePresence>
             </motion.div>
-          </motion.div>,
-          document.body
+          </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </>,
+    document.body
   );
 }
