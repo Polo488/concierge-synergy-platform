@@ -142,7 +142,7 @@ export const AgendaPreviewWidget = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/agenda')}
+            onClick={() => navigate('/app/agenda')}
             className="gap-1"
           >
             Voir tout
