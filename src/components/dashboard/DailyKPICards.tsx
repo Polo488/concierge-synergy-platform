@@ -45,7 +45,7 @@ export const DailyKPICards = ({ stats }: DailyKPICardsProps) => {
       title: "Check-ins aujourd'hui",
       value: stats.checkInsToday,
       icon: <LogIn className="h-5 w-5" />,
-      onClick: () => navigate('/calendar'),
+      onClick: () => navigate('/app/calendar'),
       iconColorClass: 'text-status-success',
       iconBgClass: 'bg-status-success-light'
     },
@@ -53,7 +53,7 @@ export const DailyKPICards = ({ stats }: DailyKPICardsProps) => {
       title: "Check-outs aujourd'hui",
       value: stats.checkOutsToday,
       icon: <LogOut className="h-5 w-5" />,
-      onClick: () => navigate('/calendar'),
+      onClick: () => navigate('/app/calendar'),
       iconColorClass: 'text-status-info',
       iconBgClass: 'bg-status-info-light'
     },
@@ -61,7 +61,7 @@ export const DailyKPICards = ({ stats }: DailyKPICardsProps) => {
       title: "Messages programmés",
       value: stats.scheduledMessages,
       icon: <MessageSquare className="h-5 w-5" />,
-      onClick: () => navigate('/guest-experience'),
+      onClick: () => navigate('/app/guest-experience'),
       iconColorClass: 'text-status-pending',
       iconBgClass: 'bg-status-pending-light'
     },
@@ -69,7 +69,7 @@ export const DailyKPICards = ({ stats }: DailyKPICardsProps) => {
       title: "Tâches non assignées",
       value: stats.unassignedTasks,
       icon: <AlertCircle className="h-5 w-5" />,
-      onClick: () => navigate('/cleaning'),
+      onClick: () => navigate('/app/cleaning'),
       iconColorClass: 'text-status-warning',
       iconBgClass: 'bg-status-warning-light'
     }

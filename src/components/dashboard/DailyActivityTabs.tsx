@@ -1,9 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { LogIn, LogOut, ClipboardList, Sparkles, Wrench, RotateCcw, User, Clock, Home, ExternalLink } from 'lucide-react';
+import { LogIn, LogOut, ClipboardList, Sparkles, Wrench, RotateCcw, User, Clock, Home } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { TodayBooking, TodayTask } from '@/hooks/useDashboardData';
 import { cn } from '@/lib/utils';
 
@@ -21,7 +20,7 @@ const ChannelBadge = ({ channel }: { channel: 'airbnb' | 'booking' | 'direct' })
   };
 
   return (
-    <Badge variant="secondary" className={cn("text-xs", config[channel].className)}>
+    <Badge variant="secondary" className={cn('text-xs', config[channel].className)}>
       {config[channel].label}
     </Badge>
   );
@@ -41,7 +40,7 @@ const StatusBadge = ({ status }: { status: string }) => {
   const cfg = config[status] || config.todo;
 
   return (
-    <Badge variant="secondary" className={cn("text-xs", cfg.className)}>
+    <Badge variant="secondary" className={cn('text-xs', cfg.className)}>
       {cfg.label}
     </Badge>
   );
@@ -58,7 +57,7 @@ const TaskTypeBadge = ({ type }: { type: 'cleaning' | 'maintenance' | 'repasse' 
   const Icon = cfg.icon;
 
   return (
-    <Badge variant="secondary" className={cn("text-xs gap-1", cfg.className)}>
+    <Badge variant="secondary" className={cn('text-xs gap-1', cfg.className)}>
       <Icon className="h-3 w-3" />
       {cfg.label}
     </Badge>
@@ -79,10 +78,10 @@ const CheckInsList = ({ checkIns }: { checkIns: TodayBooking[] }) => {
   return (
     <div className="space-y-3">
       {checkIns.map((booking) => (
-        <Card 
-          key={booking.id} 
+        <Card
+          key={booking.id}
           className="p-4 hover:shadow-md transition-shadow cursor-pointer"
-          onClick={() => navigate('/calendar')}
+          onClick={() => navigate('/app/calendar')}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -130,10 +129,10 @@ const CheckOutsList = ({ checkOuts }: { checkOuts: TodayBooking[] }) => {
   return (
     <div className="space-y-3">
       {checkOuts.map((booking) => (
-        <Card 
-          key={booking.id} 
+        <Card
+          key={booking.id}
           className="p-4 hover:shadow-md transition-shadow cursor-pointer"
-          onClick={() => navigate('/calendar')}
+          onClick={() => navigate('/app/calendar')}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -182,20 +181,20 @@ const TasksList = ({ tasks }: { tasks: TodayTask[] }) => {
 
   const handleClick = (task: TodayTask) => {
     if (task.type === 'maintenance') {
-      navigate('/maintenance');
+      navigate('/app/maintenance');
     } else {
-      navigate('/cleaning');
+      navigate('/app/cleaning');
     }
   };
 
   return (
     <div className="space-y-3">
       {tasks.map((task) => (
-        <Card 
-          key={task.id} 
+        <Card
+          key={task.id}
           className={cn(
-            "p-4 hover:shadow-md transition-shadow cursor-pointer",
-            !task.agent && "border-l-4 border-l-amber-500"
+            'p-4 hover:shadow-md transition-shadow cursor-pointer',
+            !task.agent && 'border-l-4 border-l-amber-500'
           )}
           onClick={() => handleClick(task)}
         >
@@ -236,7 +235,7 @@ export const DailyActivityTabs = ({ checkIns, checkOuts, tasks }: DailyActivityT
           {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </Badge>
       </div>
-      
+
       <Tabs defaultValue="checkins" className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-4">
           <TabsTrigger value="checkins" className="flex items-center gap-2">

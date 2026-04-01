@@ -74,7 +74,7 @@ const DaySection = ({
             return (
               <div
                 key={entry.id}
-                onClick={() => navigate('/agenda')}
+                onClick={() => navigate('/app/agenda')}
                 className={cn(
                   "p-2 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer transition-colors",
                   "flex items-start gap-3"
@@ -112,7 +112,7 @@ const DaySection = ({
           })}
           {sortedEntries.length > 3 && (
             <button
-              onClick={() => navigate('/agenda')}
+              onClick={() => navigate('/app/agenda')}
               className="text-xs text-primary hover:underline w-full text-center py-1"
             >
               +{sortedEntries.length - 3} autres notes
@@ -142,7 +142,7 @@ export const AgendaPreviewWidget = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/agenda')}
+            onClick={() => navigate('/app/agenda')}
             className="gap-1"
           >
             Voir tout
@@ -173,7 +173,7 @@ export const AgendaPreviewWidget = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate('/agenda')}
+            onClick={() => navigate('/app/agenda')}
             className="gap-2"
           >
             <Plus className="h-4 w-4" />
