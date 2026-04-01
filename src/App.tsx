@@ -247,7 +247,13 @@ const App = () => (
                           <CheckApartment />
                         </RoutePermission>
                       } />
-                    </Route>
+                      </Route>
+
+                      <Route path="/app/feedbacks" element={
+                        <RoutePermission permission="properties">
+                          <Feedbacks />
+                        </RoutePermission>
+                      } />
                   </Route>
                   
                   {/* Catch all for 404 */}
