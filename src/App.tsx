@@ -78,7 +78,12 @@ const App = () => (
                     {/* Public welcome guide */}
                     <Route path="/welcome/:token" element={<WelcomeGuidePublic />} />
 
-                    {/* Protected app routes */}
+                    {/* Legacy route aliases used by dashboard widgets */}
+                    <Route path="/calendar" element={<Navigate to="/app/calendar" replace />} />
+                    <Route path="/maintenance" element={<Navigate to="/app/maintenance" replace />} />
+                    <Route path="/cleaning" element={<Navigate to="/app/cleaning" replace />} />
+                    <Route path="/agenda" element={<Navigate to="/app/agenda" replace />} />
+                    <Route path="/guest-experience" element={<Navigate to="/app/guest-experience" replace />} />
                     
                     {/* Protected app routes */}
                     <Route element={<ProtectedRoute />}>

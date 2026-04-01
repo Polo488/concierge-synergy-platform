@@ -1,9 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { LogIn, LogOut, ClipboardList, Sparkles, Wrench, RotateCcw, User, Clock, Home, ExternalLink } from 'lucide-react';
+import { LogIn, LogOut, ClipboardList, Sparkles, Wrench, RotateCcw, User, Clock, Home } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { TodayBooking, TodayTask } from '@/hooks/useDashboardData';
 import { cn } from '@/lib/utils';
 
@@ -21,7 +20,7 @@ const ChannelBadge = ({ channel }: { channel: 'airbnb' | 'booking' | 'direct' })
   };
 
   return (
-    <Badge variant="secondary" className={cn("text-xs", config[channel].className)}>
+    <Badge variant="secondary" className={cn('text-xs', config[channel].className)}>
       {config[channel].label}
     </Badge>
   );
@@ -41,7 +40,7 @@ const StatusBadge = ({ status }: { status: string }) => {
   const cfg = config[status] || config.todo;
 
   return (
-    <Badge variant="secondary" className={cn("text-xs", cfg.className)}>
+    <Badge variant="secondary" className={cn('text-xs', cfg.className)}>
       {cfg.label}
     </Badge>
   );
@@ -58,7 +57,7 @@ const TaskTypeBadge = ({ type }: { type: 'cleaning' | 'maintenance' | 'repasse' 
   const Icon = cfg.icon;
 
   return (
-    <Badge variant="secondary" className={cn("text-xs gap-1", cfg.className)}>
+    <Badge variant="secondary" className={cn('text-xs gap-1', cfg.className)}>
       <Icon className="h-3 w-3" />
       {cfg.label}
     </Badge>
@@ -79,18 +78,107 @@ const CheckInsList = ({ checkIns }: { checkIns: TodayBooking[] }) => {
   return (
     <div className="space-y-3">
       {checkIns.map((booking) => (
-        <Card 
-          key={booking.id} 
+        <Card
+          key={booking.id}
           className="p-4 hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate('/app/calendar')}
         >
-...
-        <Card 
-          key={booking.id} 
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-2 rounded-full bg-emerald-100">
+                <LogIn className="h-4 w-4 text-emerald-600" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{booking.guestName}</span>
+                  <ChannelBadge channel={booking.channel} />
+                </div>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
+                  <span className="flex items-center gap-1">
+                    <Home className="h-3 w-3" />
+                    {booking.propertyName}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <StatusBadge status={booking.status} />
+              <div className="flex items-center gap-1 text-sm font-medium">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                {booking.time}
+              </div>
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+};
+
+const CheckOutsList = ({ checkOuts }: { checkOuts: TodayBooking[] }) => {
+  const navigate = useNavigate();
+
+  if (checkOuts.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        Aucun check-out prévu aujourd'hui
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {checkOuts.map((booking) => (
+        <Card
+          key={booking.id}
           className="p-4 hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => navigate('/app/calendar')}
         >
-...
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-2 rounded-full bg-blue-100">
+                <LogOut className="h-4 w-4 text-blue-600" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{booking.guestName}</span>
+                  <ChannelBadge channel={booking.channel} />
+                </div>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
+                  <span className="flex items-center gap-1">
+                    <Home className="h-3 w-3" />
+                    {booking.propertyName}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              {booking.cleaningTaskStatus && (
+                <StatusBadge status={booking.cleaningTaskStatus} />
+              )}
+              <div className="flex items-center gap-1 text-sm font-medium">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                {booking.time}
+              </div>
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+};
+
+const TasksList = ({ tasks }: { tasks: TodayTask[] }) => {
+  const navigate = useNavigate();
+
+  if (tasks.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        Aucune tâche prévue aujourd'hui
+      </div>
+    );
+  }
+
   const handleClick = (task: TodayTask) => {
     if (task.type === 'maintenance') {
       navigate('/app/maintenance');
@@ -102,11 +190,11 @@ const CheckInsList = ({ checkIns }: { checkIns: TodayBooking[] }) => {
   return (
     <div className="space-y-3">
       {tasks.map((task) => (
-        <Card 
-          key={task.id} 
+        <Card
+          key={task.id}
           className={cn(
-            "p-4 hover:shadow-md transition-shadow cursor-pointer",
-            !task.agent && "border-l-4 border-l-amber-500"
+            'p-4 hover:shadow-md transition-shadow cursor-pointer',
+            !task.agent && 'border-l-4 border-l-amber-500'
           )}
           onClick={() => handleClick(task)}
         >
@@ -147,7 +235,7 @@ export const DailyActivityTabs = ({ checkIns, checkOuts, tasks }: DailyActivityT
           {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </Badge>
       </div>
-      
+
       <Tabs defaultValue="checkins" className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-4">
           <TabsTrigger value="checkins" className="flex items-center gap-2">
