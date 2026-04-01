@@ -25,27 +25,7 @@ export function FeedbackWidget() {
   const [likes, setLikes] = useState('');
   const [missing, setMissing] = useState('');
   const [priority, setPriority] = useState('');
-  const [visible, setVisible] = useState(false);
-  const [betaModalOpen, setBetaModalOpen] = useState(false);
-
-  useEffect(() => {
-    setVisible(localStorage.getItem('noe_beta_done') === 'true');
-  }, []);
-
-  // Watch for beta modal presence (it sets body overflow hidden)
-  useEffect(() => {
-    const check = () => {
-      const done = localStorage.getItem('noe_beta_done') === 'true';
-      setVisible(done);
-      // Beta modal is open if done is not true and we're past 3.5s
-      setBetaModalOpen(!done);
-    };
-    check();
-    const interval = setInterval(check, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  if (!visible || betaModalOpen) return null;
+  
 
   const prenom = (() => {
     try { return JSON.parse(localStorage.getItem('noe_beta_profile') || '{}').prenom || ''; } catch { return ''; }
