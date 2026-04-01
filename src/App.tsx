@@ -40,6 +40,7 @@ import WelcomeGuide from "./pages/WelcomeGuide";
 import WelcomeGuidePublic from "./pages/WelcomeGuidePublic";
 import Transitory from "./pages/Transitory";
 import IdeaBox from "./pages/IdeaBox";
+import Feedbacks from "./pages/Feedbacks";
 import CheckApartment from "./pages/CheckApartment";
 import NotFound from "./pages/NotFound";
 import { FeedbackWidget } from "./components/feedback/FeedbackWidget";
