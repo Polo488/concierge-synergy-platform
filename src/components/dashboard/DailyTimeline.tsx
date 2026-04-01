@@ -98,11 +98,11 @@ const TimelineItem = ({ event, isLast }: { event: TimelineEvent; isLast: boolean
 
   const handleClick = () => {
     if (event.type === 'checkin' || event.type === 'checkout') {
-      navigate('/calendar');
+      navigate('/app/calendar');
     } else if (event.type === 'maintenance') {
-      navigate('/maintenance');
+      navigate('/app/maintenance');
     } else {
-      navigate('/cleaning');
+      navigate('/app/cleaning');
     }
   };
 
