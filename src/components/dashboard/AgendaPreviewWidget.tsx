@@ -112,7 +112,7 @@ const DaySection = ({
           })}
           {sortedEntries.length > 3 && (
             <button
-              onClick={() => navigate('/agenda')}
+              onClick={() => navigate('/app/agenda')}
               className="text-xs text-primary hover:underline w-full text-center py-1"
             >
               +{sortedEntries.length - 3} autres notes
