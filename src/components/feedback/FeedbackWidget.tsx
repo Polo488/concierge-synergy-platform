@@ -91,7 +91,7 @@ export function FeedbackWidget() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 flex items-center justify-center p-4"
-            style={{ zIndex: 99998, background: 'rgba(0,0,0,0.5)' }}
+            style={{ zIndex: 100001, background: 'rgba(0,0,0,0.5)' }}
             onClick={() => setOpen(false)}
           >
             <motion.div
