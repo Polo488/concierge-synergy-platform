@@ -46,7 +46,7 @@ export function FeedbackWidget() {
     setSubmitting(true);
     const { name, email } = getProfileInfo();
 
-    const { error } = await supabase.from('feedbacks').insert({
+    const { error } = await (supabase.from as any)('feedbacks').insert({
       rating,
       likes: likes || null,
       missing: missing || null,
