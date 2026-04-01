@@ -50,6 +50,39 @@ export type Database = {
         }
         Relationships: []
       }
+      feedbacks: {
+        Row: {
+          author_email: string | null
+          author_name: string | null
+          created_at: string
+          id: string
+          likes: string | null
+          missing: string | null
+          priority: string | null
+          rating: number
+        }
+        Insert: {
+          author_email?: string | null
+          author_name?: string | null
+          created_at?: string
+          id?: string
+          likes?: string | null
+          missing?: string | null
+          priority?: string | null
+          rating?: number
+        }
+        Update: {
+          author_email?: string | null
+          author_name?: string | null
+          created_at?: string
+          id?: string
+          likes?: string | null
+          missing?: string | null
+          priority?: string | null
+          rating?: number
+        }
+        Relationships: []
+      }
       idea_votes: {
         Row: {
           created_at: string

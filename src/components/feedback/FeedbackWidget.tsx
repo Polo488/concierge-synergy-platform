@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, FileText, Calendar, Star } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const CALENDLY_LINK = 'https://calendly.com';
 const CONTACT_EMAIL = 'contact@noe.app';
@@ -25,22 +28,53 @@ export function FeedbackWidget() {
   const [likes, setLikes] = useState('');
   const [missing, setMissing] = useState('');
   const [priority, setPriority] = useState('');
-  
+  const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const prenom = (() => {
     try { return JSON.parse(localStorage.getItem('noe_beta_profile') || '{}').prenom || ''; } catch { return ''; }
   })();
 
-  const submitFeedback = () => {
-    const data = { rating, likes, missing, priority, timestamp: new Date().toISOString() };
-    localStorage.setItem(`noe_feedback_${Date.now()}`, JSON.stringify(data));
+  const getProfileInfo = () => {
+    try {
+      const profile = JSON.parse(localStorage.getItem('noe_beta_profile') || '{}');
+      return { name: profile.prenom || '', email: profile.email || '' };
+    } catch { return { name: '', email: '' }; }
+  };
+
+  const submitFeedback = async () => {
+    setSubmitting(true);
+    const { name, email } = getProfileInfo();
+
+    const { error } = await supabase.from('feedbacks').insert({
+      rating,
+      likes: likes || null,
+      missing: missing || null,
+      priority: priority || null,
+      author_name: name || null,
+      author_email: email || null,
+    });
+
+    if (error) {
+      toast({ title: 'Erreur', description: "Impossible d'envoyer l'avis", variant: 'destructive' });
+      setSubmitting(false);
+      return;
+    }
+
     setView('thanks');
-    setTimeout(() => { setOpen(false); setView('menu'); setRating(0); setLikes(''); setMissing(''); setPriority(''); }, 2000);
+    setSubmitting(false);
+    setTimeout(() => {
+      setOpen(false);
+      setView('menu');
+      setRating(0);
+      setLikes('');
+      setMissing('');
+      setPriority('');
+    }, 2000);
   };
 
   return (
     <>
-      {/* Floating button */}
       <button
         type="button"
         onClick={() => { setOpen(true); setView('menu'); }}
@@ -50,7 +84,6 @@ export function FeedbackWidget() {
         <span className="text-sm font-semibold">Donner mon avis</span>
       </button>
 
-      {/* Modal */}
       <AnimatePresence>
         {open && createPortal(
           <motion.div
@@ -132,9 +165,9 @@ export function FeedbackWidget() {
                           className="w-full px-4 py-3 rounded-md bg-muted/50 border text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm"
                           placeholder="ex: export comptable, app mobile..." />
                       </div>
-                      <button onClick={submitFeedback}
-                        className="w-full h-11 rounded-md bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all">
-                        Envoyer mon retour →
+                      <button onClick={submitFeedback} disabled={submitting}
+                        className="w-full h-11 rounded-md bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all disabled:opacity-50">
+                        {submitting ? 'Envoi...' : 'Envoyer mon retour →'}
                       </button>
                     </div>
                   </motion.div>
