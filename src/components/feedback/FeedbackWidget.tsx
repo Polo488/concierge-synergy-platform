@@ -25,7 +25,7 @@ export function FeedbackWidget() {
   const [likes, setLikes] = useState('');
   const [missing, setMissing] = useState('');
   const [priority, setPriority] = useState('');
-  const [visible, setVisible] = useState(true);
+  
 
   const prenom = (() => {
     try { return JSON.parse(localStorage.getItem('noe_beta_profile') || '{}').prenom || ''; } catch { return ''; }
