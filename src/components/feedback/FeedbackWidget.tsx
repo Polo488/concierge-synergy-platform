@@ -6,7 +6,7 @@ import { MessageCircle, X, FileText, Calendar, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-const CALENDLY_LINK = 'https://calendly.com';
+const CALENDLY_LINK = 'https://calendly.com/leo-optimisation-conciergerie/mercure-cover-adhesion';
 const CONTACT_EMAIL = 'contact@noe.app';
 
 function StarRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
