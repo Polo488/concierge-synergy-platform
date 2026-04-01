@@ -74,7 +74,7 @@ const DaySection = ({
             return (
               <div
                 key={entry.id}
-                onClick={() => navigate('/agenda')}
+                onClick={() => navigate('/app/agenda')}
                 className={cn(
                   "p-2 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer transition-colors",
                   "flex items-start gap-3"
