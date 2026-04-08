@@ -43,7 +43,7 @@ import IdeaBox from "./pages/IdeaBox";
 import Feedbacks from "./pages/Feedbacks";
 import CheckApartment from "./pages/CheckApartment";
 import NotFound from "./pages/NotFound";
-import { FeedbackWidget } from "./components/feedback/FeedbackWidget";
+
 
 import { LanguageProvider } from "./contexts/LanguageContext";
 
@@ -62,7 +62,7 @@ const App = () => (
                   <Toaster />
                   <Sonner />
                   <TutorialOverlay />
-                  <FeedbackWidget />
+                  
                   <Routes>
                     {/* Root → login */}
                     <Route path="/" element={<Navigate to="/login" replace />} />
