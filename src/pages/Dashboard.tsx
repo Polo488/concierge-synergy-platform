@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import BetaCaptureModal from '@/components/beta/BetaCaptureModal';
+
 import { 
   Package, Wrench, Sparkles, Clock
 } from 'lucide-react';
@@ -48,7 +48,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8">
-      <BetaCaptureModal />
+      
       <TutorialTrigger moduleId="dashboard" />
       <div data-tutorial="dashboard-header" className="flex items-center justify-between">
         <div>
