@@ -33,16 +33,16 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen relative overflow-hidden" style={{ background: '#1A1A2E' }}>
-      {/* GIF decorations */}
-      <img src={zigzagOrange} alt="" style={{ position: 'fixed', top: '8%', left: '6%', width: 80, opacity: 0.9, pointerEvents: 'none', zIndex: 0 }} />
-      <img src={traitBleu} alt="" style={{ position: 'fixed', top: '12%', right: '8%', width: 90, opacity: 0.9, pointerEvents: 'none', zIndex: 0 }} />
-      <img src={traitBleuFonce} alt="" style={{ position: 'fixed', top: '40%', left: '4%', width: 70, opacity: 0.85, pointerEvents: 'none', zIndex: 0 }} />
-      <img src={zigzagOrange} alt="" style={{ position: 'fixed', top: '45%', right: '5%', width: 75, opacity: 0.9, pointerEvents: 'none', zIndex: 0, transform: 'rotate(45deg)' }} />
-      <img src={traitBleu} alt="" style={{ position: 'fixed', bottom: '15%', left: '8%', width: 85, opacity: 0.9, pointerEvents: 'none', zIndex: 0 }} />
-      <img src={traitBleuFonce} alt="" style={{ position: 'fixed', bottom: '18%', right: '6%', width: 70, opacity: 0.9, pointerEvents: 'none', zIndex: 0, transform: 'rotate(-30deg)' }} />
-      <img src={zigzagOrange} alt="" style={{ position: 'fixed', bottom: '8%', left: '22%', width: 60, opacity: 0.7, pointerEvents: 'none', zIndex: 0, transform: 'rotate(15deg)' }} />
-      <img src={traitBleu} alt="" style={{ position: 'fixed', top: '25%', right: '18%', width: 65, opacity: 0.8, pointerEvents: 'none', zIndex: 0 }} />
+    <div className="flex items-center justify-center min-h-screen relative overflow-hidden" style={{ background: '#FFFFFF' }}>
+      {/* GIF decorations with staggered fade-in */}
+      <img src={zigzagOrange} alt="" className="gif-deco" style={{ position: 'fixed', top: '8%', left: '6%', width: 80, pointerEvents: 'none', zIndex: 0, animationDelay: '0s' }} />
+      <img src={traitBleu} alt="" className="gif-deco" style={{ position: 'fixed', top: '12%', right: '8%', width: 90, pointerEvents: 'none', zIndex: 0, animationDelay: '0.4s' }} />
+      <img src={traitBleuFonce} alt="" className="gif-deco" style={{ position: 'fixed', top: '40%', left: '4%', width: 70, pointerEvents: 'none', zIndex: 0, animationDelay: '0.8s' }} />
+      <img src={zigzagOrange} alt="" className="gif-deco" style={{ position: 'fixed', top: '45%', right: '5%', width: 75, pointerEvents: 'none', zIndex: 0, transform: 'rotate(45deg)', animationDelay: '1.2s' }} />
+      <img src={traitBleu} alt="" className="gif-deco" style={{ position: 'fixed', bottom: '15%', left: '8%', width: 85, pointerEvents: 'none', zIndex: 0, animationDelay: '1.6s' }} />
+      <img src={traitBleuFonce} alt="" className="gif-deco" style={{ position: 'fixed', bottom: '18%', right: '6%', width: 70, pointerEvents: 'none', zIndex: 0, transform: 'rotate(-30deg)', animationDelay: '2.0s' }} />
+      <img src={zigzagOrange} alt="" className="gif-deco" style={{ position: 'fixed', bottom: '8%', left: '22%', width: 60, pointerEvents: 'none', zIndex: 0, transform: 'rotate(15deg)', animationDelay: '2.4s' }} />
+      <img src={traitBleu} alt="" className="gif-deco" style={{ position: 'fixed', top: '25%', right: '18%', width: 65, pointerEvents: 'none', zIndex: 0, animationDelay: '2.8s' }} />
 
       {/* Card de connexion */}
       <div
@@ -53,8 +53,8 @@ const Login = () => {
           background: '#FFFFFF',
           borderRadius: 24,
           padding: 40,
-          boxShadow: '0 32px 80px rgba(0,0,0,0.4)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.1)',
+          border: '1px solid rgba(0,0,0,0.08)',
         }}
       >
         <div className="text-center mb-6">
@@ -239,6 +239,14 @@ const Login = () => {
         @keyframes ticker-scroll {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
+        }
+        .gif-deco {
+          opacity: 0;
+          animation: fadeInDeco 0.4s ease forwards;
+        }
+        @keyframes fadeInDeco {
+          from { opacity: 0; transform: scale(0.8); }
+          to { opacity: 1; transform: scale(1); }
         }
       `}</style>
     </div>
