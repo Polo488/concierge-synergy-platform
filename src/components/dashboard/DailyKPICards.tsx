@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { LogIn, LogOut, MessageSquare, AlertCircle } from 'lucide-react';
 import { DashboardStats } from '@/hooks/useDashboardData';
 import { cn } from '@/lib/utils';
 
@@ -10,28 +9,32 @@ interface DailyKPICardsProps {
 interface KPICardProps {
   title: string;
   value: number;
-  icon: React.ReactNode;
   onClick: () => void;
   borderColor: string;
+  labelColor: string;
 }
 
-const KPICard = ({ title, value, onClick, borderColor }: KPICardProps) => (
+const KPICard = ({ title, value, onClick, borderColor, labelColor }: KPICardProps) => (
   <div 
     className={cn(
-      "bg-white rounded-[14px] cursor-pointer transition-all duration-200",
+      "bg-white rounded-2xl cursor-pointer transition-all duration-200",
       "hover:shadow-md",
-      "p-5 max-md:p-3",
-      "border-l-4"
+      "p-6 max-md:p-4",
     )}
     style={{ 
-      border: '1px solid rgba(0,0,0,0.06)',
+      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
       borderLeft: `4px solid ${borderColor}`,
     }}
     onClick={onClick}
   >
-    <div className="space-y-1">
-      <p className="text-[13px] uppercase font-medium tracking-wide" style={{ color: 'rgba(26,26,46,0.5)', fontFamily: 'Inter' }}>{title}</p>
-      <p className="text-[32px] max-md:text-xl font-extrabold" style={{ color: '#1A1A2E', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{value}</p>
+    <div className="space-y-1.5">
+      <p 
+        className="text-[11px] uppercase font-semibold tracking-[0.08em]" 
+        style={{ color: labelColor, fontFamily: 'Inter' }}
+      >
+        {title}
+      </p>
+      <p className="text-[36px] max-md:text-2xl font-extrabold" style={{ color: '#1A1A2E', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{value}</p>
     </div>
   </div>
 );
@@ -43,30 +46,30 @@ export const DailyKPICards = ({ stats }: DailyKPICardsProps) => {
     {
       title: "Check-ins",
       value: stats.checkInsToday,
-      icon: <LogIn className="h-5 w-5" />,
       onClick: () => navigate('/app/calendar'),
       borderColor: '#FF5C1A',
+      labelColor: 'rgba(255,92,26,0.7)',
     },
     {
       title: "Check-outs",
       value: stats.checkOutsToday,
-      icon: <LogOut className="h-5 w-5" />,
       onClick: () => navigate('/app/calendar'),
       borderColor: '#F5C842',
+      labelColor: 'rgba(180,145,0,0.7)',
     },
     {
       title: "Messages",
       value: stats.scheduledMessages,
-      icon: <MessageSquare className="h-5 w-5" />,
       onClick: () => navigate('/app/guest-experience'),
-      borderColor: '#4B6BFF',
+      borderColor: '#6B7AE8',
+      labelColor: 'rgba(107,122,232,0.7)',
     },
     {
       title: "Tâches",
       value: stats.unassignedTasks,
-      icon: <AlertCircle className="h-5 w-5" />,
       onClick: () => navigate('/app/cleaning'),
       borderColor: '#1A1A2E',
+      labelColor: 'rgba(26,26,46,0.5)',
     }
   ];
 

@@ -24,7 +24,11 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-export function Header() {
+interface HeaderProps {
+  sidebarOffset?: number;
+}
+
+export function Header({ sidebarOffset = 0 }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
@@ -81,11 +85,18 @@ export function Header() {
 
   return (
     <>
-      <header className={cn(
-        "sticky top-0 z-[100] w-full transition-all duration-300",
-        "bg-white border-b",
-        scrolled && "shadow-sm"
-      )} style={{ borderBottomColor: 'rgba(0,0,0,0.06)' }}>
+      <header
+        className={cn(
+          "fixed top-0 z-30 transition-all duration-300",
+          "bg-white border-b",
+          scrolled && "shadow-sm"
+        )}
+        style={{
+          left: isMobile ? 0 : `${sidebarOffset}px`,
+          right: 0,
+          borderBottomColor: 'rgba(0,0,0,0.06)',
+        }}
+      >
         <div className="flex h-14 items-center justify-between px-4 md:px-6 max-w-full">
           {/* Search */}
           {isMobile ? (
