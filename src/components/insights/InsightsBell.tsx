@@ -32,10 +32,10 @@ export function InsightsBell({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button size="icon" variant="ghost" className="rounded-full relative">
-          <Bell className="h-5 w-5" />
+        <Button size="icon" variant="ghost" className="rounded-full relative min-h-[44px] min-w-[44px]">
+          <Bell className="h-5 w-5" style={{ color: 'rgba(26,26,46,0.5)' }} />
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground rounded-full min-w-[18px] h-[18px] text-xs flex items-center justify-center font-medium">
+            <span className="absolute -top-0.5 -right-0.5 bg-noe-orange text-white rounded-full min-w-[18px] h-[18px] text-xs flex items-center justify-center font-medium">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -43,7 +43,7 @@ export function InsightsBell({
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
         <div className="p-3 border-b flex items-center justify-between">
-          <h4 className="font-medium text-sm">Insights & Alertes</h4>
+          <h4 className="font-semibold text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Insights & Alertes</h4>
           {unreadCount > 0 && (
             <Badge variant="secondary" className="text-xs">
               {unreadCount} nouveau{unreadCount > 1 ? 'x' : ''}
@@ -75,7 +75,7 @@ export function InsightsBell({
                   >
                     <div className="flex items-start gap-2">
                       <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                        insight.status === 'unread' ? 'bg-primary' : 'bg-transparent'
+                        insight.status === 'unread' ? 'bg-noe-orange' : 'bg-transparent'
                       }`} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export function InsightsBell({
           <Button 
             variant="ghost" 
             size="sm" 
-            className="w-full text-xs"
+            className="w-full text-xs text-noe-orange hover:text-noe-orange"
             onClick={onOpenPanel}
           >
             Voir toutes les alertes
