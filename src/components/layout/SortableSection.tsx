@@ -72,7 +72,7 @@ export function SortableSection({
     >
       <Collapsible open={isExpanded} onOpenChange={onToggle}>
         <div className={cn(
-          "flex items-center gap-0.5 rounded-lg",
+          "flex items-center gap-0.5 rounded-lg mt-5 first:mt-0",
           !isOpen && "md:hidden"
         )}>
           {/* Drag handle */}
@@ -81,7 +81,7 @@ export function SortableSection({
             {...listeners}
             className={cn(
               "p-1.5 rounded-md cursor-grab active:cursor-grabbing",
-              "text-muted-foreground/50 hover:text-muted-foreground",
+              "text-white/30 hover:text-white/50",
               "transition-colors touch-none"
             )}
             title="Réorganiser la section"
@@ -91,18 +91,15 @@ export function SortableSection({
 
           <CollapsibleTrigger className={cn(
             "flex items-center justify-between flex-1 px-2 py-2 rounded-lg",
-            "text-[10px] font-semibold tracking-widest uppercase",
-            "hover:bg-muted/30 transition-colors",
-            section.colorClass
+            "hover:bg-white/[0.04] transition-colors"
           )}>
-            <span className={cn(
-              "px-2 py-0.5 rounded-md",
-              section.bgClass
-            )}>{section.title}</span>
+            <span className="text-[10px] font-semibold tracking-[0.1em] uppercase text-white/30">
+              {section.title}
+            </span>
             <ChevronDown 
               size={12} 
               className={cn(
-                "transition-transform duration-150",
+                "transition-transform duration-150 text-white/30",
                 isExpanded && "rotate-180"
               )}
             />
@@ -118,20 +115,23 @@ export function SortableSection({
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150",
+                  "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-150",
                   "group ml-4",
                   isActive 
-                    ? "bg-muted text-foreground" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                    ? "bg-[rgba(255,92,26,0.15)] text-white font-semibold border-l-[3px] border-l-noe-orange ml-[13px] rounded-l-none" 
+                    : "text-white/60 hover:text-white/90 hover:bg-white/[0.06]",
                   !isOpen && "md:ml-0 md:justify-center"
                 )}
               >
-                <item.icon size={16} className="flex-shrink-0" />
+                <item.icon size={16} className={cn(
+                  "flex-shrink-0",
+                  isActive ? "text-noe-orange" : "text-white/45"
+                )} />
                 
                 <span className={cn(
-                  "text-sm",
+                  "text-sm font-medium",
                   !isOpen && "md:hidden",
-                  isActive && "font-medium"
+                  isActive && "font-semibold"
                 )}>
                   {item.name}
                 </span>
@@ -154,8 +154,8 @@ export function SortableSection({
                   className={cn(
                     "relative p-2.5 rounded-lg transition-all duration-150",
                     isActive 
-                      ? "bg-muted text-foreground" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      ? "bg-[rgba(255,92,26,0.15)] text-noe-orange" 
+                      : "text-white/45 hover:text-white/90 hover:bg-white/[0.06]"
                   )}
                 >
                   <item.icon size={18} />

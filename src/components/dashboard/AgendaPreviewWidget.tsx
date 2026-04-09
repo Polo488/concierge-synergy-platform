@@ -2,8 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { format, isToday, isTomorrow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Calendar, Clock, Home, ChevronRight, Plus, StickyNote } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { AgendaEntry } from '@/types/agenda';
@@ -32,7 +30,6 @@ const DaySection = ({
 }) => {
   const navigate = useNavigate();
 
-  // Sort entries by time
   const sortedEntries = [...entries].sort((a, b) => {
     if (!a.startTime && !b.startTime) return 0;
     if (!a.startTime) return 1;
@@ -49,21 +46,21 @@ const DaySection = ({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h4 className={cn(
-          "text-sm font-semibold",
-          isTodaySection ? "text-primary" : "text-muted-foreground"
-        )}>
+        <h4 className="text-[13px] font-bold" style={{ 
+          fontFamily: 'Inter',
+          color: isTodaySection ? '#FF5C1A' : 'rgba(26,26,46,0.4)' 
+        }}>
           {title}
         </h4>
         {entries.length > 0 && (
-          <Badge variant="secondary" className="text-xs">
+          <span className="text-[11px] font-medium text-white rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5" style={{ background: '#FF5C1A' }}>
             {entries.length}
-          </Badge>
+          </span>
         )}
       </div>
 
       {sortedEntries.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-2">
+        <p className="text-sm py-2" style={{ color: 'rgba(26,26,46,0.5)' }}>
           Aucune note prévue
         </p>
       ) : (
@@ -75,21 +72,16 @@ const DaySection = ({
               <div
                 key={entry.id}
                 onClick={() => navigate('/app/agenda')}
-                className={cn(
-                  "p-2 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer transition-colors",
-                  "flex items-start gap-3"
-                )}
+                className="p-2 rounded-[10px] hover:bg-[#F8F8F8] cursor-pointer transition-colors flex items-start gap-3"
+                style={{ border: '1px solid rgba(0,0,0,0.06)' }}
               >
-                <div className={cn(
-                  "p-1.5 rounded-md mt-0.5",
-                  "bg-primary/10 text-primary"
-                )}>
-                  <StickyNote className="h-3.5 w-3.5" />
+                <div className="p-1.5 rounded-md mt-0.5" style={{ background: 'rgba(255,92,26,0.1)' }}>
+                  <StickyNote className="h-3.5 w-3.5 text-noe-orange" />
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{entry.title}</p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 flex-wrap">
+                  <p className="font-semibold text-sm truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A2E' }}>{entry.title}</p>
+                  <div className="flex items-center gap-2 text-xs mt-0.5 flex-wrap" style={{ color: 'rgba(26,26,46,0.5)' }}>
                     {entry.startTime && (
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
@@ -113,7 +105,8 @@ const DaySection = ({
           {sortedEntries.length > 3 && (
             <button
               onClick={() => navigate('/app/agenda')}
-              className="text-xs text-primary hover:underline w-full text-center py-1"
+              className="text-xs font-medium w-full text-center py-1 hover:underline"
+              style={{ color: '#FF5C1A' }}
             >
               +{sortedEntries.length - 3} autres notes
             </button>
@@ -132,10 +125,10 @@ export const AgendaPreviewWidget = ({
   const navigate = useNavigate();
 
   return (
-    <Card className="p-5">
+    <div className="bg-white rounded-[14px] p-5" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
+        <h3 className="text-lg font-bold flex items-center gap-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A2E' }}>
+          <Calendar className="h-5 w-5 text-noe-orange" />
           Agenda
         </h3>
         <div className="flex items-center gap-2">
@@ -143,7 +136,8 @@ export const AgendaPreviewWidget = ({
             variant="ghost"
             size="sm"
             onClick={() => navigate('/app/agenda')}
-            className="gap-1"
+            className="gap-1 text-[13px] font-medium"
+            style={{ color: '#FF5C1A' }}
           >
             Voir tout
             <ChevronRight className="h-4 w-4" />
@@ -159,7 +153,7 @@ export const AgendaPreviewWidget = ({
           isToday
         />
         
-        <div className="border-t pt-4">
+        <div className="pt-4" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
           <DaySection 
             title="Demain" 
             entries={tomorrowEntries}
@@ -181,6 +175,6 @@ export const AgendaPreviewWidget = ({
           </Button>
         </div>
       )}
-    </Card>
+    </div>
   );
 };

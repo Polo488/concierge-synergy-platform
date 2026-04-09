@@ -97,10 +97,10 @@ export function Sidebar() {
     {
       id: 'pilotage',
       title: 'PILOTAGE',
-      colorClass: 'text-nav-pilotage',
-      activeClass: 'bg-nav-pilotage-light text-nav-pilotage',
-      bgClass: 'bg-nav-pilotage-light',
-      iconBgClass: 'text-nav-pilotage',
+      colorClass: 'text-white/30',
+      activeClass: 'bg-[rgba(255,92,26,0.15)] text-white',
+      bgClass: '',
+      iconBgClass: '',
       items: [
         { name: t('sidebar.dashboard'), path: '/app', icon: Gauge, permission: 'properties' },
         { name: t('sidebar.qualityStats'), path: '/app/quality-stats', icon: BarChart3, permission: 'cleaning' },
@@ -111,10 +111,10 @@ export function Sidebar() {
     {
       id: 'operations',
       title: 'OPÉRATIONS',
-      colorClass: 'text-nav-operations',
-      activeClass: 'bg-nav-operations-light text-nav-operations',
-      bgClass: 'bg-nav-operations-light',
-      iconBgClass: 'text-nav-operations',
+      colorClass: 'text-white/30',
+      activeClass: 'bg-[rgba(255,92,26,0.15)] text-white',
+      bgClass: '',
+      iconBgClass: '',
       items: [
         { name: t('sidebar.calendar'), path: '/app/calendar', icon: CalendarIcon, permission: 'calendar' },
         { name: t('sidebar.cleaning'), path: '/app/cleaning', icon: Sparkles, permission: 'cleaning' },
@@ -127,10 +127,10 @@ export function Sidebar() {
     {
       id: 'revenus',
       title: 'REVENUS',
-      colorClass: 'text-nav-revenus',
-      activeClass: 'bg-nav-revenus-light text-nav-revenus',
-      bgClass: 'bg-nav-revenus-light',
-      iconBgClass: 'text-nav-revenus',
+      colorClass: 'text-white/30',
+      activeClass: 'bg-[rgba(255,92,26,0.15)] text-white',
+      bgClass: '',
+      iconBgClass: '',
       items: [
         { name: t('sidebar.averageDuration'), path: '/app/moyenne-duree', icon: Clock, permission: 'moyenneDuree' },
         { name: t('sidebar.billing'), path: '/app/billing', icon: Receipt, permission: 'billing' },
@@ -141,10 +141,10 @@ export function Sidebar() {
     {
       id: 'experience',
       title: 'VOYAGEURS',
-      colorClass: 'text-nav-experience',
-      activeClass: 'bg-nav-experience-light text-nav-experience',
-      bgClass: 'bg-nav-experience-light',
-      iconBgClass: 'text-nav-experience',
+      colorClass: 'text-white/30',
+      activeClass: 'bg-[rgba(255,92,26,0.15)] text-white',
+      bgClass: '',
+      iconBgClass: '',
       items: [
         { name: 'Messagerie', path: '/app/messaging', icon: MessageCircle, permission: 'messaging' },
         { name: 'Communication', path: '/app/guest-experience', icon: MessageSquare, permission: 'guestExperience' },
@@ -154,10 +154,10 @@ export function Sidebar() {
     {
       id: 'organisation',
       title: 'ORGANISATION',
-      colorClass: 'text-nav-organisation',
-      activeClass: 'bg-nav-organisation-light text-nav-organisation',
-      bgClass: 'bg-nav-organisation-light',
-      iconBgClass: 'text-nav-organisation',
+      colorClass: 'text-white/30',
+      activeClass: 'bg-[rgba(255,92,26,0.15)] text-white',
+      bgClass: '',
+      iconBgClass: '',
       items: [
         { name: 'Agenda', path: '/app/agenda', icon: StickyNote, permission: 'agenda' },
         { name: 'RH – Planning', path: '/app/hr-planning', icon: CalendarDays, permission: 'hrPlanning' },
@@ -174,7 +174,6 @@ export function Sidebar() {
     [navSections, getOrderedSections, sectionOrder]
   );
 
-  // Collapsed = icon rail on tablet, closed on mobile  
   const isCollapsed = isTablet || (!isOpen && !isMobile);
   
   useEffect(() => {
@@ -246,7 +245,6 @@ export function Sidebar() {
     return null;
   }
 
-  // Render a nav link with optional tooltip (for collapsed/tablet state)
   const renderNavLink = (item: NavItem, section: NavSection) => {
     const isActive = location.pathname === item.path;
     const isBilling = item.path === '/app/billing';
@@ -254,17 +252,17 @@ export function Sidebar() {
       <Link
         to={item.path}
         className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 relative",
+          "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 relative",
           isActive
-            ? section.activeClass + " font-medium"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+            ? "bg-[rgba(255,92,26,0.15)] text-white font-semibold border-l-[3px] border-l-noe-orange rounded-l-none"
+            : "text-white/60 hover:text-white/90 hover:bg-white/[0.06]",
           isCollapsed && "justify-center px-2"
         )}
       >
-        <item.icon size={18} className="flex-shrink-0" />
+        <item.icon size={18} className={cn("flex-shrink-0", isActive ? "text-noe-orange" : "text-white/45")} />
         {!isCollapsed && <span className="text-sm truncate">{item.name}</span>}
         {isBilling && (
-          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full border-2 border-background animate-[billing-pulse_2s_ease-in-out_infinite]" style={{ background: '#FF5C1A' }} />
+          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full border-2 border-[#1A1A2E] animate-[billing-pulse_2s_ease-in-out_infinite]" style={{ background: '#FF5C1A' }} />
         )}
       </Link>
     );
@@ -285,9 +283,6 @@ export function Sidebar() {
     return <div key={item.path}>{linkContent}</div>;
   };
 
-  // Mobile: off-canvas sidebar
-  // Tablet: icon rail (64px)
-  // Desktop: full sidebar (240px)
   const sidebarWidth = isMobile 
     ? (isOpen ? "w-60" : "w-0") 
     : isTablet 
@@ -309,7 +304,7 @@ export function Sidebar() {
         <button
           className={cn(
             "fixed z-[250] top-4 transition-all duration-300",
-            "glass-panel rounded-xl p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center",
+            "bg-noe-navy rounded-xl p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-white",
             isOpen ? "left-[232px]" : "left-3"
           )}
           onClick={() => setIsOpen(!isOpen)}
@@ -322,7 +317,8 @@ export function Sidebar() {
       <aside
         className={cn(
           "fixed left-0 top-0 h-full transition-all duration-300 ease-out",
-          "glass-panel flex flex-col overflow-hidden",
+          "flex flex-col overflow-hidden",
+          "bg-[#1A1A2E]",
           sidebarWidth,
           isMobile ? "z-[210]" : "z-40",
           !isMobile && "m-3 rounded-2xl h-[calc(100%-24px)]"
@@ -337,7 +333,7 @@ export function Sidebar() {
             src={logoNoe} 
             alt="Noé" 
             className={cn(
-              "h-11 w-auto object-contain max-w-full",
+              "h-11 w-auto object-contain max-w-full brightness-0 invert",
               isCollapsed && "h-8"
             )}
           />
@@ -350,26 +346,26 @@ export function Sidebar() {
             isCollapsed && "flex justify-center py-4 px-2"
           )}>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0 ring-1 ring-primary/10">
+              <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-white/15">
                 {user.avatar ? (
                   <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
                 ) : (
-                  <span className="font-medium text-primary text-sm">
+                  <span className="font-semibold text-white text-sm">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
-                  <p className="text-xs text-muted-foreground">{user.role}</p>
+                  <p className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{user.name}</p>
+                  <p className="text-xs text-white/45">{user.role}</p>
                 </div>
               )}
             </div>
           </div>
         )}
         
-        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent flex-shrink-0" />
+        <div className="mx-4 h-px bg-white/10 flex-shrink-0" />
         
         {/* Navigation */}
         <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
@@ -389,14 +385,14 @@ export function Sidebar() {
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
+                      "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200",
                       isActive
-                        ? "bg-primary/10 text-primary font-medium"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+                        ? "bg-[rgba(255,92,26,0.15)] text-white font-semibold border-l-[3px] border-l-noe-orange rounded-l-none"
+                        : "text-white/60 hover:text-white/90 hover:bg-white/[0.06]",
                       isCollapsed && "justify-center px-2"
                     )}
                   >
-                    <item.icon size={18} className="flex-shrink-0" />
+                    <item.icon size={18} className={cn("flex-shrink-0", isActive ? "text-noe-orange" : "text-white/45")} />
                     {!isCollapsed && <span className="text-sm">{item.name}</span>}
                   </Link>
                 );
@@ -414,7 +410,6 @@ export function Sidebar() {
               })}
             </div>
           ) : isCollapsed ? (
-            /* Collapsed: show flat icon list */
             <div className="space-y-1">
               {visibleSections.flatMap(section => 
                 section.items.map(item => renderNavLink(item, section))
@@ -444,12 +439,7 @@ export function Sidebar() {
               
               <DragOverlay>
                 {activeSection ? (
-                  <div className={cn(
-                    "flex items-center gap-2 px-3 py-2 rounded-xl",
-                    "glass-panel shadow-float",
-                    "text-xs font-medium",
-                    activeSection.colorClass
-                  )}>
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#1A1A2E] shadow-float text-xs font-medium text-white/60">
                     <span>{activeSection.title}</span>
                   </div>
                 ) : null}
@@ -466,7 +456,7 @@ export function Sidebar() {
                 <TooltipTrigger asChild>
                   <button
                     onClick={logout}
-                    className="flex items-center justify-center w-full py-2.5 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                    className="flex items-center justify-center w-full py-2.5 rounded-xl transition-all duration-200 text-white/40 hover:text-white/70"
                   >
                     <LogOut size={18} />
                   </button>
@@ -477,7 +467,7 @@ export function Sidebar() {
           ) : (
             <button
               onClick={logout}
-              className="flex items-center w-full gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-accent/50"
+              className="flex items-center w-full gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-white/40 hover:text-white/70"
             >
               <LogOut size={18} />
               <span className="text-sm">Déconnexion</span>
@@ -490,7 +480,7 @@ export function Sidebar() {
           <div className="flex p-3 justify-center flex-shrink-0">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-accent/50"
+              className="text-white/40 hover:text-white/70 transition-colors p-2 rounded-xl hover:bg-white/[0.08] border border-white/10"
             >
               <ChevronLeft 
                 size={16} 

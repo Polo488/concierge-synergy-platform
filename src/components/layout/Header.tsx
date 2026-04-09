@@ -83,21 +83,22 @@ export function Header() {
     <>
       <header className={cn(
         "sticky top-0 z-[100] w-full transition-all duration-300",
-        scrolled 
-          ? "glass-panel border-0 rounded-none shadow-glass" 
-          : "bg-transparent"
-      )}>
+        "bg-white border-b",
+        scrolled && "shadow-sm"
+      )} style={{ borderBottomColor: 'rgba(0,0,0,0.06)' }}>
         <div className="flex h-14 items-center justify-between px-4 md:px-6 max-w-full">
-          {/* Search - collapsible on mobile */}
+          {/* Search */}
           {isMobile ? (
             <div className="flex items-center gap-2 ml-10">
               {searchOpen ? (
                 <div className="flex items-center gap-2 flex-1">
-                  <div className="flex items-center gap-2 flex-1 px-3 py-2 rounded-xl bg-accent/50">
-                    <Search className="text-muted-foreground h-4 w-4 flex-shrink-0" />
+                  <div className="flex items-center gap-2 flex-1 px-3 py-2 rounded-[10px]"
+                    style={{ background: '#F8F8F8', border: '1px solid rgba(0,0,0,0.08)' }}>
+                    <Search className="h-4 w-4 flex-shrink-0" style={{ color: 'rgba(26,26,46,0.35)' }} />
                     <Input 
                       placeholder={t('search')} 
                       className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm h-auto p-0"
+                      style={{ color: '#1A1A2E' }}
                       autoFocus
                       onBlur={() => setSearchOpen(false)}
                     />
@@ -110,20 +111,21 @@ export function Header() {
                   className="rounded-full h-10 w-10 min-h-[44px] min-w-[44px]"
                   onClick={() => setSearchOpen(true)}
                 >
-                  <Search className="h-4 w-4 text-muted-foreground" />
+                  <Search className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
                 </Button>
               )}
             </div>
           ) : (
             <div className="flex items-center gap-3 w-full max-w-sm">
               <div className={cn(
-                "flex items-center gap-2 flex-1 px-4 py-2.5 rounded-xl transition-all duration-200",
-                "bg-accent/50 hover:bg-accent/80"
-              )}>
-                <Search className="text-muted-foreground h-4 w-4" />
+                "flex items-center gap-2 flex-1 px-4 py-2.5 rounded-[10px] transition-all duration-200",
+                "focus-within:ring-2 focus-within:ring-noe-orange focus-within:border-noe-orange"
+              )} style={{ background: '#F8F8F8', border: '1px solid rgba(0,0,0,0.08)' }}>
+                <Search className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.35)' }} />
                 <Input 
                   placeholder={t('search')} 
-                  className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground/60 h-auto p-0"
+                  className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm h-auto p-0"
+                  style={{ color: '#1A1A2E', fontFamily: 'Inter' }}
                 />
               </div>
             </div>
@@ -135,9 +137,9 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button size="icon" variant="ghost" className="rounded-full h-9 w-9 min-h-[44px] min-w-[44px]">
                   {resolvedTheme === 'dark' ? (
-                    <Moon className="h-4 w-4 text-muted-foreground" />
+                    <Moon className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
                   ) : (
-                    <Sun className="h-4 w-4 text-muted-foreground" />
+                    <Sun className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
                   )}
                 </Button>
               </DropdownMenuTrigger>
@@ -167,7 +169,7 @@ export function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="icon" variant="ghost" className="rounded-full h-9 w-9 min-h-[44px] min-w-[44px]">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  <Globe className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-[120px]">
@@ -198,9 +200,9 @@ export function Header() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-9 w-9 rounded-full min-h-[44px] min-w-[44px]">
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-8 w-8 ring-2 ring-noe-orange">
                       {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
-                      <AvatarFallback className="bg-muted text-muted-foreground text-sm">
+                      <AvatarFallback className="bg-muted text-foreground text-sm font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                         {user.name.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -209,7 +211,7 @@ export function Header() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">{user.name}</p>
+                      <p className="text-sm font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{user.name}</p>
                       <p className="text-xs text-muted-foreground">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>
@@ -230,7 +232,7 @@ export function Header() {
               </DropdownMenu>
             ) : (
               <Button size="icon" variant="ghost" className="rounded-full h-9 w-9 min-h-[44px] min-w-[44px]">
-                <User className="h-4 w-4 text-muted-foreground" />
+                <User className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
               </Button>
             )}
           </div>

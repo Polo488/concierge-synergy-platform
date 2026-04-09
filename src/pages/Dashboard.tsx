@@ -52,8 +52,8 @@ const Dashboard = () => {
       <TutorialTrigger moduleId="dashboard" />
       <div data-tutorial="dashboard-header" className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tableau de bord</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-[28px] font-extrabold tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A2E' }}>Tableau de bord</h1>
+          <p className="text-[14px] mt-1" style={{ color: 'rgba(26,26,46,0.5)', fontFamily: 'Inter' }}>
             Vue opérationnelle de votre activité du jour
           </p>
         </div>
@@ -83,26 +83,26 @@ const Dashboard = () => {
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
         <DashboardCard 
           title="Vue d'ensemble (revenus € )"
-          actions={<Button variant="ghost" size="sm">Voir tout</Button>}
+          actions={<Button variant="ghost" size="sm" className="text-noe-orange hover:text-noe-orange text-[13px] font-medium">Voir tout</Button>}
           className="stagger-1"
         >
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={overviewData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+                <XAxis dataKey="name" stroke="rgba(26,26,46,0.4)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="rgba(26,26,46,0.4)" fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip 
-                  contentStyle={{ background: 'white', border: '1px solid #f0f0f0', borderRadius: '8px' }}
-                  labelStyle={{ fontWeight: 500 }}
+                  contentStyle={{ background: 'white', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '10px' }}
+                  labelStyle={{ fontWeight: 600, fontFamily: "'Plus Jakarta Sans', sans-serif" }}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="value" 
-                  stroke="hsl(var(--primary))" 
+                  stroke="#FF5C1A" 
                   strokeWidth={3}
-                  dot={{ r: 4, strokeWidth: 2 }}
-                  activeDot={{ r: 7, strokeWidth: 0 }}
+                  dot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#FF5C1A' }}
+                  activeDot={{ r: 7, strokeWidth: 0, fill: '#FF5C1A' }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -111,20 +111,20 @@ const Dashboard = () => {
         
         <DashboardCard 
           title="Occupation des logements"
-          actions={<Button variant="ghost" size="sm">Détails</Button>}
+          actions={<Button variant="ghost" size="sm" className="text-noe-orange hover:text-noe-orange text-[13px] font-medium">Détails</Button>}
           className="stagger-2"
         >
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={propertiesData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+                <XAxis dataKey="name" stroke="rgba(26,26,46,0.4)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="rgba(26,26,46,0.4)" fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip 
-                  contentStyle={{ background: 'white', border: '1px solid #f0f0f0', borderRadius: '8px' }}
-                  labelStyle={{ fontWeight: 500 }}
+                  contentStyle={{ background: 'white', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '10px' }}
+                  labelStyle={{ fontWeight: 600, fontFamily: "'Plus Jakarta Sans', sans-serif" }}
                 />
-                <Bar dataKey="occupied" name="Occupés" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="occupied" name="Occupés" fill="#1A1A2E" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="vacant" name="Libres" fill="#e5e7eb" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -136,28 +136,28 @@ const Dashboard = () => {
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <DashboardCard 
           title="Maintenance" 
-          actions={<Button variant="ghost" size="sm">Voir tout</Button>}
+          actions={<Button variant="ghost" size="sm" className="text-noe-orange hover:text-noe-orange text-[13px] font-medium">Voir tout</Button>}
           className="stagger-1"
         >
           <div className="space-y-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-medium">Interventions récentes</p>
-                <p className="text-sm text-muted-foreground">7 interventions en cours</p>
+                <p className="font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A2E' }}>Interventions récentes</p>
+                <p className="text-[13px]" style={{ color: 'rgba(26,26,46,0.5)' }}>7 interventions en cours</p>
               </div>
-              <Wrench className="h-5 w-5 text-muted-foreground" />
+              <Wrench className="h-5 w-5" style={{ color: 'rgba(26,26,46,0.4)' }} />
             </div>
             
             <div className="space-y-2">
               {['Fuite robinet', 'Serrure bloquée', 'Ampoule à changer'].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
+                <div key={i} className="flex items-center justify-between p-3 rounded-[10px] hover:bg-[#F8F8F8]" style={{ background: '#F8F8F8' }}>
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{item}</span>
+                    <Clock className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.4)' }} />
+                    <span className="text-sm" style={{ color: '#1A1A2E' }}>{item}</span>
                   </div>
-                  <div className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
+                  <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(245,200,66,0.15)', color: '#B45309' }}>
                     En cours
-                  </div>
+                  </span>
                 </div>
               ))}
             </div>
@@ -166,16 +166,16 @@ const Dashboard = () => {
         
         <DashboardCard 
           title="Entrepôt" 
-          actions={<Button variant="ghost" size="sm">Voir tout</Button>}
+          actions={<Button variant="ghost" size="sm" className="text-noe-orange hover:text-noe-orange text-[13px] font-medium">Voir tout</Button>}
           className="stagger-2"
         >
           <div className="space-y-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-medium">État du stock</p>
-                <p className="text-sm text-muted-foreground">4 articles en alerte</p>
+                <p className="font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A2E' }}>État du stock</p>
+                <p className="text-[13px]" style={{ color: 'rgba(26,26,46,0.5)' }}>4 articles en alerte</p>
               </div>
-              <Package className="h-5 w-5 text-muted-foreground" />
+              <Package className="h-5 w-5" style={{ color: 'rgba(26,26,46,0.4)' }} />
             </div>
             
             <div className="space-y-2">
@@ -184,11 +184,11 @@ const Dashboard = () => {
                 { name: 'Savon liquide', stock: '23%' },
                 { name: 'Housses couette', stock: '18%' }
               ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
-                  <span className="text-sm">{item.name}</span>
-                  <div className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-800">
+                <div key={i} className="flex items-center justify-between p-3 rounded-[10px]" style={{ background: '#F8F8F8' }}>
+                  <span className="text-sm" style={{ color: '#1A1A2E' }}>{item.name}</span>
+                  <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(239,68,68,0.1)', color: '#DC2626' }}>
                     {item.stock}
-                  </div>
+                  </span>
                 </div>
               ))}
             </div>
@@ -197,16 +197,16 @@ const Dashboard = () => {
         
         <DashboardCard 
           title="Ménage" 
-          actions={<Button variant="ghost" size="sm">Voir tout</Button>}
+          actions={<Button variant="ghost" size="sm" className="text-noe-orange hover:text-noe-orange text-[13px] font-medium">Voir tout</Button>}
           className="stagger-3"
         >
           <div className="space-y-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-medium">Planification aujourd'hui</p>
-                <p className="text-sm text-muted-foreground">12 ménages planifiés</p>
+                <p className="font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A2E' }}>Planification aujourd'hui</p>
+                <p className="text-[13px]" style={{ color: 'rgba(26,26,46,0.5)' }}>12 ménages planifiés</p>
               </div>
-              <Sparkles className="h-5 w-5 text-muted-foreground" />
+              <Sparkles className="h-5 w-5" style={{ color: 'rgba(26,26,46,0.4)' }} />
             </div>
             
             <div className="space-y-2">
@@ -215,11 +215,11 @@ const Dashboard = () => {
                 { address: '8 Avenue des Fleurs', time: '14:30' },
                 { address: '23 Rue de la Paix', time: '16:00' }
               ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
-                  <span className="text-sm">{item.address}</span>
-                  <div className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                <div key={i} className="flex items-center justify-between p-3 rounded-[10px]" style={{ background: '#F8F8F8' }}>
+                  <span className="text-sm" style={{ color: '#1A1A2E' }}>{item.address}</span>
+                  <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(75,107,255,0.1)', color: '#4B6BFF' }}>
                     {item.time}
-                  </div>
+                  </span>
                 </div>
               ))}
             </div>

@@ -12,27 +12,26 @@ interface KPICardProps {
   value: number;
   icon: React.ReactNode;
   onClick: () => void;
-  iconColorClass: string;
-  iconBgClass: string;
+  borderColor: string;
 }
 
-const KPICard = ({ title, value, icon, onClick, iconColorClass, iconBgClass }: KPICardProps) => (
+const KPICard = ({ title, value, onClick, borderColor }: KPICardProps) => (
   <div 
     className={cn(
-      "bg-card rounded-xl cursor-pointer transition-all duration-200",
-      "hover:shadow-card",
-      "p-5 max-md:p-3"
+      "bg-white rounded-[14px] cursor-pointer transition-all duration-200",
+      "hover:shadow-md",
+      "p-5 max-md:p-3",
+      "border-l-4"
     )}
+    style={{ 
+      border: '1px solid rgba(0,0,0,0.06)',
+      borderLeft: `4px solid ${borderColor}`,
+    }}
     onClick={onClick}
   >
-    <div className="flex items-center justify-between">
-      <div className="space-y-1">
-        <p className="text-sm max-md:text-[11px] text-muted-foreground font-medium">{title}</p>
-        <p className="text-3xl max-md:text-xl font-semibold text-foreground">{value}</p>
-      </div>
-      <div className={cn("p-3 max-md:p-2 rounded-xl", iconBgClass)}>
-        <div className={iconColorClass}>{icon}</div>
-      </div>
+    <div className="space-y-1">
+      <p className="text-[13px] uppercase font-medium tracking-wide" style={{ color: 'rgba(26,26,46,0.5)', fontFamily: 'Inter' }}>{title}</p>
+      <p className="text-[32px] max-md:text-xl font-extrabold" style={{ color: '#1A1A2E', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{value}</p>
     </div>
   </div>
 );
@@ -42,36 +41,32 @@ export const DailyKPICards = ({ stats }: DailyKPICardsProps) => {
 
   const kpiCards = [
     {
-      title: "Check-ins aujourd'hui",
+      title: "Check-ins",
       value: stats.checkInsToday,
       icon: <LogIn className="h-5 w-5" />,
       onClick: () => navigate('/app/calendar'),
-      iconColorClass: 'text-status-success',
-      iconBgClass: 'bg-status-success-light'
+      borderColor: '#FF5C1A',
     },
     {
-      title: "Check-outs aujourd'hui",
+      title: "Check-outs",
       value: stats.checkOutsToday,
       icon: <LogOut className="h-5 w-5" />,
       onClick: () => navigate('/app/calendar'),
-      iconColorClass: 'text-status-info',
-      iconBgClass: 'bg-status-info-light'
+      borderColor: '#F5C842',
     },
     {
-      title: "Messages programmés",
+      title: "Messages",
       value: stats.scheduledMessages,
       icon: <MessageSquare className="h-5 w-5" />,
       onClick: () => navigate('/app/guest-experience'),
-      iconColorClass: 'text-status-pending',
-      iconBgClass: 'bg-status-pending-light'
+      borderColor: '#4B6BFF',
     },
     {
-      title: "Tâches non assignées",
+      title: "Tâches",
       value: stats.unassignedTasks,
       icon: <AlertCircle className="h-5 w-5" />,
       onClick: () => navigate('/app/cleaning'),
-      iconColorClass: 'text-status-warning',
-      iconBgClass: 'bg-status-warning-light'
+      borderColor: '#1A1A2E',
     }
   ];
 
