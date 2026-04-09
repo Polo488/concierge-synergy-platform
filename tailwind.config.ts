@@ -19,7 +19,16 @@ export default {
       }
     },
     extend: {
+      fontFamily: {
+        heading: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+      },
       colors: {
+        noe: {
+          navy: '#1A1A2E',
+          orange: '#FF5C1A',
+          yellow: '#F5C842',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
