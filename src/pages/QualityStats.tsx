@@ -74,30 +74,38 @@ const QualityStats = () => {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} data-tutorial="stats-tabs">
-        <TabsList className="bg-muted/50">
-          <TabsTrigger value="overview" className="gap-2">
+        <TabsList className="bg-muted/50 w-full justify-start overflow-x-auto flex-nowrap" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none' }}>
+          <TabsTrigger value="overview" className="gap-2 shrink-0">
             <LayoutDashboard className="h-4 w-4" />
             Vue d'ensemble
           </TabsTrigger>
-          <TabsTrigger value="menage" className="gap-2">
+          <TabsTrigger value="menage" className="gap-2 shrink-0">
             <Sparkles className="h-4 w-4" />
             Ménage
           </TabsTrigger>
-          <TabsTrigger value="finance" className="gap-2">
+          <TabsTrigger value="finance" className="gap-2 shrink-0">
             <Euro className="h-4 w-4" />
             Finance
           </TabsTrigger>
-          <TabsTrigger value="location" className="gap-2">
+          <TabsTrigger value="location" className="gap-2 shrink-0">
             <MapPin className="h-4 w-4" />
             Analyse géographique
           </TabsTrigger>
-          <TabsTrigger value="network" className="gap-2">
+          <TabsTrigger value="network" className="gap-2 shrink-0">
             <Network className="h-4 w-4" />
             Réseau
           </TabsTrigger>
-          <TabsTrigger value="financial-health" className="gap-2">
-            <Heart className="h-4 w-4" />
-            Santé financière
+          <TabsTrigger 
+            value="financial-health" 
+            className="gap-2 shrink-0 data-[state=active]:bg-[#E8621A] data-[state=active]:text-white"
+          >
+            <span className="flex items-center gap-1.5">
+              {activeTab === 'financial-health' && (
+                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/20 text-[9px] font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>N</span>
+              )}
+              <Heart className="h-4 w-4" />
+              Santé financière
+            </span>
           </TabsTrigger>
         </TabsList>
 
