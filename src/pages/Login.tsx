@@ -4,6 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Label } from '@/components/ui/label';
 import logoNoe from '@/assets/logo-noe.png';
 import { motion } from 'framer-motion';
+import traitBleu from '@/assets/decorations/TRAIT-BLEU.gif';
+import traitBleuFonce from '@/assets/decorations/TRAIT-BLEU-FONCE.gif';
+import zigzagOrange from '@/assets/decorations/ZIGZAG-ORANGE.gif';
 
 const TICKER_TEXT = "MÉNAGE ◆ ENTREPÔT ◆ FACTURATION ◆ MESSAGERIE ◆ STATISTIQUES ◆ MAINTENANCE ◆ PROPRIÉTÉS ◆ ";
 
@@ -31,66 +34,19 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen relative overflow-hidden" style={{ background: '#1A1A2E' }}>
-      {/* Glow radial haut gauche */}
-      <div
-        className="pointer-events-none"
-        style={{
-          position: 'fixed', top: -200, left: -200,
-          width: 600, height: 600, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,92,26,0.15) 0%, transparent 70%)',
-          zIndex: 0,
-        }}
-      />
-      {/* Glow radial bas droite */}
-      <div
-        className="pointer-events-none"
-        style={{
-          position: 'fixed', bottom: -200, right: -200,
-          width: 600, height: 600, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(107,122,232,0.12) 0%, transparent 70%)',
-          zIndex: 0,
-        }}
-      />
-
-      {/* Formes décoratives flottantes */}
-      <motion.div
-        animate={{ y: [0, -12, 0] }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-        className="pointer-events-none"
-        style={{
-          position: 'fixed', top: '10%', right: '5%',
-          width: 300, height: 300, borderRadius: '50%',
-          border: '2px solid rgba(255,92,26,0.15)',
-          zIndex: 0,
-        }}
-      />
-      <motion.div
-        animate={{ y: [0, -12, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        className="pointer-events-none"
-        style={{
-          position: 'fixed', bottom: '15%', left: '8%',
-          width: 120, height: 120, borderRadius: 20,
-          background: 'rgba(245,200,66,0.1)',
-          transform: 'rotate(20deg)',
-          zIndex: 0,
-        }}
-      />
-      <motion.div
-        animate={{ y: [0, -12, 0] }}
-        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-        className="pointer-events-none"
-        style={{
-          position: 'fixed', top: '30%', left: '15%',
-          width: 40, height: 40, borderRadius: '50%',
-          background: 'rgba(107,122,232,0.2)',
-          zIndex: 0,
-        }}
-      />
+      {/* GIF decorations */}
+      <img src={zigzagOrange} alt="" style={{ position: 'fixed', top: '8%', left: '6%', width: 80, opacity: 0.9, pointerEvents: 'none', zIndex: 0 }} />
+      <img src={traitBleu} alt="" style={{ position: 'fixed', top: '12%', right: '8%', width: 90, opacity: 0.9, pointerEvents: 'none', zIndex: 0 }} />
+      <img src={traitBleuFonce} alt="" style={{ position: 'fixed', top: '40%', left: '4%', width: 70, opacity: 0.85, pointerEvents: 'none', zIndex: 0 }} />
+      <img src={zigzagOrange} alt="" style={{ position: 'fixed', top: '45%', right: '5%', width: 75, opacity: 0.9, pointerEvents: 'none', zIndex: 0, transform: 'rotate(45deg)' }} />
+      <img src={traitBleu} alt="" style={{ position: 'fixed', bottom: '15%', left: '8%', width: 85, opacity: 0.9, pointerEvents: 'none', zIndex: 0 }} />
+      <img src={traitBleuFonce} alt="" style={{ position: 'fixed', bottom: '18%', right: '6%', width: 70, opacity: 0.9, pointerEvents: 'none', zIndex: 0, transform: 'rotate(-30deg)' }} />
+      <img src={zigzagOrange} alt="" style={{ position: 'fixed', bottom: '8%', left: '22%', width: 60, opacity: 0.7, pointerEvents: 'none', zIndex: 0, transform: 'rotate(15deg)' }} />
+      <img src={traitBleu} alt="" style={{ position: 'fixed', top: '25%', right: '18%', width: 65, opacity: 0.8, pointerEvents: 'none', zIndex: 0 }} />
 
       {/* Card de connexion */}
       <div
-        className="relative w-full"
+        className="relative w-full mx-4"
         style={{
           maxWidth: 420,
           zIndex: 10,
@@ -270,8 +226,8 @@ const Login = () => {
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
         }}>
-          <span className="login-ticker-text">{TICKER_TEXT.repeat(6)}</span>
-          <span className="login-ticker-text">{TICKER_TEXT.repeat(6)}</span>
+          <span>{TICKER_TEXT.repeat(6)}</span>
+          <span>{TICKER_TEXT.repeat(6)}</span>
         </div>
       </div>
 
@@ -279,9 +235,6 @@ const Login = () => {
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700&display=swap');
         .login-ticker {
           animation: ticker-scroll 20s linear infinite;
-        }
-        .login-ticker-text {
-          padding-right: 0;
         }
         @keyframes ticker-scroll {
           0% { transform: translateX(0); }
