@@ -30,18 +30,8 @@ export function Layout() {
       : "ml-60";
 
   return (
-    <div className="min-h-screen bg-background relative flex w-full max-w-[100vw]">
-      {/* Subtle gradient overlay for depth */}
-      <div 
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          background: `
-            radial-gradient(ellipse 100% 60% at 50% -20%, hsla(var(--primary) / 0.04), transparent 60%),
-            radial-gradient(circle at 20% 80%, hsla(var(--primary) / 0.02), transparent 30%),
-            radial-gradient(circle at 80% 90%, hsla(var(--primary) / 0.02), transparent 30%)
-          `
-        }}
-      />
+    <div className="min-h-screen relative flex w-full max-w-[100vw]" style={{ background: '#F8F8F8' }}>
+      
       
       <Sidebar />
       
