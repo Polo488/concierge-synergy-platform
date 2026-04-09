@@ -23,14 +23,14 @@ export function DashboardCard({
 }: DashboardCardProps) {
   return (
     <div className={cn(
-      "bg-card rounded-xl animate-slide-up",
+      "bg-white rounded-[14px] animate-slide-up",
       className
-    )}>
+    )} style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
       <div className="flex items-center justify-between px-6 py-5">
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2.5">
             {icon && <span className="text-muted-foreground">{icon}</span>}
-            <h3 className="font-medium text-foreground">{title}</h3>
+            <h3 className="font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '16px', color: '#1A1A2E' }}>{title}</h3>
           </div>
           {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
         </div>
@@ -38,7 +38,7 @@ export function DashboardCard({
       </div>
       <div className="px-6 pb-6">{children}</div>
       {footer && (
-        <div className="px-6 py-4 border-t border-border/50 text-sm text-muted-foreground">
+        <div className="px-6 py-4 text-sm text-muted-foreground" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
           {footer}
         </div>
       )}
