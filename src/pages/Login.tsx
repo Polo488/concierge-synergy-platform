@@ -35,14 +35,14 @@ const Login = () => {
   return (
     <div className="flex items-center justify-center min-h-screen relative overflow-hidden" style={{ background: '#FFFFFF' }}>
       {/* GIF decorations with staggered fade-in */}
-      <img src={zigzagOrange} alt="" className="gif-deco" style={{ position: 'fixed', top: '8%', left: '6%', width: 80, pointerEvents: 'none', zIndex: 0, animationDelay: '0s' }} />
-      <img src={traitBleu} alt="" className="gif-deco" style={{ position: 'fixed', top: '12%', right: '8%', width: 90, pointerEvents: 'none', zIndex: 0, animationDelay: '0.4s' }} />
-      <img src={traitBleuFonce} alt="" className="gif-deco" style={{ position: 'fixed', top: '40%', left: '4%', width: 70, pointerEvents: 'none', zIndex: 0, animationDelay: '0.8s' }} />
-      <img src={zigzagOrange} alt="" className="gif-deco" style={{ position: 'fixed', top: '45%', right: '5%', width: 75, pointerEvents: 'none', zIndex: 0, transform: 'rotate(45deg)', animationDelay: '1.2s' }} />
-      <img src={traitBleu} alt="" className="gif-deco" style={{ position: 'fixed', bottom: '15%', left: '8%', width: 85, pointerEvents: 'none', zIndex: 0, animationDelay: '1.6s' }} />
-      <img src={traitBleuFonce} alt="" className="gif-deco" style={{ position: 'fixed', bottom: '18%', right: '6%', width: 70, pointerEvents: 'none', zIndex: 0, transform: 'rotate(-30deg)', animationDelay: '2.0s' }} />
-      <img src={zigzagOrange} alt="" className="gif-deco" style={{ position: 'fixed', bottom: '8%', left: '22%', width: 60, pointerEvents: 'none', zIndex: 0, transform: 'rotate(15deg)', animationDelay: '2.4s' }} />
-      <img src={traitBleu} alt="" className="gif-deco" style={{ position: 'fixed', top: '25%', right: '18%', width: 65, pointerEvents: 'none', zIndex: 0, animationDelay: '2.8s' }} />
+      <motion.img src={zigzagOrange} alt="" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0 }} style={{ position: 'fixed', top: '8%', left: '6%', width: 80, pointerEvents: 'none', zIndex: 0 }} />
+      <motion.img src={traitBleu} alt="" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.5 }} style={{ position: 'fixed', top: '12%', right: '8%', width: 90, pointerEvents: 'none', zIndex: 0 }} />
+      <motion.img src={traitBleuFonce} alt="" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 1.0 }} style={{ position: 'fixed', top: '40%', left: '4%', width: 70, pointerEvents: 'none', zIndex: 0 }} />
+      <motion.img src={zigzagOrange} alt="" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 1.5 }} style={{ position: 'fixed', top: '45%', right: '5%', width: 75, pointerEvents: 'none', zIndex: 0 }} />
+      <motion.img src={traitBleu} alt="" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 2.0 }} style={{ position: 'fixed', bottom: '15%', left: '8%', width: 85, pointerEvents: 'none', zIndex: 0 }} />
+      <motion.img src={traitBleuFonce} alt="" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 2.5 }} style={{ position: 'fixed', bottom: '18%', right: '6%', width: 70, pointerEvents: 'none', zIndex: 0 }} />
+      <motion.img src={zigzagOrange} alt="" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 3.0 }} style={{ position: 'fixed', bottom: '8%', left: '22%', width: 60, pointerEvents: 'none', zIndex: 0 }} />
+      <motion.img src={traitBleu} alt="" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 3.5 }} style={{ position: 'fixed', top: '25%', right: '18%', width: 65, pointerEvents: 'none', zIndex: 0 }} />
 
       {/* Card de connexion */}
       <div
