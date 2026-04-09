@@ -136,7 +136,7 @@ const Dashboard = () => {
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <DashboardCard 
           title="Maintenance" 
-          actions={<Button variant="ghost" size="sm" className="text-noe-orange hover:text-noe-orange text-[13px] font-medium">Voir tout</Button>}
+          actions={<Button variant="ghost" size="sm" className="text-[13px] font-medium" style={{ color: '#6B7AE8' }}>Voir tout</Button>}
           className="stagger-1"
         >
           <div className="space-y-4">
@@ -166,7 +166,7 @@ const Dashboard = () => {
         
         <DashboardCard 
           title="Entrepôt" 
-          actions={<Button variant="ghost" size="sm" className="text-noe-orange hover:text-noe-orange text-[13px] font-medium">Voir tout</Button>}
+          actions={<Button variant="ghost" size="sm" className="text-[13px] font-medium" style={{ color: '#6B7AE8' }}>Voir tout</Button>}
           className="stagger-2"
         >
           <div className="space-y-4">
@@ -197,7 +197,7 @@ const Dashboard = () => {
         
         <DashboardCard 
           title="Ménage" 
-          actions={<Button variant="ghost" size="sm" className="text-noe-orange hover:text-noe-orange text-[13px] font-medium">Voir tout</Button>}
+          actions={<Button variant="ghost" size="sm" className="text-[13px] font-medium" style={{ color: '#6B7AE8' }}>Voir tout</Button>}
           className="stagger-3"
         >
           <div className="space-y-4">
