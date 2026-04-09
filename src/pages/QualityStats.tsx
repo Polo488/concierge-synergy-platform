@@ -14,9 +14,10 @@ import { StatsOverview } from '@/components/stats/StatsOverview';
 import { StatsFinance } from '@/components/stats/StatsFinance';
 import { LocationAnalysis } from '@/components/stats/location';
 import { NetworkDashboard } from '@/components/stats/network';
+import { FinancialHealth } from '@/components/stats/FinancialHealth';
 import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
-import { LayoutDashboard, Sparkles, Euro, BarChart3, Building, Users, MapPin, Network } from 'lucide-react';
+import { LayoutDashboard, Sparkles, Euro, BarChart3, Building, Users, MapPin, Network, Heart } from 'lucide-react';
 
 const QualityStats = () => {
   const [activeTab, setActiveTab] = useState('overview');
