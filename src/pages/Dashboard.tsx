@@ -83,7 +83,7 @@ const Dashboard = () => {
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
         <DashboardCard 
           title="Vue d'ensemble (revenus € )"
-          actions={<Button variant="ghost" size="sm" className="text-noe-orange hover:text-noe-orange text-[13px] font-medium">Voir tout</Button>}
+          actions={<Button variant="ghost" size="sm" className="text-[13px] font-medium" style={{ color: '#6B7AE8' }}>Voir tout</Button>}
           className="stagger-1"
         >
           <div className="h-80">
@@ -99,10 +99,10 @@ const Dashboard = () => {
                 <Line 
                   type="monotone" 
                   dataKey="value" 
-                  stroke="#FF5C1A" 
+                  stroke="#6B7AE8" 
                   strokeWidth={3}
-                  dot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#FF5C1A' }}
-                  activeDot={{ r: 7, strokeWidth: 0, fill: '#FF5C1A' }}
+                  dot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#6B7AE8' }}
+                  activeDot={{ r: 7, strokeWidth: 0, fill: '#6B7AE8' }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -111,7 +111,7 @@ const Dashboard = () => {
         
         <DashboardCard 
           title="Occupation des logements"
-          actions={<Button variant="ghost" size="sm" className="text-noe-orange hover:text-noe-orange text-[13px] font-medium">Détails</Button>}
+          actions={<Button variant="ghost" size="sm" className="text-[13px] font-medium" style={{ color: '#6B7AE8' }}>Détails</Button>}
           className="stagger-2"
         >
           <div className="h-80">

@@ -35,6 +35,14 @@ interface SortableSectionProps {
   isDragging?: boolean;
 }
 
+const SECTION_DOT_COLORS: Record<string, string> = {
+  pilotage: '#6B7AE8',
+  operations: '#FF5C1A',
+  revenus: '#F5C842',
+  experience: '#6B7AE8',
+  organisation: 'rgba(26,26,46,0.4)',
+};
+
 export function SortableSection({
   section,
   isExpanded,
@@ -60,6 +68,8 @@ export function SortableSection({
     transform: CSS.Transform.toString(transform),
     transition,
   };
+
+  const dotColor = SECTION_DOT_COLORS[section.id] || 'rgba(255,255,255,0.3)';
 
   return (
     <div
@@ -93,7 +103,11 @@ export function SortableSection({
             "flex items-center justify-between flex-1 px-2 py-2 rounded-lg",
             "hover:bg-white/[0.04] transition-colors"
           )}>
-            <span className="text-[10px] font-semibold tracking-[0.1em] uppercase text-white/30">
+            <span className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.08em] uppercase text-white/50">
+              <span
+                className="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0"
+                style={{ background: dotColor }}
+              />
               {section.title}
             </span>
             <ChevronDown 

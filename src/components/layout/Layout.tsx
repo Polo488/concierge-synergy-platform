@@ -23,24 +23,24 @@ export function Layout() {
     document.documentElement.lang = language;
   }, [language]);
 
-  const mainMargin = isMobile 
-    ? "ml-0" 
-    : isTablet 
-      ? "ml-16" 
-      : "ml-60";
+  // Sidebar widths: mobile=0, tablet=64px (w-16), desktop=240px (w-60)
+  const sidebarWidth = isMobile ? 0 : isTablet ? 64 : 240;
+  // Account for sidebar margin/padding on desktop (m-3 = 12px each side)
+  const sidebarOffset = isMobile ? 0 : isTablet ? 64 + 12 : 240 + 12;
 
   return (
-    <div className="min-h-screen relative flex w-full max-w-[100vw]" style={{ background: '#F8F8F8' }}>
-      
-      
+    <div className="min-h-screen relative w-full max-w-[100vw]" style={{ background: '#F4F5F7' }}>
       <Sidebar />
       
-      <main className={cn(
-        "relative transition-all duration-300 ease-out min-h-screen flex-1 w-0 max-w-full",
-        mainMargin
-      )}>
-        <Header />
-        
+      <Header sidebarOffset={sidebarOffset} />
+      
+      <main
+        style={{
+          marginLeft: isMobile ? 0 : `${sidebarOffset}px`,
+          paddingTop: '56px', // h-14 = 56px header height
+        }}
+        className="min-h-screen w-auto max-w-full transition-all duration-300 ease-out"
+      >
         <div className={cn(
           "mx-auto max-w-[1280px] animate-fade-in box-border w-full",
           "py-8 px-6",

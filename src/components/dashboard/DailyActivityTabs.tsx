@@ -65,9 +65,11 @@ const TaskTypeBadge = ({ type }: { type: 'cleaning' | 'maintenance' | 'repasse' 
 
 const ListItem = ({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
   <div
-    className="p-4 rounded-[10px] cursor-pointer transition-colors hover:bg-[#F8F8F8]"
+    className="p-4 rounded-[10px] cursor-pointer transition-colors"
     style={{ border: '1px solid rgba(0,0,0,0.06)' }}
     onClick={onClick}
+    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(107,122,232,0.05)'}
+    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
   >
     {children}
   </div>
@@ -90,15 +92,15 @@ const CheckInsList = ({ checkIns }: { checkIns: TodayBooking[] }) => {
         <ListItem key={booking.id} onClick={() => navigate('/app/calendar')}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-2 rounded-full bg-emerald-100">
-                <LogIn className="h-4 w-4 text-emerald-600" />
+              <div className="p-2 rounded-full" style={{ background: 'rgba(107,122,232,0.15)' }}>
+                <LogIn className="h-4 w-4" style={{ color: '#6B7AE8' }} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-[15px]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A2E' }}>{booking.guestName}</span>
                   <ChannelBadge channel={booking.channel} />
                 </div>
-                <div className="flex items-center gap-3 text-[13px] mt-1" style={{ color: 'rgba(26,26,46,0.5)' }}>
+                <div className="flex items-center gap-3 text-[13px] mt-1" style={{ color: 'rgba(26,26,46,0.45)' }}>
                   <span className="flex items-center gap-1">
                     <Home className="h-3 w-3" />
                     {booking.propertyName}
@@ -108,7 +110,7 @@ const CheckInsList = ({ checkIns }: { checkIns: TodayBooking[] }) => {
             </div>
             <div className="flex items-center gap-3">
               <StatusBadge status={booking.status} />
-              <div className="flex items-center gap-1 text-sm font-semibold" style={{ color: '#1A1A2E', fontFamily: 'Inter' }}>
+              <div className="flex items-center gap-1 text-sm font-bold" style={{ color: '#1A1A2E', fontFamily: 'Inter' }}>
                 <Clock className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
                 {booking.time}
               </div>
@@ -137,15 +139,15 @@ const CheckOutsList = ({ checkOuts }: { checkOuts: TodayBooking[] }) => {
         <ListItem key={booking.id} onClick={() => navigate('/app/calendar')}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-2 rounded-full bg-blue-100">
-                <LogOut className="h-4 w-4 text-blue-600" />
+              <div className="p-2 rounded-full" style={{ background: 'rgba(107,122,232,0.15)' }}>
+                <LogOut className="h-4 w-4" style={{ color: '#6B7AE8' }} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-[15px]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A2E' }}>{booking.guestName}</span>
                   <ChannelBadge channel={booking.channel} />
                 </div>
-                <div className="flex items-center gap-3 text-[13px] mt-1" style={{ color: 'rgba(26,26,46,0.5)' }}>
+                <div className="flex items-center gap-3 text-[13px] mt-1" style={{ color: 'rgba(26,26,46,0.45)' }}>
                   <span className="flex items-center gap-1">
                     <Home className="h-3 w-3" />
                     {booking.propertyName}
@@ -157,7 +159,7 @@ const CheckOutsList = ({ checkOuts }: { checkOuts: TodayBooking[] }) => {
               {booking.cleaningTaskStatus && (
                 <StatusBadge status={booking.cleaningTaskStatus} />
               )}
-              <div className="flex items-center gap-1 text-sm font-semibold" style={{ color: '#1A1A2E', fontFamily: 'Inter' }}>
+              <div className="flex items-center gap-1 text-sm font-bold" style={{ color: '#1A1A2E', fontFamily: 'Inter' }}>
                 <Clock className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
                 {booking.time}
               </div>
@@ -200,7 +202,7 @@ const TasksList = ({ tasks }: { tasks: TodayTask[] }) => {
                   <Home className="h-3 w-3" style={{ color: 'rgba(26,26,46,0.5)' }} />
                   <span className="font-semibold text-[15px]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A2E' }}>{task.property}</span>
                 </div>
-                <div className="flex items-center gap-2 text-[13px] mt-1" style={{ color: 'rgba(26,26,46,0.5)' }}>
+                <div className="flex items-center gap-2 text-[13px] mt-1" style={{ color: 'rgba(26,26,46,0.45)' }}>
                   <User className="h-3 w-3" />
                   {task.agent || <span className="text-amber-600 font-medium">Non assigné</span>}
                 </div>
@@ -208,7 +210,7 @@ const TasksList = ({ tasks }: { tasks: TodayTask[] }) => {
             </div>
             <div className="flex items-center gap-3">
               <StatusBadge status={task.status} />
-              <div className="flex items-center gap-1 text-sm font-semibold" style={{ color: '#1A1A2E', fontFamily: 'Inter' }}>
+              <div className="flex items-center gap-1 text-sm font-bold" style={{ color: '#1A1A2E', fontFamily: 'Inter' }}>
                 <Clock className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
                 {task.time}
               </div>
@@ -222,25 +224,26 @@ const TasksList = ({ tasks }: { tasks: TodayTask[] }) => {
 
 export const DailyActivityTabs = ({ checkIns, checkOuts, tasks }: DailyActivityTabsProps) => {
   return (
-    <div className="bg-white rounded-[14px] p-6" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A2E' }}>Activité du jour</h2>
-        <span className="text-xs px-2.5 py-1 rounded-full" style={{ border: '1px solid rgba(0,0,0,0.1)', color: 'rgba(26,26,46,0.5)' }}>
+    <div className="bg-white rounded-2xl p-6" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+      <div className="flex items-center justify-between mb-1">
+        <h2 className="text-[17px] font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A2E' }}>Activité du jour</h2>
+        <span className="text-[13px]" style={{ color: 'rgba(26,26,46,0.4)', fontFamily: 'Inter' }}>
           {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </span>
       </div>
+      <div className="mb-4" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }} />
 
       <Tabs defaultValue="checkins" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-4 bg-[#F8F8F8] p-1 rounded-lg">
-          <TabsTrigger value="checkins" className="flex items-center gap-2 rounded-lg text-sm data-[state=active]:bg-[#1A1A2E] data-[state=active]:text-white data-[state=inactive]:text-[rgba(26,26,46,0.5)] transition-all duration-150">
+        <TabsList className="grid w-full grid-cols-3 mb-4 p-[3px] rounded-[10px]" style={{ background: '#F0F0F0' }}>
+          <TabsTrigger value="checkins" className="flex items-center gap-2 rounded-lg text-sm data-[state=active]:bg-[#1A1A2E] data-[state=active]:text-white data-[state=active]:shadow-none data-[state=inactive]:text-[rgba(26,26,46,0.45)] data-[state=inactive]:bg-transparent transition-all duration-150">
             <LogIn className="h-4 w-4" />
             Check-ins ({checkIns.length})
           </TabsTrigger>
-          <TabsTrigger value="checkouts" className="flex items-center gap-2 rounded-lg text-sm data-[state=active]:bg-[#1A1A2E] data-[state=active]:text-white data-[state=inactive]:text-[rgba(26,26,46,0.5)] transition-all duration-150">
+          <TabsTrigger value="checkouts" className="flex items-center gap-2 rounded-lg text-sm data-[state=active]:bg-[#1A1A2E] data-[state=active]:text-white data-[state=active]:shadow-none data-[state=inactive]:text-[rgba(26,26,46,0.45)] data-[state=inactive]:bg-transparent transition-all duration-150">
             <LogOut className="h-4 w-4" />
             Check-outs ({checkOuts.length})
           </TabsTrigger>
-          <TabsTrigger value="tasks" className="flex items-center gap-2 rounded-lg text-sm data-[state=active]:bg-[#1A1A2E] data-[state=active]:text-white data-[state=inactive]:text-[rgba(26,26,46,0.5)] transition-all duration-150">
+          <TabsTrigger value="tasks" className="flex items-center gap-2 rounded-lg text-sm data-[state=active]:bg-[#1A1A2E] data-[state=active]:text-white data-[state=active]:shadow-none data-[state=inactive]:text-[rgba(26,26,46,0.45)] data-[state=inactive]:bg-transparent transition-all duration-150">
             <ClipboardList className="h-4 w-4" />
             Tâches ({tasks.length})
           </TabsTrigger>
