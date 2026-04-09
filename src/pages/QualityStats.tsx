@@ -95,6 +95,10 @@ const QualityStats = () => {
             <Network className="h-4 w-4" />
             Réseau
           </TabsTrigger>
+          <TabsTrigger value="financial-health" className="gap-2">
+            <Heart className="h-4 w-4" />
+            Santé financière
+          </TabsTrigger>
         </TabsList>
 
         {/* Vue d'ensemble Tab */}
@@ -189,6 +193,11 @@ const QualityStats = () => {
         {/* Network / Réseau Tab */}
         <TabsContent value="network" className="space-y-6 mt-6">
           <NetworkDashboard />
+        </TabsContent>
+
+        {/* Santé financière Tab */}
+        <TabsContent value="financial-health" className="space-y-6 mt-6">
+          <FinancialHealth />
         </TabsContent>
       </Tabs>
 
