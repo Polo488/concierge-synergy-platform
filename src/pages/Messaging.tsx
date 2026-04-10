@@ -140,7 +140,7 @@ const Messaging = () => {
   // Mobile layout
   if (isMobile) {
     return (
-      <div className="h-[calc(100vh-4rem)] flex flex-col" style={{ background: '#FFFFFF' }}>
+      <div className="h-[calc(100vh-4rem)] flex flex-col bg-card">
         <TutorialTrigger moduleId="messaging" />
         
         {mobileShowThread && selectedConversation ? (
@@ -186,7 +186,7 @@ const Messaging = () => {
 
   // Desktop layout
   return (
-    <div className="h-[calc(100vh-4rem)] flex" style={{ background: '#FFFFFF' }}>
+    <div className="h-[calc(100vh-4rem)] flex bg-card">
       <TutorialTrigger moduleId="messaging" />
       
       <div className="w-80 flex-shrink-0">

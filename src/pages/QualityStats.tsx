@@ -97,7 +97,7 @@ const QualityStats = () => {
           </TabsTrigger>
           <TabsTrigger 
             value="financial-health" 
-            className="gap-2 shrink-0 data-[state=active]:bg-[#E8621A] data-[state=active]:text-white"
+            className="gap-2 shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             <span className="flex items-center gap-1.5">
               {activeTab === 'financial-health' && (
