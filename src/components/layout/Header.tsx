@@ -88,13 +88,12 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
       <header
         className={cn(
           "fixed top-0 z-30 transition-all duration-300",
-          "bg-white border-b",
+          "bg-card border-b border-border",
           scrolled && "shadow-sm"
         )}
         style={{
           left: isMobile ? 0 : `${sidebarOffset}px`,
           right: 0,
-          borderBottomColor: 'rgba(0,0,0,0.06)',
         }}
       >
         <div className="flex h-14 items-center justify-between px-4 md:px-6 max-w-full">
@@ -103,13 +102,11 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
             <div className="flex items-center gap-2 ml-10">
               {searchOpen ? (
                 <div className="flex items-center gap-2 flex-1">
-                  <div className="flex items-center gap-2 flex-1 px-3 py-2 rounded-[10px]"
-                    style={{ background: '#F8F8F8', border: '1px solid rgba(0,0,0,0.08)' }}>
-                    <Search className="h-4 w-4 flex-shrink-0" style={{ color: 'rgba(26,26,46,0.35)' }} />
+                  <div className="flex items-center gap-2 flex-1 px-3 py-2 rounded-[10px] bg-muted border border-border">
+                    <Search className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                     <Input 
                       placeholder={t('search')} 
-                      className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm h-auto p-0"
-                      style={{ color: '#1A1A2E' }}
+                      className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm h-auto p-0 text-foreground"
                       autoFocus
                       onBlur={() => setSearchOpen(false)}
                     />
@@ -122,7 +119,7 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
                   className="rounded-full h-10 w-10 min-h-[44px] min-w-[44px]"
                   onClick={() => setSearchOpen(true)}
                 >
-                  <Search className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
+                  <Search className="h-4 w-4 text-muted-foreground" />
                 </Button>
               )}
             </div>
@@ -130,13 +127,13 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
             <div className="flex items-center gap-3 w-full max-w-sm">
               <div className={cn(
                 "flex items-center gap-2 flex-1 px-4 py-2.5 rounded-[10px] transition-all duration-200",
-                "focus-within:ring-2 focus-within:ring-noe-orange focus-within:border-noe-orange"
-              )} style={{ background: '#F8F8F8', border: '1px solid rgba(0,0,0,0.08)' }}>
-                <Search className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.35)' }} />
+                "bg-muted border border-border",
+                "focus-within:ring-2 focus-within:ring-primary focus-within:border-primary"
+              )}>
+                <Search className="h-4 w-4 text-muted-foreground" />
                 <Input 
                   placeholder={t('search')} 
-                  className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm h-auto p-0"
-                  style={{ color: '#1A1A2E', fontFamily: 'Inter' }}
+                  className="border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm h-auto p-0 text-foreground"
                 />
               </div>
             </div>
@@ -148,9 +145,9 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
               <DropdownMenuTrigger asChild>
                 <Button size="icon" variant="ghost" className="rounded-full h-9 w-9 min-h-[44px] min-w-[44px]">
                   {resolvedTheme === 'dark' ? (
-                    <Moon className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
+                    <Moon className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    <Sun className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
+                    <Sun className="h-4 w-4 text-muted-foreground" />
                   )}
                 </Button>
               </DropdownMenuTrigger>
@@ -180,7 +177,7 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="icon" variant="ghost" className="rounded-full h-9 w-9 min-h-[44px] min-w-[44px]">
-                  <Globe className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
+                  <Globe className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-[120px]">
@@ -211,9 +208,9 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-9 w-9 rounded-full min-h-[44px] min-w-[44px]">
-                    <Avatar className="h-8 w-8 ring-2 ring-noe-orange">
+                    <Avatar className="h-8 w-8 ring-2 ring-primary">
                       {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
-                      <AvatarFallback className="bg-muted text-foreground text-sm font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      <AvatarFallback className="bg-muted text-foreground text-sm font-semibold font-heading">
                         {user.name.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -222,7 +219,7 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{user.name}</p>
+                      <p className="text-sm font-semibold font-heading">{user.name}</p>
                       <p className="text-xs text-muted-foreground">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>
@@ -243,7 +240,7 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
               </DropdownMenu>
             ) : (
               <Button size="icon" variant="ghost" className="rounded-full h-9 w-9 min-h-[44px] min-w-[44px]">
-                <User className="h-4 w-4" style={{ color: 'rgba(26,26,46,0.5)' }} />
+                <User className="h-4 w-4 text-muted-foreground" />
               </Button>
             )}
           </div>

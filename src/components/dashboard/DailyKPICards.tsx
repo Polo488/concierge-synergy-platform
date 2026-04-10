@@ -17,12 +17,11 @@ interface KPICardProps {
 const KPICard = ({ title, value, onClick, borderColor, labelColor }: KPICardProps) => (
   <div 
     className={cn(
-      "bg-white rounded-2xl cursor-pointer transition-all duration-200",
-      "hover:shadow-md",
+      "bg-card rounded-2xl cursor-pointer transition-all duration-200",
+      "hover:shadow-md shadow-card",
       "p-6 max-md:p-4",
     )}
     style={{ 
-      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
       borderLeft: `4px solid ${borderColor}`,
     }}
     onClick={onClick}
@@ -30,11 +29,11 @@ const KPICard = ({ title, value, onClick, borderColor, labelColor }: KPICardProp
     <div className="space-y-1.5">
       <p 
         className="text-[11px] uppercase font-semibold tracking-[0.08em]" 
-        style={{ color: labelColor, fontFamily: 'Inter' }}
+        style={{ color: labelColor }}
       >
         {title}
       </p>
-      <p className="text-[36px] max-md:text-2xl font-extrabold" style={{ color: '#1A1A2E', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{value}</p>
+      <p className="text-[36px] max-md:text-2xl font-extrabold text-foreground font-heading">{value}</p>
     </div>
   </div>
 );
@@ -68,8 +67,8 @@ export const DailyKPICards = ({ stats }: DailyKPICardsProps) => {
       title: "Tâches",
       value: stats.unassignedTasks,
       onClick: () => navigate('/app/cleaning'),
-      borderColor: '#1A1A2E',
-      labelColor: 'rgba(26,26,46,0.5)',
+      borderColor: 'hsl(var(--foreground))',
+      labelColor: 'hsl(var(--muted-foreground))',
     }
   ];
 
