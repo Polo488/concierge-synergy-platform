@@ -23,23 +23,23 @@ export function DashboardCard({
 }: DashboardCardProps) {
   return (
     <div className={cn(
-      "bg-white rounded-2xl animate-slide-up",
+      "bg-card rounded-2xl animate-slide-up shadow-soft",
       className
-    )} style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+    )}>
       <div className="flex items-center justify-between px-6 py-5">
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2.5">
             {icon && <span className="text-muted-foreground">{icon}</span>}
-            <h3 className="font-bold text-[17px]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A2E' }}>{title}</h3>
+            <h3 className="font-bold text-[17px] font-heading text-foreground">{title}</h3>
           </div>
-          {subtitle && <p className="text-[13px]" style={{ color: 'rgba(26,26,46,0.4)', fontFamily: 'Inter' }}>{subtitle}</p>}
+          {subtitle && <p className="text-[13px] text-muted-foreground">{subtitle}</p>}
         </div>
         {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
-      <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }} />
+      <div className="border-t border-border" />
       <div className="px-6 pb-6 pt-4">{children}</div>
       {footer && (
-        <div className="px-6 py-4 text-sm text-muted-foreground" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+        <div className="px-6 py-4 text-sm text-muted-foreground border-t border-border">
           {footer}
         </div>
       )}
