@@ -24,7 +24,7 @@ export function Layout() {
   }, [language]);
 
   const sidebarWidth = isMobile ? 0 : isTablet ? 64 : 240;
-  const sidebarOffset = isMobile ? 0 : isTablet ? 64 + 12 : 240 + 12;
+  const sidebarOffset = isMobile ? 0 : isTablet ? 64 : 240;
 
   return (
     <div className="min-h-screen relative w-full max-w-[100vw] bg-background">
@@ -35,7 +35,7 @@ export function Layout() {
       <main
         style={{
           marginLeft: isMobile ? 0 : `${sidebarOffset}px`,
-          paddingTop: '56px',
+          paddingTop: '64px',
         }}
         className="min-h-screen w-auto max-w-full transition-all duration-300 ease-out"
       >

@@ -96,7 +96,7 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
           right: 0,
         }}
       >
-        <div className="flex h-14 items-center justify-between px-4 md:px-6 max-w-full">
+        <div className="flex h-16 items-center justify-between px-4 md:px-6 max-w-full">
           {/* Search */}
           {isMobile ? (
             <div className="flex items-center gap-2 ml-10">
