@@ -320,8 +320,7 @@ export function Sidebar() {
           "flex flex-col overflow-hidden",
           "bg-[#1A1A2E]",
           sidebarWidth,
-          isMobile ? "z-[210]" : "z-40",
-          !isMobile && "m-3 rounded-2xl h-[calc(100%-24px)]"
+          isMobile ? "z-[210]" : "z-40"
         )}
       >
         {/* Logo */}
