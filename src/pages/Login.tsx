@@ -147,17 +147,17 @@ const Login = () => {
             <p className="text-center mb-3" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 12, color: 'rgba(26,26,46,0.4)' }}>
               Comptes de démonstration :
             </p>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex flex-col items-center">
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="relative">
                 <button
                   type="button"
                   onClick={() => handleDemoLogin('admin@example.com')}
-                  className="w-full cursor-pointer transition-colors hover:bg-gray-100"
+                  className="w-full h-11 cursor-pointer transition-colors hover:bg-gray-100 flex items-center justify-center"
                   style={{
                     background: '#F8F8F8',
                     border: '1px solid rgba(0,0,0,0.08)',
                     borderRadius: 8,
-                    padding: '8px 12px',
+                    padding: '0 12px',
                     fontFamily: "'Inter', sans-serif",
                     fontWeight: 500,
                     fontSize: 13,
@@ -167,8 +167,9 @@ const Login = () => {
                   Admin
                 </button>
                 <span
-                  className="mt-1 block transition-opacity duration-300"
+                  className="absolute left-0 right-0 text-center transition-opacity duration-300 pointer-events-none"
                   style={{
+                    top: 'calc(100% + 4px)',
                     fontFamily: "'Inter', sans-serif",
                     fontWeight: 500,
                     fontSize: 13,
@@ -182,12 +183,12 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => handleDemoLogin('marie.dupont@email.com')}
-                className="w-full cursor-pointer transition-colors hover:bg-gray-100"
+                className="w-full h-11 cursor-pointer transition-colors hover:bg-gray-100 flex items-center justify-center"
                 style={{
                   background: '#F8F8F8',
                   border: '1px solid rgba(0,0,0,0.08)',
                   borderRadius: 8,
-                  padding: '8px 12px',
+                  padding: '0 12px',
                   fontFamily: "'Inter', sans-serif",
                   fontWeight: 500,
                   fontSize: 13,
