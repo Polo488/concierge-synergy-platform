@@ -87,7 +87,7 @@ const SectionTitle = ({ title, accent }: { title: string; accent?: string }) => 
     <img src={noeIconOrange} alt="" className="h-6 w-6 object-contain shrink-0 self-center" />
     <h3 className="font-heading font-bold text-[#1A1A2E]" style={{ fontSize: 28, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
       {title}
-      {accent && <span className="ml-2 italic font-normal text-[#FF5C1A]" style={{ fontFamily: 'Instrument Serif, serif' }}>{accent}</span>}
+      {accent && <span className="ml-2 italic font-normal text-[#FF5C1A]" style={{ fontStyle: 'italic' }}>{accent}</span>}
     </h3>
   </div>
 );
@@ -250,7 +250,7 @@ export function FinancialHealth() {
             Santé{' '}
             <span
               className="italic font-normal text-[#FF5C1A] relative inline-block"
-              style={{ fontFamily: 'Instrument Serif, serif', fontWeight: 400 }}
+              style={{ fontStyle: 'italic' }}
             >
               financière
               <span
@@ -354,7 +354,7 @@ export function FinancialHealth() {
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <p className="font-heading font-extrabold text-[#1A1A2E]" style={{ fontSize: 60, lineHeight: 1, letterSpacing: '-0.03em' }}>
-                      {portfolioRatio.toFixed(1)}<span className="text-[#FF5C1A] font-light italic" style={{ fontFamily: 'Instrument Serif, serif' }}>×</span>
+                      {portfolioRatio.toFixed(1)}<span className="text-[#FF5C1A] font-light italic" style={{ fontStyle: 'italic' }}>×</span>
                     </p>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A2E]/50 mt-3">Ratio portefeuille</p>
                     <span className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-semibold">
@@ -366,7 +366,7 @@ export function FinancialHealth() {
               </div>
 
               <div className="flex flex-col gap-5">
-                <p className="text-[#1A1A2E]" style={{ fontFamily: 'Instrument Serif, serif', fontSize: 26, lineHeight: 1.25 }}>
+                <p className="text-[#1A1A2E]" style={{ fontStyle: 'italic', fontSize: 26, lineHeight: 1.25 }}>
                   Sur tes <span className="text-[#FF5C1A] font-medium">{MOCK_PROPERTIES.length} logements</span>,{' '}
                   <span className="text-[#FF5C1A] font-medium">{MOCK_PROPERTIES.filter(p => p.revenue / p.charges >= 2).length} sont rentables</span>
                   . Les {MOCK_PROPERTIES.filter(p => p.revenue / p.charges < 2).length} autres méritent un coup d'œil.
@@ -783,7 +783,7 @@ export function FinancialHealth() {
             <img src={noeIconOrange} alt="" className="h-6 w-6 self-center" />
             <h3 className="font-heading font-bold text-white" style={{ fontSize: 30, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
               Ta position{' '}
-              <span className="italic font-normal text-[#FF5C1A]" style={{ fontFamily: 'Instrument Serif, serif', fontWeight: 400 }}>
+              <span className="italic font-normal text-[#FF5C1A]" style={{ fontStyle: 'italic' }}>
                 ce mois
               </span>
             </h3>
@@ -809,7 +809,7 @@ export function FinancialHealth() {
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45">Badge débloqué</p>
               <p className="mt-0.5 font-heading font-bold text-white text-2xl">
                 Expert{' '}
-                <span className="italic font-normal text-[#FF8A4C]" style={{ fontFamily: 'Instrument Serif, serif' }}>
+                <span className="italic font-normal text-[#FF8A4C]" style={{ fontStyle: 'italic' }}>
                   — {perfScore.total}/100
                 </span>
               </p>
@@ -893,7 +893,7 @@ export function FinancialHealth() {
 
           <p
             className="mt-6 text-center text-white/40"
-            style={{ fontFamily: 'Instrument Serif, serif', fontSize: 14, fontStyle: 'italic' }}
+            style={{ fontStyle: 'italic', fontSize: 14, fontStyle: 'italic' }}
           >
             Classement basé sur le score opérationnel uniquement — les données financières restent privées.
           </p>
@@ -904,12 +904,12 @@ export function FinancialHealth() {
       <div className="relative overflow-hidden rounded-3xl bg-[#0E1530] px-8 sm:px-12 py-8 text-center">
         <Watermark tone="dark" />
         <div className="relative z-10">
-          <p className="italic text-white/50 max-w-2xl mx-auto leading-relaxed" style={{ fontFamily: 'Instrument Serif, serif', fontSize: 16 }}>
+          <p className="italic text-white/50 max-w-2xl mx-auto leading-relaxed" style={{ fontStyle: 'italic', fontSize: 16 }}>
             « Ces indicateurs sont calculés par Noé à partir de tes données réelles. Ils ne remplacent pas un expert-comptable mais te donnent une vision opérationnelle claire de la rentabilité. »
           </p>
           <div className="mt-5 flex items-center justify-center gap-3">
             <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Signé</span>
-            <span className="font-heading font-extrabold text-white text-2xl" style={{ fontFamily: 'Instrument Serif, serif', fontStyle: 'italic' }}>
+            <span className="font-heading font-extrabold text-white text-2xl" style={{ fontStyle: 'italic' }}>
               <span className="text-[#FF5C1A]">n</span>oé<span className="text-[#FF5C1A]">.</span>
             </span>
           </div>
