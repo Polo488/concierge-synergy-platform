@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { ChevronDown, Plus, Trash2, Share2, Loader2, ArrowUpDown, Wrench, ArrowRight, Award, Target, Hourglass, Lock, Mountain, Building2, Trees, Image as ImageIcon } from 'lucide-react';
+import { ChevronDown, Plus, Trash2, Share2, Loader2, ArrowUpDown, Wrench, ArrowRight, Award, Target, Hourglass, Lock, Mountain, Building2, Trees, Image as ImageIcon, ShieldCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
