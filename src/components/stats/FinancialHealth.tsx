@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { ChevronDown, Plus, Trash2, Share2, Loader2, ArrowUpDown, Wrench, ArrowRight, Award, Target, Hourglass, Lock, Mountain, Building2, Trees, Image as ImageIcon } from 'lucide-react';
+import { ChevronDown, Plus, Trash2, Share2, Loader2, ArrowUpDown, Wrench, ArrowRight, Award, Target, Hourglass, Lock, Mountain, Building2, Trees, Image as ImageIcon, ShieldCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -168,41 +168,129 @@ export function FinancialHealth() {
   return (
     <div className="space-y-6 bg-[#FBF6EC] -mx-4 sm:-mx-6 px-4 sm:px-6 py-6 rounded-2xl">
 
-      {/* ============ 1. HERO (dark navy) ============ */}
-      <div className="relative overflow-hidden rounded-3xl bg-[#0E1530] px-8 sm:px-14 py-10 sm:py-14">
-        <Watermark tone="dark" />
+      {/* ============ 1. HERO (dark navy with gradient + rotating seal + giant n.) ============ */}
+      <div
+        className="relative overflow-hidden rounded-3xl px-6 sm:px-12 lg:px-16 py-10 sm:py-14 lg:py-16"
+        style={{
+          background:
+            'radial-gradient(120% 90% at 0% 0%, #1B2547 0%, #131A38 35%, #0B1024 70%, #070B1C 100%)',
+        }}
+      >
+        {/* Giant decorative "n." watermark, bottom-right */}
+        <img
+          src={noeIconWhite}
+          alt=""
+          aria-hidden
+          className="absolute pointer-events-none select-none"
+          style={{
+            right: '-80px',
+            bottom: '-140px',
+            width: '520px',
+            height: 'auto',
+            opacity: 0.06,
+            filter: 'brightness(0.4)',
+          }}
+        />
+
+        {/* Rotating circular seal — top right */}
+        <div className="absolute top-6 right-6 sm:top-8 sm:right-8 z-10 pointer-events-none">
+          <div className="relative" style={{ width: 92, height: 92 }}>
+            <svg
+              viewBox="0 0 100 100"
+              className="absolute inset-0 w-full h-full"
+              style={{ animation: 'noe-spin 18s linear infinite' }}
+            >
+              <defs>
+                <path
+                  id="noe-seal-circle"
+                  d="M 50,50 m -38,0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0"
+                />
+              </defs>
+              <text
+                fill="#FF5C1A"
+                style={{
+                  fontFamily: 'Plus Jakarta Sans, sans-serif',
+                  fontSize: '10.5px',
+                  fontWeight: 700,
+                  letterSpacing: '2.4px',
+                  textTransform: 'uppercase',
+                }}
+              >
+                <textPath href="#noe-seal-circle" startOffset="0">
+                  EXCLUSIF NOÉ · BY NOÉ · EXCLUSIF NOÉ · BY NOÉ ·
+                </textPath>
+              </text>
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <img src={noeIconOrange} alt="" className="h-7 w-7 object-contain" />
+            </div>
+          </div>
+        </div>
+        <style>{`@keyframes noe-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+
         <div className="relative z-10 max-w-3xl">
           <SectionBadge color="orange" icon="white">Exclusif Noé</SectionBadge>
 
-          <h1 className="mt-6 font-heading font-extrabold text-white" style={{ fontSize: 'clamp(40px, 6vw, 72px)', lineHeight: 1.05, letterSpacing: '-0.025em' }}>
+          <h1
+            className="mt-7 font-heading font-extrabold text-white"
+            style={{
+              fontSize: 'clamp(38px, 5.6vw, 68px)',
+              lineHeight: 1.04,
+              letterSpacing: '-0.025em',
+            }}
+          >
             Santé{' '}
-            <span className="italic font-normal text-[#FF5C1A]" style={{ fontFamily: 'Instrument Serif, serif', fontWeight: 400 }}>
+            <span
+              className="italic font-normal text-[#FF5C1A] relative inline-block"
+              style={{ fontFamily: 'Instrument Serif, serif', fontWeight: 400 }}
+            >
               financière
+              <span
+                aria-hidden
+                className="absolute left-0 right-0"
+                style={{
+                  bottom: '0.08em',
+                  height: '2px',
+                  background: '#FF5C1A',
+                  borderRadius: '2px',
+                }}
+              />
             </span>
             <br />
             à l'échelle de ta<br />
             conciergerie.
           </h1>
 
-          <p className="mt-6 text-base sm:text-lg text-white/60 max-w-xl leading-relaxed">
+          <p className="mt-7 text-base sm:text-lg text-white/55 max-w-xl leading-relaxed">
             Analyse ta rentabilité, ton BFR et ta performance opérationnelle. Des indicateurs pensés par des conciergeries, pour des conciergeries.
           </p>
 
-          <div className="mt-10 flex flex-wrap gap-x-12 gap-y-4">
+          {/* Separator line */}
+          <div className="mt-10 h-px w-full bg-white/10" />
+
+          {/* Metadata row */}
+          <div className="mt-6 flex flex-wrap gap-x-12 gap-y-5">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-1.5">Données</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35 mb-1.5">Données</p>
               <p className="flex items-center gap-2 text-white font-semibold text-sm">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]" />
+                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(74,222,128,0.7)]" />
                 Temps réel
               </p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-1.5">Modules</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35 mb-1.5">Modules</p>
               <p className="text-white font-semibold text-sm">4 indicateurs Noé</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-1.5">Mis à jour</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35 mb-1.5">Mis à jour</p>
               <p className="text-white font-semibold text-sm">{nowLabel}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35 mb-1.5">Confidentialité</p>
+              <p className="flex items-center gap-2 text-white font-semibold text-sm">
+                <ShieldCheck className="h-4 w-4 text-white/70" />
+                Données privées
+              </p>
             </div>
           </div>
         </div>
