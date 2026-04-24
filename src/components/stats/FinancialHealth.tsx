@@ -304,9 +304,27 @@ export function FinancialHealth() {
         </div>
       </div>
 
-      {/* ============ 2. RENTABILITÉ PAR LOGEMENT (cream + orange top border) ============ */}
+      {/* ============ 2. RENTABILITÉ PAR LOGEMENT ============ */}
       <div className="relative overflow-hidden rounded-3xl bg-[#FFF4E6]" style={{ borderTop: '3px solid #FF5C1A' }}>
-        <Watermark tone="light" />
+        <img
+          src={noeIconOrange}
+          alt=""
+          aria-hidden
+          className="absolute pointer-events-none select-none"
+          style={{ right: '-50px', top: '-30px', width: '300px', opacity: 0.08 }}
+        />
+
+        {/* Module pill — top right */}
+        <div className="absolute top-5 right-5 z-10">
+          <span
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-[#FF5C1A]/15 text-[10px] font-bold uppercase tracking-[0.16em] text-[#1A1A2E]/70"
+            style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+          >
+            <img src={noeIconOrange} alt="" className="h-2.5 w-2.5 object-contain" />
+            Module — 01/04
+          </span>
+        </div>
+
         <div className="relative z-10 p-8 sm:p-10">
           <SectionBadge color="orange" icon="white">Noé Score</SectionBadge>
 
@@ -317,121 +335,176 @@ export function FinancialHealth() {
             Compare tes revenus de commission aux charges réparties par logement. Un bien est rentable si ses revenus couvrent <strong className="text-[#1A1A2E]">2× ses charges</strong>.
           </p>
 
-          {/* Donut + property list */}
-          <div className="mt-8 grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-8 items-center">
-            {/* Donut */}
-            <div className="flex flex-col items-center justify-center">
-              <div className="relative" style={{ width: 280, height: 280 }}>
-                <svg viewBox="0 0 160 160" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
-                  <circle cx="80" cy="80" r="70" stroke="#FFE0CC" strokeWidth="14" fill="none" />
-                  <circle
-                    cx="80" cy="80" r="70"
-                    stroke="#FF5C1A" strokeWidth="14" fill="none"
-                    strokeDasharray={donutCirc}
-                    strokeDashoffset={donutOffset}
-                    strokeLinecap="round"
-                    style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)' }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <p className="font-heading font-extrabold text-[#1A1A2E]" style={{ fontSize: 64, lineHeight: 1, letterSpacing: '-0.03em' }}>
-                    {portfolioRatio.toFixed(1)}<span className="text-[#FF5C1A] font-light italic" style={{ fontFamily: 'Instrument Serif, serif' }}>×</span>
-                  </p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A2E]/50 mt-3">Ratio portefeuille</p>
-                  <span className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-semibold">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Rentable
-                  </span>
+          {/* White panel */}
+          <div className="mt-7 rounded-3xl bg-white border border-[#1A1A2E]/5 p-6 sm:p-8">
+            {/* Top row: donut + sentence + 3 KPIs */}
+            <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 items-center">
+              <div className="flex items-center justify-center">
+                <div className="relative" style={{ width: 260, height: 260 }}>
+                  <svg viewBox="0 0 160 160" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
+                    <circle cx="80" cy="80" r="68" stroke="#FFE0CC" strokeWidth="14" fill="none" />
+                    <circle
+                      cx="80" cy="80" r="68"
+                      stroke="#FF5C1A" strokeWidth="14" fill="none"
+                      strokeDasharray={2 * Math.PI * 68}
+                      strokeDashoffset={(2 * Math.PI * 68) - (Math.min(100, (portfolioRatio / 4) * 100) / 100) * (2 * Math.PI * 68)}
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)' }}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <p className="font-heading font-extrabold text-[#1A1A2E]" style={{ fontSize: 60, lineHeight: 1, letterSpacing: '-0.03em' }}>
+                      {portfolioRatio.toFixed(1)}<span className="text-[#FF5C1A] font-light italic" style={{ fontFamily: 'Instrument Serif, serif' }}>×</span>
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A2E]/50 mt-3">Ratio portefeuille</p>
+                    <span className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-semibold">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      Rentable
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-5">
+                <p className="text-[#1A1A2E]" style={{ fontFamily: 'Instrument Serif, serif', fontSize: 26, lineHeight: 1.25 }}>
+                  Sur tes <span className="text-[#FF5C1A] font-medium">{MOCK_PROPERTIES.length} logements</span>,{' '}
+                  <span className="text-[#FF5C1A] font-medium">{MOCK_PROPERTIES.filter(p => p.revenue / p.charges >= 2).length} sont rentables</span>
+                  . Les {MOCK_PROPERTIES.filter(p => p.revenue / p.charges < 2).length} autres méritent un coup d'œil.
+                </p>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { count: MOCK_PROPERTIES.filter(p => p.revenue / p.charges >= 2).length, label: 'Rentables', color: '#22C55E' },
+                    { count: MOCK_PROPERTIES.filter(p => { const r = p.revenue / p.charges; return r >= 1.5 && r < 2; }).length, label: 'Limites', color: '#F5C842' },
+                    { count: MOCK_PROPERTIES.filter(p => p.revenue / p.charges < 1.5).length, label: 'À revoir', color: '#EF4444' },
+                  ].map((k, i) => (
+                    <div key={i} className="rounded-2xl bg-[#FFF4E6] border border-[#FF5C1A]/10 px-4 py-3 flex items-center justify-between">
+                      <div>
+                        <p className="font-heading font-extrabold text-[#1A1A2E] text-2xl tabular-nums leading-none">
+                          {k.count}<span className="text-sm font-medium text-[#1A1A2E]/50 ml-0.5">/{MOCK_PROPERTIES.length}</span>
+                        </p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A2E]/50 mt-1.5">{k.label}</p>
+                      </div>
+                      <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: k.color }} />
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Property cards */}
-            <div className="space-y-3">
-              {MOCK_PROPERTIES.map((p, i) => {
+            {/* Detail header */}
+            <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-[#1A1A2E] text-sm">Détail par logement</p>
+                <span className="px-2 py-0.5 rounded-md bg-[#1A1A2E] text-white text-[10px] font-bold tracking-wider">
+                  {MOCK_PROPERTIES.length} biens
+                </span>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="inline-flex items-center gap-1 p-1 rounded-full bg-[#FFF4E6] border border-[#FF5C1A]/10 text-[11px] font-semibold">
+                  <button className="px-3 py-1 rounded-full bg-white text-[#1A1A2E] shadow-sm">Tous</button>
+                  <button className="px-3 py-1 rounded-full text-[#1A1A2E]/70 inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Rentables
+                  </button>
+                  <button className="px-3 py-1 rounded-full text-[#1A1A2E]/70 inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Limites
+                  </button>
+                  <button className="px-3 py-1 rounded-full text-[#1A1A2E]/70 inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500" /> À revoir
+                  </button>
+                </div>
+                <button className="px-3 py-1.5 rounded-full bg-white border border-[#1A1A2E]/10 text-[11px] font-semibold text-[#1A1A2E]/70 inline-flex items-center gap-1">
+                  Trier : Ratio <ChevronDown className="h-3 w-3" />
+                </button>
+              </div>
+            </div>
+
+            {/* Property list */}
+            <div className="mt-4 max-h-[360px] overflow-y-auto pr-1 space-y-2.5" style={{ scrollbarWidth: 'thin' }}>
+              {[...MOCK_PROPERTIES].sort((a, b) => (b.revenue / b.charges) - (a.revenue / a.charges)).map((p, i) => {
                 const ratio = p.revenue / p.charges;
                 const status = ratioStatus(ratio);
                 return (
-                  <div key={i} className="flex items-center gap-4 p-3.5 rounded-2xl bg-white border border-[#1A1A2E]/5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-                    <div className="h-11 w-11 rounded-xl bg-[#FFF4E6] flex items-center justify-center shrink-0">
-                      <PropIcon type={p.icon} />
+                  <div key={i} className="flex items-center gap-3.5 px-4 py-3 rounded-2xl bg-white border border-[#1A1A2E]/8 hover:border-[#FF5C1A]/30 transition-colors">
+                    <div className="h-10 w-10 rounded-xl bg-[#FFF4E6] flex items-center justify-center shrink-0 text-lg">
+                      {p.emoji}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm text-[#1A1A2E] truncate">{p.name}</p>
-                      <p className="text-xs text-[#1A1A2E]/50 mt-0.5 font-mono tracking-tight">
+                      <p className="text-[11px] text-[#1A1A2E]/50 mt-0.5 font-mono tracking-tight">
                         Revenus {p.revenue.toLocaleString('fr-FR')} €  /  Charges {p.charges.toLocaleString('fr-FR')} €
                       </p>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
                       <span className="font-mono font-semibold text-[#1A1A2E] text-sm tabular-nums">{ratio.toFixed(2)}×</span>
-                      <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${status.bg} ${status.text}`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold ${status.bg} ${status.text}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${status.text === 'text-emerald-700' ? 'bg-emerald-500' : status.text === 'text-amber-700' ? 'bg-amber-500' : 'bg-rose-500'}`} />
                         {status.label}
                       </span>
                     </div>
                   </div>
                 );
               })}
-
-              {/* Personnaliser mes charges */}
-              <Collapsible open={chargesOpen} onOpenChange={setChargesOpen} className="mt-2">
-                <CollapsibleTrigger className="w-full flex items-center justify-between p-4 rounded-2xl bg-white border border-[#FF5C1A]/30 hover:border-[#FF5C1A]/60 transition-colors group">
-                  <span className="flex items-center gap-2.5 font-semibold text-[#1A1A2E]">
-                    <Wrench className="h-4 w-4 text-[#FF5C1A]" />
-                    Personnaliser mes charges
-                  </span>
-                  <span className="flex items-center gap-1.5 text-[#FF5C1A] font-semibold text-sm">
-                    Ouvrir <ArrowRight className={`h-4 w-4 transition-transform ${chargesOpen ? 'rotate-90' : ''}`} />
-                  </span>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-3 space-y-4 p-4 rounded-2xl bg-white border border-[#1A1A2E]/5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs mb-1 block text-[#1A1A2E]/70">Loyer du local (€/mois)</label>
-                      <Input type="number" value={rent || ''} onChange={e => setRent(Number(e.target.value))} />
-                    </div>
-                    <div>
-                      <label className="text-xs mb-1 block text-[#1A1A2E]/70">Autres charges fixes (€/mois)</label>
-                      <Input type="number" value={otherFixed || ''} onChange={e => setOtherFixed(Number(e.target.value))} />
-                    </div>
-                    <div>
-                      <label className="text-xs mb-1 block text-[#1A1A2E]/70">Salariés ETP</label>
-                      <Input type="number" step={0.5} value={ftpCount} onChange={e => setFtpCount(Number(e.target.value))} />
-                    </div>
-                    <div>
-                      <label className="text-xs mb-1 block text-[#1A1A2E]/70">Salaire chargé/ETP (€)</label>
-                      <Input type="number" value={salaryPerFtp} onChange={e => setSalaryPerFtp(Number(e.target.value))} />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs mb-1 block text-[#1A1A2E]/70">Coût Noé (€/logement/mois)</label>
-                    <Select value={noeCost} onValueChange={setNoeCost}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="5">5€ Classic</SelectItem>
-                        <SelectItem value="7">7€ Classic + Billing</SelectItem>
-                        <SelectItem value="11.5">11.50€ Pimp my Noé</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide mb-2 text-[#1A1A2E]/60">Charges variables</p>
-                    {customCharges.map(c => (
-                      <div key={c.id} className="flex gap-2 mb-2 items-center">
-                        <Input placeholder="Nom" value={c.name} onChange={e => updateCustomCharge(c.id, 'name', e.target.value)} className="flex-1" />
-                        <Input type="number" placeholder="€/mois" value={c.amount || ''} onChange={e => updateCustomCharge(c.id, 'amount', Number(e.target.value))} className="w-28" />
-                        <button onClick={() => removeCustomCharge(c.id)} className="p-1.5 rounded-lg hover:bg-rose-50"><Trash2 className="h-4 w-4 text-rose-500" /></button>
-                      </div>
-                    ))}
-                    <button onClick={addCustomCharge} className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border border-[#1A1A2E]/10 text-[#1A1A2E] hover:bg-[#FFF4E6]">
-                      <Plus className="h-3.5 w-3.5" /> Ajouter une charge
-                    </button>
-                  </div>
-                  <Button onClick={handleCalculate} disabled={isCalculating} className="w-full font-heading font-bold rounded-xl py-3 bg-[#FF5C1A] text-white hover:bg-[#FF5C1A]/90">
-                    {isCalculating ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Calcul…</> : 'Recalculer'}
-                  </Button>
-                </CollapsibleContent>
-              </Collapsible>
             </div>
+
+            {/* Personnaliser les charges — bottom dashed bar */}
+            <Collapsible open={chargesOpen} onOpenChange={setChargesOpen} className="mt-5">
+              <CollapsibleTrigger className="w-full flex items-center justify-between px-5 py-4 rounded-2xl bg-[#FFF4E6] border border-dashed border-[#FF5C1A]/40 hover:border-[#FF5C1A]/70 transition-colors group">
+                <span className="flex items-center gap-2.5 font-semibold text-sm text-[#1A1A2E]">
+                  <Wrench className="h-4 w-4 text-[#FF5C1A]" />
+                  Personnaliser les charges par logement (eau, ménage, taxes…)
+                </span>
+                <span className="flex items-center gap-1.5 text-[#FF5C1A] font-semibold text-sm">
+                  Ouvrir <ArrowRight className={`h-4 w-4 transition-transform ${chargesOpen ? 'rotate-90' : ''}`} />
+                </span>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-3 space-y-4 p-4 rounded-2xl bg-white border border-[#1A1A2E]/5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs mb-1 block text-[#1A1A2E]/70">Loyer du local (€/mois)</label>
+                    <Input type="number" value={rent || ''} onChange={e => setRent(Number(e.target.value))} />
+                  </div>
+                  <div>
+                    <label className="text-xs mb-1 block text-[#1A1A2E]/70">Autres charges fixes (€/mois)</label>
+                    <Input type="number" value={otherFixed || ''} onChange={e => setOtherFixed(Number(e.target.value))} />
+                  </div>
+                  <div>
+                    <label className="text-xs mb-1 block text-[#1A1A2E]/70">Salariés ETP</label>
+                    <Input type="number" step={0.5} value={ftpCount} onChange={e => setFtpCount(Number(e.target.value))} />
+                  </div>
+                  <div>
+                    <label className="text-xs mb-1 block text-[#1A1A2E]/70">Salaire chargé/ETP (€)</label>
+                    <Input type="number" value={salaryPerFtp} onChange={e => setSalaryPerFtp(Number(e.target.value))} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs mb-1 block text-[#1A1A2E]/70">Coût Noé (€/logement/mois)</label>
+                  <Select value={noeCost} onValueChange={setNoeCost}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5€ Classic</SelectItem>
+                      <SelectItem value="7">7€ Classic + Billing</SelectItem>
+                      <SelectItem value="11.5">11.50€ Pimp my Noé</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide mb-2 text-[#1A1A2E]/60">Charges variables</p>
+                  {customCharges.map(c => (
+                    <div key={c.id} className="flex gap-2 mb-2 items-center">
+                      <Input placeholder="Nom" value={c.name} onChange={e => updateCustomCharge(c.id, 'name', e.target.value)} className="flex-1" />
+                      <Input type="number" placeholder="€/mois" value={c.amount || ''} onChange={e => updateCustomCharge(c.id, 'amount', Number(e.target.value))} className="w-28" />
+                      <button onClick={() => removeCustomCharge(c.id)} className="p-1.5 rounded-lg hover:bg-rose-50"><Trash2 className="h-4 w-4 text-rose-500" /></button>
+                    </div>
+                  ))}
+                  <button onClick={addCustomCharge} className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border border-[#1A1A2E]/10 text-[#1A1A2E] hover:bg-[#FFF4E6]">
+                    <Plus className="h-3.5 w-3.5" /> Ajouter une charge
+                  </button>
+                </div>
+                <Button onClick={handleCalculate} disabled={isCalculating} className="w-full font-heading font-bold rounded-xl py-3 bg-[#FF5C1A] text-white hover:bg-[#FF5C1A]/90">
+                  {isCalculating ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Calcul…</> : 'Recalculer'}
+                </Button>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
         </div>
       </div>
