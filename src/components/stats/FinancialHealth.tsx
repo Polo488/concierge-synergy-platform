@@ -636,9 +636,27 @@ export function FinancialHealth() {
         </div>
       </div>
 
-      {/* ============ 4. PERFORMANCE OPÉRATIONNELLE (cream + yellow top border) ============ */}
+      {/* ============ 4. PERFORMANCE OPÉRATIONNELLE ============ */}
       <div className="relative overflow-hidden rounded-3xl bg-[#FFF8E6]" style={{ borderTop: '3px solid #F5C842' }}>
-        <Watermark tone="light" />
+        <img
+          src={noeIconOrange}
+          alt=""
+          aria-hidden
+          className="absolute pointer-events-none select-none"
+          style={{ right: '-50px', top: '-30px', width: '300px', opacity: 0.07 }}
+        />
+
+        {/* Module pill */}
+        <div className="absolute top-5 right-5 z-10">
+          <span
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-[#F5C842]/30 text-[10px] font-bold uppercase tracking-[0.16em] text-[#1A1A2E]/70"
+            style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+          >
+            <img src={noeIconOrange} alt="" className="h-2.5 w-2.5 object-contain" />
+            Module — 03/04
+          </span>
+        </div>
+
         <div className="relative z-10 p-8 sm:p-10">
           <SectionBadge color="yellow" icon="dot">Perf Index</SectionBadge>
 
@@ -649,47 +667,66 @@ export function FinancialHealth() {
             Un score sur 100 qui mesure la qualité de ta gestion ce mois-ci. Calculé sur 4 indicateurs clés observés sur les meilleures conciergeries.
           </p>
 
-          <div className="mt-8 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8">
-            {/* Score card */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1A1A2E] to-[#2D1B4E] p-6 flex flex-col">
-              <div className="flex-1 flex flex-col items-center justify-center py-6">
+          <div className="mt-7 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-7">
+            {/* Score card — dark with rotating-style ring */}
+            <div
+              className="relative overflow-hidden rounded-3xl p-6 flex flex-col"
+              style={{
+                background:
+                  'radial-gradient(120% 90% at 0% 0%, #1B2547 0%, #131A38 40%, #0B1024 100%)',
+              }}
+            >
+              <div className="flex-1 flex flex-col items-center justify-center py-4">
                 <div className="relative" style={{ width: 200, height: 200 }}>
                   <svg viewBox="0 0 120 120" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
-                    <circle cx="60" cy="60" r="54" stroke="rgba(255,255,255,0.1)" strokeWidth="6" fill="none" />
-                    <circle cx="60" cy="60" r="54" stroke="#F5C842" strokeWidth="6" fill="none"
-                      strokeDasharray={scoreCirc} strokeDashoffset={scoreOffset} strokeLinecap="round"
-                      style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)' }} />
+                    <circle cx="60" cy="60" r="52" stroke="rgba(255,255,255,0.08)" strokeWidth="7" fill="none" />
+                    <circle
+                      cx="60" cy="60" r="52"
+                      stroke="#F5C842" strokeWidth="7" fill="none"
+                      strokeDasharray={2 * Math.PI * 52}
+                      strokeDashoffset={(2 * Math.PI * 52) * (1 - perfScore.total / 100)}
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)' }}
+                    />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="font-heading font-extrabold text-white" style={{ fontSize: 64, lineHeight: 1 }}>{perfScore.total}</span>
-                    <span className="text-xs text-white/40 mt-1">/100</span>
+                    <span className="font-heading font-extrabold text-white" style={{ fontSize: 64, lineHeight: 1, letterSpacing: '-0.02em' }}>{perfScore.total}</span>
+                    <span className="text-xs text-white/40 mt-1.5 tracking-wide">/100</span>
                   </div>
                 </div>
               </div>
-              <div className="border-t border-white/10 pt-4 text-center">
-                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-[10px] font-bold uppercase tracking-widest text-[#F5C842]">
+              <div className="text-center pt-4">
+                <span
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-[10px] font-bold uppercase tracking-[0.18em] text-[#F5C842]"
+                  style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+                >
                   <img src={noeIconOrange} alt="" className="h-3 w-3" />
                   Score Noé · Mars 2026
                 </span>
-                <p className="mt-3 text-xs text-white/60">Mieux que <strong className="text-white">72%</strong> des conciergeries de ta taille.</p>
+                <p className="mt-3 text-xs text-white/55">
+                  Mieux que <strong className="text-[#F5C842]">72%</strong> des conciergeries de ta taille.
+                </p>
               </div>
             </div>
 
-            {/* Indicators */}
-            <div className="space-y-5">
+            {/* Indicators list */}
+            <div className="flex flex-col justify-center gap-5">
               {perfScore.indicators.map((ind, i) => {
                 const pct = (ind.score / ind.max) * 100;
                 return (
                   <div key={i}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold text-[#1A1A2E]">{ind.label}</span>
-                      <span className="font-mono font-bold text-[#1A1A2E] tabular-nums">{ind.score}/{ind.max}</span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="inline-flex items-center gap-2 font-semibold text-[#1A1A2E] text-sm">
+                        <span className="h-1.5 w-1.5 rounded-full" style={{ background: ind.color }} />
+                        {ind.label}
+                      </span>
+                      <span className="font-mono font-semibold text-[#1A1A2E] text-sm tabular-nums">{ind.score}/{ind.max}</span>
                     </div>
-                    <div className="h-2 rounded-full overflow-hidden bg-[#1A1A2E]/5">
+                    <div className="h-1.5 rounded-full overflow-hidden bg-[#1A1A2E]/8">
                       <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: ind.color }} />
                     </div>
-                    <p className="text-xs mt-2 text-[#1A1A2E]/50 italic" style={{ fontFamily: 'Instrument Serif, serif', fontSize: 13 }}>
-                      {ind.tip}
+                    <p className="text-[11px] mt-1.5 text-[#1A1A2E]/45 italic">
+                      Objectif : {ind.tip}
                     </p>
                   </div>
                 );
