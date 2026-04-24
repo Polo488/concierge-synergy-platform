@@ -430,7 +430,26 @@ export function FinancialHealth() {
 
       {/* ============ 3. TRÉSO PULSE (lavender + indigo top border) ============ */}
       <div className="relative overflow-hidden rounded-3xl bg-[#EEEDFB]" style={{ borderTop: '3px solid #4F46E5' }}>
-        <Watermark tone="light" />
+        {/* Giant decorative "n." watermark, bottom-right */}
+        <img
+          src={noeIconOrange}
+          alt=""
+          aria-hidden
+          className="absolute pointer-events-none select-none"
+          style={{ right: '-50px', top: '-30px', width: '300px', height: 'auto', opacity: 0.05 }}
+        />
+
+        {/* Module pill — top right */}
+        <div className="absolute top-5 right-5 z-10">
+          <span
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FFF4E6] border border-[#FF5C1A]/15 text-[10px] font-bold uppercase tracking-[0.16em] text-[#1A1A2E]/70"
+            style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+          >
+            <img src={noeIconOrange} alt="" className="h-2.5 w-2.5 object-contain" />
+            Module — 02/04
+          </span>
+        </div>
+
         <div className="relative z-10 p-8 sm:p-10">
           <SectionBadge color="indigo" icon="dot">Tréso Pulse</SectionBadge>
 
@@ -477,41 +496,50 @@ export function FinancialHealth() {
               Calcul simplifié par Noé
             </span>
             <p className="font-mono text-base sm:text-lg tabular-nums">
-              <span className="text-white/80">{fluxEntrants.toLocaleString('fr-FR')} €</span>
+              <span className="text-white/85">{fluxEntrants.toLocaleString('fr-FR')} €</span>
               <span className="text-white/40 mx-2">−</span>
-              <span className="text-white/80">{chargesFixesDebut.toLocaleString('fr-FR')} €</span>
+              <span className="text-white/85">{chargesFixesDebut.toLocaleString('fr-FR')} €</span>
               <span className="text-white/40 mx-2">=</span>
-              <span className="text-[#A5B4FC] font-semibold">BFR {tresoResults.bfr.toLocaleString('fr-FR')} €</span>
+              <span className="text-[#FF5C1A] font-semibold">BFR {tresoResults.bfr.toLocaleString('fr-FR')} €</span>
             </p>
           </div>
 
-          {/* 3 result cards */}
+          {/* 3 result cards — cream with subtle "n." watermark each */}
           <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-5 rounded-2xl bg-white border border-[#1A1A2E]/5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A2E]/50">BFR estimé</p>
-              <p className="mt-2 font-heading font-extrabold text-[#1A1A2E] text-3xl tabular-nums">{tresoResults.bfr.toLocaleString('fr-FR')} €</p>
-              <p className="mt-1.5 text-xs text-emerald-600 font-medium">▼ -580 € vs mois dernier</p>
-            </div>
-            <div className="p-5 rounded-2xl bg-white border border-[#1A1A2E]/5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A2E]/50">Jours de tréso</p>
-              <p className="mt-2 font-heading font-extrabold text-[#1A1A2E] text-3xl tabular-nums">{tresoResults.joursTreso} <span className="text-base font-medium text-[#1A1A2E]/60">jours</span></p>
-              <p className="mt-1.5 text-xs text-emerald-600 font-medium">▲ +3 jours de marge</p>
-            </div>
-            <div className="p-5 rounded-2xl bg-white border border-[#1A1A2E]/5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A2E]/50">Flux à reverser</p>
-              <p className="mt-2 font-heading font-extrabold text-[#1A1A2E] text-3xl tabular-nums">{tresoResults.fluxAReverser.toLocaleString('fr-FR')} €</p>
-              <p className="mt-1.5 text-xs text-[#1A1A2E]/60">Dans 5 jours</p>
-            </div>
+            {[
+              { label: 'BFR estimé', value: `${tresoResults.bfr.toLocaleString('fr-FR')} €`, hint: '▼ -580 € vs mois dernier', hintColor: 'text-emerald-600' },
+              { label: 'Jours de tréso', value: <>{tresoResults.joursTreso} <span className="text-base font-medium text-[#1A1A2E]/60">jours</span></>, hint: '▲ +3 jours de marge', hintColor: 'text-emerald-600' },
+              { label: 'Flux à reverser', value: `${tresoResults.fluxAReverser.toLocaleString('fr-FR')} €`, hint: 'Dans 5 jours', hintColor: 'text-[#1A1A2E]/60' },
+            ].map((card, i) => (
+              <div key={i} className="relative overflow-hidden p-5 rounded-2xl bg-[#FFF4E6] border border-[#FF5C1A]/10">
+                <img
+                  src={noeIconOrange}
+                  alt=""
+                  aria-hidden
+                  className="absolute pointer-events-none select-none"
+                  style={{ right: '-20px', bottom: '-20px', width: '90px', opacity: 0.06 }}
+                />
+                <p className="relative text-[10px] font-bold uppercase tracking-widest text-[#1A1A2E]/50">{card.label}</p>
+                <p className="relative mt-2 font-heading font-extrabold text-[#1A1A2E] text-3xl tabular-nums">{card.value}</p>
+                <p className={`relative mt-1.5 text-xs font-medium ${card.hintColor}`}>{card.hint}</p>
+              </div>
+            ))}
           </div>
 
-          {/* Health bar */}
+          {/* Health bar — smooth gradient + cursor */}
           <div className="mt-6">
-            <div className="relative h-3 rounded-full overflow-hidden flex bg-white">
-              <div style={{ width: '25%', background: '#FCA5A5' }} />
-              <div style={{ width: '25%', background: '#FCD34D' }} />
-              <div style={{ width: '25%', background: '#86EFAC' }} />
-              <div style={{ width: '25%', background: '#22C55E' }} />
-              <div className="absolute top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-[#0E1530] border-2 border-white shadow-lg" style={{ left: '78%', transform: 'translate(-50%, -50%)' }} />
+            <div className="relative h-3 rounded-full overflow-visible">
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background:
+                    'linear-gradient(90deg, #FCA5A5 0%, #FCA5A5 22%, #FCD34D 38%, #FCD34D 55%, #86EFAC 70%, #22C55E 100%)',
+                }}
+              />
+              <div
+                className="absolute top-1/2 h-5 w-5 rounded-full bg-[#0E1530] border-2 border-white shadow-lg"
+                style={{ left: '85%', transform: 'translate(-50%, -50%)' }}
+              />
             </div>
             <div className="mt-2 flex justify-between text-[10px] font-semibold uppercase tracking-wider text-[#1A1A2E]/50">
               <span>⚠ Risque</span>
