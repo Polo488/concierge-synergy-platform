@@ -15,10 +15,18 @@ interface CustomCharge {
 }
 
 const MOCK_PROPERTIES = [
-  { name: 'Villa Azur — Nice', icon: 'image', revenue: 3800, charges: 1200 },
-  { name: 'Chalet Écrins — Chamonix', icon: 'mountain', revenue: 2100, charges: 980 },
-  { name: 'Studio Bastille — Paris', icon: 'building', revenue: 1450, charges: 820 },
-  { name: 'Gîte Luberon — Gordes', icon: 'trees', revenue: 890, charges: 1100 },
+  { name: 'Villa Azur — Nice', emoji: '🏖️', revenue: 3800, charges: 1200 },
+  { name: 'Appartement Mer — Biarritz', emoji: '🌊', revenue: 2880, charges: 1000 },
+  { name: 'Loft Canal — Lyon', emoji: '🏙️', revenue: 2550, charges: 1000 },
+  { name: 'Maison Vigne — Saint-Émilion', emoji: '🍇', revenue: 2410, charges: 1000 },
+  { name: 'Chalet Écrins — Chamonix', emoji: '🏔️', revenue: 2100, charges: 980 },
+  { name: 'Studio Bastille — Paris', emoji: '🗼', revenue: 1450, charges: 820 },
+  { name: 'Cabane Forêt — Fontainebleau', emoji: '🌲', revenue: 1380, charges: 720 },
+  { name: 'Riad Médina — Marrakech', emoji: '🕌', revenue: 1320, charges: 700 },
+  { name: 'Penthouse Sky — Bordeaux', emoji: '🏢', revenue: 2200, charges: 1100 },
+  { name: 'Mas Provence — Aix', emoji: '🌻', revenue: 1180, charges: 820 },
+  { name: 'Loft Industriel — Lille', emoji: '🏭', revenue: 1090, charges: 920 },
+  { name: 'Gîte Luberon — Gordes', emoji: '🌳', revenue: 890, charges: 1100 },
 ];
 
 const PropIcon = ({ type }: { type: string }) => {
