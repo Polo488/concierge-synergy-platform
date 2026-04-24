@@ -743,103 +743,158 @@ export function FinancialHealth() {
         </div>
       </div>
 
-      {/* ============ 5. CLASSEMENT NOÉ (dark + pink/orange gradient top) ============ */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1A1A2E] via-[#2A1A3E] to-[#3D1A2E]" style={{ borderTop: '3px solid', borderImage: 'linear-gradient(90deg, #FF8AB8, #FF5C1A) 1' }}>
-        <Watermark tone="dark" />
+      {/* ============ 5. CLASSEMENT NOÉ ============ */}
+      <div
+        className="relative overflow-hidden rounded-3xl"
+        style={{
+          background:
+            'radial-gradient(120% 90% at 100% 0%, #3D1A2E 0%, #2A1A3E 35%, #1A1A2E 70%, #0E1530 100%)',
+          borderTop: '3px solid transparent',
+          backgroundImage:
+            'radial-gradient(120% 90% at 100% 0%, #3D1A2E 0%, #2A1A3E 35%, #1A1A2E 70%, #0E1530 100%), linear-gradient(90deg, #FF8AB8, #FF5C1A)',
+          backgroundOrigin: 'padding-box, border-box',
+          backgroundClip: 'padding-box, border-box',
+        }}
+      >
+        {/* Giant "n." watermark */}
+        <img
+          src={noeIconWhite}
+          alt=""
+          aria-hidden
+          className="absolute pointer-events-none select-none"
+          style={{ right: '-80px', top: '-40px', width: '420px', opacity: 0.05, filter: 'brightness(0.5)' }}
+        />
+
+        {/* Module pill */}
+        <div className="absolute top-5 right-5 z-10">
+          <span
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-[10px] font-bold uppercase tracking-[0.16em] text-white/60"
+            style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+          >
+            <img src={noeIconOrange} alt="" className="h-2.5 w-2.5 object-contain" />
+            Module — 04/04
+          </span>
+        </div>
+
         <div className="relative z-10 p-8 sm:p-10">
           <SectionBadge color="pink" icon="white">🏆 Classement Noé</SectionBadge>
 
           <div className="mt-5 flex items-baseline gap-2.5">
             <img src={noeIconOrange} alt="" className="h-6 w-6 self-center" />
-            <h3 className="font-heading font-bold text-white" style={{ fontSize: 28, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+            <h3 className="font-heading font-bold text-white" style={{ fontSize: 30, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
               Ta position{' '}
-              <span className="italic font-normal text-white/80" style={{ fontFamily: 'Instrument Serif, serif' }}>ce mois</span>
+              <span className="italic font-normal text-[#FF5C1A]" style={{ fontFamily: 'Instrument Serif, serif', fontWeight: 400 }}>
+                ce mois
+              </span>
             </h3>
           </div>
-          <p className="mt-3 text-white/60 max-w-2xl leading-relaxed">
+          <p className="mt-3 text-white/55 max-w-2xl leading-relaxed text-sm">
             Tu es dans les <strong className="text-white">28%</strong> des meilleures conciergeries ce mois-ci. Un ranking basé uniquement sur le score opérationnel — tes données financières restent privées.
           </p>
 
           {/* Badge unlocked */}
-          <div className="mt-7 flex items-center gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full blur-xl bg-[#FF5C1A]/40" />
-              <div className="relative h-14 w-14 rounded-full bg-gradient-to-br from-[#FF8A4C] to-[#FF5C1A] flex items-center justify-center shadow-lg">
-                <Award className="h-7 w-7 text-white" />
+          <div className="mt-7 flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/[0.04] border border-white/10">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 rounded-full blur-2xl bg-[#FF5C1A]/60" />
+              <div
+                className="relative h-14 w-14 rounded-full flex items-center justify-center text-2xl shadow-[0_8px_24px_rgba(255,92,26,0.5)]"
+                style={{
+                  background: 'radial-gradient(circle at 30% 30%, #FFB870 0%, #FF8A4C 40%, #FF5C1A 100%)',
+                }}
+              >
+                🥇
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Badge débloqué</p>
-              <p className="mt-0.5 font-heading font-bold text-white text-xl">
-                Expert <span className="italic font-normal text-[#FF8A4C]" style={{ fontFamily: 'Instrument Serif, serif' }}>— {perfScore.total}/100</span>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45">Badge débloqué</p>
+              <p className="mt-0.5 font-heading font-bold text-white text-2xl">
+                Expert{' '}
+                <span className="italic font-normal text-[#FF8A4C]" style={{ fontFamily: 'Instrument Serif, serif' }}>
+                  — {perfScore.total}/100
+                </span>
               </p>
             </div>
-            <span className="px-4 py-2 rounded-full bg-gradient-to-r from-[#FF8A4C] to-[#FF5C1A] text-white text-xs font-bold shadow-lg">
+            <span
+              className="px-4 py-2 rounded-full text-white text-[11px] font-bold shadow-[0_4px_16px_rgba(255,92,26,0.4)] tracking-wide"
+              style={{ background: 'linear-gradient(90deg, #FF8A4C 0%, #FF5C1A 100%)' }}
+            >
               TOP 28%
             </span>
           </div>
 
           {/* Ranking gradient bar */}
           <div className="mt-8 relative">
-            <div className="h-3 rounded-full overflow-hidden flex">
+            <div className="h-2.5 rounded-full overflow-hidden flex">
               <div style={{ width: '20%', background: '#FCA5A5' }} />
               <div style={{ width: '50%', background: '#FCD34D' }} />
               <div style={{ width: '20%', background: '#22C55E' }} />
               <div style={{ width: '10%', background: '#FF5C1A' }} />
             </div>
-            {/* "Tu es ici" pin */}
+            {/* "TU ES ICI" pin */}
             <div className="absolute" style={{ left: '78%', top: -2 }}>
               <div className="relative -translate-x-1/2 flex flex-col items-center">
-                <div className="h-7 w-px bg-white" />
-                <div className="mt-1 px-2.5 py-1 rounded-md bg-[#FF5C1A] text-white text-[10px] font-bold shadow-lg whitespace-nowrap">
+                <div className="h-6 w-px bg-white/80" />
+                <div
+                  className="mt-1 px-2.5 py-1 rounded-md text-white text-[10px] font-bold shadow-lg whitespace-nowrap tracking-wide"
+                  style={{ background: 'linear-gradient(90deg, #FF8A4C 0%, #FF5C1A 100%)' }}
+                >
                   TU ES ICI
                 </div>
               </div>
             </div>
-            <div className="mt-10 flex justify-between text-[11px] text-white/60">
-              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#FCA5A5]" />20% bas</span>
-              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#FCD34D]" />50% milieu</span>
-              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#22C55E]" />20% top</span>
-              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#FF5C1A]" />10% élite</span>
+            <div className="mt-12 flex justify-between text-[11px] font-semibold text-white/55 uppercase tracking-wider">
+              <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#FCA5A5]" />20% bas</span>
+              <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#FCD34D]" />50% milieu</span>
+              <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#22C55E]" />20% top</span>
+              <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#FF5C1A]" />10% élite</span>
             </div>
           </div>
 
           {/* Sub-badges */}
-          <div className="mt-6 space-y-2.5">
-            <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-emerald-400/20">
-              <div className="h-9 w-9 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
-                <Target className="h-4.5 w-4.5 text-emerald-400" />
+          <div className="mt-7 space-y-2.5">
+            <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-white/[0.04] border border-emerald-400/25">
+              <div className="h-9 w-9 rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0">
+                <Target className="h-4 w-4 text-emerald-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-sm">Top 30% — Taux d'occupation</p>
                 <p className="text-xs text-white/50 mt-0.5">Tu maintiens un remplissage au-dessus de la moyenne haute du marché.</p>
               </div>
-              <span className="text-emerald-400 font-mono font-semibold text-sm shrink-0">+8 pts</span>
+              <span className="text-white/70 font-mono text-xs shrink-0 px-2.5 py-1 rounded-md bg-white/[0.06] border border-white/10">+8 pts</span>
             </div>
 
-            <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-[#FF5C1A]/20">
-              <div className="h-9 w-9 rounded-lg bg-[#FF5C1A]/20 flex items-center justify-center shrink-0">
-                <Hourglass className="h-4.5 w-4.5 text-[#FF8A4C]" />
+            <div
+              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-white/[0.04]"
+              style={{ border: '1px dashed rgba(255,138,76,0.45)' }}
+            >
+              <div className="h-9 w-9 rounded-xl bg-[#FF5C1A]/15 flex items-center justify-center shrink-0">
+                <Hourglass className="h-4 w-4 text-[#FF8A4C]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-sm">Top 10% — Réactivité</p>
                 <p className="text-xs text-white/50 mt-0.5">Encore 2 pts pour débloquer le badge Élite.</p>
               </div>
-              <span className="text-[#FF8A4C] font-mono font-semibold text-sm shrink-0">73 → 75</span>
+              <span className="text-white/70 font-mono text-xs shrink-0 px-2.5 py-1 rounded-md bg-white/[0.06] border border-white/10">73 → 75</span>
             </div>
 
-            <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
-              <div className="h-9 w-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                <Lock className="h-4.5 w-4.5 text-white/60" />
+            <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-white/[0.04] border border-white/10">
+              <div className="h-9 w-9 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0">
+                <Lock className="h-4 w-4 text-white/55" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-sm">Classement anonyme garanti</p>
                 <p className="text-xs text-white/50 mt-0.5">Tes données financières restent privées, seul le score opérationnel est comparé.</p>
               </div>
+              <div className="h-8 w-8 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center shrink-0">
+                <ShieldCheck className="h-4 w-4 text-white/45" />
+              </div>
             </div>
           </div>
 
-          <p className="mt-6 text-center text-xs text-white/40 italic" style={{ fontFamily: 'Instrument Serif, serif', fontSize: 13 }}>
+          <p
+            className="mt-6 text-center text-white/40"
+            style={{ fontFamily: 'Instrument Serif, serif', fontSize: 14, fontStyle: 'italic' }}
+          >
             Classement basé sur le score opérationnel uniquement — les données financières restent privées.
           </p>
         </div>
