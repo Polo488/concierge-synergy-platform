@@ -225,7 +225,7 @@ export function FinancialHealth() {
                 }}
               >
                 <textPath href="#noe-seal-circle" startOffset="0">
-                  EXCLUSIF NOÉ · BY NOÉ · EXCLUSIF NOÉ · BY NOÉ ·
+                  EXCLUSIVITÉ NOÉ · EXCLUSIVITÉ NOÉ ·
                 </textPath>
               </text>
             </svg>
