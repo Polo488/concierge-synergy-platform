@@ -22,6 +22,7 @@ export default {
       fontFamily: {
         heading: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
         body: ['Inter', 'sans-serif'],
+        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
       },
       colors: {
         noe: {
