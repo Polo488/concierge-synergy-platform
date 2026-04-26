@@ -91,7 +91,7 @@ export function SortableSection({
             {...listeners}
             className={cn(
               "p-1.5 rounded-md cursor-grab active:cursor-grabbing",
-              "text-white/30 hover:text-white/50",
+              "text-muted-foreground hover:text-foreground",
               "transition-colors touch-none"
             )}
             title="Réorganiser la section"
@@ -101,9 +101,9 @@ export function SortableSection({
 
           <CollapsibleTrigger className={cn(
             "flex items-center justify-between flex-1 px-2 py-2 rounded-lg",
-            "hover:bg-white/[0.04] transition-colors"
+            "hover:bg-foreground/[0.04] transition-colors"
           )}>
-            <span className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.08em] uppercase text-white/50">
+            <span className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.08em] uppercase text-muted-foreground">
               <span
                 className="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0"
                 style={{ background: dotColor }}
@@ -113,7 +113,7 @@ export function SortableSection({
             <ChevronDown 
               size={12} 
               className={cn(
-                "transition-transform duration-150 text-white/30",
+                "transition-transform duration-150 text-muted-foreground",
                 isExpanded && "rotate-180"
               )}
             />
@@ -132,14 +132,14 @@ export function SortableSection({
                   "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-150",
                   "group ml-4",
                   isActive 
-                    ? "bg-[rgba(255,92,26,0.15)] text-white font-semibold border-l-[3px] border-l-noe-orange ml-[13px] rounded-l-none" 
-                    : "text-white/60 hover:text-white/90 hover:bg-white/[0.06]",
+                    ? "bg-primary/10 text-foreground font-semibold ml-[13px]" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]",
                   !isOpen && "md:ml-0 md:justify-center"
                 )}
               >
                 <item.icon size={16} className={cn(
                   "flex-shrink-0",
-                  isActive ? "text-noe-orange" : "text-white/45"
+                  isActive ? "text-primary" : "text-muted-foreground"
                 )} />
                 
                 <span className={cn(
@@ -168,8 +168,8 @@ export function SortableSection({
                   className={cn(
                     "relative p-2.5 rounded-lg transition-all duration-150",
                     isActive 
-                      ? "bg-[rgba(255,92,26,0.15)] text-noe-orange" 
-                      : "text-white/45 hover:text-white/90 hover:bg-white/[0.06]"
+                      ? "bg-primary/10 text-primary" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]"
                   )}
                 >
                   <item.icon size={18} />
