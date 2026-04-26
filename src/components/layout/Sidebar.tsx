@@ -294,7 +294,7 @@ export function Sidebar() {
       {/* Mobile overlay */}
       {isMobile && isOpen && (
         <div 
-          className="fixed inset-0 bg-black/40 z-[200]"
+          className="fixed inset-0 bg-foreground/20 backdrop-blur-sm z-[200]"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -303,8 +303,8 @@ export function Sidebar() {
       {isMobile && (
         <button
           className={cn(
-            "fixed z-[250] top-4 transition-all duration-300",
-            "bg-noe-navy rounded-xl p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-white",
+            "fixed z-[250] top-4 transition-all duration-300 safe-top",
+            "glass-pill rounded-2xl p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-foreground",
             isOpen ? "left-[232px]" : "left-3"
           )}
           onClick={() => setIsOpen(!isOpen)}
@@ -318,13 +318,12 @@ export function Sidebar() {
         className={cn(
           "fixed left-0 top-0 h-full transition-all duration-300 ease-out",
           "flex flex-col overflow-hidden",
-          "glass-strong glass-highlight",
+          "glass-strong",
           sidebarWidth,
           isMobile ? "z-[210]" : "z-40"
         )}
         style={{
-          background: 'linear-gradient(180deg, hsla(232, 35%, 10%, 0.65) 0%, hsla(232, 30%, 8%, 0.75) 100%)',
-          borderRight: '1px solid hsla(0, 0%, 100%, 0.1)',
+          borderRight: '1px solid hsl(var(--border) / 0.7)',
           borderRadius: 0,
         }}
       >
@@ -337,7 +336,7 @@ export function Sidebar() {
             src={logoNoe} 
             alt="Noé" 
             className={cn(
-              "h-11 w-auto object-contain max-w-full brightness-0 invert",
+              "h-11 w-auto object-contain max-w-full",
               isCollapsed && "h-8"
             )}
           />
