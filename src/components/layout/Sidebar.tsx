@@ -97,8 +97,8 @@ export function Sidebar() {
     {
       id: 'pilotage',
       title: 'PILOTAGE',
-      colorClass: 'text-white/30',
-      activeClass: 'bg-[rgba(255,92,26,0.15)] text-white',
+      colorClass: 'text-muted-foreground',
+      activeClass: 'bg-primary/10 text-foreground',
       bgClass: '',
       iconBgClass: '',
       items: [
@@ -111,8 +111,8 @@ export function Sidebar() {
     {
       id: 'operations',
       title: 'OPÉRATIONS',
-      colorClass: 'text-white/30',
-      activeClass: 'bg-[rgba(255,92,26,0.15)] text-white',
+      colorClass: 'text-muted-foreground',
+      activeClass: 'bg-primary/10 text-foreground',
       bgClass: '',
       iconBgClass: '',
       items: [
@@ -127,8 +127,8 @@ export function Sidebar() {
     {
       id: 'revenus',
       title: 'REVENUS',
-      colorClass: 'text-white/30',
-      activeClass: 'bg-[rgba(255,92,26,0.15)] text-white',
+      colorClass: 'text-muted-foreground',
+      activeClass: 'bg-primary/10 text-foreground',
       bgClass: '',
       iconBgClass: '',
       items: [
@@ -141,8 +141,8 @@ export function Sidebar() {
     {
       id: 'experience',
       title: 'VOYAGEURS',
-      colorClass: 'text-white/30',
-      activeClass: 'bg-[rgba(255,92,26,0.15)] text-white',
+      colorClass: 'text-muted-foreground',
+      activeClass: 'bg-primary/10 text-foreground',
       bgClass: '',
       iconBgClass: '',
       items: [
@@ -154,8 +154,8 @@ export function Sidebar() {
     {
       id: 'organisation',
       title: 'ORGANISATION',
-      colorClass: 'text-white/30',
-      activeClass: 'bg-[rgba(255,92,26,0.15)] text-white',
+      colorClass: 'text-muted-foreground',
+      activeClass: 'bg-primary/10 text-foreground',
       bgClass: '',
       iconBgClass: '',
       items: [
