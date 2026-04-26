@@ -388,14 +388,14 @@ export function Sidebar() {
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200",
+                      "flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 min-h-[44px]",
                       isActive
-                        ? "bg-[rgba(255,92,26,0.15)] text-white font-semibold border-l-[3px] border-l-noe-orange rounded-l-none"
-                        : "text-white/60 hover:text-white/90 hover:bg-white/[0.06]",
+                        ? "bg-primary/10 text-foreground font-semibold"
+                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]",
                       isCollapsed && "justify-center px-2"
                     )}
                   >
-                    <item.icon size={18} className={cn("flex-shrink-0", isActive ? "text-noe-orange" : "text-white/45")} />
+                    <item.icon size={18} className={cn("flex-shrink-0", isActive ? "text-primary" : "text-muted-foreground")} />
                     {!isCollapsed && <span className="text-sm">{item.name}</span>}
                   </Link>
                 );
