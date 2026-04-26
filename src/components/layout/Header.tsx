@@ -87,13 +87,13 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
     <>
       <header
         className={cn(
-          "fixed top-0 z-30 transition-all duration-300",
-          "bg-card border-b border-border",
-          scrolled && "shadow-sm"
+          "fixed top-0 z-30 transition-all duration-300 glass-strong glass-highlight",
+          scrolled && "shadow-2xl"
         )}
         style={{
           left: isMobile ? 0 : `${sidebarOffset}px`,
           right: 0,
+          borderRadius: 0,
         }}
       >
         <div className="flex h-16 items-center justify-between px-4 md:px-6 max-w-full">
