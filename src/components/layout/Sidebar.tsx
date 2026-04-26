@@ -442,7 +442,7 @@ export function Sidebar() {
               
               <DragOverlay>
                 {activeSection ? (
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#1A1A2E] shadow-float text-xs font-medium text-white/60">
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl glass-strong shadow-float text-xs font-medium text-foreground">
                     <span>{activeSection.title}</span>
                   </div>
                 ) : null}
@@ -459,7 +459,7 @@ export function Sidebar() {
                 <TooltipTrigger asChild>
                   <button
                     onClick={logout}
-                    className="flex items-center justify-center w-full py-2.5 rounded-xl transition-all duration-200 text-white/40 hover:text-white/70"
+                    className="flex items-center justify-center w-full py-2.5 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground"
                   >
                     <LogOut size={18} />
                   </button>
@@ -470,7 +470,7 @@ export function Sidebar() {
           ) : (
             <button
               onClick={logout}
-              className="flex items-center w-full gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-white/40 hover:text-white/70"
+              className="flex items-center w-full gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground"
             >
               <LogOut size={18} />
               <span className="text-sm">Déconnexion</span>
@@ -483,7 +483,7 @@ export function Sidebar() {
           <div className="flex p-3 justify-center flex-shrink-0">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-white/40 hover:text-white/70 transition-colors p-2 rounded-xl hover:bg-white/[0.08] border border-white/10"
+              className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-foreground/[0.04] border border-border"
             >
               <ChevronLeft 
                 size={16} 
