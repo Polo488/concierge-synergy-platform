@@ -27,17 +27,22 @@ export function Layout() {
   const sidebarOffset = isMobile ? 0 : isTablet ? 64 : 240;
 
   return (
-    <div className="min-h-screen relative w-full max-w-[100vw] bg-background">
+    <div className="min-h-screen relative w-full max-w-[100vw]">
+      {/* Liquid Glass ambient background — orbes lumineux derrière toute l'app */}
+      <div className="liquid-bg" aria-hidden="true">
+        <div className="orb orb-3" />
+      </div>
+
       <Sidebar />
-      
+
       <Header sidebarOffset={sidebarOffset} />
-      
+
       <main
         style={{
           marginLeft: isMobile ? 0 : `${sidebarOffset}px`,
           paddingTop: '64px',
         }}
-        className="min-h-screen w-auto max-w-full transition-all duration-300 ease-out"
+        className="min-h-screen w-auto max-w-full transition-all duration-300 ease-out relative z-10"
       >
         <div className={cn(
           "mx-auto max-w-[1280px] animate-fade-in box-border w-full",

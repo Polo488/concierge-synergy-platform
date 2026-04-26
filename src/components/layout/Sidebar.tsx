@@ -318,10 +318,15 @@ export function Sidebar() {
         className={cn(
           "fixed left-0 top-0 h-full transition-all duration-300 ease-out",
           "flex flex-col overflow-hidden",
-          "bg-[#1A1A2E]",
+          "glass-strong glass-highlight",
           sidebarWidth,
           isMobile ? "z-[210]" : "z-40"
         )}
+        style={{
+          background: 'linear-gradient(180deg, hsla(232, 35%, 10%, 0.65) 0%, hsla(232, 30%, 8%, 0.75) 100%)',
+          borderRight: '1px solid hsla(0, 0%, 100%, 0.1)',
+          borderRadius: 0,
+        }}
       >
         {/* Logo */}
         <div className={cn(

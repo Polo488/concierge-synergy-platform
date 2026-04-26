@@ -29,42 +29,48 @@ html, body {
 
 @layer base {
   :root {
-    /* Noé DA palette */
-    --background: 228 14% 96%;
-    --foreground: 240 14% 14%;
+    /* Noé DA palette — Liquid Glass base (light navy ambient) */
+    --background: 232 30% 10%;
+    --foreground: 0 0% 98%;
 
     --card: 0 0% 100%;
     --card-foreground: 240 14% 14%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 14% 14%;
+    --popover: 232 28% 14%;
+    --popover-foreground: 0 0% 98%;
 
     --primary: 18 100% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 97%;
-    --secondary-foreground: 240 14% 26%;
+    --secondary: 232 22% 18%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 0 0% 97%;
-    --muted-foreground: 240 7% 46%;
+    --muted: 232 18% 22%;
+    --muted-foreground: 230 10% 70%;
 
-    --accent: 0 0% 95%;
-    --accent-foreground: 240 14% 26%;
+    --accent: 232 22% 22%;
+    --accent-foreground: 0 0% 95%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
     --ring: 18 100% 55%;
 
-    --radius: 0.875rem;
+    --radius: 1.25rem;
 
-    /* Glass morphism variables */
+    /* Liquid Glass tokens */
     --glass-bg: 0 0% 100%;
-    --glass-blur: 20px;
-    --glass-border: 0 0% 95%;
-    --glass-shadow: 240 14% 14%;
+    --glass-bg-alpha: 0.08;
+    --glass-bg-strong-alpha: 0.14;
+    --glass-blur: 24px;
+    --glass-blur-strong: 40px;
+    --glass-saturate: 180%;
+    --glass-border: 0 0% 100%;
+    --glass-border-alpha: 0.18;
+    --glass-highlight-alpha: 0.28;
+    --glass-shadow: 232 30% 5%;
 
     /* Noé brand tokens */
     --noe-navy: 240 33% 14%;
@@ -72,33 +78,33 @@ html, body {
     --noe-yellow: 43 90% 58%;
 
     /* Status colors */
-    --status-success: 152 45% 45%;
+    --status-success: 152 60% 55%;
     --status-success-light: 152 45% 96%;
-    --status-warning: 38 75% 50%;
+    --status-warning: 38 90% 60%;
     --status-warning-light: 38 75% 96%;
-    --status-error: 0 65% 55%;
+    --status-error: 0 75% 62%;
     --status-error-light: 0 65% 96%;
-    --status-info: 210 70% 50%;
+    --status-info: 210 80% 60%;
     --status-info-light: 210 70% 96%;
-    --status-pending: 270 40% 50%;
+    --status-pending: 270 60% 65%;
     --status-pending-light: 270 40% 96%;
 
     /* Navigation section colors - kept for compatibility */
-    --nav-pilotage: 217 55% 55%;
+    --nav-pilotage: 217 70% 65%;
     --nav-pilotage-light: 217 50% 90%;
-    --nav-operations: 152 40% 45%;
+    --nav-operations: 152 50% 55%;
     --nav-operations-light: 152 40% 90%;
-    --nav-revenus: 25 65% 55%;
+    --nav-revenus: 25 85% 60%;
     --nav-revenus-light: 25 60% 90%;
-    --nav-experience: 270 40% 55%;
+    --nav-experience: 270 55% 65%;
     --nav-experience-light: 270 35% 90%;
-    --nav-organisation: 220 15% 55%;
+    --nav-organisation: 220 30% 65%;
     --nav-organisation-light: 220 15% 90%;
 
     /* Booking channel colors */
-    --channel-airbnb: 0 84% 60%;
-    --channel-booking: 217 91% 60%;
-    --channel-other: 220 13% 50%;
+    --channel-airbnb: 0 84% 65%;
+    --channel-booking: 217 91% 65%;
+    --channel-other: 220 13% 60%;
   }
 
   .dark {
@@ -650,3 +656,117 @@ h1, h2, h3, h4, h5, h6,
   70%  { transform: scale(1.16); opacity: 0.15; }
   100% { transform: scale(1.20); opacity: 0; }
 }
+
+/* ============================================
+   LIQUID GLASS — iOS 26 inspired
+   ============================================ */
+
+/* Body fond sombre profond + ambient (les orbes sont injectés via Layout) */
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Wrapper qui pose les orbes lumineux fixes derrière toute l'app */
+.liquid-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 100% 0%, hsla(232, 35%, 20%, 0.6) 0%, transparent 60%),
+    radial-gradient(100% 70% at 0% 100%, hsla(252, 40%, 18%, 0.5) 0%, transparent 60%),
+    linear-gradient(160deg, hsl(232, 30%, 8%) 0%, hsl(232, 30%, 12%) 100%);
+}
+.liquid-bg::before,
+.liquid-bg::after,
+.liquid-bg > .orb {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.55;
+  animation: orb-drift 28s ease-in-out infinite;
+}
+.liquid-bg::before {
+  top: -10%; left: -10%;
+  width: 520px; height: 520px;
+  background: radial-gradient(circle, hsla(18, 100%, 55%, 0.55) 0%, transparent 70%);
+}
+.liquid-bg::after {
+  bottom: -15%; right: -10%;
+  width: 620px; height: 620px;
+  background: radial-gradient(circle, hsla(330, 80%, 60%, 0.4) 0%, transparent 70%);
+  animation-delay: -14s;
+}
+.liquid-bg > .orb-3 {
+  top: 40%; left: 50%;
+  width: 480px; height: 480px;
+  background: radial-gradient(circle, hsla(252, 80%, 60%, 0.35) 0%, transparent 70%);
+  animation-delay: -7s;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes orb-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -30px) scale(1.05); }
+  66% { transform: translate(-30px, 30px) scale(0.95); }
+}
+.liquid-bg > .orb-3 {
+  animation-name: orb-drift-center;
+}
+@keyframes orb-drift-center {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-45%, -55%) scale(1.08); }
+}
+
+/* Surface verre standard (cartes, popovers, sheets) */
+.glass-surface {
+  background: hsla(var(--glass-bg) / var(--glass-bg-alpha));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid hsla(var(--glass-border) / var(--glass-border-alpha));
+  box-shadow:
+    inset 0 1px 0 hsla(0, 0%, 100%, var(--glass-highlight-alpha)),
+    inset 0 -1px 0 hsla(0, 0%, 100%, 0.04),
+    0 8px 32px hsla(var(--glass-shadow) / 0.35);
+  position: relative;
+}
+
+/* Surface verre forte (modales, header sticky) */
+.glass-strong {
+  background: hsla(var(--glass-bg) / var(--glass-bg-strong-alpha));
+  backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+  border: 1px solid hsla(var(--glass-border) / 0.22);
+  box-shadow:
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.32),
+    inset 0 -1px 0 hsla(0, 0%, 100%, 0.05),
+    0 16px 48px hsla(var(--glass-shadow) / 0.45);
+}
+
+/* Highlight de bord en haut (effet reflet liquide) */
+.glass-highlight::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 8%; right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsla(0, 0%, 100%, 0.55), transparent);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Pill / bouton verre */
+.glass-pill {
+  background: hsla(0, 0%, 100%, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid hsla(0, 0%, 100%, 0.15);
+  box-shadow: inset 0 1px 0 hsla(0, 0%, 100%, 0.22);
+}
+
+/* Forcer text-foreground lisible sur fond sombre */
+:root body { color: hsl(var(--foreground)); }
