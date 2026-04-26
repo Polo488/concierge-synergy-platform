@@ -29,42 +29,48 @@ html, body {
 
 @layer base {
   :root {
-    /* Noé DA palette */
-    --background: 228 14% 96%;
-    --foreground: 240 14% 14%;
+    /* Noé DA palette — Liquid Glass base (light navy ambient) */
+    --background: 232 30% 10%;
+    --foreground: 0 0% 98%;
 
     --card: 0 0% 100%;
     --card-foreground: 240 14% 14%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 14% 14%;
+    --popover: 232 28% 14%;
+    --popover-foreground: 0 0% 98%;
 
     --primary: 18 100% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 97%;
-    --secondary-foreground: 240 14% 26%;
+    --secondary: 232 22% 18%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 0 0% 97%;
-    --muted-foreground: 240 7% 46%;
+    --muted: 232 18% 22%;
+    --muted-foreground: 230 10% 70%;
 
-    --accent: 0 0% 95%;
-    --accent-foreground: 240 14% 26%;
+    --accent: 232 22% 22%;
+    --accent-foreground: 0 0% 95%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
     --ring: 18 100% 55%;
 
-    --radius: 0.875rem;
+    --radius: 1.25rem;
 
-    /* Glass morphism variables */
+    /* Liquid Glass tokens */
     --glass-bg: 0 0% 100%;
-    --glass-blur: 20px;
-    --glass-border: 0 0% 95%;
-    --glass-shadow: 240 14% 14%;
+    --glass-bg-alpha: 0.08;
+    --glass-bg-strong-alpha: 0.14;
+    --glass-blur: 24px;
+    --glass-blur-strong: 40px;
+    --glass-saturate: 180%;
+    --glass-border: 0 0% 100%;
+    --glass-border-alpha: 0.18;
+    --glass-highlight-alpha: 0.28;
+    --glass-shadow: 232 30% 5%;
 
     /* Noé brand tokens */
     --noe-navy: 240 33% 14%;
@@ -72,33 +78,33 @@ html, body {
     --noe-yellow: 43 90% 58%;
 
     /* Status colors */
-    --status-success: 152 45% 45%;
+    --status-success: 152 60% 55%;
     --status-success-light: 152 45% 96%;
-    --status-warning: 38 75% 50%;
+    --status-warning: 38 90% 60%;
     --status-warning-light: 38 75% 96%;
-    --status-error: 0 65% 55%;
+    --status-error: 0 75% 62%;
     --status-error-light: 0 65% 96%;
-    --status-info: 210 70% 50%;
+    --status-info: 210 80% 60%;
     --status-info-light: 210 70% 96%;
-    --status-pending: 270 40% 50%;
+    --status-pending: 270 60% 65%;
     --status-pending-light: 270 40% 96%;
 
     /* Navigation section colors - kept for compatibility */
-    --nav-pilotage: 217 55% 55%;
+    --nav-pilotage: 217 70% 65%;
     --nav-pilotage-light: 217 50% 90%;
-    --nav-operations: 152 40% 45%;
+    --nav-operations: 152 50% 55%;
     --nav-operations-light: 152 40% 90%;
-    --nav-revenus: 25 65% 55%;
+    --nav-revenus: 25 85% 60%;
     --nav-revenus-light: 25 60% 90%;
-    --nav-experience: 270 40% 55%;
+    --nav-experience: 270 55% 65%;
     --nav-experience-light: 270 35% 90%;
-    --nav-organisation: 220 15% 55%;
+    --nav-organisation: 220 30% 65%;
     --nav-organisation-light: 220 15% 90%;
 
     /* Booking channel colors */
-    --channel-airbnb: 0 84% 60%;
-    --channel-booking: 217 91% 60%;
-    --channel-other: 220 13% 50%;
+    --channel-airbnb: 0 84% 65%;
+    --channel-booking: 217 91% 65%;
+    --channel-other: 220 13% 60%;
   }
 
   .dark {
