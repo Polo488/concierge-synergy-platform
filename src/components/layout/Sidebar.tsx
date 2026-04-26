@@ -252,17 +252,17 @@ export function Sidebar() {
       <Link
         to={item.path}
         className={cn(
-          "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 relative",
+          "flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 relative min-h-[44px]",
           isActive
-            ? "bg-[rgba(255,92,26,0.15)] text-white font-semibold border-l-[3px] border-l-noe-orange rounded-l-none"
-            : "text-white/60 hover:text-white/90 hover:bg-white/[0.06]",
+            ? "bg-primary/10 text-foreground font-semibold"
+            : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]",
           isCollapsed && "justify-center px-2"
         )}
       >
-        <item.icon size={18} className={cn("flex-shrink-0", isActive ? "text-noe-orange" : "text-white/45")} />
+        <item.icon size={18} className={cn("flex-shrink-0", isActive ? "text-primary" : "text-muted-foreground")} />
         {!isCollapsed && <span className="text-sm truncate">{item.name}</span>}
         {isBilling && (
-          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full border-2 border-[#1A1A2E] animate-[billing-pulse_2s_ease-in-out_infinite]" style={{ background: '#FF5C1A' }} />
+          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full border-2 border-background animate-[billing-pulse_2s_ease-in-out_infinite]" style={{ background: '#FF5C1A' }} />
         )}
       </Link>
     );
