@@ -28,7 +28,7 @@ export function Layout() {
 
   return (
     <div className="min-h-screen relative w-full max-w-[100vw]">
-      {/* Liquid Glass ambient background — orbes lumineux derrière toute l'app */}
+      {/* Liquid Glass ambient — orbes pastel très diffus, fond clair Apple */}
       <div className="liquid-bg" aria-hidden="true">
         <div className="orb orb-3" />
       </div>
@@ -40,15 +40,14 @@ export function Layout() {
       <main
         style={{
           marginLeft: isMobile ? 0 : `${sidebarOffset}px`,
-          paddingTop: '64px',
+          paddingTop: 'calc(64px + env(safe-area-inset-top, 0px))',
         }}
         className="min-h-screen w-auto max-w-full transition-all duration-300 ease-out relative z-10"
       >
         <div className={cn(
-          "mx-auto max-w-[1280px] animate-fade-in box-border w-full",
-          "py-8 px-6",
-          "max-lg:py-6 max-lg:px-4",
-          "max-md:py-4 max-md:px-3"
+          "mx-auto max-w-[1280px] animate-fade-in box-border w-full safe-left safe-right safe-bottom",
+          // Fluid padding Apple-like : se rétrécit en douceur
+          "py-[clamp(1rem,3vw,2rem)] px-[clamp(0.75rem,3vw,1.5rem)]"
         )}>
           <Outlet />
         </div>
