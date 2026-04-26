@@ -349,26 +349,26 @@ export function Sidebar() {
             isCollapsed && "flex justify-center py-4 px-2"
           )}>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-white/15">
+              <div className="h-10 w-10 rounded-xl bg-foreground/[0.06] flex items-center justify-center overflow-hidden flex-shrink-0 ring-1 ring-border">
                 {user.avatar ? (
                   <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
                 ) : (
-                  <span className="font-semibold text-white text-sm">
+                  <span className="font-semibold text-foreground text-sm">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{user.name}</p>
-                  <p className="text-xs text-white/45">{user.role}</p>
+                  <p className="text-sm font-semibold text-foreground truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{user.name}</p>
+                  <p className="text-xs text-muted-foreground">{user.role}</p>
                 </div>
               )}
             </div>
           </div>
         )}
         
-        <div className="mx-4 h-px bg-white/10 flex-shrink-0" />
+        <div className="mx-4 h-px bg-border flex-shrink-0" />
         
         {/* Navigation */}
         <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
