@@ -743,33 +743,65 @@ export function FinancialHealth() {
         </div>
       </div>
 
-      {/* ============ 5. CLASSEMENT NOÉ ============ */}
+      {/* ============ 5. CLASSEMENT NOÉ — Liquid Glass (Apple style) ============ */}
       <div
-        className="relative overflow-hidden rounded-3xl"
+        className="relative overflow-hidden rounded-[2rem]"
         style={{
           background:
-            'radial-gradient(120% 90% at 100% 0%, #3D1A2E 0%, #2A1A3E 35%, #1A1A2E 70%, #0E1530 100%)',
-          borderTop: '3px solid transparent',
-          backgroundImage:
-            'radial-gradient(120% 90% at 100% 0%, #3D1A2E 0%, #2A1A3E 35%, #1A1A2E 70%, #0E1530 100%), linear-gradient(90deg, #FF8AB8, #FF5C1A)',
-          backgroundOrigin: 'padding-box, border-box',
-          backgroundClip: 'padding-box, border-box',
+            'linear-gradient(155deg, #1F1B3A 0%, #2A1A3E 30%, #3D1A2E 60%, #4A1F2A 100%)',
         }}
       >
-        {/* Giant "n." watermark */}
-        <img
-          src={noeIconWhite}
-          alt=""
+        {/* Floating colored light orbs (the colors that bleed through the glass) */}
+        <div
           aria-hidden
-          className="absolute pointer-events-none select-none"
-          style={{ right: '-80px', top: '-40px', width: '420px', opacity: 0.05, filter: 'brightness(0.5)' }}
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            top: '-120px', left: '-80px', width: '420px', height: '420px',
+            background: 'radial-gradient(circle, rgba(255,138,184,0.55) 0%, rgba(255,138,184,0) 70%)',
+            filter: 'blur(40px)',
+          }}
+        />
+        <div
+          aria-hidden
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            top: '20%', right: '-100px', width: '480px', height: '480px',
+            background: 'radial-gradient(circle, rgba(255,92,26,0.45) 0%, rgba(255,92,26,0) 70%)',
+            filter: 'blur(50px)',
+          }}
+        />
+        <div
+          aria-hidden
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            bottom: '-150px', left: '30%', width: '500px', height: '500px',
+            background: 'radial-gradient(circle, rgba(125,90,255,0.4) 0%, rgba(125,90,255,0) 70%)',
+            filter: 'blur(60px)',
+          }}
+        />
+
+        {/* Subtle noise / grain overlay for realism */}
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none opacity-[0.04] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
         />
 
         {/* Module pill */}
-        <div className="absolute top-5 right-5 z-10">
+        <div className="absolute top-5 right-5 z-20">
           <span
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-[10px] font-bold uppercase tracking-[0.16em] text-white/60"
-            style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.16em] text-white/70"
+            style={{
+              fontFamily: 'Plus Jakarta Sans, sans-serif',
+              background: 'rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2)',
+            }}
           >
             <img src={noeIconOrange} alt="" className="h-2.5 w-2.5 object-contain" />
             Module — 04/04
@@ -783,17 +815,33 @@ export function FinancialHealth() {
             <img src={noeIconOrange} alt="" className="h-6 w-6 self-center" />
             <h3 className="font-heading font-bold text-white" style={{ fontSize: 30, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
               Ta position{' '}
-              <span className="italic font-normal text-[#FF5C1A]" style={{ fontStyle: 'italic' }}>
+              <span className="italic font-normal text-[#FF8AB8]" style={{ fontStyle: 'italic' }}>
                 ce mois
               </span>
             </h3>
           </div>
-          <p className="mt-3 text-white/55 max-w-2xl leading-relaxed text-sm">
+          <p className="mt-3 text-white/65 max-w-2xl leading-relaxed text-sm">
             Tu es dans les <strong className="text-white">28%</strong> des meilleures conciergeries ce mois-ci. Un ranking basé uniquement sur le score opérationnel — tes données financières restent privées.
           </p>
 
-          {/* Badge unlocked */}
-          <div className="mt-7 flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/[0.04] border border-white/10">
+          {/* Badge unlocked — LIQUID GLASS CARD */}
+          <div
+            className="mt-7 relative flex items-center gap-4 px-5 py-4 rounded-2xl overflow-hidden"
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(30px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+              border: '1px solid rgba(255,255,255,0.18)',
+              boxShadow:
+                'inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(255,255,255,0.05), 0 8px 32px rgba(0,0,0,0.25)',
+            }}
+          >
+            {/* glass top highlight */}
+            <div
+              aria-hidden
+              className="absolute top-0 left-0 right-0 h-px pointer-events-none"
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)' }}
+            />
             <div className="relative shrink-0">
               <div className="absolute inset-0 rounded-full blur-2xl bg-[#FF5C1A]/60" />
               <div
@@ -806,7 +854,7 @@ export function FinancialHealth() {
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45">Badge débloqué</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/55">Badge débloqué</p>
               <p className="mt-0.5 font-heading font-bold text-white text-2xl">
                 Expert{' '}
                 <span className="italic font-normal text-[#FF8A4C]" style={{ fontStyle: 'italic' }}>
@@ -824,7 +872,10 @@ export function FinancialHealth() {
 
           {/* Ranking gradient bar */}
           <div className="mt-8 relative">
-            <div className="h-2.5 rounded-full overflow-hidden flex">
+            <div
+              className="h-2.5 rounded-full overflow-hidden flex"
+              style={{ boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.1)' }}
+            >
               <div style={{ width: '20%', background: '#FCA5A5' }} />
               <div style={{ width: '50%', background: '#FCD34D' }} />
               <div style={{ width: '20%', background: '#22C55E' }} />
@@ -842,7 +893,7 @@ export function FinancialHealth() {
                 </div>
               </div>
             </div>
-            <div className="mt-12 flex justify-between text-[11px] font-semibold text-white/55 uppercase tracking-wider">
+            <div className="mt-12 flex justify-between text-[11px] font-semibold text-white/65 uppercase tracking-wider">
               <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#FCA5A5]" />20% bas</span>
               <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#FCD34D]" />50% milieu</span>
               <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#22C55E]" />20% top</span>
@@ -850,50 +901,120 @@ export function FinancialHealth() {
             </div>
           </div>
 
-          {/* Sub-badges */}
+          {/* Sub-badges — LIQUID GLASS CARDS */}
           <div className="mt-7 space-y-2.5">
-            <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-white/[0.04] border border-emerald-400/25">
-              <div className="h-9 w-9 rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0">
-                <Target className="h-4 w-4 text-emerald-400" />
+            <div
+              className="relative flex items-center gap-3 px-4 py-3.5 rounded-2xl overflow-hidden"
+              style={{
+                background: 'rgba(255,255,255,0.07)',
+                backdropFilter: 'blur(24px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                border: '1px solid rgba(52,211,153,0.3)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px rgba(0,0,0,0.15)',
+              }}
+            >
+              <div
+                className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0"
+                style={{
+                  background: 'rgba(52,211,153,0.18)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(52,211,153,0.25)',
+                }}
+              >
+                <Target className="h-4 w-4 text-emerald-300" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-sm">Top 30% — Taux d'occupation</p>
-                <p className="text-xs text-white/50 mt-0.5">Tu maintiens un remplissage au-dessus de la moyenne haute du marché.</p>
+                <p className="text-xs text-white/60 mt-0.5">Tu maintiens un remplissage au-dessus de la moyenne haute du marché.</p>
               </div>
-              <span className="text-white/70 font-mono text-xs shrink-0 px-2.5 py-1 rounded-md bg-white/[0.06] border border-white/10">+8 pts</span>
+              <span
+                className="text-white/85 font-mono text-xs shrink-0 px-2.5 py-1 rounded-md"
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                }}
+              >
+                +8 pts
+              </span>
             </div>
 
             <div
-              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-white/[0.04]"
-              style={{ border: '1px dashed rgba(255,138,76,0.45)' }}
+              className="relative flex items-center gap-3 px-4 py-3.5 rounded-2xl overflow-hidden"
+              style={{
+                background: 'rgba(255,255,255,0.07)',
+                backdropFilter: 'blur(24px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                border: '1px dashed rgba(255,138,76,0.55)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px rgba(0,0,0,0.15)',
+              }}
             >
-              <div className="h-9 w-9 rounded-xl bg-[#FF5C1A]/15 flex items-center justify-center shrink-0">
+              <div
+                className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0"
+                style={{
+                  background: 'rgba(255,92,26,0.18)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,92,26,0.25)',
+                }}
+              >
                 <Hourglass className="h-4 w-4 text-[#FF8A4C]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-sm">Top 10% — Réactivité</p>
-                <p className="text-xs text-white/50 mt-0.5">Encore 2 pts pour débloquer le badge Élite.</p>
+                <p className="text-xs text-white/60 mt-0.5">Encore 2 pts pour débloquer le badge Élite.</p>
               </div>
-              <span className="text-white/70 font-mono text-xs shrink-0 px-2.5 py-1 rounded-md bg-white/[0.06] border border-white/10">73 → 75</span>
+              <span
+                className="text-white/85 font-mono text-xs shrink-0 px-2.5 py-1 rounded-md"
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                }}
+              >
+                73 → 75
+              </span>
             </div>
 
-            <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-white/[0.04] border border-white/10">
-              <div className="h-9 w-9 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0">
-                <Lock className="h-4 w-4 text-white/55" />
+            <div
+              className="relative flex items-center gap-3 px-4 py-3.5 rounded-2xl overflow-hidden"
+              style={{
+                background: 'rgba(255,255,255,0.07)',
+                backdropFilter: 'blur(24px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px rgba(0,0,0,0.15)',
+              }}
+            >
+              <div
+                className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0"
+                style={{
+                  background: 'rgba(255,255,255,0.08)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                }}
+              >
+                <Lock className="h-4 w-4 text-white/70" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-sm">Classement anonyme garanti</p>
-                <p className="text-xs text-white/50 mt-0.5">Tes données financières restent privées, seul le score opérationnel est comparé.</p>
+                <p className="text-xs text-white/60 mt-0.5">Tes données financières restent privées, seul le score opérationnel est comparé.</p>
               </div>
-              <div className="h-8 w-8 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center shrink-0">
-                <ShieldCheck className="h-4 w-4 text-white/45" />
+              <div
+                className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0"
+                style={{
+                  background: 'rgba(255,255,255,0.08)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                }}
+              >
+                <ShieldCheck className="h-4 w-4 text-white/60" />
               </div>
             </div>
           </div>
 
           <p
-            className="mt-6 text-center text-white/40"
-            style={{ fontStyle: 'italic', fontSize: 14, fontStyle: 'italic' }}
+            className="mt-6 text-center text-white/50 italic"
+            style={{ fontSize: 14 }}
           >
             Classement basé sur le score opérationnel uniquement — les données financières restent privées.
           </p>
