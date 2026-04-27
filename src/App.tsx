@@ -85,6 +85,9 @@ const App = () => (
                     {/* Public welcome guide */}
                     <Route path="/welcome/:token" element={<WelcomeGuidePublic />} />
 
+                    {/* Public provider invoice call (token-secured) */}
+                    <Route path="/provider-call/:token" element={<ProviderCallPage />} />
+
                     {/* Legacy route aliases used by dashboard widgets */}
                     <Route path="/calendar" element={<Navigate to="/app/calendar" replace />} />
                     <Route path="/maintenance" element={<Navigate to="/app/maintenance" replace />} />
