@@ -92,25 +92,34 @@ const CheckInsList = ({ checkIns }: { checkIns: TodayBooking[] }) => {
     <div className="space-y-3">
       {checkIns.map((booking) => (
         <ListItem key={booking.id} onClick={() => navigate('/app/calendar')}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-2 rounded-full bg-accent">
+          <div className="flex items-start gap-3 sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+              <div className="p-2 rounded-full bg-accent flex-shrink-0">
                 <LogIn className="h-4 w-4 text-primary" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-[15px] font-heading text-foreground">{booking.guestName}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="font-semibold text-[15px] font-heading text-foreground break-words">{booking.guestName}</span>
                   <ChannelBadge channel={booking.channel} />
                 </div>
                 <div className="flex items-center gap-3 text-[13px] mt-1 text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Home className="h-3 w-3" />
-                    {booking.propertyName}
+                  <span className="flex items-center gap-1 min-w-0">
+                    <Home className="h-3 w-3 flex-shrink-0" />
+                    <span className="truncate">{booking.propertyName}</span>
                   </span>
+                </div>
+                {/* Mobile: status + time inline under text */}
+                <div className="flex items-center gap-2 mt-2 sm:hidden flex-wrap">
+                  <StatusBadge status={booking.status} />
+                  <div className="flex items-center gap-1 text-[13px] font-bold text-foreground">
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                    {booking.time}
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            {/* Desktop: right-aligned status + time */}
+            <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
               <StatusBadge status={booking.status} />
               <div className="flex items-center gap-1 text-sm font-bold text-foreground">
                 <Clock className="h-4 w-4 text-muted-foreground" />
@@ -139,25 +148,32 @@ const CheckOutsList = ({ checkOuts }: { checkOuts: TodayBooking[] }) => {
     <div className="space-y-3">
       {checkOuts.map((booking) => (
         <ListItem key={booking.id} onClick={() => navigate('/app/calendar')}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-2 rounded-full bg-accent">
+          <div className="flex items-start gap-3 sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+              <div className="p-2 rounded-full bg-accent flex-shrink-0">
                 <LogOut className="h-4 w-4 text-primary" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-[15px] font-heading text-foreground">{booking.guestName}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="font-semibold text-[15px] font-heading text-foreground break-words">{booking.guestName}</span>
                   <ChannelBadge channel={booking.channel} />
                 </div>
                 <div className="flex items-center gap-3 text-[13px] mt-1 text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Home className="h-3 w-3" />
-                    {booking.propertyName}
+                  <span className="flex items-center gap-1 min-w-0">
+                    <Home className="h-3 w-3 flex-shrink-0" />
+                    <span className="truncate">{booking.propertyName}</span>
                   </span>
+                </div>
+                <div className="flex items-center gap-2 mt-2 sm:hidden flex-wrap">
+                  {booking.cleaningTaskStatus && <StatusBadge status={booking.cleaningTaskStatus} />}
+                  <div className="flex items-center gap-1 text-[13px] font-bold text-foreground">
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                    {booking.time}
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
               {booking.cleaningTaskStatus && (
                 <StatusBadge status={booking.cleaningTaskStatus} />
               )}
@@ -196,21 +212,32 @@ const TasksList = ({ tasks }: { tasks: TodayTask[] }) => {
     <div className="space-y-3">
       {tasks.map((task) => (
         <ListItem key={task.id} onClick={() => handleClick(task)}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <TaskTypeBadge type={task.type} />
-              <div>
-                <div className="flex items-center gap-2">
-                  <Home className="h-3 w-3 text-muted-foreground" />
-                  <span className="font-semibold text-[15px] font-heading text-foreground">{task.property}</span>
+          <div className="flex items-start gap-3 sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+              <div className="flex-shrink-0">
+                <TaskTypeBadge type={task.type} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Home className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                  <span className="font-semibold text-[15px] font-heading text-foreground truncate">{task.property}</span>
                 </div>
-                <div className="flex items-center gap-2 text-[13px] mt-1 text-muted-foreground">
-                  <User className="h-3 w-3" />
-                  {task.agent || <span className="text-amber-600 dark:text-amber-400 font-medium">Non assigné</span>}
+                <div className="flex items-center gap-2 text-[13px] mt-1 text-muted-foreground min-w-0">
+                  <User className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">
+                    {task.agent || <span className="text-amber-600 dark:text-amber-400 font-medium">Non assigné</span>}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 mt-2 sm:hidden flex-wrap">
+                  <StatusBadge status={task.status} />
+                  <div className="flex items-center gap-1 text-[13px] font-bold text-foreground">
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                    {task.time}
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
               <StatusBadge status={task.status} />
               <div className="flex items-center gap-1 text-sm font-bold text-foreground">
                 <Clock className="h-4 w-4 text-muted-foreground" />
@@ -226,7 +253,7 @@ const TasksList = ({ tasks }: { tasks: TodayTask[] }) => {
 
 export const DailyActivityTabs = ({ checkIns, checkOuts, tasks }: DailyActivityTabsProps) => {
   return (
-    <div className="glass-card p-6">
+    <div className="glass-card p-4 sm:p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-[18px] font-semibold tracking-[-0.01em] text-[hsl(var(--label-1))]">Activité du jour</h2>
         <span className="text-[13px] text-[hsl(var(--label-2))] tabular">
