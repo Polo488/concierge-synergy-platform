@@ -28,8 +28,22 @@ export function Layout() {
 
   return (
     <div className="relative w-full max-w-[100vw]">
-      {/* Apple ambient bg — F5F5F7 + subtle warm orange tint */}
+      {/* Apple ambient bg — F2F2F7 + 3 halos fixes (orange/blue/yellow) */}
       <div className="liquid-bg" aria-hidden="true" />
+
+      {/* SVG filters globaux — utilisés par .glass-surface si besoin de réfraction */}
+      <svg
+        className="absolute pointer-events-none"
+        style={{ width: 0, height: 0, position: 'absolute' }}
+        aria-hidden="true"
+      >
+        <defs>
+          <filter id="liquid-refraction" x="0%" y="0%" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="2" seed="1" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
+      </svg>
 
       <Sidebar />
 
