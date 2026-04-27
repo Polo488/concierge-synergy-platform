@@ -730,26 +730,16 @@ html, body, .scroll-smooth {
   }
 }
 
-/* Apple ambient background — F2F2F7 + 3 halos fixes (orange/blue/yellow).
-   These are STATIC. They give color grain that glass surfaces will catch.
-   Without them, glass = white (rule #1 of Liquid Glass). */
+/* Apple ambient background — flat grouped system background, no decorative halos. */
 .liquid-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background:
-    radial-gradient(circle at 15% 20%, rgba(255, 92, 26, 0.06) 0%, transparent 35%),
-    radial-gradient(circle at 85% 80%, rgba(107, 122, 232, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(245, 200, 66, 0.03) 0%, transparent 50%),
-    hsl(var(--bg-app));
+  background: hsl(var(--bg-app));
 }
 .dark .liquid-bg {
-  background:
-    radial-gradient(circle at 15% 20%, rgba(26, 26, 46, 0.4) 0%, transparent 35%),
-    radial-gradient(circle at 85% 80%, rgba(255, 92, 26, 0.06) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(107, 122, 232, 0.04) 0%, transparent 50%),
-    hsl(var(--bg-app));
+  background: hsl(var(--bg-app));
 }
 .liquid-bg > .orb { display: none; }
 
@@ -769,26 +759,19 @@ html, body, .scroll-smooth {
    - Adaptive tint (capte la couleur du fond)
    ========================================================================== */
 
-/* Standard glass surface — Apple "regular" material */
+/* Standard surface — calm Apple material without fake shine/artefacts */
 .glass-surface,
 .glass-card,
 .glass-regular {
-  /* Translucidité douce + voile blanc à peine perceptible */
-  background-color: hsla(0, 0%, 100%, 0.72);
-  background-image: linear-gradient(
-    180deg,
-    hsla(0, 0%, 100%, 0.35) 0%,
-    hsla(0, 0%, 100%, 0) 40%
-  );
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid hsla(0, 0%, 100%, 0.65);
+  background: hsla(var(--surface-1) / 0.92);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid hsla(var(--hairline) / 0.72);
   border-radius: var(--r-card);
-  /* Élévation Apple : ombre douce et diffuse, highlight 1px sur bord sup */
   box-shadow:
-    inset 0 1px 0 0 hsla(0, 0%, 100%, 0.7),
-    0 1px 2px rgba(16, 24, 40, 0.04),
-    0 6px 24px -8px rgba(16, 24, 40, 0.08);
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.58),
+    0 1px 2px hsla(var(--label-1) / 0.03),
+    0 12px 28px -20px hsla(var(--label-1) / 0.18);
   position: relative;
 }
 
@@ -802,29 +785,24 @@ html, body, .scroll-smooth {
 .dark .glass-surface,
 .dark .glass-card,
 .dark .glass-regular {
-  background-color: hsla(240, 10%, 14%, 0.62);
-  background-image: linear-gradient(
-    180deg,
-    hsla(0, 0%, 100%, 0.05) 0%,
-    hsla(0, 0%, 100%, 0) 50%
-  );
-  border-color: hsla(0, 0%, 100%, 0.08);
+  background: hsla(var(--surface-1) / 0.86);
+  border-color: hsla(var(--hairline) / 0.82);
   box-shadow:
-    inset 0 1px 0 0 hsla(0, 0%, 100%, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.25),
-    0 8px 24px -8px rgba(0, 0, 0, 0.4);
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.06),
+    0 1px 2px hsla(0, 0%, 0% / 0.24),
+    0 14px 34px -22px hsla(0, 0%, 0% / 0.7);
 }
 
 /* Variants — thin / regular / thick */
 .glass-thin {
-  background-color: hsla(0, 0%, 100%, 0.55);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  background-color: hsla(var(--surface-1) / 0.78);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
 }
 .glass-thick {
-  background-color: hsla(0, 0%, 100%, 0.86);
-  backdrop-filter: blur(36px) saturate(190%);
-  -webkit-backdrop-filter: blur(36px) saturate(190%);
+  background-color: hsla(var(--surface-1) / 0.98);
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
 }
 
 .dark .glass-thin {
