@@ -304,7 +304,7 @@ const MoyenneDuree = () => {
           { label: "Commissions", value: formatter.currency(stats.totalCommission), icon: TrendingUp, bgIcon: "bg-[#FFF7ED]", colorIcon: "#EA580C" },
           { label: "Part BnB Lyon", value: formatter.currency(stats.bnbLyonCommission), icon: TrendingUp, bgIcon: "bg-[#F5F3FF]", colorIcon: "#7C3AED" },
         ].map((kpi, i) => (
-          <div key={i} className="bg-white rounded-[14px] border border-[#EEEEEE] p-[14px] shadow-[0_1px_4px_rgba(0,0,0,0.04)] flex flex-col gap-2">
+          <div key={i} className="glass-surface rounded-[14px] p-[14px] flex flex-col gap-2">
             <div className="flex justify-between items-start">
               <div className={`w-9 h-9 rounded-[10px] ${kpi.bgIcon} flex items-center justify-center`}>
                 <kpi.icon size={18} color={kpi.colorIcon} />
@@ -364,7 +364,7 @@ const MoyenneDuree = () => {
           ) : (
             <div className="px-4 space-y-[10px]">
               {demoMandatsDisplay.map((m) => (
-                <div key={m.id} className="bg-white rounded-[14px] border border-[#EEEEEE] p-4 shadow-[0_1px_4px_rgba(0,0,0,0.04)] cursor-pointer" onClick={() => {
+                <div key={m.id} className="glass-surface rounded-[14px] p-4 cursor-pointer transition-transform active:scale-[0.99]" onClick={() => {
                   const matchingMandat = mandats.find(mandat => mandat.id === m.id);
                   if (matchingMandat) {
                     setSelectedMandat(matchingMandat);
@@ -459,7 +459,7 @@ const MoyenneDuree = () => {
           ) : (
             <div className="px-4 space-y-[10px]">
               {demoLocationsDisplay.map((loc) => (
-                <div key={loc.id} className="bg-white rounded-[14px] border border-[#EEEEEE] p-4 shadow-[0_1px_4px_rgba(0,0,0,0.04)] cursor-pointer">
+                <div key={loc.id} className="glass-surface rounded-[14px] p-4 cursor-pointer transition-transform active:scale-[0.99]">
                   {/* Line 1 - Tenant + Status */}
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-[10px] min-w-0 flex-1 mr-3">
@@ -503,7 +503,7 @@ const MoyenneDuree = () => {
 
                   {/* Line 4 - Actions */}
                   <div className="flex gap-2 mt-[10px]">
-                    <button className="flex-1 h-9 rounded-lg border border-[#EEEEEE] bg-white text-[12px] text-[#1A1A2E] flex items-center justify-center gap-[6px]">
+                    <button className="flex-1 h-9 rounded-lg border border-foreground/[0.08] bg-white/60 backdrop-blur-md text-[12px] text-[#1A1A2E] flex items-center justify-center gap-[6px] transition-colors hover:bg-white/80 active:scale-[0.97]">
                       <Eye size={14} /> Voir détails
                     </button>
                     <button className="flex-1 h-9 rounded-lg bg-[#FF5C1A] text-white text-[12px] font-semibold flex items-center justify-center gap-[6px]">
