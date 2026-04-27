@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface SegmentedOption<T extends string = string> {
@@ -24,17 +24,49 @@ export function SegmentedControl<T extends string>({
   fullWidth = false,
 }: Props<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [thumb, setThumb] = useState({ left: 3, width: 0 });
+  const [thumb, setThumb] = useState<{ left: number; width: number; visible: boolean }>({
+    left: 2,
+    width: 0,
+    visible: false,
+  });
+
+  const recompute = () => {
+    const container = containerRef.current;
+    if (!container) return;
+    const el = container.querySelector<HTMLButtonElement>(`button[data-value="${value}"]`);
+    if (!el) {
+      setThumb((t) => ({ ...t, visible: false }));
+      return;
+    }
+    const cRect = container.getBoundingClientRect();
+    const eRect = el.getBoundingClientRect();
+    setThumb({
+      left: eRect.left - cRect.left + container.scrollLeft,
+      width: eRect.width,
+      visible: true,
+    });
+  };
+
+  useLayoutEffect(() => {
+    recompute();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, options.length]);
 
   useEffect(() => {
-    const el = containerRef.current?.querySelector<HTMLButtonElement>(
-      `button[data-value="${value}"]`
-    );
-    if (!el || !containerRef.current) return;
-    const cRect = containerRef.current.getBoundingClientRect();
-    const eRect = el.getBoundingClientRect();
-    setThumb({ left: eRect.left - cRect.left, width: eRect.width });
-  }, [value, options.length]);
+    const container = containerRef.current;
+    if (!container) return;
+    const ro = new ResizeObserver(recompute);
+    ro.observe(container);
+    Array.from(container.querySelectorAll('button')).forEach((b) => ro.observe(b));
+    container.addEventListener('scroll', recompute, { passive: true });
+    window.addEventListener('resize', recompute);
+    return () => {
+      ro.disconnect();
+      container.removeEventListener('scroll', recompute);
+      window.removeEventListener('resize', recompute);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div
@@ -42,7 +74,14 @@ export function SegmentedControl<T extends string>({
       className={cn('ios-segmented relative', fullWidth && 'w-full', className)}
       role="tablist"
     >
-      <div className="ios-segmented-thumb" style={{ left: thumb.left, width: thumb.width }} />
+      <div
+        className="ios-segmented-thumb"
+        style={{
+          left: thumb.left,
+          width: thumb.width,
+          opacity: thumb.visible ? 1 : 0,
+        }}
+      />
       {options.map((opt) => {
         const active = opt.value === value;
         return (
@@ -55,10 +94,18 @@ export function SegmentedControl<T extends string>({
             data-state={active ? 'active' : 'inactive'}
             onClick={() => onChange(opt.value)}
             className={cn(
-              'relative z-10 rounded-[8px] font-semibold transition-colors duration-200',
-              size === 'sm' ? 'px-3 py-[5px] text-[12px]' : 'px-4 py-[7px] text-[13px]',
+              'relative z-10 inline-flex items-center justify-center gap-1.5 whitespace-nowrap',
+              'rounded-[7px] sm:rounded-[8px] font-semibold tracking-[-0.01em]',
+              'transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)]',
+              'active:scale-[0.97]',
+              // Compact iOS sizing — smaller on mobile, slightly larger on desktop
+              size === 'sm'
+                ? 'px-2.5 sm:px-3 py-[3px] sm:py-[5px] text-[11px] sm:text-[12px]'
+                : 'px-3 sm:px-4 py-[4px] sm:py-[6px] text-[12px] sm:text-[13px]',
               fullWidth && 'flex-1',
-              active ? 'text-[hsl(var(--label-1))]' : 'text-[hsl(240_6%_25%/_0.6)]'
+              active
+                ? 'text-[hsl(var(--label-1))]'
+                : 'text-[hsl(var(--label-1)/0.55)] hover:text-[hsl(var(--label-1)/0.8)]'
             )}
           >
             {opt.label}
