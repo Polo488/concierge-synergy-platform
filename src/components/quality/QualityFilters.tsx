@@ -100,220 +100,282 @@ export function QualityFilters({
   const extrasCount =
     (filters.ratingSource !== 'all' ? 1 : 0) + (filters.channel !== 'all' ? 1 : 0);
 
-  return (
-    <div className="glass-surface p-5 rounded-[22px] overflow-hidden">
-      {/* LIGNE 1 — Période */}
-      <div className="flex flex-wrap items-center gap-3 justify-between">
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[hsl(var(--label-2)/0.58)]">
-            Période
+  // ---------- Sub-renders réutilisés mobile + desktop ----------
+  const PropertiesPopover = (
+    <Popover>
+      <PopoverTrigger asChild>
+        <div>
+          <FilterChip
+            icon={<Building size={14} strokeWidth={2} />}
+            label="Propriétés"
+            count={filters.properties.length}
+            active={filters.properties.length > 0}
+          />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-1 ios-popover border-0 shadow-none" align="start">
+        <div className="max-h-64 overflow-y-auto">
+          {availableProperties.map(prop => {
+            const checked = filters.properties.includes(prop.id);
+            return (
+              <button
+                key={prop.id}
+                type="button"
+                onClick={() => toggleProperty(prop.id)}
+                className="ios-popover-item w-full text-left"
+              >
+                <span className="flex-1 truncate">{prop.name}</span>
+                {checked && <Check size={14} strokeWidth={2.5} className="text-[hsl(var(--ios-orange))]" />}
+              </button>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+
+  const AgentsPopover = (
+    <Popover>
+      <PopoverTrigger asChild>
+        <div>
+          <FilterChip
+            icon={<Users size={14} strokeWidth={2} />}
+            label="Agents"
+            count={filters.agents.length}
+            active={filters.agents.length > 0}
+          />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-1 ios-popover border-0 shadow-none" align="start">
+        <div className="max-h-64 overflow-y-auto">
+          {availableAgents.map(agent => {
+            const checked = filters.agents.includes(agent.id);
+            return (
+              <button
+                key={agent.id}
+                type="button"
+                onClick={() => toggleAgent(agent.id)}
+                className="ios-popover-item w-full text-left"
+              >
+                <span className="flex-1 truncate">{agent.name}</span>
+                {checked && <Check size={14} strokeWidth={2.5} className="text-[hsl(var(--ios-orange))]" />}
+              </button>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+
+  const MorePopover = (
+    <Popover>
+      <PopoverTrigger asChild>
+        <div>
+          <FilterChip
+            icon={<Filter size={14} strokeWidth={2} />}
+            label="Plus"
+            count={extrasCount}
+            active={extrasCount > 0}
+          />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-3 ios-popover border-0 shadow-none" align="start">
+        <div className="space-y-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.06em] font-semibold text-[hsl(var(--label-2)/0.58)] mb-2">
+              Canal
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {(['all', ...availableChannels] as string[]).map(c => (
+                <button
+                  key={c}
+                  onClick={() => onFiltersChange({ channel: c as typeof filters.channel })}
+                  className="ios-chip"
+                  data-active={filters.channel === c}
+                >
+                  <span>{c === 'all' ? 'Tous' : c}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="h-px bg-[hsl(var(--separator))]" />
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.06em] font-semibold text-[hsl(var(--label-2)/0.58)] mb-2">
+              Source note
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { v: 'all', l: 'Toutes' },
+                { v: 'manager', l: 'Manager' },
+                { v: 'owner', l: 'Propriétaire' },
+                { v: 'guest', l: 'Client' },
+              ].map(opt => (
+                <button
+                  key={opt.v}
+                  onClick={() => onFiltersChange({ ratingSource: opt.v as typeof filters.ratingSource })}
+                  className="ios-chip"
+                  data-active={filters.ratingSource === opt.v}
+                >
+                  <span>{opt.l}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          {extrasCount > 0 && (
+            <button
+              onClick={clearAllExtras}
+              className="ios-btn-tertiary text-[13px] flex items-center gap-1"
+            >
+              <X size={12} strokeWidth={2.5} />
+              Réinitialiser
+            </button>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+
+  const DateRangeChip = (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className="ios-chip w-full sm:w-auto justify-center"
+          data-active={currentPeriod === 'custom'}
+        >
+          <CalendarIcon size={14} strokeWidth={2} />
+          <span>
+            {format(filters.dateRange.start, 'd MMM', { locale: fr })}
+            {' – '}
+            {format(filters.dateRange.end, 'd MMM', { locale: fr })}
           </span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-2 ios-popover border-0 shadow-none" align="start">
+        <Calendar
+          mode="range"
+          selected={{ from: filters.dateRange.start, to: filters.dateRange.end }}
+          onSelect={(range) => {
+            if (range?.from && range?.to) {
+              onFiltersChange({ dateRange: { start: range.from, end: range.to } });
+            }
+          }}
+          locale={fr}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+
+  const ExportMenu = (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <ButtonIOS variant="secondary" leftIcon={<Download size={14} strokeWidth={2} />}>
+          Exporter
+        </ButtonIOS>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="ios-popover border-0 shadow-none">
+        <DropdownMenuItem onClick={handleExportTasks} className="ios-popover-item gap-2">
+          <FileSpreadsheet size={14} strokeWidth={2} />
+          Tâches + notes ({tasks.length})
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleExportAgents} className="ios-popover-item gap-2">
+          <Users size={14} strokeWidth={2} />
+          Résumé agents ({agentProfiles.length})
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleExportProperties} className="ios-popover-item gap-2">
+          <Building size={14} strokeWidth={2} />
+          Résumé propriétés ({propertyStats.length})
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  return (
+    <div className="glass-surface rounded-[22px] overflow-hidden">
+      {/* ============ MOBILE LAYOUT (style iOS Health/Settings) ============ */}
+      <div className="sm:hidden">
+        {/* Section 1 — Période (segmented pleine largeur) */}
+        <div className="px-4 pt-4 pb-3">
           <SegmentedControl
             options={periodOptions}
             value={currentPeriod}
             onChange={(v) => handlePeriodChange(v as PeriodValue)}
             size="sm"
+            fullWidth
           />
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="ios-chip" data-active={currentPeriod === 'custom'}>
-                <CalendarIcon size={14} strokeWidth={2} />
-                <span>
-                  {format(filters.dateRange.start, 'd MMM', { locale: fr })}
-                  {' – '}
-                  {format(filters.dateRange.end, 'd MMM', { locale: fr })}
-                </span>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-2 ios-popover border-0 shadow-none" align="start">
-              <Calendar
-                mode="range"
-                selected={{ from: filters.dateRange.start, to: filters.dateRange.end }}
-                onSelect={(range) => {
-                  if (range?.from && range?.to) {
-                    onFiltersChange({ dateRange: { start: range.from, end: range.to } });
-                  }
-                }}
-                locale={fr}
-              />
-            </PopoverContent>
-          </Popover>
+          <div className="mt-2.5 flex justify-center">
+            {DateRangeChip}
+          </div>
+        </div>
+
+        <div className="h-px bg-[hsl(var(--separator))] mx-4" />
+
+        {/* Section 2 — Filtres (chips alignées, scroll horizontal silencieux) */}
+        <div className="px-4 py-3">
+          <div
+            className="flex items-center gap-2 overflow-x-auto -mx-1 px-1"
+            style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none' }}
+          >
+            {PropertiesPopover}
+            {AgentsPopover}
+            {MorePopover}
+          </div>
+        </div>
+
+        <div className="h-px bg-[hsl(var(--separator))] mx-4" />
+
+        {/* Section 3 — Toggle + Export (footer row) */}
+        <div className="px-4 py-3 flex items-center justify-between gap-3">
+          <ToggleIOS
+            id="include-repasse-mobile"
+            checked={filters.includeRepasseFollowups}
+            onChange={(v) => onFiltersChange({ includeRepasseFollowups: v })}
+            label="Inclure repasses"
+          />
+          {ExportMenu}
         </div>
       </div>
 
-      {/* DIVIDER */}
-      <div className="h-px bg-[hsl(var(--separator))] my-4" />
+      {/* ============ DESKTOP LAYOUT (compact, en lignes) ============ */}
+      <div className="hidden sm:block p-5">
+        {/* LIGNE 1 — Période */}
+        <div className="flex flex-wrap items-center gap-3 justify-between">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[hsl(var(--label-2)/0.58)]">
+              Période
+            </span>
+            <SegmentedControl
+              options={periodOptions}
+              value={currentPeriod}
+              onChange={(v) => handlePeriodChange(v as PeriodValue)}
+              size="sm"
+            />
+            {DateRangeChip}
+          </div>
+        </div>
 
-      {/* LIGNE 2 — Filtres chips */}
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Propriétés */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <div>
-              <FilterChip
-                icon={<Building size={14} strokeWidth={2} />}
-                label="Propriétés"
-                count={filters.properties.length}
-                active={filters.properties.length > 0}
-              />
-            </div>
-          </PopoverTrigger>
-          <PopoverContent className="w-64 p-1 ios-popover border-0 shadow-none" align="start">
-            <div className="max-h-64 overflow-y-auto">
-              {availableProperties.map(prop => {
-                const checked = filters.properties.includes(prop.id);
-                return (
-                  <button
-                    key={prop.id}
-                    type="button"
-                    onClick={() => toggleProperty(prop.id)}
-                    className="ios-popover-item w-full text-left"
-                  >
-                    <span className="flex-1 truncate">{prop.name}</span>
-                    {checked && <Check size={14} strokeWidth={2.5} className="text-[hsl(var(--ios-orange))]" />}
-                  </button>
-                );
-              })}
-            </div>
-          </PopoverContent>
-        </Popover>
+        <div className="h-px bg-[hsl(var(--separator))] my-4" />
 
-        {/* Agents */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <div>
-              <FilterChip
-                icon={<Users size={14} strokeWidth={2} />}
-                label="Agents"
-                count={filters.agents.length}
-                active={filters.agents.length > 0}
-              />
-            </div>
-          </PopoverTrigger>
-          <PopoverContent className="w-64 p-1 ios-popover border-0 shadow-none" align="start">
-            <div className="max-h-64 overflow-y-auto">
-              {availableAgents.map(agent => {
-                const checked = filters.agents.includes(agent.id);
-                return (
-                  <button
-                    key={agent.id}
-                    type="button"
-                    onClick={() => toggleAgent(agent.id)}
-                    className="ios-popover-item w-full text-left"
-                  >
-                    <span className="flex-1 truncate">{agent.name}</span>
-                    {checked && <Check size={14} strokeWidth={2.5} className="text-[hsl(var(--ios-orange))]" />}
-                  </button>
-                );
-              })}
-            </div>
-          </PopoverContent>
-        </Popover>
+        {/* LIGNE 2 — Filtres chips */}
+        <div className="flex flex-wrap items-center gap-2">
+          {PropertiesPopover}
+          {AgentsPopover}
+          {MorePopover}
+        </div>
 
-        {/* Plus (canal + source note) */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <div>
-              <FilterChip
-                icon={<Filter size={14} strokeWidth={2} />}
-                label="Plus"
-                count={extrasCount}
-                active={extrasCount > 0}
-              />
-            </div>
-          </PopoverTrigger>
-          <PopoverContent className="w-72 p-3 ios-popover border-0 shadow-none" align="start">
-            <div className="space-y-3">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.06em] font-semibold text-[hsl(var(--label-2)/0.58)] mb-2">
-                  Canal
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {(['all', ...availableChannels] as string[]).map(c => (
-                    <button
-                      key={c}
-                      onClick={() => onFiltersChange({ channel: c as typeof filters.channel })}
-                      className="ios-chip"
-                      data-active={filters.channel === c}
-                    >
-                      <span>{c === 'all' ? 'Tous' : c}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="h-px bg-[hsl(var(--separator))]" />
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.06em] font-semibold text-[hsl(var(--label-2)/0.58)] mb-2">
-                  Source note
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {[
-                    { v: 'all', l: 'Toutes' },
-                    { v: 'manager', l: 'Manager' },
-                    { v: 'owner', l: 'Propriétaire' },
-                    { v: 'guest', l: 'Client' },
-                  ].map(opt => (
-                    <button
-                      key={opt.v}
-                      onClick={() => onFiltersChange({ ratingSource: opt.v as typeof filters.ratingSource })}
-                      className="ios-chip"
-                      data-active={filters.ratingSource === opt.v}
-                    >
-                      <span>{opt.l}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {extrasCount > 0 && (
-                <button
-                  onClick={clearAllExtras}
-                  className="ios-btn-tertiary text-[13px] flex items-center gap-1"
-                >
-                  <X size={12} strokeWidth={2.5} />
-                  Réinitialiser
-                </button>
-              )}
-            </div>
-          </PopoverContent>
-        </Popover>
+        <div className="h-px bg-[hsl(var(--separator))] my-4" />
+
+        {/* LIGNE 3 — Toggle + export */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <ToggleIOS
+            id="include-repasse"
+            checked={filters.includeRepasseFollowups}
+            onChange={(v) => onFiltersChange({ includeRepasseFollowups: v })}
+            label="Inclure repasses"
+          />
+          {ExportMenu}
+        </div>
       </div>
 
-      {/* DIVIDER */}
-      <div className="h-px bg-[hsl(var(--separator))] my-4" />
-
-      {/* LIGNE 3 — Toggle + export */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <ToggleIOS
-          id="include-repasse"
-          checked={filters.includeRepasseFollowups}
-          onChange={(v) => onFiltersChange({ includeRepasseFollowups: v })}
-          label="Inclure repasses"
-        />
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <ButtonIOS variant="secondary" leftIcon={<Download size={14} strokeWidth={2} />}>
-              Exporter
-            </ButtonIOS>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="ios-popover border-0 shadow-none">
-            <DropdownMenuItem onClick={handleExportTasks} className="ios-popover-item gap-2">
-              <FileSpreadsheet size={14} strokeWidth={2} />
-              Tâches + notes ({tasks.length})
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleExportAgents} className="ios-popover-item gap-2">
-              <Users size={14} strokeWidth={2} />
-              Résumé agents ({agentProfiles.length})
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleExportProperties} className="ios-popover-item gap-2">
-              <Building size={14} strokeWidth={2} />
-              Résumé propriétés ({propertyStats.length})
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {/* Removed: cn import unused warning silencer */}
       {cn && null}
     </div>
   );
