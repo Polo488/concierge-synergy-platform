@@ -18,6 +18,7 @@ import { FinancialHealth } from '@/components/stats/FinancialHealth';
 import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
 import { LayoutDashboard, Sparkles, Euro, BarChart3, Building, Users, MapPin, Network, Heart } from 'lucide-react';
+import { SegmentedControl, type SegmentedOption } from '@/components/ui/ios';
 
 const QualityStats = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -50,14 +51,29 @@ const QualityStats = () => {
   const selectedPropertyDetails = selectedPropertyId ? getPropertyDetails(selectedPropertyId) : null;
   const selectedAgentDetails = selectedAgentId ? getAgentDetails(selectedAgentId) : null;
 
+  const sectionOptions: SegmentedOption<string>[] = [
+    { value: 'overview', label: <span className="inline-flex items-center gap-1.5"><LayoutDashboard size={13} strokeWidth={2} />Vue d'ensemble</span> },
+    { value: 'menage', label: <span className="inline-flex items-center gap-1.5"><Sparkles size={13} strokeWidth={2} />Ménage</span> },
+    { value: 'finance', label: <span className="inline-flex items-center gap-1.5"><Euro size={13} strokeWidth={2} />Finance</span> },
+    { value: 'location', label: <span className="inline-flex items-center gap-1.5"><MapPin size={13} strokeWidth={2} />Géo</span> },
+    { value: 'network', label: <span className="inline-flex items-center gap-1.5"><Network size={13} strokeWidth={2} />Réseau</span> },
+    { value: 'financial-health', label: <span className="inline-flex items-center gap-1.5"><Heart size={13} strokeWidth={2} className="text-[hsl(var(--ios-orange))]" />Santé</span> },
+  ];
+
+  const menageOptions: SegmentedOption<string>[] = [
+    { value: 'dashboard', label: <span className="inline-flex items-center gap-1.5"><BarChart3 size={13} strokeWidth={2} />Dashboard</span> },
+    { value: 'properties', label: <span className="inline-flex items-center gap-1.5"><Building size={13} strokeWidth={2} />Propriétés</span> },
+    { value: 'agents', label: <span className="inline-flex items-center gap-1.5"><Users size={13} strokeWidth={2} />Agents</span> },
+  ];
+
   return (
     <div className="space-y-6">
       <TutorialTrigger moduleId="quality" />
-      
+
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Stats</h1>
-          <p className="text-muted-foreground">Hub central de statistiques : activité, finance, opérations</p>
+          <h1 className="text-[28px] font-bold tracking-[-0.02em] text-[hsl(var(--label-1))]">Stats</h1>
+          <p className="text-[14px] text-[hsl(240_6%_25%/_0.6)]">Hub central de statistiques : activité, finance, opérations</p>
         </div>
         <TutorialButton moduleId="quality" />
       </div>
@@ -74,39 +90,21 @@ const QualityStats = () => {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} data-tutorial="stats-tabs">
-        <TabsList className="bg-muted/50 w-full justify-start overflow-x-auto flex-nowrap" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none' }}>
-          <TabsTrigger value="overview" className="gap-2 shrink-0">
-            <LayoutDashboard className="h-4 w-4" />
-            Vue d'ensemble
-          </TabsTrigger>
-          <TabsTrigger value="menage" className="gap-2 shrink-0">
-            <Sparkles className="h-4 w-4" />
-            Ménage
-          </TabsTrigger>
-          <TabsTrigger value="finance" className="gap-2 shrink-0">
-            <Euro className="h-4 w-4" />
-            Finance
-          </TabsTrigger>
-          <TabsTrigger value="location" className="gap-2 shrink-0">
-            <MapPin className="h-4 w-4" />
-            Analyse géographique
-          </TabsTrigger>
-          <TabsTrigger value="network" className="gap-2 shrink-0">
-            <Network className="h-4 w-4" />
-            Réseau
-          </TabsTrigger>
-          <TabsTrigger 
-            value="financial-health" 
-            className="gap-2 shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-          >
-            <span className="flex items-center gap-1.5">
-              {activeTab === 'financial-health' && (
-                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/20 text-[9px] font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>N</span>
-              )}
-              <Heart className="h-4 w-4" />
-              Santé financière
-            </span>
-          </TabsTrigger>
+        <div className="overflow-x-auto" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none' }}>
+          <SegmentedControl
+            options={sectionOptions}
+            value={activeTab}
+            onChange={setActiveTab}
+          />
+        </div>
+        {/* Hidden TabsList kept for radix internal state (a11y) */}
+        <TabsList className="hidden">
+          <TabsTrigger value="overview" />
+          <TabsTrigger value="menage" />
+          <TabsTrigger value="finance" />
+          <TabsTrigger value="location" />
+          <TabsTrigger value="network" />
+          <TabsTrigger value="financial-health" />
         </TabsList>
 
         {/* Vue d'ensemble Tab */}
