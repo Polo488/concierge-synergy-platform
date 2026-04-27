@@ -160,36 +160,81 @@ export function ReservationsTab() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4">
         <Dropzone />
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-none min-w-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" strokeWidth={1.5} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Rechercher…"
-              className="pl-9 pr-3 py-2 w-56 bg-white/[0.04] border border-white/[0.06] rounded-[12px] text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-[#FF5C1A]/30"
+              className="pl-9 pr-3 py-2.5 sm:py-2 w-full sm:w-56 bg-white/[0.04] border border-white/[0.06] rounded-[12px] text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-[#FF5C1A]/30 min-h-[40px]"
             />
           </div>
-          {(["all", "booking", "airbnb", "direct"] as const).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPlatform(p)}
-              className={cn(
-                "px-3 py-2 rounded-[12px] text-xs font-medium border transition-colors",
-                platform === p
-                  ? "bg-white/[0.08] border-white/[0.12] text-white"
-                  : "bg-transparent border-white/[0.06] text-white/55 hover:text-white/80"
-              )}
-            >
-              {p === "all" ? "Tous" : PLATFORM_LABEL[p]}
-            </button>
-          ))}
+          <div className="flex flex-wrap gap-1.5 -mx-0.5">
+            {(["all", "booking", "airbnb", "direct"] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPlatform(p)}
+                className={cn(
+                  "px-3 py-2 rounded-[12px] text-xs font-medium border transition-colors min-h-[36px]",
+                  platform === p
+                    ? "bg-white/[0.08] border-white/[0.12] text-white"
+                    : "bg-transparent border-white/[0.06] text-white/55 hover:text-white/80"
+                )}
+              >
+                {p === "all" ? "Tous" : PLATFORM_LABEL[p]}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="rounded-[20px] bg-white/[0.02] border border-white/[0.04] overflow-hidden">
+      {/* MOBILE: card list */}
+      <div className="space-y-2 lg:hidden">
+        {filtered.map((r) => {
+          const prop = getProperty(r.propertyId);
+          return (
+            <button
+              key={r.id}
+              onClick={() => setDrawer(r)}
+              className="w-full text-left rounded-[16px] bg-white/[0.03] border border-white/[0.05] p-4 active:scale-[0.99] transition-transform"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={cn("h-1.5 w-1.5 rounded-full", PLATFORM_DOT[r.platform])} />
+                    <span className="text-[11px] uppercase tracking-[0.08em] text-white/55">{PLATFORM_LABEL[r.platform]}</span>
+                    <StatusBadge status={r.status} />
+                  </div>
+                  <p className="font-semibold text-white text-[15px] truncate">{r.guest}</p>
+                  <p className="text-[12px] text-white/65 truncate">{prop.name} · {prop.city}</p>
+                  <p className="text-[11.5px] text-white/45 mt-1">{shortDate(r.checkIn)} → {shortDate(r.checkOut)} · {r.nights} nuits</p>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-[9.5px] uppercase tracking-[0.08em] text-white/45">Net prop.</p>
+                  <p className="text-[18px] font-semibold text-white tabular-nums leading-none mt-1 whitespace-nowrap">{formatMoney(r.netOwner)}</p>
+                  <p className="text-[10.5px] text-white/40 mt-1 tabular-nums">brut {formatMoney(r.gross)}</p>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+        {/* Mobile totals */}
+        <div className="rounded-[16px] bg-white/[0.05] border border-[#FF5C1A]/30 p-4 mt-3">
+          <p className="text-[10px] uppercase tracking-[0.1em] text-white/55">Totaux ({filtered.length} réservations)</p>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-2 text-[13px]">
+            <div className="flex justify-between"><span className="text-white/65">Brut</span><span className="text-white tabular-nums font-semibold">{formatMoney(totals.gross)}</span></div>
+            <div className="flex justify-between"><span className="text-white/65">Net prop.</span><span className="text-white tabular-nums font-semibold">{formatMoney(totals.net)}</span></div>
+            <div className="flex justify-between"><span className="text-white/65">Comm. OTA</span><span className="text-[#F87171] tabular-nums">{formatMoney(-totals.ota)}</span></div>
+            <div className="flex justify-between"><span className="text-white/65">Hon. Noé</span><span className="text-white tabular-nums">{formatMoney(totals.noe)}</span></div>
+          </div>
+        </div>
+      </div>
+
+      {/* DESKTOP: table */}
+      <div className="hidden lg:block rounded-[20px] bg-white/[0.02] border border-white/[0.04] overflow-hidden">
         <div className="overflow-x-auto max-h-[640px]">
           <table className="w-full text-sm" style={{ borderCollapse: "separate", borderSpacing: 0 }}>
-            <thead className="sticky top-0 bg-[#1a1a2e] z-10">
+            <thead className="sticky top-0 bg-[hsl(var(--bill-surface-1))] z-10">
               <tr className="text-left text-[11px] uppercase tracking-[0.08em] text-white/45 border-b border-white/[0.06]">
                 <Th>Plateforme</Th>
                 <Th>Voyageur</Th>
@@ -243,7 +288,7 @@ export function ReservationsTab() {
                 </tr>
               ))}
             </tbody>
-            <tfoot className="sticky bottom-0 bg-[#1a1a2e]/95 backdrop-blur-xl">
+            <tfoot className="sticky bottom-0 bg-[hsl(var(--bill-surface-1))]/95 backdrop-blur-xl">
               <tr className="border-t border-[#FF5C1A]/30 text-white">
                 <Td colSpan={5} className="font-semibold text-[11px] uppercase tracking-[0.08em] text-white/60">Totaux ({filtered.length} rés.)</Td>
                 <Td right mono className="font-semibold">{formatMoney(totals.gross)}</Td>
