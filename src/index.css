@@ -1296,3 +1296,64 @@ html, body, .scroll-smooth {
   padding-right: clamp(1rem, 4vw, 2rem);
 }
 
+/* ==========================================================================
+   macOS Tahoe — SCROLLBARS
+   Fines 6px, arrondies, semi-transparentes, qui se révèlent au hover.
+   ========================================================================== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+}
+.dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 200ms ease;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.32);
+  background-clip: padding-box;
+}
+.dark *::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  background-clip: padding-box;
+}
+.dark *::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.32);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ==========================================================================
+   iOS — SHIMMER skeleton
+   ========================================================================== */
+@keyframes ios-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton-ios {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted) / 0.6) 0%,
+    hsl(var(--muted) / 0.9) 50%,
+    hsl(var(--muted) / 0.6) 100%
+  );
+  background-size: 200% 100%;
+  animation: ios-shimmer 1.6s cubic-bezier(0.32, 0.72, 0, 1) infinite;
+  border-radius: 8px;
+}
+
