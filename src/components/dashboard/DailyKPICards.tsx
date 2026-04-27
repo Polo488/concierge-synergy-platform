@@ -19,17 +19,19 @@ const KPICard = ({ title, value, Icon, onClick }: KPICardProps) => (
     type="button"
     onClick={onClick}
     className={cn(
-      "glass-card text-left w-full p-5",
+      "glass-surface text-left w-full p-5 h-[120px] flex flex-col justify-between",
       "transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.99]",
-      "ring-1 ring-inset ring-white/60 dark:ring-white/5"
+      "focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ios-orange)/_0.4)]"
     )}
   >
     <div className="flex items-center justify-between">
-      <span className="text-[13px] font-medium text-[hsl(var(--label-2))]">{title}</span>
-      <Icon size={16} strokeWidth={2} className="text-[hsl(var(--label-3))]" />
+      <span className="text-[13px] font-medium text-[hsl(240_6%_25%/_0.6)]">{title}</span>
+      <span className="h-7 w-7 rounded-full bg-black/[0.04] flex items-center justify-center">
+        <Icon size={14} strokeWidth={2} className="text-[hsl(240_6%_25%/_0.5)]" />
+      </span>
     </div>
     <div
-      className="mt-3 text-[36px] leading-none font-bold tabular tracking-[-0.025em] text-[hsl(var(--label-1))]"
+      className="text-[36px] leading-none font-bold tabular tracking-[-0.025em] text-[hsl(var(--label-1))]"
       style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif" }}
     >
       {value}

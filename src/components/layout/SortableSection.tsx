@@ -35,14 +35,6 @@ interface SortableSectionProps {
   isDragging?: boolean;
 }
 
-const SECTION_DOT_COLORS: Record<string, string> = {
-  pilotage: '#6B7AE8',
-  operations: '#FF5C1A',
-  revenus: '#F5C842',
-  experience: '#6B7AE8',
-  organisation: 'rgba(26,26,46,0.4)',
-};
-
 export function SortableSection({
   section,
   isExpanded,
@@ -51,7 +43,6 @@ export function SortableSection({
   isDragging: externalIsDragging,
 }: SortableSectionProps) {
   const location = useLocation();
-  const hasActiveItem = section.items.some(item => item.path === location.pathname);
 
   const {
     attributes,
@@ -69,83 +60,85 @@ export function SortableSection({
     transition,
   };
 
-  const dotColor = SECTION_DOT_COLORS[section.id] || 'rgba(255,255,255,0.3)';
-
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={cn(
-        "transition-opacity duration-150",
+        "transition-opacity duration-150 group/section",
         isDragging && "opacity-50 z-50"
       )}
     >
       <Collapsible open={isExpanded} onOpenChange={onToggle}>
         <div className={cn(
-          "flex items-center gap-0.5 rounded-lg mt-5 first:mt-0",
+          "flex items-center mt-5 first:mt-0 px-2",
           !isOpen && "md:hidden"
         )}>
-          {/* Drag handle */}
+          {/* Drag handle — invisible by default, shows only on hover (Apple style) */}
           <button
             {...attributes}
             {...listeners}
             className={cn(
-              "p-1.5 rounded-md cursor-grab active:cursor-grabbing",
-              "text-muted-foreground hover:text-foreground",
-              "transition-colors touch-none"
+              "p-1 rounded-md cursor-grab active:cursor-grabbing",
+              "opacity-0 group-hover/section:opacity-100 transition-opacity duration-150",
+              "text-[hsl(240_4%_45%)] hover:text-[hsl(var(--label-1))]",
+              "touch-none -ml-1"
             )}
-            title="Réorganiser la section"
+            title="Réorganiser"
+            aria-label="Réorganiser la section"
           >
-            <GripVertical size={12} />
+            <GripVertical size={11} strokeWidth={2} />
           </button>
 
           <CollapsibleTrigger className={cn(
-            "flex items-center justify-between flex-1 px-2 py-2 rounded-lg",
-            "hover:bg-foreground/[0.04] transition-colors"
+            "flex items-center justify-between flex-1 px-1.5 py-1 rounded-md",
+            "transition-colors"
           )}>
-            <span className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.08em] uppercase text-muted-foreground">
-              <span
-                className="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0"
-                style={{ background: dotColor }}
-              />
+            <span
+              className="text-[11px] font-semibold uppercase text-[hsl(240_6%_25%/_0.4)]"
+              style={{ letterSpacing: '0.06em' }}
+            >
               {section.title}
             </span>
-            <ChevronDown 
-              size={12} 
+            <ChevronDown
+              size={12}
+              strokeWidth={2}
               className={cn(
-                "transition-transform duration-150 text-muted-foreground",
+                "transition-transform duration-200 text-[hsl(240_6%_25%/_0.3)]",
                 isExpanded && "rotate-180"
               )}
             />
           </CollapsibleTrigger>
         </div>
-        
-        <CollapsibleContent className={cn("space-y-0.5 mt-0.5", !isOpen && "md:hidden")}>
+
+        <CollapsibleContent className={cn("space-y-px mt-1", !isOpen && "md:hidden")}>
           {section.items.map((item) => {
             const isActive = location.pathname === item.path;
-            
+
             return (
               <Link
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-150",
-                  "group ml-4",
-                  isActive 
-                    ? "bg-primary/10 text-foreground font-semibold ml-[13px]" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]",
-                  !isOpen && "md:ml-0 md:justify-center"
+                  "flex items-center gap-3 h-9 px-3 mx-2 rounded-[8px] transition-colors duration-150",
+                  isActive
+                    ? "bg-[hsl(var(--ios-orange)/_0.10)] text-[hsl(var(--ios-orange))] font-semibold"
+                    : "text-[hsl(var(--label-1))] hover:bg-black/[0.04]",
+                  !isOpen && "md:mx-0 md:justify-center md:px-2"
                 )}
               >
-                <item.icon size={16} className={cn(
-                  "flex-shrink-0",
-                  isActive ? "text-primary" : "text-muted-foreground"
-                )} />
-                
+                <item.icon
+                  size={18}
+                  strokeWidth={2}
+                  className={cn(
+                    "flex-shrink-0",
+                    isActive ? "text-[hsl(var(--ios-orange))]" : "text-[hsl(240_6%_25%/_0.6)]"
+                  )}
+                />
+
                 <span className={cn(
                   "text-sm font-medium",
-                  !isOpen && "md:hidden",
-                  isActive && "font-semibold"
+                  !isOpen && "md:hidden"
                 )}>
                   {item.name}
                 </span>
@@ -153,26 +146,26 @@ export function SortableSection({
             );
           })}
         </CollapsibleContent>
-        
+
         {/* Collapsed state - show only icons */}
         {!isOpen && (
           <div className="hidden md:flex flex-col items-center gap-0.5 py-1">
             {section.items.map((item) => {
               const isActive = location.pathname === item.path;
-              
+
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   title={item.name}
                   className={cn(
-                    "relative p-2.5 rounded-lg transition-all duration-150",
-                    isActive 
-                      ? "bg-primary/10 text-primary" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]"
+                    "relative h-9 w-9 flex items-center justify-center rounded-[8px] transition-colors duration-150",
+                    isActive
+                      ? "bg-[hsl(var(--ios-orange)/_0.10)] text-[hsl(var(--ios-orange))]"
+                      : "text-[hsl(240_6%_25%/_0.6)] hover:bg-black/[0.04]"
                   )}
                 >
-                  <item.icon size={18} />
+                  <item.icon size={18} strokeWidth={2} />
                 </Link>
               );
             })}

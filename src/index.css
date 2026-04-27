@@ -662,25 +662,32 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ============================================
-   LIQUID GLASS — Apple iOS 26 / macOS Tahoe
+   APPLE iOS 26 — TOKENS + LIQUID GLASS
    ============================================ */
 
 :root {
-  /* Apple iOS 26 surfaces (light) */
-  --bg-app: 240 10% 96.5%;            /* #F5F5F7 */
-  --surface-1: 0 0% 100%;             /* white base */
-  --label-1: 240 33% 14%;             /* Noé navy as primary text */
-  --label-2: 240 6% 25%;
+  /* Apple iOS 26 surfaces (light) — systemGroupedBackground */
+  --bg-app: 240 13% 96%;              /* #F2F2F7 */
+  --surface-1: 0 0% 100%;
+  --label-1: 240 33% 14%;             /* Noé navy as primary text #1A1A2E */
+  --label-2: 240 6% 25%;              /* rgba(60,60,67,0.6) approx */
   --label-3: 240 4% 45%;
   --label-4: 240 4% 65%;
-  --hairline: 240 6% 90%;             /* iOS hairline */
+  --hairline: 240 6% 90%;
   --separator: 240 6% 92%;
   --r-card: 22px;
   --r-control: 10px;
+
+  /* iOS system colors */
+  --ios-green: 142 71% 45%;           /* #34C759 */
+  --ios-red: 4 100% 59%;              /* #FF3B30 */
+  --ios-orange: 18 100% 55%;          /* Noé orange */
+  --ios-yellow: 48 100% 50%;          /* #FFCC00 */
+  --ios-blue: 211 100% 50%;           /* #007AFF */
 }
 
 .dark {
-  --bg-app: 240 12% 8%;
+  --bg-app: 0 0% 0%;                  /* pure black for dark mode */
   --surface-1: 240 10% 14%;
   --label-1: 240 14% 92%;
   --label-2: 240 8% 70%;
@@ -723,16 +730,25 @@ html, body, .scroll-smooth {
   }
 }
 
-/* Apple ambient background — F5F5F7 with subtle warm orange tint top-right.
-   No animation, no orbs. Static. */
+/* Apple ambient background — F2F2F7 + 3 halos fixes (orange/blue/yellow).
+   These are STATIC. They give color grain that glass surfaces will catch.
+   Without them, glass = white (rule #1 of Liquid Glass). */
 .liquid-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 92% 8%, hsla(18, 100%, 55%, 0.05) 0%, transparent 45%),
-    radial-gradient(circle at 0% 100%, hsla(220, 60%, 70%, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 15% 20%, rgba(255, 92, 26, 0.06) 0%, transparent 35%),
+    radial-gradient(circle at 85% 80%, rgba(107, 122, 232, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(245, 200, 66, 0.03) 0%, transparent 50%),
+    hsl(var(--bg-app));
+}
+.dark .liquid-bg {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(26, 26, 46, 0.4) 0%, transparent 35%),
+    radial-gradient(circle at 85% 80%, rgba(255, 92, 26, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(107, 122, 232, 0.04) 0%, transparent 50%),
     hsl(var(--bg-app));
 }
 .liquid-bg > .orb { display: none; }
@@ -745,49 +761,111 @@ html, body, .scroll-smooth {
 }
 
 
-/* ============================================
-   APPLE LIQUID GLASS — surfaces & helpers
-   ============================================ */
+/* ==========================================================================
+   APPLE LIQUID GLASS — VRAIE recette iOS 26
+   - Translucidité (on voit derrière)
+   - Backdrop blur + saturate (verre)
+   - Specular highlight (trait de lumière)
+   - Adaptive tint (capte la couleur du fond)
+   ========================================================================== */
 
-/* Standard glass card (Apple "regular" material) */
+/* Standard glass surface — Apple "regular" material */
 .glass-surface,
-.glass-card {
-  background: hsla(0, 0%, 100%, 0.72);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid hsla(0, 0%, 100%, 0.5);
+.glass-card,
+.glass-regular {
+  background: hsla(0, 0%, 100%, 0.55);
+  backdrop-filter: blur(40px) saturate(180%) brightness(1.05);
+  -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.05);
+  border: 1px solid hsla(0, 0%, 100%, 0.6);
   border-radius: var(--r-card);
   box-shadow:
-    inset 0 1px 0 hsla(0, 0%, 100%, 0.7),
-    0 1px 2px rgba(0, 0, 0, 0.04),
-    0 8px 24px -8px rgba(0, 0, 0, 0.06);
+    inset 0 1px 0 0 hsla(0, 0%, 100%, 0.85),
+    inset 0 -1px 0 0 hsla(0, 0%, 100%, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 8px 32px rgba(0, 0, 0, 0.06);
+  isolation: isolate;
   position: relative;
+  overflow: hidden;
+}
+
+/* Specular highlight — trait de lumière diagonal au-dessus de la card */
+.glass-surface::before,
+.glass-card::before,
+.glass-regular::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    hsla(0, 0%, 100%, 0.4) 0%,
+    hsla(0, 0%, 100%, 0) 30%,
+    hsla(0, 0%, 100%, 0) 70%,
+    hsla(0, 0%, 100%, 0.15) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Le contenu doit être au-dessus du highlight */
+.glass-surface > *,
+.glass-card > *,
+.glass-regular > * {
+  position: relative;
+  z-index: 2;
 }
 
 .dark .glass-surface,
-.dark .glass-card {
-  background: hsla(240, 10%, 14%, 0.72);
+.dark .glass-card,
+.dark .glass-regular {
+  background: hsla(240, 10%, 14%, 0.55);
   border-color: hsla(240, 10%, 30%, 0.4);
   box-shadow:
     inset 0 1px 0 hsla(0, 0%, 100%, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.3),
-    0 8px 24px -8px rgba(0, 0, 0, 0.4);
+    inset 0 -1px 0 hsla(0, 0%, 0%, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 8px 32px -8px rgba(0, 0, 0, 0.5);
 }
 
-/* Strong glass — sidebar, top-bar scrolled state */
-.glass-strong {
-  background: hsla(0, 0%, 100%, 0.6);
+/* Variants — thin / regular / thick */
+.glass-thin {
+  background: hsla(0, 0%, 100%, 0.45);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+}
+.glass-thick {
+  background: hsla(0, 0%, 100%, 0.72);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+}
+
+.dark .glass-thin {
+  background: hsla(240, 10%, 14%, 0.45);
+}
+.dark .glass-thick {
+  background: hsla(240, 10%, 14%, 0.78);
+}
+
+/* Tinted variants */
+.glass-tinted-orange {
+  background: rgba(255, 92, 26, 0.08);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border: 1px solid hsla(0, 0%, 100%, 0.5);
 }
 
+/* Strong glass — sidebar, top-bar scrolled state (legacy alias) */
+.glass-strong {
+  background: hsla(0, 0%, 100%, 0.45);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid hsla(0, 0%, 100%, 0.5);
+}
 .dark .glass-strong {
-  background: hsla(240, 10%, 12%, 0.7);
+  background: hsla(240, 10%, 12%, 0.55);
   border-color: hsla(240, 10%, 25%, 0.5);
 }
 
-/* Floating top bar — Apple iOS 26 island, transparent at rest, frosted on scroll */
+/* Floating top bar — Apple iOS 26 island, transparent au repos, frosted on scroll */
 .glass-topbar {
   background: transparent;
   border: 1px solid transparent;
@@ -814,7 +892,7 @@ html, body, .scroll-smooth {
     0 8px 24px -8px hsla(0, 0%, 0%, 0.5);
 }
 
-/* Edge highlight (subtle liquid reflex) */
+/* Edge highlight (legacy helper, kept for compat) */
 .glass-highlight::before {
   content: "";
   position: absolute;
@@ -825,7 +903,7 @@ html, body, .scroll-smooth {
   border-radius: inherit;
 }
 
-/* Pill / glass button */
+/* Pill / glass button (legacy) */
 .glass-pill {
   background: hsla(0, 0%, 100%, 0.7);
   backdrop-filter: blur(20px) saturate(180%);
@@ -833,25 +911,377 @@ html, body, .scroll-smooth {
   border: 1px solid hsla(0, 0%, 100%, 0.5);
   box-shadow: inset 0 1px 0 hsla(0, 0%, 100%, 0.8), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
-
 .dark .glass-pill {
   background: hsla(240, 10%, 18%, 0.7);
   border-color: hsla(240, 10%, 30%, 0.4);
 }
 
-/* iOS segmented control */
+/* ==========================================================================
+   iOS 26 — SEGMENTED CONTROL
+   ========================================================================== */
 .ios-segmented {
+  position: relative;
   display: inline-flex;
-  padding: 2px;
+  padding: 3px;
   border-radius: 10px;
-  background: hsla(60, 6%, 15%, 0.06);
+  background: rgba(0, 0, 0, 0.06);
 }
-.dark .ios-segmented { background: hsla(240, 6%, 70%, 0.1); }
+.dark .ios-segmented { background: rgba(255, 255, 255, 0.08); }
+
+.ios-segmented-thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.10), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: left 300ms cubic-bezier(0.32, 0.72, 0, 1), width 300ms cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 0;
+}
+.dark .ios-segmented-thumb {
+  background: hsl(240 10% 22%);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+}
 
 .ios-segmented [data-state="active"] {
+  color: hsl(var(--label-1));
+}
+
+/* Legacy radix-style segmented (kept for backwards compat) */
+.ios-segmented [data-state="active"]:not(.ios-segmented-thumb) {
   background: hsl(var(--surface-1));
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* ==========================================================================
+   iOS 26 — TOGGLE / SWITCH (51×31)
+   ========================================================================== */
+.ios-toggle {
+  position: relative;
+  display: inline-block;
+  width: 51px;
+  height: 31px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.12);
+  transition: background 300ms cubic-bezier(0.32, 0.72, 0, 1);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.ios-toggle[data-state="checked"] {
+  background: hsl(var(--ios-orange));
+}
+.ios-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 9999px;
+  background: white;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 3px 1px rgba(0, 0, 0, 0.06);
+  transition: transform 300ms cubic-bezier(0.32, 0.72, 0, 1), width 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.ios-toggle[data-state="checked"] .ios-toggle-thumb {
+  transform: translateX(20px);
+}
+.ios-toggle:active .ios-toggle-thumb {
+  width: 31px;
+}
+.dark .ios-toggle { background: rgba(255, 255, 255, 0.16); }
+
+/* ==========================================================================
+   iOS 26 — STATUS PILLS (tint 12% + dot)
+   ========================================================================== */
+.ios-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+}
+.ios-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: currentColor;
+  flex-shrink: 0;
+  opacity: 1;
+}
+.ios-pill.no-dot::before { display: none; }
+
+.ios-pill-success { background: hsla(142, 71%, 45%, 0.12); color: hsl(142, 64%, 33%); }
+.ios-pill-warning { background: hsla(48, 100%, 50%, 0.15); color: hsl(43, 100%, 27%); }
+.ios-pill-error   { background: hsla(4, 100%, 59%, 0.12); color: hsl(4, 78%, 43%); }
+.ios-pill-info    { background: hsla(211, 100%, 50%, 0.12); color: hsl(211, 100%, 38%); }
+.ios-pill-neutral { background: rgba(0, 0, 0, 0.06); color: hsl(var(--label-2)); }
+
+.dark .ios-pill-success { background: hsla(142, 71%, 45%, 0.18); color: hsl(142, 64%, 60%); }
+.dark .ios-pill-warning { background: hsla(48, 100%, 50%, 0.18); color: hsl(43, 100%, 65%); }
+.dark .ios-pill-error   { background: hsla(4, 100%, 59%, 0.18); color: hsl(4, 100%, 70%); }
+.dark .ios-pill-info    { background: hsla(211, 100%, 50%, 0.18); color: hsl(211, 100%, 70%); }
+.dark .ios-pill-neutral { background: rgba(255, 255, 255, 0.08); color: hsl(var(--label-2)); }
+
+/* Channel / platform badges — uppercase tracking */
+.ios-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.ios-badge-airbnb  { background: hsla(346, 100%, 61%, 0.12); color: hsl(346, 89%, 48%); }
+.ios-badge-booking { background: hsla(214, 100%, 29%, 0.12); color: hsl(214, 100%, 29%); }
+.ios-badge-direct  { background: rgba(0, 0, 0, 0.06); color: hsl(var(--label-1)); }
+.ios-badge-vrbo    { background: hsla(210, 60%, 30%, 0.12); color: hsl(210, 60%, 30%); }
+.ios-badge-abritel { background: hsla(173, 100%, 33%, 0.12); color: hsl(173, 100%, 28%); }
+
+/* ==========================================================================
+   iOS 26 — FILTER CHIPS
+   ========================================================================== */
+.ios-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.05);
   color: hsl(var(--label-1));
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 150ms ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ios-chip:hover { background: rgba(0, 0, 0, 0.08); }
+.ios-chip[data-active="true"] {
+  background: rgba(255, 92, 26, 0.10);
+  color: hsl(var(--ios-orange));
+}
+.dark .ios-chip { background: rgba(255, 255, 255, 0.08); }
+.dark .ios-chip:hover { background: rgba(255, 255, 255, 0.12); }
+
+/* ==========================================================================
+   iOS 26 — BUTTONS
+   ========================================================================== */
+.ios-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 9999px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: transform 120ms cubic-bezier(0.32, 0.72, 0, 1), box-shadow 200ms ease, background 200ms ease;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ios-btn:active { transform: scale(0.97); }
+.ios-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ios-btn-primary {
+  background: linear-gradient(180deg, #FF6B2C 0%, #FF5C1A 100%);
+  color: white;
+  box-shadow:
+    0 8px 24px rgba(255, 92, 26, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.ios-btn-primary:hover { box-shadow: 0 10px 28px rgba(255, 92, 26, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+
+.ios-btn-secondary {
+  background: hsla(0, 0%, 100%, 0.55);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid hsla(0, 0%, 100%, 0.5);
+  color: hsl(var(--label-1));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.ios-btn-secondary:hover { background: hsla(0, 0%, 100%, 0.8); }
+
+.ios-btn-tertiary {
+  height: 36px;
+  padding: 0 12px;
+  background: transparent;
+  color: hsl(var(--ios-orange));
+  font-size: 14px;
+  border-radius: 8px;
+}
+.ios-btn-tertiary:hover { background: hsla(18, 100%, 55%, 0.08); }
+
+.ios-btn-destructive {
+  background: linear-gradient(180deg, #FF453A 0%, #FF3B30 100%);
+  color: white;
+  box-shadow:
+    0 8px 24px rgba(255, 59, 48, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.ios-btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: hsl(var(--label-1));
+  transition: background 150ms ease;
+}
+.ios-btn-icon:hover { background: rgba(0, 0, 0, 0.06); }
+.dark .ios-btn-icon:hover { background: rgba(255, 255, 255, 0.08); }
+
+.dark .ios-btn-secondary {
+  background: hsla(240, 10%, 18%, 0.55);
+  border-color: hsla(240, 10%, 30%, 0.5);
+  color: hsl(var(--label-1));
+}
+
+/* ==========================================================================
+   iOS 26 — POPOVER / MENU
+   ========================================================================== */
+.ios-popover {
+  background: hsla(0, 0%, 100%, 0.72);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 4px;
+}
+.dark .ios-popover {
+  background: hsla(240, 10%, 14%, 0.78);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.ios-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: hsl(var(--label-1));
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+.ios-popover-item:hover { background: rgba(0, 0, 0, 0.04); }
+.dark .ios-popover-item:hover { background: rgba(255, 255, 255, 0.06); }
+
+/* ==========================================================================
+   iOS 26 — SEARCH CAPSULE (Spotlight-like)
+   ========================================================================== */
+.ios-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px 0 36px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.06);
+  transition: background 200ms ease, box-shadow 200ms ease;
+  width: 100%;
+  max-width: 440px;
+}
+.ios-search:focus-within {
+  background: hsla(0, 0%, 100%, 0.8);
+  box-shadow: 0 0 0 4px hsla(18, 100%, 55%, 0.15);
+}
+.dark .ios-search { background: rgba(255, 255, 255, 0.08); }
+.dark .ios-search:focus-within { background: hsla(240, 10%, 18%, 0.85); }
+
+.ios-search input {
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  color: hsl(var(--label-1));
+}
+.ios-search input::placeholder { color: hsla(240, 6%, 25%, 0.5); }
+
+.ios-kbd {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: 11px;
+  font-weight: 600;
+  color: hsla(240, 6%, 25%, 0.5);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif;
+}
+
+/* ==========================================================================
+   iOS 26 — TOAST
+   ========================================================================== */
+.ios-toast {
+  background: hsla(0, 0%, 100%, 0.72);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 9999px;
+  padding: 10px 18px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  font-weight: 600;
+  color: hsl(var(--label-1));
+}
+
+/* ==========================================================================
+   PROGRESS — linear shimmer skeleton
+   ========================================================================== */
+@keyframes ios-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+.ios-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: hsla(0, 0%, 100%, 0.45);
+  border-radius: var(--r-card);
+}
+.ios-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, hsla(0, 0%, 100%, 0.5), transparent);
+  width: 60%;
+  animation: ios-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes ios-progress-indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+.ios-progress-bar {
+  position: relative;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.ios-progress-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, hsl(var(--ios-orange)), #FF6B2C);
+  border-radius: 9999px;
+  animation: ios-progress-indeterminate 1.2s ease-in-out infinite;
 }
 
 /* Tabular numbers helper */

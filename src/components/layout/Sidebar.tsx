@@ -252,17 +252,27 @@ export function Sidebar() {
       <Link
         to={item.path}
         className={cn(
-          "flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 relative min-h-[44px]",
+          "flex items-center gap-3 h-9 px-3 mx-1 rounded-[8px] transition-colors duration-150 relative",
           isActive
-            ? "bg-primary/10 text-foreground font-semibold"
-            : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]",
-          isCollapsed && "justify-center px-2"
+            ? "bg-[hsl(var(--ios-orange)/_0.10)] text-[hsl(var(--ios-orange))] font-semibold"
+            : "text-[hsl(var(--label-1))] hover:bg-black/[0.04]",
+          isCollapsed && "justify-center mx-0 px-2"
         )}
       >
-        <item.icon size={18} className={cn("flex-shrink-0", isActive ? "text-primary" : "text-muted-foreground")} />
-        {!isCollapsed && <span className="text-sm truncate">{item.name}</span>}
+        <item.icon
+          size={18}
+          strokeWidth={2}
+          className={cn(
+            "flex-shrink-0",
+            isActive ? "text-[hsl(var(--ios-orange))]" : "text-[hsl(240_6%_25%/_0.6)]"
+          )}
+        />
+        {!isCollapsed && <span className="text-sm font-medium truncate">{item.name}</span>}
         {isBilling && (
-          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full border-2 border-background animate-[billing-pulse_2s_ease-in-out_infinite]" style={{ background: '#FF5C1A' }} />
+          <span
+            className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border-2 border-[hsl(var(--bg-app))] animate-[billing-pulse_2s_ease-in-out_infinite]"
+            style={{ background: '#FF5C1A' }}
+          />
         )}
       </Link>
     );
@@ -318,26 +328,26 @@ export function Sidebar() {
         className={cn(
           "fixed left-0 top-0 h-full transition-all duration-300 ease-out",
           "flex flex-col overflow-hidden",
-          "glass-strong",
+          "glass-thin",
           sidebarWidth,
           isMobile ? "z-[210]" : "z-40"
         )}
         style={{
-          borderRight: '1px solid hsl(var(--border) / 0.7)',
+          borderRight: '1px solid rgba(0,0,0,0.06)',
           borderRadius: 0,
         }}
       >
         {/* Logo */}
         <div className={cn(
-          "h-16 flex items-center justify-center px-5 flex-shrink-0",
+          "flex items-center justify-center px-4 pt-5 pb-3 flex-shrink-0",
           isCollapsed && "px-0"
         )}>
-          <img 
-            src={logoNoe} 
-            alt="Noé" 
+          <img
+            src={logoNoe}
+            alt="Noé"
             className={cn(
-              "h-11 w-auto object-contain max-w-full",
-              isCollapsed && "h-8"
+              "h-10 w-auto object-contain max-w-full",
+              isCollapsed && "h-7"
             )}
           />
         </div>
@@ -345,35 +355,38 @@ export function Sidebar() {
         {/* User info */}
         {user && (
           <div className={cn(
-            "py-4 px-4 flex-shrink-0",
-            isCollapsed && "flex justify-center py-4 px-2"
+            "py-2 px-2 mb-3 flex-shrink-0",
+            isCollapsed && "flex justify-center px-2"
           )}>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-foreground/[0.06] flex items-center justify-center overflow-hidden flex-shrink-0 ring-1 ring-border">
+            <div className={cn(
+              "flex items-center gap-3 rounded-[12px] p-2 transition-colors hover:bg-black/[0.04]",
+              isCollapsed && "p-1"
+            )}>
+              <div className="h-8 w-8 rounded-full bg-[hsl(var(--label-3)/_0.15)] flex items-center justify-center overflow-hidden flex-shrink-0">
                 {user.avatar ? (
                   <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
                 ) : (
-                  <span className="font-semibold text-foreground text-sm">
+                  <span className="font-semibold text-[hsl(var(--label-1))] text-xs">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{user.name}</p>
-                  <p className="text-xs text-muted-foreground">{user.role}</p>
+                  <p className="text-[14px] font-semibold text-[hsl(var(--label-1))] truncate leading-tight">{user.name}</p>
+                  <p className="text-[12px] text-[hsl(240_6%_25%/_0.6)] leading-tight">{user.role}</p>
                 </div>
               )}
             </div>
           </div>
         )}
         
-        <div className="mx-4 h-px bg-border flex-shrink-0" />
-        
+        <div className="mx-4 h-px bg-black/[0.06] flex-shrink-0" />
+
         {/* Navigation */}
-        <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
+        <nav className="flex-1 py-3 px-1 overflow-y-auto space-y-0.5">
           {user?.role === 'owner' ? (
-            <div className="space-y-1">
+            <div className="space-y-px px-1">
               {[
                 { name: 'Tableau de bord', path: '/app/owner', icon: LayoutDashboard },
                 { name: 'Onboarding', path: '/app/owner/onboarding', icon: Rocket },
@@ -388,15 +401,22 @@ export function Sidebar() {
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      "flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 min-h-[44px]",
+                      "flex items-center gap-3 h-9 px-3 mx-1 rounded-[8px] transition-colors duration-150",
                       isActive
-                        ? "bg-primary/10 text-foreground font-semibold"
-                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]",
-                      isCollapsed && "justify-center px-2"
+                        ? "bg-[hsl(var(--ios-orange)/_0.10)] text-[hsl(var(--ios-orange))] font-semibold"
+                        : "text-[hsl(var(--label-1))] hover:bg-black/[0.04]",
+                      isCollapsed && "justify-center mx-0 px-2"
                     )}
                   >
-                    <item.icon size={18} className={cn("flex-shrink-0", isActive ? "text-primary" : "text-muted-foreground")} />
-                    {!isCollapsed && <span className="text-sm">{item.name}</span>}
+                    <item.icon
+                      size={18}
+                      strokeWidth={2}
+                      className={cn(
+                        "flex-shrink-0",
+                        isActive ? "text-[hsl(var(--ios-orange))]" : "text-[hsl(240_6%_25%/_0.6)]"
+                      )}
+                    />
+                    {!isCollapsed && <span className="text-sm font-medium">{item.name}</span>}
                   </Link>
                 );
                 if (isCollapsed) {
@@ -414,7 +434,7 @@ export function Sidebar() {
             </div>
           ) : isCollapsed ? (
             <div className="space-y-1">
-              {visibleSections.flatMap(section => 
+              {visibleSections.flatMap(section =>
                 section.items.map(item => renderNavLink(item, section))
               )}
             </div>
@@ -439,10 +459,10 @@ export function Sidebar() {
                   />
                 ))}
               </SortableContext>
-              
+
               <DragOverlay>
                 {activeSection ? (
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl glass-strong shadow-float text-xs font-medium text-foreground">
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl glass-thick text-xs font-medium text-[hsl(var(--label-1))]">
                     <span>{activeSection.title}</span>
                   </div>
                 ) : null}
@@ -450,18 +470,18 @@ export function Sidebar() {
             </DndContext>
           )}
         </nav>
-        
+
         {/* Logout */}
-        <div className="px-3 pb-3 flex-shrink-0">
+        <div className="px-2 pb-2 flex-shrink-0">
           {isCollapsed ? (
             <TooltipProvider delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
                     onClick={logout}
-                    className="flex items-center justify-center w-full py-2.5 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground"
+                    className="flex items-center justify-center w-full h-9 rounded-[8px] transition-colors text-[hsl(240_6%_25%/_0.6)] hover:text-[hsl(var(--label-1))] hover:bg-black/[0.04]"
                   >
-                    <LogOut size={18} />
+                    <LogOut size={18} strokeWidth={2} />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="right" sideOffset={8}><p>Déconnexion</p></TooltipContent>
@@ -470,27 +490,29 @@ export function Sidebar() {
           ) : (
             <button
               onClick={logout}
-              className="flex items-center w-full gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground"
+              className="flex items-center w-full gap-3 px-3 h-9 mx-1 rounded-[8px] transition-colors text-[hsl(var(--label-1))] hover:bg-black/[0.04]"
             >
-              <LogOut size={18} />
-              <span className="text-sm">Déconnexion</span>
+              <LogOut size={18} strokeWidth={2} className="text-[hsl(240_6%_25%/_0.6)]" />
+              <span className="text-sm font-medium">Déconnexion</span>
             </button>
           )}
         </div>
-        
-        {/* Collapse toggle (desktop only) */}
+
+        {/* Collapse toggle (desktop only) — Apple glass pill */}
         {!isMobile && !isTablet && (
           <div className="flex p-3 justify-center flex-shrink-0">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-foreground/[0.04] border border-border"
+              className="h-8 w-8 rounded-full glass-pill flex items-center justify-center transition-transform active:scale-95"
+              aria-label={isOpen ? 'Réduire le menu' : 'Étendre le menu'}
             >
-              <ChevronLeft 
-                size={16} 
+              <ChevronLeft
+                size={14}
+                strokeWidth={2}
                 className={cn(
-                  "transition-transform duration-300",
+                  "transition-transform duration-300 text-[hsl(240_6%_25%/_0.6)]",
                   !isOpen && "rotate-180"
-                )} 
+                )}
               />
             </button>
           </div>
