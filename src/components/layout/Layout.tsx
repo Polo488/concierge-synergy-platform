@@ -27,11 +27,9 @@ export function Layout() {
   const sidebarOffset = isMobile ? 0 : isTablet ? 64 : 240;
 
   return (
-    <div className="min-h-screen relative w-full max-w-[100vw]">
-      {/* Liquid Glass ambient — orbes pastel très diffus, fond clair Apple */}
-      <div className="liquid-bg" aria-hidden="true">
-        <div className="orb orb-3" />
-      </div>
+    <div className="relative w-full max-w-[100vw]">
+      {/* Apple ambient bg — F5F5F7 + subtle warm orange tint */}
+      <div className="liquid-bg" aria-hidden="true" />
 
       <Sidebar />
 
@@ -40,13 +38,12 @@ export function Layout() {
       <main
         style={{
           marginLeft: isMobile ? 0 : `${sidebarOffset}px`,
-          paddingTop: 'calc(64px + env(safe-area-inset-top, 0px))',
+          paddingTop: 'calc(56px + env(safe-area-inset-top, 0px))',
         }}
-        className="min-h-screen w-auto max-w-full transition-all duration-300 ease-out relative z-10"
+        className="w-auto max-w-full transition-all duration-300 ease-out relative z-10"
       >
         <div className={cn(
           "mx-auto max-w-[1280px] animate-fade-in box-border w-full safe-left safe-right safe-bottom",
-          // Fluid padding Apple-like : se rétrécit en douceur
           "py-[clamp(1rem,3vw,2rem)] px-[clamp(0.75rem,3vw,1.5rem)]"
         )}>
           <Outlet />
