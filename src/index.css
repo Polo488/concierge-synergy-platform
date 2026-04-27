@@ -1035,8 +1035,8 @@ html, body, .scroll-smooth {
   background: hsla(var(--ios-orange) / 0.10);
   color: hsl(var(--ios-orange));
 }
-.dark .ios-chip { background: hsla(0, 0%, 100% / 0.08); }
-.dark .ios-chip:hover { background: hsla(0, 0%, 100% / 0.12); }
+.dark .ios-chip { background: hsl(0 0% 100% / 0.08); }
+.dark .ios-chip:hover { background: hsl(0 0% 100% / 0.12); }
 
 /* ==========================================================================
    iOS 26 — BUTTONS
