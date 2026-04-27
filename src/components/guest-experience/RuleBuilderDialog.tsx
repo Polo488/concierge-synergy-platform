@@ -357,7 +357,7 @@ export function RuleBuilderDialog({
                     </Select>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label>Décalage (jours)</Label>
                       <Select value={dayOffset.toString()} onValueChange={(v) => setDayOffset(parseInt(v))}>
