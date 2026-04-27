@@ -110,8 +110,8 @@ export const OperationsProvider: React.FC<{ children: ReactNode }> = ({ children
 
     setLinkedTasks(prev => [...prev, linkedTask]);
 
-    toast.success("Tâche de maintenance créée", {
-      description: `"${data.title}" - origine: message voyageur`,
+    toast.success(M.maintenance.interventionCreated, {
+      description: `« ${data.title} » — origine : message voyageur`,
     });
 
     return newTask;
