@@ -107,7 +107,7 @@ export const useMaintenanceTasks = () => {
       };
       
       setCompletedTasks(prev => [updatedTask, ...prev]);
-      toast.success("Intervention marquée comme terminée");
+      toast.success(M.maintenance.interventionCompleted);
       return updatedTask;
     }
     
