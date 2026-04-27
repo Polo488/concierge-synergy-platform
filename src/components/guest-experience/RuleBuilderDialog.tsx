@@ -516,7 +516,7 @@ export function RuleBuilderDialog({
           {currentStep === 5 && (
             <div className="space-y-4">
               <Tabs value={useTemplate ? 'template' : 'custom'} onValueChange={(v) => setUseTemplate(v === 'template')}>
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="inline-flex w-full ">
                   <TabsTrigger value="template">Utiliser un modèle</TabsTrigger>
                   <TabsTrigger value="custom">Message personnalisé</TabsTrigger>
                 </TabsList>

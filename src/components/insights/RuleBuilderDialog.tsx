@@ -196,7 +196,7 @@ export function RuleBuilderDialog({
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 w-full">
+          <TabsList className="inline-flex  w-full">
             <TabsTrigger value="basics">Général</TabsTrigger>
             <TabsTrigger value="conditions">Conditions</TabsTrigger>
             <TabsTrigger value="notification">Notification</TabsTrigger>

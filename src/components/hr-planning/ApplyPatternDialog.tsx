@@ -77,7 +77,7 @@ export function ApplyPatternDialog({
         </DialogHeader>
 
         <Tabs defaultValue="pattern" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="inline-flex w-full ">
             <TabsTrigger value="pattern" className="flex items-center gap-2">
               <CalendarCheck className="h-4 w-4" />
               Modèle de semaine

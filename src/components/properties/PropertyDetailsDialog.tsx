@@ -223,7 +223,7 @@ export const PropertyDetailsDialog = ({
         />
 
         <Tabs defaultValue="info" className="mt-4">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="inline-flex w-full ">
             <TabsTrigger value="info">Informations</TabsTrigger>
             <TabsTrigger value="equipment">Équipements</TabsTrigger>
             <TabsTrigger value="access" className="flex items-center gap-1">
