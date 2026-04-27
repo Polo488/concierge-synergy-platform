@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          actor: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+          new_state: Json | null
+          previous_state: Json | null
+          tenant_id: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          new_state?: Json | null
+          previous_state?: Json | null
+          tenant_id?: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          new_state?: Json | null
+          previous_state?: Json | null
+          tenant_id?: string
+        }
+        Relationships: []
+      }
       beta_profiles: {
         Row: {
           channel_manager: string | null
@@ -145,6 +184,181 @@ export type Database = {
           title?: string
           updated_at?: string
           votes_count?: number
+        }
+        Relationships: []
+      }
+      provider_invoice_calls: {
+        Row: {
+          access_token: string
+          created_at: string
+          id: string
+          invoice_received_at: string | null
+          month: string
+          notes: string | null
+          paid_at: string | null
+          provider_id: string
+          provider_invoice_number: string | null
+          provider_invoice_pdf_url: string | null
+          sent_at: string | null
+          status: string
+          tenant_id: string
+          total_amount: number
+          updated_at: string
+          validated_at: string | null
+        }
+        Insert: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          invoice_received_at?: string | null
+          month: string
+          notes?: string | null
+          paid_at?: string | null
+          provider_id: string
+          provider_invoice_number?: string | null
+          provider_invoice_pdf_url?: string | null
+          sent_at?: string | null
+          status?: string
+          tenant_id?: string
+          total_amount?: number
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          invoice_received_at?: string | null
+          month?: string
+          notes?: string | null
+          paid_at?: string | null
+          provider_id?: string
+          provider_invoice_number?: string | null
+          provider_invoice_pdf_url?: string | null
+          sent_at?: string | null
+          status?: string
+          tenant_id?: string
+          total_amount?: number
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_invoice_calls_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_missions: {
+        Row: {
+          agreed_price: number
+          created_at: string
+          description: string | null
+          id: string
+          invoice_call_id: string | null
+          linked_reservation_id: string | null
+          mission_date: string
+          pricing_mode: string
+          provider_id: string
+          rental_id: string
+          rental_name: string | null
+          status: string
+          tenant_id: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          agreed_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          invoice_call_id?: string | null
+          linked_reservation_id?: string | null
+          mission_date: string
+          pricing_mode?: string
+          provider_id: string
+          rental_id: string
+          rental_name?: string | null
+          status?: string
+          tenant_id?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          agreed_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          invoice_call_id?: string | null
+          linked_reservation_id?: string | null
+          mission_date?: string
+          pricing_mode?: string
+          provider_id?: string
+          rental_id?: string
+          rental_name?: string | null
+          status?: string
+          tenant_id?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_missions_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      providers: {
+        Row: {
+          created_at: string
+          default_pricing_mode: string
+          default_rate: number | null
+          email: string | null
+          iban: string | null
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          tenant_id: string
+          type: string
+          updated_at: string
+          vat_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          default_pricing_mode?: string
+          default_rate?: number | null
+          email?: string | null
+          iban?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          tenant_id?: string
+          type: string
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          default_pricing_mode?: string
+          default_rate?: number | null
+          email?: string | null
+          iban?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+          tenant_id?: string
+          type?: string
+          updated_at?: string
+          vat_number?: string | null
         }
         Relationships: []
       }
