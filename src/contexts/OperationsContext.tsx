@@ -255,7 +255,7 @@ export const OperationsProvider: React.FC<{ children: ReactNode }> = ({ children
         ? { ...issue, status: 'resolved' as const, resolvedAt: new Date().toISOString() }
         : issue
     ));
-    toast.success("Problème résolu");
+    toast.success(M.cleaning.issueResolved);
   }, []);
 
   return (
