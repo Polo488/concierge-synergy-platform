@@ -25,16 +25,16 @@ export function AgentRankingTable({ agents, onSelectAgent }: AgentRankingTablePr
   const sortedAgents = [...agents].sort((a, b) => a.average_rating_overall - b.average_rating_overall);
 
   return (
-    <div className="glass-surface rounded-2xl p-4 md:p-5">
+    <div className="glass-surface rounded-[22px] p-4 md:p-5 overflow-hidden">
       <div className="flex items-center gap-2 mb-3 md:mb-4">
         <div className="h-7 w-7 rounded-full bg-[hsl(var(--ios-orange)/0.10)] flex items-center justify-center">
           <Users className="h-3.5 w-3.5 text-[hsl(var(--ios-orange))]" strokeWidth={2.2} />
         </div>
         <div>
-          <h3 className="text-[15px] md:text-[16px] font-semibold tracking-[-0.015em] text-[hsl(var(--label-1))]">
+          <h3 className="text-[15px] md:text-[16px] font-semibold tracking-normal text-[hsl(var(--label-1))]">
             Agents par note
           </h3>
-          <p className="text-[11px] text-[hsl(240_6%_25%/0.6)] tracking-[-0.005em]">
+          <p className="text-[11px] text-[hsl(var(--label-2)/0.68)] tracking-normal">
             Triés par ordre croissant
           </p>
         </div>
@@ -56,20 +56,20 @@ export function AgentRankingTable({ agents, onSelectAgent }: AgentRankingTablePr
                 className="w-full flex items-center gap-3 py-3 text-left transition-colors duration-200 hover:bg-[hsl(var(--ios-orange)/0.04)] active:bg-[hsl(var(--ios-orange)/0.08)] rounded-xl px-2 -mx-2"
               >
                 <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-[hsl(var(--ios-orange)/0.18)] to-[hsl(var(--ios-orange)/0.06)] flex items-center justify-center flex-shrink-0 ring-1 ring-[hsl(var(--ios-orange)/0.18)]">
-                  <span className="text-[11px] font-semibold text-[hsl(var(--ios-orange))] tracking-tight">
+                  <span className="text-[11px] font-semibold text-[hsl(var(--ios-orange))] tracking-normal">
                     {initials}
                   </span>
-                  <span className="absolute -top-0.5 -left-0.5 h-4 w-4 rounded-full bg-[hsl(var(--card))] flex items-center justify-center text-[9px] font-semibold text-[hsl(240_6%_25%/0.7)] tabular-nums shadow-[0_1px_2px_rgba(0,0,0,0.06)]">
+                  <span className="absolute -top-0.5 -left-0.5 h-4 w-4 rounded-full bg-[hsl(var(--surface-1))] flex items-center justify-center text-[9px] font-semibold text-[hsl(var(--label-2)/0.78)] tabular-nums shadow-[0_1px_2px_hsl(var(--label-1)/0.06)]">
                     {index + 1}
                   </span>
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-medium text-[hsl(var(--label-1))] tracking-[-0.01em] truncate">
+                  <p className="text-[14px] font-medium text-[hsl(var(--label-1))] tracking-normal truncate">
                     {agent.agent_name}
                   </p>
                   <div className="flex items-center gap-3 mt-0.5">
-                    <span className="inline-flex items-center gap-1 text-[12px] text-[hsl(240_6%_25%/0.6)]">
+                    <span className="inline-flex items-center gap-1 text-[12px] text-[hsl(var(--label-2)/0.68)]">
                       {trendUp ? (
                         <TrendingUp className="h-3 w-3 text-[hsl(var(--status-success))]" strokeWidth={2.2} />
                       ) : (
@@ -79,7 +79,7 @@ export function AgentRankingTable({ agents, onSelectAgent }: AgentRankingTablePr
                         {agent.average_rating_last_30_days.toFixed(1)} sur 30 j
                       </span>
                     </span>
-                    <span className="text-[12px] text-[hsl(240_6%_25%/0.5)] tabular-nums">
+                    <span className="text-[12px] text-[hsl(var(--label-2)/0.58)] tabular-nums">
                       {agent.tasks_completed_total} tâches
                     </span>
                   </div>
