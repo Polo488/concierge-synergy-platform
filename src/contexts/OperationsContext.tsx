@@ -156,8 +156,8 @@ export const OperationsProvider: React.FC<{ children: ReactNode }> = ({ children
 
     setLinkedTasks(prev => [...prev, linkedTask]);
 
-    toast.success("Problème ménage signalé", {
-      description: `${data.issueTypes.length} type(s) de problème - origine: message voyageur`,
+    toast.success(M.cleaning.issueReported, {
+      description: `${data.issueTypes.length} type(s) de problème — origine : message voyageur`,
     });
 
     return newIssue;
