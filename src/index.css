@@ -715,14 +715,15 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .dark {
-  --bg-app: 0 0% 0%;                  /* pure black for dark mode */
-  --surface-1: 240 10% 14%;
-  --label-1: 240 14% 92%;
-  --label-2: 240 8% 70%;
-  --label-3: 240 6% 50%;
-  --label-4: 240 6% 35%;
-  --hairline: 240 8% 22%;
-  --separator: 240 8% 18%;
+  /* iOS dark surfaces — keep in sync with @layer base .dark above */
+  --bg-app: 240 6% 6%;                 /* near-black #0E0E10 */
+  --surface-1: 240 6% 11%;             /* secondarySystemBackground #1C1C1E */
+  --label-1: 240 14% 96%;              /* primary label #F2F2F7 */
+  --label-2: 240 6% 66%;               /* secondaryLabel 60% */
+  --label-3: 240 6% 48%;               /* tertiaryLabel 30% */
+  --label-4: 240 6% 32%;               /* quaternaryLabel 18% */
+  --hairline: 240 5% 22%;              /* opaque separator #38383A */
+  --separator: 240 5% 18%;
 }
 
 /* Body Apple-like : antialiasing, safe area iOS */
