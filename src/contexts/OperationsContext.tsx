@@ -208,8 +208,8 @@ export const OperationsProvider: React.FC<{ children: ReactNode }> = ({ children
 
     setLinkedTasks(prev => [...prev, linkedTask]);
 
-    toast.success("Repasse planifiée", {
-      description: `Repasse créée pour ${propertyName} - origine: message voyageur`,
+    toast.success(M.cleaning.repassScheduled, {
+      description: `Repasse créée pour ${propertyName} — origine : message voyageur`,
     });
 
     return newRepasse;
