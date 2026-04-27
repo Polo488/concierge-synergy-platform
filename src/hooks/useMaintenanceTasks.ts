@@ -61,9 +61,9 @@ export const useMaintenanceTasks = () => {
     
     // Customize the success message based on whether a scheduled date was provided
     if (data.scheduledDate) {
-      toast.success(`Nouvelle intervention créée et programmée pour le ${data.scheduledDate}`);
+      toast.success(M.maintenance.interventionScheduled(data.scheduledDate));
     } else {
-      toast.success("Nouvelle intervention créée avec succès");
+      toast.success(M.maintenance.interventionCreated);
     }
     
     return newTask;
