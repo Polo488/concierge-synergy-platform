@@ -1,4 +1,5 @@
-import { createContext, useContext, useMemo, useState, ReactNode, useCallback } from "react";
+import { createContext, useContext, useMemo, useState, ReactNode, useCallback, useEffect } from "react";
+import { useBillingTenant } from "@/hooks/useBillingTenant";
 import {
   reservations as mockReservations,
   previousReservations as mockPrev,
