@@ -180,7 +180,7 @@ const Properties = () => {
               {prefillData.ownerName && <div><p className="text-[11px] text-muted-foreground">Propriétaire</p><p className="font-medium text-foreground">{prefillData.ownerName}</p></div>}
             </div>
             <div className="mt-3">
-              <Button size="sm" onClick={() => { toast.success('Logement créé !'); setPrefillData(null); }}>
+              <Button size="sm" onClick={() => { toast.success(M.properties.created); setPrefillData(null); }}>
                 <PlusCircle size={14} className="mr-1.5" /> Créer le logement
               </Button>
             </div>
