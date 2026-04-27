@@ -57,12 +57,12 @@ const tagLabels: Record<string, string> = {
 };
 
 const tooltipStyle: React.CSSProperties = {
-  background: 'hsl(var(--card) / 0.85)',
-  backdropFilter: 'blur(30px) saturate(180%)',
-  WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-  border: '1px solid hsl(var(--separator))',
-  borderRadius: 14,
-  boxShadow: '0 10px 30px rgba(0,0,0,0.10)',
+  background: 'hsl(var(--surface-1) / 0.96)',
+  backdropFilter: 'blur(18px) saturate(140%)',
+  WebkitBackdropFilter: 'blur(18px) saturate(140%)',
+  border: '1px solid hsl(var(--hairline) / 0.72)',
+  borderRadius: 12,
+  boxShadow: '0 10px 24px -18px hsl(var(--label-1) / 0.28)',
   fontSize: 12,
   padding: '8px 12px',
   color: 'hsl(var(--label-1))',
@@ -78,13 +78,13 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="glass-surface rounded-2xl p-4 md:p-5">
+    <div className="glass-surface rounded-[22px] p-4 md:p-5 overflow-hidden">
       <div className="mb-3 md:mb-4">
-        <h3 className="text-[15px] md:text-[16px] font-semibold tracking-[-0.015em] text-[hsl(var(--label-1))]">
+        <h3 className="text-[15px] md:text-[16px] font-semibold tracking-normal text-[hsl(var(--label-1))]">
           {title}
         </h3>
         {subtitle && (
-          <p className="text-[12px] text-[hsl(240_6%_25%/0.6)] mt-0.5 tracking-[-0.005em]">{subtitle}</p>
+          <p className="text-[12px] text-[hsl(var(--label-2)/0.68)] mt-0.5 tracking-normal">{subtitle}</p>
         )}
       </div>
       <div className="h-[240px] md:h-[260px]">{children}</div>
@@ -108,8 +108,8 @@ export function QualityCharts({
     formattedDate: format(parseISO(point.date), 'dd/MM', { locale: fr }),
   }));
 
-  const axisTick = { fontSize: 11, fill: 'hsl(240 6% 25% / 0.55)' };
-  const grid = 'hsl(var(--separator))';
+  const axisTick = { fontSize: 11, fill: 'hsl(var(--label-2) / 0.58)' };
+  const grid = 'hsl(var(--separator) / 0.68)';
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5">

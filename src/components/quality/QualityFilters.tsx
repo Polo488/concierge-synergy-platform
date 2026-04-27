@@ -101,11 +101,11 @@ export function QualityFilters({
     (filters.ratingSource !== 'all' ? 1 : 0) + (filters.channel !== 'all' ? 1 : 0);
 
   return (
-    <div className="glass-surface p-5 rounded-[18px]">
+    <div className="glass-surface p-5 rounded-[22px] overflow-hidden">
       {/* LIGNE 1 — Période */}
       <div className="flex flex-wrap items-center gap-3 justify-between">
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[hsl(240_6%_25%/_0.5)]">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[hsl(var(--label-2)/0.58)]">
             Période
           </span>
           <SegmentedControl
@@ -142,7 +142,7 @@ export function QualityFilters({
       </div>
 
       {/* DIVIDER */}
-      <div className="h-px bg-black/[0.06] my-4" />
+      <div className="h-px bg-[hsl(var(--separator))] my-4" />
 
       {/* LIGNE 2 — Filtres chips */}
       <div className="flex flex-wrap items-center gap-2">
@@ -225,7 +225,7 @@ export function QualityFilters({
           <PopoverContent className="w-72 p-3 ios-popover border-0 shadow-none" align="start">
             <div className="space-y-3">
               <div>
-                <p className="text-[11px] uppercase tracking-[0.06em] font-semibold text-[hsl(240_6%_25%/_0.5)] mb-2">
+                <p className="text-[11px] uppercase tracking-[0.06em] font-semibold text-[hsl(var(--label-2)/0.58)] mb-2">
                   Canal
                 </p>
                 <div className="flex flex-wrap gap-1.5">
@@ -241,9 +241,9 @@ export function QualityFilters({
                   ))}
                 </div>
               </div>
-              <div className="h-px bg-black/[0.06]" />
+              <div className="h-px bg-[hsl(var(--separator))]" />
               <div>
-                <p className="text-[11px] uppercase tracking-[0.06em] font-semibold text-[hsl(240_6%_25%/_0.5)] mb-2">
+                <p className="text-[11px] uppercase tracking-[0.06em] font-semibold text-[hsl(var(--label-2)/0.58)] mb-2">
                   Source note
                 </p>
                 <div className="flex flex-wrap gap-1.5">
@@ -279,7 +279,7 @@ export function QualityFilters({
       </div>
 
       {/* DIVIDER */}
-      <div className="h-px bg-black/[0.06] my-4" />
+      <div className="h-px bg-[hsl(var(--separator))] my-4" />
 
       {/* LIGNE 3 — Toggle + export */}
       <div className="flex flex-wrap items-center justify-between gap-3">

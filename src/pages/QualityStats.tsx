@@ -72,8 +72,8 @@ const QualityStats = () => {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[28px] font-bold tracking-[-0.02em] text-[hsl(var(--label-1))]">Stats</h1>
-          <p className="text-[14px] text-[hsl(240_6%_25%/_0.6)]">Hub central de statistiques : activité, finance, opérations</p>
+          <h1 className="text-[28px] font-bold tracking-normal text-[hsl(var(--label-1))]">Stats</h1>
+          <p className="text-[14px] text-[hsl(var(--label-2)/0.68)]">Hub central de statistiques : activité, finance, opérations</p>
         </div>
         <TutorialButton moduleId="quality" />
       </div>
@@ -120,14 +120,14 @@ const QualityStats = () => {
         {/* Ménage Tab - Existing Content Preserved */}
         <TabsContent value="menage" className="space-y-6 mt-6">
           {/* Monthly Summary Card */}
-          <div className="glass-surface p-4 rounded-[18px]">
+          <div className="glass-surface p-4 rounded-[22px] overflow-hidden">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-[hsl(var(--ios-orange)/_0.10)] flex items-center justify-center flex-shrink-0">
                 <Sparkles className="h-5 w-5 text-[hsl(var(--ios-orange))]" strokeWidth={2} />
               </div>
               <div>
                 <h3 className="font-semibold text-[hsl(var(--label-1))]">Récap mensuel ménage</h3>
-                <p className="text-sm text-[hsl(240_6%_25%/_0.6)]">
+                <p className="text-sm text-[hsl(var(--label-2)/0.68)]">
                   {kpis.tasks_completed} ménages • Note moyenne: {kpis.average_rating_overall.toFixed(1)}/5 • Taux repasse: {kpis.repasse_rate.toFixed(1)}%
                 </p>
               </div>
