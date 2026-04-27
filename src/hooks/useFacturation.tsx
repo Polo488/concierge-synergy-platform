@@ -94,9 +94,19 @@ interface FacturationState {
 const Ctx = createContext<FacturationState | null>(null);
 
 export function FacturationProvider({ children }: { children: ReactNode }) {
+  const { mode, setMode } = useBillingTenant();
   const [periodLabel, setPeriodLabel] = useState("Octobre 2026");
-  const [cartG, setCartG] = useState(currentUser.cartG);
-  const [activeTab, setActiveTab] = useState<TabKey>("reservations");
+  const cartG = mode === "CARTE_G";
+  const setCartG = useCallback((v: boolean) => setMode(v ? "CARTE_G" : "HONORAIRES"), [setMode]);
+  const [activeTab, setActiveTabState] = useState<TabKey>("reservations");
+  const setActiveTab = useCallback((t: TabKey) => setActiveTabState(t), []);
+
+  // Auto-redirect away from CARTE_G-only tabs when switching to HONORAIRES
+  useEffect(() => {
+    if (!cartG && (activeTab === "reconciliation" || activeTab === "escrow" || activeTab === "sepa")) {
+      setActiveTabState("reservations");
+    }
+  }, [cartG, activeTab]);
 
   const [bookingFile, setBookingFile] = useState<ImportedFile | null>({
     name: "booking_oct_2026.csv",
