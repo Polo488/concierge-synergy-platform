@@ -368,9 +368,9 @@ const Billing = () => {
     // Here we could update our local state with the imported data
     // For example, add new bookings to the bookings state
     
-    toast.success(`Import réussi: ${result.bookingsCount || 0} réservations importées.`);
+    toast.success(M.billing.importSuccess(result.bookingsCount || 0, 'réservations'));
     if (result.unassignedCount && result.unassignedCount > 0) {
-      toast.warning(`${result.unassignedCount} réservations non assignées, vérifiez l'onglet Contrôle.`);
+      toast.warning(M.billing.importPartial(result.unassignedCount));
     }
   };
   
