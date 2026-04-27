@@ -77,9 +77,12 @@ const TabsList = React.forwardRef<
         "border border-[hsl(var(--label-1)/0.04)] dark:border-white/[0.06]",
         "shadow-[inset_0_1px_0_hsl(0_0%_100%/0.4)] dark:shadow-[inset_0_1px_0_hsl(0_0%_100%/0.04)]",
         "text-muted-foreground align-top",
-        // Scroll horizontal sans scrollbar
+        // Scroll horizontal sans scrollbar (suppression complète webkit + firefox + edge)
         "max-w-full overflow-x-auto overflow-y-hidden whitespace-nowrap",
-        "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+        "[scrollbar-width:none] [-ms-overflow-style:none]",
+        "[&::-webkit-scrollbar]:hidden [&::-webkit-scrollbar]:w-0 [&::-webkit-scrollbar]:h-0",
+        "[&::-webkit-scrollbar-track]:hidden [&::-webkit-scrollbar-thumb]:hidden",
+        "[&::-webkit-scrollbar-corner]:hidden",
         // Hauteur compacte iOS — 30px mobile, 34px desktop
         "h-[30px] sm:h-[34px]",
         className
