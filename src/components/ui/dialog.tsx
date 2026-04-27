@@ -40,7 +40,10 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 p-6 text-foreground",
+        "fixed left-[50%] top-[50%] z-50 grid translate-x-[-50%] translate-y-[-50%] gap-4 p-4 sm:p-6 text-foreground",
+        // Always respect iOS gutter — never overflow the viewport on mobile.
+        "w-[calc(100vw-2*var(--app-gutter,20px))] max-w-lg",
+        "max-h-[calc(100dvh-2*var(--app-gutter,20px))] overflow-y-auto overscroll-contain",
         "rounded-[22px]",
         // Near-opaque sheet (Apple modal cards are not see-through). No saturation boost
         // → no iridescent halos from colored content (charts, photos) behind.
