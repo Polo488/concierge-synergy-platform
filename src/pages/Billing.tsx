@@ -1,12 +1,15 @@
 import { useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFacturation, FacturationProvider } from "@/hooks/useFacturation";
+import { BillingTenantProvider, useBillingTenant } from "@/hooks/useBillingTenant";
 import { FacturationPeriodPill, FacturationProgress } from "@/components/billing/FacturationHeader";
+import { BillingModeToggle } from "@/components/billing/BillingModeToggle";
 import { KpiHero } from "@/components/billing/KpiHero";
 import { FacturationTabs } from "@/components/billing/FacturationTabs";
 import { ReservationsTab } from "@/components/billing/ReservationsTab";
 import { NegativeOpsTab } from "@/components/billing/NegativeOpsTab";
 import { ComplementsTab } from "@/components/billing/ComplementsTab";
+import { ProviderCallsTab } from "@/components/billing/ProviderCallsTab";
 import { InvoicesTab } from "@/components/billing/InvoicesTab";
 import { SepaTab } from "@/components/billing/SepaTab";
 import { ReconciliationTab } from "@/components/billing/ReconciliationTab";
@@ -48,9 +51,10 @@ function FacturationContent() {
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
-        <div className="flex items-center justify-between gap-3 sm:justify-start">
+        <div className="flex items-center gap-3 flex-wrap">
           <FacturationPeriodPill />
           <FacturationProgress />
+          <BillingModeToggle />
         </div>
         <PrimaryCta />
       </header>
@@ -70,6 +74,7 @@ function FacturationContent() {
           {activeTab === "reservations" && <ReservationsTab />}
           {activeTab === "negatives" && <NegativeOpsTab />}
           {activeTab === "complements" && <ComplementsTab />}
+          {activeTab === "provider-calls" && <ProviderCallsTab />}
           {activeTab === "reconciliation" && <ReconciliationTab />}
           {activeTab === "invoices" && <InvoicesTab />}
           {activeTab === "escrow" && <EscrowTab />}
@@ -83,19 +88,21 @@ function FacturationContent() {
 export default function Billing() {
   useEffect(() => { document.title = "Facturation — Noé"; }, []);
   return (
-    <FacturationProvider>
-      <FacturationMetierBridge>
-      <section className="bill-scope relative isolate -mx-[var(--app-gutter)] -mt-[clamp(1.25rem,3vw,2rem)] -mb-[clamp(1.25rem,3vw,2rem)] min-h-[calc(100dvh-72px)] overflow-hidden bg-background px-[var(--app-gutter)] pt-[clamp(1.25rem,3vw,2rem)] pb-[clamp(1.25rem,3vw,2rem)] text-foreground">
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,hsl(var(--primary)/0.12),transparent_28%),radial-gradient(circle_at_86%_16%,hsl(var(--status-info)/0.10),transparent_30%),radial-gradient(circle_at_78%_78%,hsl(var(--status-success)/0.08),transparent_28%)]" />
-        <div className="mx-auto w-full max-w-[1280px]">
-        <div className="mb-6">
-          <h1 className="font-heading font-semibold tracking-[-0.025em] text-foreground" style={{ fontSize: "clamp(28px, 4vw, 34px)", lineHeight: 1.1 }}>Facturation</h1>
-          <p className="text-[14px] text-muted-foreground mt-1.5">Cockpit de facturation mensuelle des propriétaires</p>
-        </div>
-        <FacturationContent />
-        </div>
-      </section>
-      </FacturationMetierBridge>
-    </FacturationProvider>
+    <BillingTenantProvider>
+      <FacturationProvider>
+        <FacturationMetierBridge>
+          <section className="bill-scope relative isolate -mx-[var(--app-gutter)] -mt-[clamp(1.25rem,3vw,2rem)] -mb-[clamp(1.25rem,3vw,2rem)] min-h-[calc(100dvh-72px)] overflow-hidden bg-background px-[var(--app-gutter)] pt-[clamp(1.25rem,3vw,2rem)] pb-[clamp(1.25rem,3vw,2rem)] text-foreground">
+            <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,hsl(var(--primary)/0.12),transparent_28%),radial-gradient(circle_at_86%_16%,hsl(var(--status-info)/0.10),transparent_30%),radial-gradient(circle_at_78%_78%,hsl(var(--status-success)/0.08),transparent_28%)]" />
+            <div className="mx-auto w-full max-w-[1280px]">
+              <div className="mb-6">
+                <h1 className="font-heading font-semibold tracking-[-0.025em] text-foreground" style={{ fontSize: "clamp(28px, 4vw, 34px)", lineHeight: 1.1 }}>Facturation</h1>
+                <p className="text-[14px] text-muted-foreground mt-1.5">Cockpit de facturation mensuelle des propriétaires</p>
+              </div>
+              <FacturationContent />
+            </div>
+          </section>
+        </FacturationMetierBridge>
+      </FacturationProvider>
+    </BillingTenantProvider>
   );
 }

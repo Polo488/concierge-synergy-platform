@@ -41,6 +41,7 @@ import OwnerPortal from "./pages/OwnerPortal";
 import LegalWatch from "./pages/LegalWatch";
 import WelcomeGuide from "./pages/WelcomeGuide";
 import WelcomeGuidePublic from "./pages/WelcomeGuidePublic";
+import ProviderCallPage from "./pages/ProviderCallPage";
 import Transitory from "./pages/Transitory";
 import IdeaBox from "./pages/IdeaBox";
 import Feedbacks from "./pages/Feedbacks";
@@ -83,6 +84,9 @@ const App = () => (
 
                     {/* Public welcome guide */}
                     <Route path="/welcome/:token" element={<WelcomeGuidePublic />} />
+
+                    {/* Public provider invoice call (token-secured) */}
+                    <Route path="/provider-call/:token" element={<ProviderCallPage />} />
 
                     {/* Legacy route aliases used by dashboard widgets */}
                     <Route path="/calendar" element={<Navigate to="/app/calendar" replace />} />

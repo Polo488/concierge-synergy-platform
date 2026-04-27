@@ -10,9 +10,10 @@ export function FacturationTabs() {
   const { reconciliation, invoiceStats, closingChecks } = useFacturationMetier();
   const tabs: TabDef[] = [
     { key: "reservations", label: "Réservations" },
-    { key: "negatives", label: "Opérations négatives", counter: totals.negPending || undefined, counterTone: "warn" },
+    { key: "negatives", label: "Exceptions", counter: totals.negPending || undefined, counterTone: "warn" },
     { key: "complements", label: "Compléments" },
-    { key: "reconciliation", label: "Réconciliation", counter: reconciliation.unmatched || undefined, counterTone: "warn" },
+    { key: "provider-calls", label: "Appels prestataires" },
+    ...(cartG ? [{ key: "reconciliation" as TabKey, label: "Réconciliation", counter: reconciliation.unmatched || undefined, counterTone: "warn" as const }] : []),
     { key: "invoices", label: "Factures", counter: invoiceStats.blocked || undefined, counterTone: "danger" },
     ...(cartG ? [{ key: "escrow" as TabKey, label: "Séquestre", counter: closingChecks.canClose ? undefined : closingChecks.blockers.length || undefined, counterTone: "info" as const }] : []),
     ...(cartG ? [{ key: "sepa" as TabKey, label: "Virements SEPA" }] : []),
