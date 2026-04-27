@@ -484,7 +484,7 @@ export function Sidebar() {
                 <TooltipTrigger asChild>
                   <button
                     onClick={logout}
-                    className="flex items-center justify-center w-full h-9 rounded-[8px] transition-colors text-[hsl(240_6%_25%/_0.6)] hover:text-[hsl(var(--label-1))] hover:bg-black/[0.04]"
+                    className="flex items-center justify-center w-full h-9 rounded-[8px] transition-colors text-[hsl(var(--label-2))] hover:text-[hsl(var(--label-1))] hover:bg-[hsl(var(--label-1)/0.06)] dark:hover:bg-white/5"
                   >
                     <LogOut size={18} strokeWidth={2} />
                   </button>
@@ -495,9 +495,9 @@ export function Sidebar() {
           ) : (
             <button
               onClick={logout}
-              className="flex items-center w-full gap-3 px-3 h-9 mx-1 rounded-[8px] transition-colors text-[hsl(var(--label-1))] hover:bg-black/[0.04]"
+              className="flex items-center w-full gap-3 px-3 h-9 mx-1 rounded-[8px] transition-colors text-[hsl(var(--label-1))] hover:bg-[hsl(var(--label-1)/0.06)] dark:hover:bg-white/5"
             >
-              <LogOut size={18} strokeWidth={2} className="text-[hsl(240_6%_25%/_0.6)]" />
+              <LogOut size={18} strokeWidth={2} className="text-[hsl(var(--label-2))]" />
               <span className="text-sm font-medium">Déconnexion</span>
             </button>
           )}
