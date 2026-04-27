@@ -44,9 +44,11 @@ function FacturationContent() {
   const { activeTab } = useFacturation();
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <FacturationPeriodPill />
-        <FacturationProgress />
+      <header className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex items-center justify-between gap-3 sm:justify-start">
+          <FacturationPeriodPill />
+          <FacturationProgress />
+        </div>
         <PrimaryCta />
       </header>
 
