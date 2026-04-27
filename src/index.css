@@ -754,17 +754,31 @@ html, body, .scroll-smooth {
   }
 }
 
-/* Apple ambient background — flat grouped system background, no decorative halos. */
+/* Apple iOS 26 ambient background — soft colored halos visible through glass surfaces.
+   CRITICAL: these halos must remain visible behind .glass-* cards.
+   No animation by default (Apple-static). Reduced-motion safe. */
 .liquid-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: hsl(var(--bg-app));
+  overflow: hidden;
+  background:
+    radial-gradient(58% 42% at 8% 0%, hsla(18, 100%, 65%, 0.22) 0%, transparent 60%),
+    radial-gradient(50% 38% at 100% 18%, hsla(211, 100%, 62%, 0.18) 0%, transparent 62%),
+    radial-gradient(60% 50% at 50% 100%, hsla(270, 70%, 70%, 0.16) 0%, transparent 65%),
+    radial-gradient(40% 32% at 92% 88%, hsla(142, 71%, 55%, 0.12) 0%, transparent 60%),
+    hsl(var(--bg-app));
 }
 .dark .liquid-bg {
-  background: hsl(var(--bg-app));
+  background:
+    radial-gradient(58% 42% at 8% 0%, hsla(18, 100%, 50%, 0.22) 0%, transparent 60%),
+    radial-gradient(50% 38% at 100% 18%, hsla(211, 100%, 50%, 0.18) 0%, transparent 62%),
+    radial-gradient(60% 50% at 50% 100%, hsla(270, 70%, 50%, 0.18) 0%, transparent 65%),
+    radial-gradient(40% 32% at 92% 88%, hsla(142, 71%, 40%, 0.14) 0%, transparent 60%),
+    hsl(var(--bg-app));
 }
+/* Hide any legacy decorative orbs — halos live in the gradient itself */
 .liquid-bg > .orb { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
