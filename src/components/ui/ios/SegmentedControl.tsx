@@ -1,4 +1,3 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface SegmentedOption<T extends string = string> {
@@ -23,65 +22,11 @@ export function SegmentedControl<T extends string>({
   size = 'md',
   fullWidth = false,
 }: Props<T>) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [thumb, setThumb] = useState<{ left: number; width: number; visible: boolean }>({
-    left: 2,
-    width: 0,
-    visible: false,
-  });
-
-  const recompute = () => {
-    const container = containerRef.current;
-    if (!container) return;
-    const el = container.querySelector<HTMLButtonElement>(`button[data-value="${value}"]`);
-    if (!el) {
-      setThumb((t) => ({ ...t, visible: false }));
-      return;
-    }
-    const cRect = container.getBoundingClientRect();
-    const eRect = el.getBoundingClientRect();
-    setThumb({
-      left: eRect.left - cRect.left + container.scrollLeft,
-      width: eRect.width,
-      visible: true,
-    });
-  };
-
-  useLayoutEffect(() => {
-    recompute();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, options.length]);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const ro = new ResizeObserver(recompute);
-    ro.observe(container);
-    Array.from(container.querySelectorAll('button')).forEach((b) => ro.observe(b));
-    container.addEventListener('scroll', recompute, { passive: true });
-    window.addEventListener('resize', recompute);
-    return () => {
-      ro.disconnect();
-      container.removeEventListener('scroll', recompute);
-      window.removeEventListener('resize', recompute);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <div
-      ref={containerRef}
       className={cn('ios-segmented relative', fullWidth && 'w-full', className)}
       role="tablist"
     >
-      <div
-        className="ios-segmented-thumb"
-        style={{
-          left: thumb.left,
-          width: thumb.width,
-          opacity: thumb.visible ? 1 : 0,
-        }}
-      />
       {options.map((opt) => {
         const active = opt.value === value;
         return (

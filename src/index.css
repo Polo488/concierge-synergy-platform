@@ -1000,12 +1000,6 @@ html, body, .scroll-smooth {
   box-shadow: none !important;
 }
 
-/* Thumb supprimé — l'état actif est rendu directement sur le bouton.
-   On force le masquage de tout résidu .ios-segmented-thumb. */
-.ios-segmented-thumb {
-  display: none !important;
-}
-
 .ios-segmented [role="tab"][data-state="active"],
 .ios-tabs-list [role="tab"][data-state="active"] {
   background: hsla(var(--surface-1) / 0.92) !important;
