@@ -88,15 +88,15 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
       <header
         data-scrolled={scrolled ? "true" : "false"}
         className={cn(
-          "fixed top-0 z-30 glass-topbar"
+          "fixed z-30 glass-topbar pointer-events-auto"
         )}
         style={{
-          left: isMobile ? 0 : `${sidebarOffset}px`,
-          right: 0,
-          borderRadius: 0,
+          top: isMobile ? 8 : 12,
+          left: isMobile ? 8 : `calc(${sidebarOffset}px + 16px)`,
+          right: isMobile ? 8 : 16,
         }}
       >
-        <div className="flex h-14 items-center justify-between px-4 md:px-6 max-w-full">
+        <div className="flex h-12 items-center justify-between pl-3 pr-2 md:pl-4 md:pr-2 gap-2 max-w-full">
           {/* Search */}
           {isMobile ? (
             <div className="flex items-center gap-2 ml-10">
