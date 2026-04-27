@@ -662,25 +662,32 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ============================================
-   LIQUID GLASS — Apple iOS 26 / macOS Tahoe
+   APPLE iOS 26 — TOKENS + LIQUID GLASS
    ============================================ */
 
 :root {
-  /* Apple iOS 26 surfaces (light) */
-  --bg-app: 240 10% 96.5%;            /* #F5F5F7 */
-  --surface-1: 0 0% 100%;             /* white base */
-  --label-1: 240 33% 14%;             /* Noé navy as primary text */
-  --label-2: 240 6% 25%;
+  /* Apple iOS 26 surfaces (light) — systemGroupedBackground */
+  --bg-app: 240 13% 96%;              /* #F2F2F7 */
+  --surface-1: 0 0% 100%;
+  --label-1: 240 33% 14%;             /* Noé navy as primary text #1A1A2E */
+  --label-2: 240 6% 25%;              /* rgba(60,60,67,0.6) approx */
   --label-3: 240 4% 45%;
   --label-4: 240 4% 65%;
-  --hairline: 240 6% 90%;             /* iOS hairline */
+  --hairline: 240 6% 90%;
   --separator: 240 6% 92%;
   --r-card: 22px;
   --r-control: 10px;
+
+  /* iOS system colors */
+  --ios-green: 142 71% 45%;           /* #34C759 */
+  --ios-red: 4 100% 59%;              /* #FF3B30 */
+  --ios-orange: 18 100% 55%;          /* Noé orange */
+  --ios-yellow: 48 100% 50%;          /* #FFCC00 */
+  --ios-blue: 211 100% 50%;           /* #007AFF */
 }
 
 .dark {
-  --bg-app: 240 12% 8%;
+  --bg-app: 0 0% 0%;                  /* pure black for dark mode */
   --surface-1: 240 10% 14%;
   --label-1: 240 14% 92%;
   --label-2: 240 8% 70%;
@@ -723,16 +730,25 @@ html, body, .scroll-smooth {
   }
 }
 
-/* Apple ambient background — F5F5F7 with subtle warm orange tint top-right.
-   No animation, no orbs. Static. */
+/* Apple ambient background — F2F2F7 + 3 halos fixes (orange/blue/yellow).
+   These are STATIC. They give color grain that glass surfaces will catch.
+   Without them, glass = white (rule #1 of Liquid Glass). */
 .liquid-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 92% 8%, hsla(18, 100%, 55%, 0.05) 0%, transparent 45%),
-    radial-gradient(circle at 0% 100%, hsla(220, 60%, 70%, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 15% 20%, rgba(255, 92, 26, 0.06) 0%, transparent 35%),
+    radial-gradient(circle at 85% 80%, rgba(107, 122, 232, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(245, 200, 66, 0.03) 0%, transparent 50%),
+    hsl(var(--bg-app));
+}
+.dark .liquid-bg {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(26, 26, 46, 0.4) 0%, transparent 35%),
+    radial-gradient(circle at 85% 80%, rgba(255, 92, 26, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(107, 122, 232, 0.04) 0%, transparent 50%),
     hsl(var(--bg-app));
 }
 .liquid-bg > .orb { display: none; }
