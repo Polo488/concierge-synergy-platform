@@ -8,17 +8,17 @@ import { cn } from "@/lib/utils";
 function SettingsGroup({ title, count, total, children }: { title: string; count: number; total: number; children: React.ReactNode }) {
   return (
     <section className="rounded-[20px] bg-white/[0.025] border border-white/[0.05] overflow-hidden">
-      <header className="flex items-center justify-between px-6 py-4 border-b border-white/[0.05]">
-        <div>
-          <h3 className="text-sm font-semibold text-white">{title}</h3>
+      <header className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-white/[0.05]">
+        <div className="min-w-0">
+          <h3 className="text-[14px] sm:text-sm font-semibold text-white truncate">{title}</h3>
           <p className="text-[11px] text-white/45">{count} ligne{count > 1 ? "s" : ""}</p>
         </div>
-        <div className="text-right">
+        <div className="text-right flex-shrink-0">
           <p className="text-[10px] uppercase tracking-[0.1em] text-white/40">Total</p>
-          <p className="text-base font-semibold tabular-nums text-white">{formatMoney(total)}</p>
+          <p className="text-[15px] sm:text-base font-semibold tabular-nums text-white whitespace-nowrap">{formatMoney(total)}</p>
         </div>
       </header>
-      {children}
+      <div className="overflow-x-auto">{children}</div>
     </section>
   );
 }
