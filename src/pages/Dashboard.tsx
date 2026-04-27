@@ -51,8 +51,13 @@ const Dashboard = () => {
       <TutorialTrigger moduleId="dashboard" />
       <div data-tutorial="dashboard-header" className="flex items-center justify-between">
         <div>
-          <h1 className="text-[28px] font-extrabold tracking-tight font-heading text-foreground">Tableau de bord</h1>
-          <p className="text-[14px] mt-1 text-muted-foreground">
+          <h1
+            className="text-[32px] font-bold tracking-[-0.02em] text-[hsl(var(--label-1))]"
+            style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif" }}
+          >
+            Tableau de bord
+          </h1>
+          <p className="text-[15px] mt-1 text-[hsl(var(--label-2))]">
             Vue opérationnelle de votre activité du jour
           </p>
         </div>

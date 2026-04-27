@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { LogIn, LogOut, MessageCircle, CheckSquare } from 'lucide-react';
 import { DashboardStats } from '@/hooks/useDashboardData';
 import { cn } from '@/lib/utils';
 
@@ -9,33 +10,31 @@ interface DailyKPICardsProps {
 interface KPICardProps {
   title: string;
   value: number;
+  Icon: React.ElementType;
   onClick: () => void;
-  borderColor: string;
-  labelColor: string;
 }
 
-const KPICard = ({ title, value, onClick, borderColor, labelColor }: KPICardProps) => (
-  <div 
-    className={cn(
-      "bg-card rounded-2xl cursor-pointer transition-all duration-200",
-      "hover:shadow-md shadow-card",
-      "p-6 max-md:p-4",
-    )}
-    style={{ 
-      borderLeft: `4px solid ${borderColor}`,
-    }}
+const KPICard = ({ title, value, Icon, onClick }: KPICardProps) => (
+  <button
+    type="button"
     onClick={onClick}
+    className={cn(
+      "glass-card text-left w-full p-5",
+      "transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.99]",
+      "ring-1 ring-inset ring-white/60 dark:ring-white/5"
+    )}
   >
-    <div className="space-y-1.5">
-      <p 
-        className="text-[11px] uppercase font-semibold tracking-[0.08em]" 
-        style={{ color: labelColor }}
-      >
-        {title}
-      </p>
-      <p className="text-[36px] max-md:text-2xl font-extrabold text-foreground font-heading">{value}</p>
+    <div className="flex items-center justify-between">
+      <span className="text-[13px] font-medium text-[hsl(var(--label-2))]">{title}</span>
+      <Icon size={16} strokeWidth={2} className="text-[hsl(var(--label-3))]" />
     </div>
-  </div>
+    <div
+      className="mt-3 text-[36px] leading-none font-bold tabular tracking-[-0.025em] text-[hsl(var(--label-1))]"
+      style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif" }}
+    >
+      {value}
+    </div>
+  </button>
 );
 
 export const DailyKPICards = ({ stats }: DailyKPICardsProps) => {
@@ -45,40 +44,33 @@ export const DailyKPICards = ({ stats }: DailyKPICardsProps) => {
     {
       title: "Check-ins",
       value: stats.checkInsToday,
+      Icon: LogIn,
       onClick: () => navigate('/app/calendar'),
-      borderColor: '#FF5C1A',
-      labelColor: 'rgba(255,92,26,0.7)',
     },
     {
       title: "Check-outs",
       value: stats.checkOutsToday,
+      Icon: LogOut,
       onClick: () => navigate('/app/calendar'),
-      borderColor: '#F5C842',
-      labelColor: 'rgba(180,145,0,0.7)',
     },
     {
       title: "Messages",
       value: stats.scheduledMessages,
+      Icon: MessageCircle,
       onClick: () => navigate('/app/guest-experience'),
-      borderColor: '#6B7AE8',
-      labelColor: 'rgba(107,122,232,0.7)',
     },
     {
       title: "Tâches",
       value: stats.unassignedTasks,
+      Icon: CheckSquare,
       onClick: () => navigate('/app/cleaning'),
-      borderColor: 'hsl(var(--foreground))',
-      labelColor: 'hsl(var(--muted-foreground))',
     }
   ];
 
   return (
     <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
       {kpiCards.map((kpi) => (
-        <KPICard
-          key={kpi.title}
-          {...kpi}
-        />
+        <KPICard key={kpi.title} {...kpi} />
       ))}
     </div>
   );
