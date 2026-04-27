@@ -792,11 +792,12 @@ html, body, .scroll-smooth {
     hsl(var(--bg-app));
 }
 .dark .liquid-bg {
+  /* Halos plus saturés mais avec fond noir — ambiance OLED Apple */
   background:
-    radial-gradient(58% 42% at 8% 0%, hsla(18, 100%, 50%, 0.22) 0%, transparent 60%),
-    radial-gradient(50% 38% at 100% 18%, hsla(211, 100%, 50%, 0.18) 0%, transparent 62%),
-    radial-gradient(60% 50% at 50% 100%, hsla(270, 70%, 50%, 0.18) 0%, transparent 65%),
-    radial-gradient(40% 32% at 92% 88%, hsla(142, 71%, 40%, 0.14) 0%, transparent 60%),
+    radial-gradient(58% 42% at 8% 0%, hsla(18, 100%, 55%, 0.32) 0%, transparent 60%),
+    radial-gradient(50% 38% at 100% 18%, hsla(211, 100%, 55%, 0.28) 0%, transparent 62%),
+    radial-gradient(60% 50% at 50% 100%, hsla(270, 80%, 60%, 0.26) 0%, transparent 65%),
+    radial-gradient(40% 32% at 92% 88%, hsla(142, 71%, 50%, 0.20) 0%, transparent 60%),
     hsl(var(--bg-app));
 }
 /* Hide any legacy decorative orbs — halos live in the gradient itself */
