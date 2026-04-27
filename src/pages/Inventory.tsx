@@ -13,7 +13,8 @@ import {
 } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
+import { TOAST_MESSAGES as M } from '@/lib/toastMessages';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface InventoryItem {
@@ -131,16 +132,16 @@ const Inventory = () => {
   const handleAdjustStock = (increase: boolean) => {
     if (!currentItem) return;
     const amount = parseInt(adjustmentAmount, 10) || 0;
-    if (amount <= 0) { toast.error("Veuillez entrer une quantité valide"); return; }
+    if (amount <= 0) { toast.error(M.common.invalidQuantity); return; }
     const newStock = increase ? currentItem.stock + amount : Math.max(0, currentItem.stock - amount);
     updateInventoryItem(currentItem.category, currentItem.id, newStock);
-    toast.success(`Stock ${increase ? 'augmenté' : 'diminué'} de ${amount} unités`);
+    toast.success(M.inventory.stockUpdated(amount, increase));
     setManageDialogOpen(false);
   };
 
   const handleAddItem = () => {
     const { name, category, stock, min, orderUrl } = newItemData;
-    if (!name.trim()) { toast.error("Veuillez entrer un nom"); return; }
+    if (!name.trim()) { toast.error(M.common.invalidName); return; }
     const stockNum = parseInt(stock, 10) || 0;
     const minNum = parseInt(min, 10) || 0;
     const newItem: InventoryItem = {
@@ -154,7 +155,7 @@ const Inventory = () => {
       case 'Linge': setLinen(prev => [...prev, newItem]); break;
       case 'Maintenance': setMaintenance(prev => [...prev, newItem]); break;
     }
-    toast.success(`Article "${name}" ajouté avec succès`);
+    toast.success(M.inventory.itemAdded(name));
     setNewItemDialogOpen(false);
     setNewItemData({ name: '', category: 'Consommables', stock: '0', min: '10', orderUrl: '' });
   };
@@ -163,7 +164,7 @@ const Inventory = () => {
     if (item.orderUrl) {
       window.open(item.orderUrl, '_blank', 'noopener,noreferrer');
     } else {
-      toast.info('Aucun lien de commande configuré. Cliquez sur "Gérer" pour en ajouter un.');
+      toast.info(M.inventory.orderLinkMissing);
     }
   };
 
@@ -177,7 +178,7 @@ const Inventory = () => {
       case 'Linge': setLinen(updateFn); break;
       case 'Maintenance': setMaintenance(updateFn); break;
     }
-    toast.success('Lien de commande mis à jour');
+    toast.success(M.inventory.orderLinkUpdated);
   };
 
   const getStockRatio = (stock: number, min: number) => min > 0 ? stock / min : 1;

@@ -24,7 +24,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
+import { TOAST_MESSAGES as M } from '@/lib/toastMessages';
 import { SmilyImportDialog } from '@/components/billing/SmilyImportDialog';
 import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
@@ -367,9 +368,9 @@ const Billing = () => {
     // Here we could update our local state with the imported data
     // For example, add new bookings to the bookings state
     
-    toast.success(`Import réussi: ${result.bookingsCount || 0} réservations importées.`);
+    toast.success(M.billing.importSuccess(result.bookingsCount || 0, 'réservations'));
     if (result.unassignedCount && result.unassignedCount > 0) {
-      toast.warning(`${result.unassignedCount} réservations non assignées, vérifiez l'onglet Contrôle.`);
+      toast.warning(M.billing.importPartial(result.unassignedCount));
     }
   };
   
@@ -400,23 +401,23 @@ const Billing = () => {
   // Handle platform import
   const handlePlatformImport = async () => {
     if (!platformParams.startDate || !platformParams.endDate) {
-      toast.error("Veuillez spécifier les dates de début et de fin");
+      toast.error(M.billing.datesRequired);
       return;
     }
     
     try {
       const result = await importFromPlatform(platformParams);
       if (result.success) {
-        toast.success(`Import réussi: ${result.importedCount} entrées importées de ${platformParams.platform}.`);
+        toast.success(M.billing.importSuccess(result.importedCount, `entrées ${platformParams.platform}`));
         if (result.unassignedCount > 0) {
-          toast.warning(`${result.unassignedCount} entrées non assignées, vérifiez l'onglet Contrôle.`);
+          toast.warning(M.billing.importPartial(result.unassignedCount));
         }
         setPlatformImportOpen(false);
       } else {
-        toast.error(`Erreur lors de l'import: ${result.message}`);
+        toast.error(M.billing.importError(result.message));
       }
     } catch (error) {
-      toast.error("Une erreur est survenue lors de l'import");
+      toast.error(M.billing.importError());
       console.error(error);
     }
   };

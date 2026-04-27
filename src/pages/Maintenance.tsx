@@ -11,7 +11,8 @@ import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
 import { Plus, Download, Calendar, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
+import { TOAST_MESSAGES as M } from '@/lib/toastMessages';
 
 const Maintenance = () => {
   useEffect(() => {
@@ -45,16 +46,14 @@ const MaintenanceContent = () => {
   };
 
   const handleExport = () => {
-    toast.success('Export lancé', {
-      description: 'Le fichier CSV des interventions a été téléchargé.',
-      duration: 3000,
+    toast.success(M.maintenance.exportStarted, {
+      description: M.maintenance.exportStartedDesc,
     });
   };
 
   const handleCalendar = () => {
-    toast.success('Calendrier synchronisé', {
-      description: 'Les interventions ont été synchronisées avec le calendrier.',
-      duration: 3000,
+    toast.success(M.maintenance.calendarSynced, {
+      description: M.maintenance.calendarSyncedDesc,
     });
   };
 

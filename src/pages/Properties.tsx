@@ -13,7 +13,8 @@ import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
+import { TOAST_MESSAGES as M } from '@/lib/toastMessages';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface OnboardingPrefillData {
@@ -179,7 +180,7 @@ const Properties = () => {
               {prefillData.ownerName && <div><p className="text-[11px] text-muted-foreground">Propriétaire</p><p className="font-medium text-foreground">{prefillData.ownerName}</p></div>}
             </div>
             <div className="mt-3">
-              <Button size="sm" onClick={() => { toast.success('Logement créé !'); setPrefillData(null); }}>
+              <Button size="sm" onClick={() => { toast.success(M.properties.created); setPrefillData(null); }}>
                 <PlusCircle size={14} className="mr-1.5" /> Créer le logement
               </Button>
             </div>
@@ -214,7 +215,7 @@ const Properties = () => {
                 {viewMode === 'list' ? 'Grille' : 'Liste'}
               </Button>
             </div>
-            <Button className="w-full h-11 gap-1.5 text-sm font-semibold rounded-xl" onClick={() => toast.info('Fonctionnalité disponible au lancement')}>
+            <Button className="w-full h-11 gap-1.5 text-sm font-semibold rounded-xl" onClick={() => toast.info(M.common.notAvailable)}>
               <PlusCircle className="h-4 w-4" /> Ajouter un logement
             </Button>
           </div>
@@ -226,7 +227,7 @@ const Properties = () => {
                 {viewMode === 'list' ? <Grid3X3 className="h-3.5 w-3.5" /> : <List className="h-3.5 w-3.5" />}
                 {viewMode === 'list' ? 'Grille' : 'Liste'}
               </Button>
-              <Button size="sm" className="gap-1 text-xs" onClick={() => toast.info('Fonctionnalité disponible au lancement')}>
+              <Button size="sm" className="gap-1 text-xs" onClick={() => toast.info(M.common.notAvailable)}>
                 <PlusCircle className="h-3.5 w-3.5" /> Ajouter un logement
               </Button>
             </div>

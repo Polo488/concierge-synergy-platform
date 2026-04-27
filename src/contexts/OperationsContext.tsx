@@ -8,7 +8,8 @@ import {
 } from '@/types/operations';
 import { MaintenanceTask, NewMaintenanceFormData } from '@/types/maintenance';
 import { CleaningIssue, CleaningTask, CleaningIssueType, NewCleaningTask } from '@/types/cleaning';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
+import { TOAST_MESSAGES as M } from '@/lib/toastMessages';
 
 interface OperationsContextType {
   // Linked tasks created from messaging
@@ -109,8 +110,8 @@ export const OperationsProvider: React.FC<{ children: ReactNode }> = ({ children
 
     setLinkedTasks(prev => [...prev, linkedTask]);
 
-    toast.success("Tâche de maintenance créée", {
-      description: `"${data.title}" - origine: message voyageur`,
+    toast.success(M.maintenance.interventionCreated, {
+      description: `« ${data.title} » — origine : message voyageur`,
     });
 
     return newTask;
@@ -155,8 +156,8 @@ export const OperationsProvider: React.FC<{ children: ReactNode }> = ({ children
 
     setLinkedTasks(prev => [...prev, linkedTask]);
 
-    toast.success("Problème ménage signalé", {
-      description: `${data.issueTypes.length} type(s) de problème - origine: message voyageur`,
+    toast.success(M.cleaning.issueReported, {
+      description: `${data.issueTypes.length} type(s) de problème — origine : message voyageur`,
     });
 
     return newIssue;
@@ -207,8 +208,8 @@ export const OperationsProvider: React.FC<{ children: ReactNode }> = ({ children
 
     setLinkedTasks(prev => [...prev, linkedTask]);
 
-    toast.success("Repasse planifiée", {
-      description: `Repasse créée pour ${propertyName} - origine: message voyageur`,
+    toast.success(M.cleaning.repassScheduled, {
+      description: `Repasse créée pour ${propertyName} — origine : message voyageur`,
     });
 
     return newRepasse;
@@ -254,7 +255,7 @@ export const OperationsProvider: React.FC<{ children: ReactNode }> = ({ children
         ? { ...issue, status: 'resolved' as const, resolvedAt: new Date().toISOString() }
         : issue
     ));
-    toast.success("Problème résolu");
+    toast.success(M.cleaning.issueResolved);
   }, []);
 
   return (

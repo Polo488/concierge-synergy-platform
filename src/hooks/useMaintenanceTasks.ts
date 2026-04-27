@@ -1,7 +1,8 @@
 
 import { useState } from 'react';
 import { MaintenanceTask, NewMaintenanceFormData, InventoryItem } from '@/types/maintenance';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
+import { TOAST_MESSAGES as M } from '@/lib/toastMessages';
 import { getInitialMaintenanceTasks, getMaintenanceInventoryData } from '@/components/maintenance/MaintenanceInventoryData';
 import { calculateMaintenanceStats } from '@/utils/maintenanceUtils';
 
@@ -60,9 +61,9 @@ export const useMaintenanceTasks = () => {
     
     // Customize the success message based on whether a scheduled date was provided
     if (data.scheduledDate) {
-      toast.success(`Nouvelle intervention créée et programmée pour le ${data.scheduledDate}`);
+      toast.success(M.maintenance.interventionScheduled(data.scheduledDate));
     } else {
-      toast.success("Nouvelle intervention créée avec succès");
+      toast.success(M.maintenance.interventionCreated);
     }
     
     return newTask;
@@ -85,7 +86,7 @@ export const useMaintenanceTasks = () => {
       };
       
       setInProgressTasks(prev => [updatedTask, ...prev]);
-      toast.success(`Intervention assignée à ${technicianName}${scheduledDate ? ` pour le ${scheduledDate}` : ''}`);
+      toast.success(M.maintenance.interventionAssigned(technicianName, scheduledDate));
       return updatedTask;
     }
     
@@ -106,7 +107,7 @@ export const useMaintenanceTasks = () => {
       };
       
       setCompletedTasks(prev => [updatedTask, ...prev]);
-      toast.success("Intervention marquée comme terminée");
+      toast.success(M.maintenance.interventionCompleted);
       return updatedTask;
     }
     
