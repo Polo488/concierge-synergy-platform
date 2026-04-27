@@ -1022,7 +1022,7 @@ html, body, .scroll-smooth {
   height: 32px;
   padding: 0 14px;
   border-radius: 9999px;
-  background: rgba(0, 0, 0, 0.05);
+  background: hsla(var(--label-1) / 0.05);
   color: hsl(var(--label-1));
   font-size: 13px;
   font-weight: 500;
@@ -1030,13 +1030,13 @@ html, body, .scroll-smooth {
   cursor: pointer;
   white-space: nowrap;
 }
-.ios-chip:hover { background: rgba(0, 0, 0, 0.08); }
+.ios-chip:hover { background: hsla(var(--label-1) / 0.08); }
 .ios-chip[data-active="true"] {
-  background: rgba(255, 92, 26, 0.10);
+  background: hsla(var(--ios-orange) / 0.10);
   color: hsl(var(--ios-orange));
 }
-.dark .ios-chip { background: rgba(255, 255, 255, 0.08); }
-.dark .ios-chip:hover { background: rgba(255, 255, 255, 0.12); }
+.dark .ios-chip { background: hsla(0, 0%, 100% / 0.08); }
+.dark .ios-chip:hover { background: hsla(0, 0%, 100% / 0.12); }
 
 /* ==========================================================================
    iOS 26 — BUTTONS
