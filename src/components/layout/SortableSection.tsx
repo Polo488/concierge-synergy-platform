@@ -162,7 +162,7 @@ export function SortableSection({
                     "relative h-9 w-9 flex items-center justify-center rounded-[8px] transition-colors duration-150",
                     isActive
                       ? "bg-[hsl(var(--ios-orange)/_0.10)] text-[hsl(var(--ios-orange))]"
-                      : "text-[hsl(240_6%_25%/_0.6)] hover:bg-black/[0.04]"
+                      : "text-[hsl(var(--label-2))] hover:bg-[hsl(var(--label-1)/0.06)] dark:hover:bg-white/5"
                   )}
                 >
                   <item.icon size={18} strokeWidth={2} />
