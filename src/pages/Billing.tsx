@@ -368,7 +368,7 @@ const Billing = () => {
     // Here we could update our local state with the imported data
     // For example, add new bookings to the bookings state
     
-    toast.success(M.billing.importSuccess(result.bookingsCount || 0, 'réservations'));
+    toast.success(M.billing.importSuccess(result.bookingsCount || 0, 'réservation'));
     if (result.unassignedCount && result.unassignedCount > 0) {
       toast.warning(M.billing.importPartial(result.unassignedCount));
     }
