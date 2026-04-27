@@ -515,7 +515,7 @@ export function Sidebar() {
                 size={14}
                 strokeWidth={2}
                 className={cn(
-                  "transition-transform duration-300 text-[hsl(240_6%_25%/_0.6)]",
+                  "transition-transform duration-300 text-[hsl(var(--label-2))]",
                   !isOpen && "rotate-180"
                 )}
               />
