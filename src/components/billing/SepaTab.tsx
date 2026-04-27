@@ -97,6 +97,34 @@ export function SepaTab() {
         </div>
       </div>
 
+      {/* Bannière exclusions */}
+      {excludedTransfers.length > 0 && (
+        <div className="flex items-start gap-3 px-4 py-3 rounded-[14px] bg-[#F87171]/[0.06] border border-[#F87171]/[0.18]">
+          <Lock className="h-4 w-4 text-[#F87171] mt-0.5 flex-shrink-0" strokeWidth={1.8} />
+          <div className="text-[12.5px] text-white/85 leading-relaxed min-w-0">
+            <p className="font-semibold text-[#F87171] mb-1">{excludedTransfers.length} bénéficiaire{excludedTransfers.length > 1 ? "s" : ""} exclu{excludedTransfers.length > 1 ? "s" : ""} du XML SEPA</p>
+            <ul className="space-y-0.5 text-white/70">
+              {excludedTransfers.slice(0, 4).map((t) => (
+                <li key={t.owner.id} className="truncate">• <span className="text-white/85">{t.owner.name}</span> — {t.reason}</li>
+              ))}
+              {excludedTransfers.length > 4 && (
+                <li className="text-white/55">+ {excludedTransfers.length - 4} autre{excludedTransfers.length - 4 > 1 ? "s" : ""}</li>
+              )}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Bannière simulation séquestre */}
+      {!escrow.simulationOk && transfers.length > 0 && (
+        <div className="flex items-start gap-3 px-4 py-3 rounded-[14px] bg-[#F5C842]/[0.08] border border-[#F5C842]/[0.25]">
+          <AlertTriangle className="h-4 w-4 text-[#F5C842] mt-0.5 flex-shrink-0" strokeWidth={1.8} />
+          <p className="text-[12.5px] text-white/85 leading-relaxed">
+            <strong className="font-semibold text-[#F5C842]">Génération bloquée</strong> — la simulation ferait passer le séquestre à <strong className="tabular-nums">{formatMoney(escrow.simulatedAfterSepa)}</strong>. Vérifiez les rapprochements bancaires ou reportez certaines factures.
+          </p>
+        </div>
+      )}
+
       {/* MOBILE: card list */}
       <div className="space-y-2 lg:hidden">
         {transfers.map((t) => (
@@ -157,7 +185,7 @@ export function SepaTab() {
       <div className="flex flex-col items-center gap-3 pt-2">
         {!sepaGenerated ? (
           <motion.button
-            disabled={generating || transfers.length === 0}
+            disabled={generating || transfers.length === 0 || !escrow.simulationOk}
             onClick={handleGenerate}
             whileTap={{ scale: 0.98 }}
             className="w-full sm:w-auto sm:min-w-[320px] px-5 sm:px-6 py-4 rounded-[16px] text-[14px] sm:text-sm font-semibold bg-[#FF5C1A] hover:bg-[#FF5C1A]/90 text-white shadow-[0_8px_24px_rgba(255,92,26,0.35)] disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 justify-center min-h-[48px]"
