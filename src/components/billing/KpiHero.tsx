@@ -1,0 +1,155 @@
+import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
+import { useFacturation } from "@/hooks/useFacturation";
+import { formatMoney, formatPct } from "@/lib/facturationFormat";
+import { cn } from "@/lib/utils";
+import { LineChart, Line, ResponsiveContainer } from "recharts";
+
+function useCountUp(target: number, duration = 800) {
+  const [v, setV] = useState(0);
+  const startRef = useRef<number | null>(null);
+  useEffect(() => {
+    let raf: number;
+    startRef.current = null;
+    const tick = (t: number) => {
+      if (startRef.current === null) startRef.current = t;
+      const p = Math.min(1, (t - startRef.current) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setV(target * eased);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return v;
+}
+
+interface KpiProps {
+  label: string;
+  value: string;
+  delta?: { pct: number; vs: string };
+  sub?: string;
+  warn?: boolean;
+  onClick?: () => void;
+  sparkline?: number[];
+  className?: string;
+}
+
+function KpiCard({ label, value, delta, sub, warn, onClick, sparkline, className }: KpiProps) {
+  const positive = delta && delta.pct >= 0;
+  const sparkData = sparkline?.map((y, i) => ({ i, y }));
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      whileTap={{ scale: 0.985 }}
+      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+      className={cn(
+        "relative h-[180px] w-full text-left rounded-[20px] p-7 overflow-hidden",
+        "bg-white/[0.03] backdrop-blur-xl",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.18)]",
+        "border border-white/[0.04]",
+        "before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-white/[0.08]",
+        onClick && "cursor-pointer hover:bg-white/[0.045] transition-colors",
+        className
+      )}
+    >
+      {sparkData && (
+        <div className="absolute inset-x-4 bottom-3 h-12 opacity-[0.18] pointer-events-none">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={sparkData}>
+              <Line type="monotone" dataKey="y" stroke="#FF5C1A" strokeWidth={1.5} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+      <div className="relative h-full flex flex-col justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-white/45">{label}</span>
+          {warn && <AlertTriangle className="h-3.5 w-3.5 text-[#F5C842]" strokeWidth={1.5} />}
+        </div>
+        <div
+          className="font-heading font-light text-white leading-none truncate"
+          style={{ fontSize: "44px", letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}
+        >
+          {value}
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          {delta && (
+            <span
+              className={cn(
+                "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium",
+                positive ? "bg-[#4ADE80]/12 text-[#4ADE80]" : "bg-[#F87171]/12 text-[#F87171]"
+              )}
+            >
+              {positive ? <TrendingUp className="h-3 w-3" strokeWidth={2} /> : <TrendingDown className="h-3 w-3" strokeWidth={2} />}
+              {formatPct(delta.pct)}
+            </span>
+          )}
+          {(delta?.vs || sub) && (
+            <span className="text-white/40 text-[11px]">{delta?.vs ?? sub}</span>
+          )}
+        </div>
+      </div>
+    </motion.button>
+  );
+}
+
+export function KpiHero() {
+  const { totals, setActiveTab, reservations } = useFacturation();
+  const grossAnim = useCountUp(totals.grossCurrent);
+  const noeAnim = useCountUp(totals.noeFee);
+  const netAnim = useCountUp(totals.netOwnersTotal);
+
+  // Sparkline 7 jours (CA brut par jour, derniers 7 jours du mois courant)
+  const last7 = [...Array(7)].map((_, idx) => {
+    const dayCutoff = 24 + idx; // 24..30
+    return reservations
+      .filter((r) => Number(r.checkIn.slice(8, 10)) === dayCutoff)
+      .reduce((a, r) => a + r.gross, 0) || 200 + idx * 80;
+  });
+
+  // Mini-bandeau insight
+  const insight = totals.grossDelta >= 10
+    ? `🎉 Très bon mois : CA brut en hausse de ${formatPct(totals.grossDelta)} vs le mois précédent.`
+    : totals.grossDelta <= -5
+      ? `📉 CA en baisse de ${formatPct(Math.abs(totals.grossDelta))} — saisonnalité à surveiller.`
+      : null;
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KpiCard
+          label="CA brut généré"
+          value={formatMoney(grossAnim)}
+          delta={{ pct: totals.grossDelta, vs: "vs septembre" }}
+          sparkline={last7}
+        />
+        <KpiCard
+          label="Honoraires Noé"
+          value={formatMoney(noeAnim)}
+          sub={`${totals.noeFeePct.toFixed(1).replace(".", ",")}% du brut`}
+        />
+        <KpiCard
+          label="Net propriétaires"
+          value={formatMoney(netAnim)}
+          sub={`${totals.ownersCount} propriétaires concernés`}
+        />
+        <KpiCard
+          label="Opérations négatives"
+          value={totals.negPending > 0 ? `${totals.negPending}` : "0"}
+          sub={totals.negPending > 0 ? `${totals.negPending} ligne${totals.negPending > 1 ? "s" : ""} à traiter` : "Toutes traitées ✓"}
+          warn={totals.negPending > 0}
+          onClick={() => setActiveTab("negatives")}
+          className={totals.negPending > 0 ? "ring-1 ring-[#F5C842]/20" : ""}
+        />
+      </div>
+      {insight && (
+        <div className="rounded-[14px] bg-[#6B7AE8]/[0.08] border border-[#6B7AE8]/[0.1] px-4 py-3 text-sm text-white/80">
+          {insight}
+        </div>
+      )}
+    </div>
+  );
+}
