@@ -200,42 +200,63 @@ export function RuleBuilderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="sm:max-w-3xl p-0 gap-0 overflow-hidden flex flex-col">
+        <DialogHeader className="px-4 sm:px-6 pt-5 pb-3 border-b border-black/[0.06]">
+          <DialogTitle className="text-base sm:text-lg pr-8">
             {rule ? 'Modifier la règle' : 'Créer une règle de messagerie'}
           </DialogTitle>
         </DialogHeader>
 
-        {/* Steps indicator */}
-        <div className="flex items-center justify-between mb-6 px-2">
-          {STEPS.map((step, index) => (
-            <div key={step.id} className="flex items-center">
-              <div 
-                className={cn(
-                  "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors",
-                  currentStep === step.id 
-                    ? "bg-primary text-primary-foreground" 
-                    : currentStep > step.id
-                    ? "bg-primary/20 text-primary"
-                    : "bg-muted text-muted-foreground"
-                )}
-              >
-                {currentStep > step.id ? <Check className="h-4 w-4" /> : step.id}
-              </div>
-              {index < STEPS.length - 1 && (
-                <div 
-                  className={cn(
-                    "w-12 h-0.5 mx-1",
-                    currentStep > step.id ? "bg-primary/20" : "bg-muted"
-                  )} 
-                />
-              )}
+        {/* Steps indicator — Apple-style segmented progress, always fits */}
+        <div className="px-4 sm:px-6 pt-4 pb-3 border-b border-black/[0.04]">
+          {/* Mobile: compact "Étape X / N" + thin progress bar */}
+          <div className="sm:hidden">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-muted-foreground tabular-nums">
+                Étape {currentStep} / {STEPS.length}
+              </span>
+              <span className="text-xs font-semibold text-foreground truncate ml-2">
+                {STEPS[currentStep - 1]?.name}
+              </span>
             </div>
-          ))}
+            <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${(currentStep / STEPS.length) * 100}%` }}
+              />
+            </div>
+          </div>
+          {/* Desktop: full numbered stepper */}
+          <div className="hidden sm:flex items-center justify-between">
+            {STEPS.map((step, index) => (
+              <div key={step.id} className="flex items-center flex-1 last:flex-none">
+                <div
+                  className={cn(
+                    "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors shrink-0",
+                    currentStep === step.id
+                      ? "bg-primary text-primary-foreground"
+                      : currentStep > step.id
+                      ? "bg-primary/20 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {currentStep > step.id ? <Check className="h-4 w-4" /> : step.id}
+                </div>
+                {index < STEPS.length - 1 && (
+                  <div
+                    className={cn(
+                      "flex-1 h-0.5 mx-2",
+                      currentStep > step.id ? "bg-primary/20" : "bg-muted"
+                    )}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
-        <ScrollArea className="h-[400px] pr-4">
+        <ScrollArea className="flex-1 max-h-[60dvh] sm:max-h-[55vh]">
+          <div className="px-4 sm:px-6 py-5">
           {/* Step 1: Identity */}
           {currentStep === 1 && (
             <div className="space-y-4">
@@ -268,7 +289,7 @@ export function RuleBuilderDialog({
             <div className="space-y-6">
               <div>
                 <Label className="text-base">Type de déclencheur</Label>
-                <div className="grid grid-cols-3 gap-4 mt-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
                   <button
                     type="button"
                     onClick={() => setTriggerType('time-based')}
@@ -336,7 +357,7 @@ export function RuleBuilderDialog({
                     </Select>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label>Décalage (jours)</Label>
                       <Select value={dayOffset.toString()} onValueChange={(v) => setDayOffset(parseInt(v))}>
@@ -592,34 +613,46 @@ export function RuleBuilderDialog({
               </div>
             </div>
           )}
+          </div>
         </ScrollArea>
 
-        <DialogFooter className="flex justify-between">
-          <div>
+        {/* Apple-style sticky footer: stacked on mobile, primary action full width */}
+        <DialogFooter className="px-4 sm:px-6 py-3 border-t border-black/[0.06] bg-background/80 backdrop-blur-sm flex flex-col-reverse sm:flex-row sm:justify-between gap-2 sm:gap-3">
+          <div className="flex w-full sm:w-auto">
             {currentStep > 1 && (
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep(prev => prev - 1)}
+                className="w-full sm:w-auto"
               >
                 <ChevronLeft className="h-4 w-4 mr-2" />
                 Précédent
               </Button>
             )}
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="flex-1 sm:flex-none"
+            >
               Annuler
             </Button>
             {currentStep < STEPS.length ? (
               <Button
                 onClick={() => setCurrentStep(prev => prev + 1)}
                 disabled={!canProceed()}
+                className="flex-1 sm:flex-none"
               >
                 Suivant
                 <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={handleSave} disabled={!canProceed()}>
+              <Button
+                onClick={handleSave}
+                disabled={!canProceed()}
+                className="flex-1 sm:flex-none"
+              >
                 {rule ? 'Enregistrer' : 'Créer la règle'}
               </Button>
             )}
