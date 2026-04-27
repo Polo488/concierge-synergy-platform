@@ -226,28 +226,36 @@ const TasksList = ({ tasks }: { tasks: TodayTask[] }) => {
 
 export const DailyActivityTabs = ({ checkIns, checkOuts, tasks }: DailyActivityTabsProps) => {
   return (
-    <div className="bg-card rounded-2xl p-6 shadow-soft">
-      <div className="flex items-center justify-between mb-1">
-        <h2 className="text-[17px] font-bold font-heading text-foreground">Activité du jour</h2>
-        <span className="text-[13px] text-muted-foreground">
+    <div className="glass-card p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-[18px] font-semibold tracking-[-0.01em] text-[hsl(var(--label-1))]">Activité du jour</h2>
+        <span className="text-[13px] text-[hsl(var(--label-2))] tabular">
           {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </span>
       </div>
-      <div className="mb-4 border-b border-border" />
 
       <Tabs defaultValue="checkins" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-4 p-[3px] rounded-[10px] bg-muted">
-          <TabsTrigger value="checkins" className="flex items-center gap-2 rounded-lg text-sm data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground data-[state=inactive]:bg-transparent transition-all duration-150">
+        <TabsList className="ios-segmented mb-4 h-auto bg-transparent p-[2px] w-auto inline-flex">
+          <TabsTrigger
+            value="checkins"
+            className="flex items-center gap-2 rounded-[8px] px-3.5 py-2 text-[13px] font-semibold text-[hsl(var(--label-2))] data-[state=active]:text-[hsl(var(--label-1))] data-[state=active]:shadow-none transition-all duration-200"
+          >
             <LogIn className="h-4 w-4" />
-            Check-ins ({checkIns.length})
+            Check-ins <span className="text-[hsl(var(--label-3))]">({checkIns.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="checkouts" className="flex items-center gap-2 rounded-lg text-sm data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground data-[state=inactive]:bg-transparent transition-all duration-150">
+          <TabsTrigger
+            value="checkouts"
+            className="flex items-center gap-2 rounded-[8px] px-3.5 py-2 text-[13px] font-semibold text-[hsl(var(--label-2))] data-[state=active]:text-[hsl(var(--label-1))] data-[state=active]:shadow-none transition-all duration-200"
+          >
             <LogOut className="h-4 w-4" />
-            Check-outs ({checkOuts.length})
+            Check-outs <span className="text-[hsl(var(--label-3))]">({checkOuts.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="tasks" className="flex items-center gap-2 rounded-lg text-sm data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground data-[state=inactive]:bg-transparent transition-all duration-150">
+          <TabsTrigger
+            value="tasks"
+            className="flex items-center gap-2 rounded-[8px] px-3.5 py-2 text-[13px] font-semibold text-[hsl(var(--label-2))] data-[state=active]:text-[hsl(var(--label-1))] data-[state=active]:shadow-none transition-all duration-200"
+          >
             <ClipboardList className="h-4 w-4" />
-            Tâches ({tasks.length})
+            Tâches <span className="text-[hsl(var(--label-3))]">({tasks.length})</span>
           </TabsTrigger>
         </TabsList>
 
