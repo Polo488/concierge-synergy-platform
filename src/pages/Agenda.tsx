@@ -128,16 +128,16 @@ const Agenda = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Agenda</h1>
-          <p className="text-muted-foreground">
+    <div className="space-y-5 sm:space-y-6">
+      {/* Header — Apple style: title block + primary CTA */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Agenda</h1>
+          <p className="text-sm text-muted-foreground">
             Notes internes, rappels et coordination d'équipe
           </p>
         </div>
-        <Button onClick={() => handleAddClick()}>
+        <Button onClick={() => handleAddClick()} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nouvelle note
         </Button>
@@ -151,38 +151,38 @@ const Agenda = () => {
         allTags={allTags}
       />
 
-      {/* View Controls */}
-      <Card className="p-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {/* Navigation */}
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={handlePrevious}>
+      {/* View Controls — toolbar compacte, jamais en overflow */}
+      <Card className="p-3 sm:p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          {/* Navigation — pleine largeur en mobile pour aérer */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button variant="outline" size="icon" onClick={handlePrevious} className="shrink-0">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="outline" onClick={handleToday}>
+            <Button variant="outline" onClick={handleToday} className="flex-1 sm:flex-none">
               Aujourd'hui
             </Button>
-            <Button variant="outline" size="icon" onClick={handleNext}>
+            <Button variant="outline" size="icon" onClick={handleNext} className="shrink-0">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
 
-          {/* View mode tabs */}
-          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as AgendaViewMode)}>
-            <TabsList>
-              <TabsTrigger value="day" className="gap-2">
+          {/* View mode tabs — segmented control plein largeur en mobile (iOS) */}
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as AgendaViewMode)} className="w-full sm:w-auto">
+            <TabsList className="grid grid-cols-4 w-full sm:w-auto sm:inline-flex">
+              <TabsTrigger value="day" className="gap-1.5">
                 <CalendarDays className="h-4 w-4" />
                 <span className="hidden sm:inline">Jour</span>
               </TabsTrigger>
-              <TabsTrigger value="week" className="gap-2">
+              <TabsTrigger value="week" className="gap-1.5">
                 <CalendarRange className="h-4 w-4" />
                 <span className="hidden sm:inline">Semaine</span>
               </TabsTrigger>
-              <TabsTrigger value="month" className="gap-2">
+              <TabsTrigger value="month" className="gap-1.5">
                 <CalendarIcon className="h-4 w-4" />
                 <span className="hidden sm:inline">Mois</span>
               </TabsTrigger>
-              <TabsTrigger value="list" className="gap-2">
+              <TabsTrigger value="list" className="gap-1.5">
                 <List className="h-4 w-4" />
                 <span className="hidden sm:inline">Liste</span>
               </TabsTrigger>

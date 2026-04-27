@@ -47,11 +47,83 @@ export const AgendaWeekView = ({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold">
+      <h2 className="text-lg sm:text-xl font-semibold">
         Semaine du {format(weekStart, "d MMMM yyyy", { locale: fr })}
       </h2>
 
-      <div className="grid grid-cols-7 gap-2">
+      {/* MOBILE: stacked day list (Apple Calendar week on iPhone) */}
+      <div className="sm:hidden space-y-2">
+        {weekDays.map((day) => {
+          const dayEntries = getEntriesForDay(day);
+          const isCurrentDay = isToday(day);
+          return (
+            <Card
+              key={day.toISOString()}
+              className={cn(
+                "p-3",
+                isCurrentDay && "ring-2 ring-primary"
+              )}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <button
+                  type="button"
+                  onClick={() => onDayClick(day)}
+                  className="flex items-baseline gap-2 text-left active:opacity-70"
+                >
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    {format(day, "EEEE", { locale: fr })}
+                  </span>
+                  <span className={cn(
+                    "text-lg font-semibold tabular-nums",
+                    isCurrentDay && "text-primary"
+                  )}>
+                    {format(day, "d MMM", { locale: fr })}
+                  </span>
+                </button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddClick(day);
+                  }}
+                  aria-label="Ajouter une note"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {dayEntries.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic">Aucune note</p>
+              ) : (
+                <div className="space-y-1.5">
+                  {dayEntries.slice(0, 3).map(entry => (
+                    <AgendaEntryCard
+                      key={entry.id}
+                      entry={entry}
+                      properties={properties}
+                      onClick={() => onEntryClick(entry)}
+                      compact
+                    />
+                  ))}
+                  {dayEntries.length > 3 && (
+                    <button
+                      onClick={() => onDayClick(day)}
+                      className="text-xs text-primary hover:underline w-full text-left pt-1"
+                    >
+                      +{dayEntries.length - 3} autres
+                    </button>
+                  )}
+                </div>
+              )}
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* DESKTOP: classic 7-col grid */}
+      <div className="hidden sm:grid grid-cols-7 gap-2">
         {weekDays.map((day) => {
           const dayEntries = getEntriesForDay(day);
           const isCurrentDay = isToday(day);
@@ -64,7 +136,7 @@ export const AgendaWeekView = ({
                 isCurrentDay && "ring-2 ring-primary"
               )}
             >
-              <div 
+              <div
                 className="flex items-center justify-between mb-2 cursor-pointer hover:opacity-70"
                 onClick={() => onDayClick(day)}
               >
