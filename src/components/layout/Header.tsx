@@ -86,9 +86,9 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
   return (
     <>
       <header
+        data-scrolled={scrolled ? "true" : "false"}
         className={cn(
-          "fixed top-0 z-30 transition-all duration-300 glass-strong glass-highlight",
-          scrolled && "shadow-2xl"
+          "fixed top-0 z-30 glass-topbar"
         )}
         style={{
           left: isMobile ? 0 : `${sidebarOffset}px`,
@@ -96,7 +96,7 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
           borderRadius: 0,
         }}
       >
-        <div className="flex h-16 items-center justify-between px-4 md:px-6 max-w-full">
+        <div className="flex h-14 items-center justify-between px-4 md:px-6 max-w-full">
           {/* Search */}
           {isMobile ? (
             <div className="flex items-center gap-2 ml-10">
