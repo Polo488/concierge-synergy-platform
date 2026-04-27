@@ -759,20 +759,22 @@ html, body, .scroll-smooth {
    - Adaptive tint (capte la couleur du fond)
    ========================================================================== */
 
-/* Standard surface — calm Apple material without fake shine/artefacts */
+/* Standard surface — Apple-like material: translucent, soft, not a white block */
 .glass-surface,
 .glass-card,
 .glass-regular {
-  background: hsla(var(--surface-1) / 0.92);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid hsla(var(--hairline) / 0.72);
+  background:
+    linear-gradient(180deg, hsla(var(--surface-1) / 0.74), hsla(var(--bg-app) / 0.58));
+  backdrop-filter: blur(10px) saturate(118%);
+  -webkit-backdrop-filter: blur(10px) saturate(118%);
+  border: 1px solid hsla(var(--hairline) / 0.46);
   border-radius: var(--r-card);
   box-shadow:
-    inset 0 1px 0 hsla(0, 0%, 100%, 0.58),
-    0 1px 2px hsla(var(--label-1) / 0.03),
-    0 12px 28px -20px hsla(var(--label-1) / 0.18);
+    inset 0 1px 0 hsla(var(--surface-1) / 0.76),
+    0 1px 2px hsla(var(--label-1) / 0.025),
+    0 10px 24px -22px hsla(var(--label-1) / 0.16);
   position: relative;
+  background-clip: padding-box;
 }
 
 /* Highlight supprimé — le bord ::before causait des artefacts diagonaux */
@@ -785,12 +787,13 @@ html, body, .scroll-smooth {
 .dark .glass-surface,
 .dark .glass-card,
 .dark .glass-regular {
-  background: hsla(var(--surface-1) / 0.86);
-  border-color: hsla(var(--hairline) / 0.82);
+  background:
+    linear-gradient(180deg, hsla(var(--surface-1) / 0.68), hsla(var(--bg-app) / 0.52));
+  border-color: hsla(var(--hairline) / 0.58);
   box-shadow:
-    inset 0 1px 0 hsla(0, 0%, 100%, 0.06),
-    0 1px 2px hsl(0 0% 0% / 0.24),
-    0 14px 34px -22px hsl(0 0% 0% / 0.7);
+    inset 0 1px 0 hsla(var(--surface-1) / 0.22),
+    0 1px 2px hsl(0 0% 0% / 0.18),
+    0 14px 30px -24px hsl(0 0% 0% / 0.58);
 }
 
 /* Variants — thin / regular / thick */
