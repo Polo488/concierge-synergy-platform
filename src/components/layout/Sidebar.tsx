@@ -318,26 +318,26 @@ export function Sidebar() {
         className={cn(
           "fixed left-0 top-0 h-full transition-all duration-300 ease-out",
           "flex flex-col overflow-hidden",
-          "glass-strong",
+          "glass-thin",
           sidebarWidth,
           isMobile ? "z-[210]" : "z-40"
         )}
         style={{
-          borderRight: '1px solid hsl(var(--border) / 0.7)',
+          borderRight: '1px solid rgba(0,0,0,0.06)',
           borderRadius: 0,
         }}
       >
         {/* Logo */}
         <div className={cn(
-          "h-16 flex items-center justify-center px-5 flex-shrink-0",
+          "flex items-center justify-center px-4 pt-5 pb-3 flex-shrink-0",
           isCollapsed && "px-0"
         )}>
-          <img 
-            src={logoNoe} 
-            alt="Noé" 
+          <img
+            src={logoNoe}
+            alt="Noé"
             className={cn(
-              "h-11 w-auto object-contain max-w-full",
-              isCollapsed && "h-8"
+              "h-10 w-auto object-contain max-w-full",
+              isCollapsed && "h-7"
             )}
           />
         </div>
@@ -345,23 +345,26 @@ export function Sidebar() {
         {/* User info */}
         {user && (
           <div className={cn(
-            "py-4 px-4 flex-shrink-0",
-            isCollapsed && "flex justify-center py-4 px-2"
+            "py-2 px-2 mb-3 flex-shrink-0",
+            isCollapsed && "flex justify-center px-2"
           )}>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-foreground/[0.06] flex items-center justify-center overflow-hidden flex-shrink-0 ring-1 ring-border">
+            <div className={cn(
+              "flex items-center gap-3 rounded-[12px] p-2 transition-colors hover:bg-black/[0.04]",
+              isCollapsed && "p-1"
+            )}>
+              <div className="h-8 w-8 rounded-full bg-[hsl(var(--label-3)/_0.15)] flex items-center justify-center overflow-hidden flex-shrink-0">
                 {user.avatar ? (
                   <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
                 ) : (
-                  <span className="font-semibold text-foreground text-sm">
+                  <span className="font-semibold text-[hsl(var(--label-1))] text-xs">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{user.name}</p>
-                  <p className="text-xs text-muted-foreground">{user.role}</p>
+                  <p className="text-[14px] font-semibold text-[hsl(var(--label-1))] truncate leading-tight">{user.name}</p>
+                  <p className="text-[12px] text-[hsl(240_6%_25%/_0.6)] leading-tight">{user.role}</p>
                 </div>
               )}
             </div>
