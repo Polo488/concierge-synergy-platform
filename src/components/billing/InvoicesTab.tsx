@@ -93,14 +93,32 @@ function InvoiceCard({ inv, onClick, sent }: { inv: OwnerInvoice; onClick: () =>
         </div>
         {/* Bottom row: status badges */}
         <div className="flex items-center gap-2 flex-wrap mt-auto">
-          <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium",
-            sent ? "bg-white/[0.18] text-white" : "bg-white/[0.12] text-white/85"
-          )}>
-            {sent ? "✓ Envoyée" : "Brouillon"}
-          </span>
-          <span className="text-[11px] text-white/60 inline-flex items-center gap-1">
-            <Mail className="h-3 w-3" strokeWidth={1.8} /> mail + espace Noé
-          </span>
+          {inv.blocked ? (
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F87171]/20 text-[#F87171] inline-flex items-center gap-1">
+              <Lock className="h-3 w-3" strokeWidth={2} /> Bloquée
+            </span>
+          ) : inv.deferred ? (
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#6B7AE8]/20 text-[#6B7AE8] inline-flex items-center gap-1">
+              Reportée mois +1
+            </span>
+          ) : (
+            <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium",
+              sent ? "bg-white/[0.18] text-white" : "bg-white/[0.12] text-white/85"
+            )}>
+              {sent ? "✓ Envoyée" : "Prête à envoyer"}
+            </span>
+          )}
+          {inv.blocked && inv.blockers[0] && (
+            <span className="text-[10.5px] text-[#F87171]/85 inline-flex items-center gap-1 truncate max-w-full">
+              <AlertTriangle className="h-3 w-3 flex-shrink-0" strokeWidth={2} />
+              <span className="truncate">{inv.blockers[0]}</span>
+            </span>
+          )}
+          {!inv.blocked && !inv.deferred && (
+            <span className="text-[11px] text-white/60 inline-flex items-center gap-1">
+              <Mail className="h-3 w-3" strokeWidth={1.8} /> mail + espace Noé
+            </span>
+          )}
         </div>
       </div>
     </motion.button>
