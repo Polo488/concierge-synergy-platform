@@ -49,7 +49,7 @@ export const BookingDetailsSheet = ({
         </SheetHeader>
 
         <Tabs defaultValue="info" className="w-full">
-          <TabsList className="grid grid-cols-4 w-full mb-6">
+          <TabsList className="inline-flex  w-full mb-6">
             <TabsTrigger value="info" className="flex items-center gap-2">
               <Info className="h-4 w-4" />
               <span className="hidden sm:inline">Infos</span>

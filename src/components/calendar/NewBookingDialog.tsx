@@ -138,7 +138,7 @@ export const NewBookingDialog = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-3 mb-4">
+              <TabsList className="inline-flex  mb-4">
                 <TabsTrigger value="details">Réservation</TabsTrigger>
                 <TabsTrigger value="access">Accès</TabsTrigger>
                 <TabsTrigger value="notes">Notes</TabsTrigger>

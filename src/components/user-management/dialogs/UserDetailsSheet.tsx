@@ -53,7 +53,7 @@ export const UserDetailsSheet = ({
           </SheetTitle>
         </SheetHeader>
         <Tabs defaultValue="info" className="mt-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="inline-flex w-full ">
             <TabsTrigger value="info"><User className="h-4 w-4" /></TabsTrigger>
             <TabsTrigger value="role"><Shield className="h-4 w-4" /></TabsTrigger>
             <TabsTrigger value="access"><Home className="h-4 w-4" /></TabsTrigger>

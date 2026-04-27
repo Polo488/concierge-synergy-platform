@@ -103,7 +103,7 @@ export const OperationalAssignmentsSection = ({
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2 max-w-md">
+            <TabsList className="inline-flex w-full ">
               <TabsTrigger value="cleaning" className="gap-2">
                 <Sparkles className="h-4 w-4" />
                 Agents de ménage ({cleaningAgents.length})

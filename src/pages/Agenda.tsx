@@ -169,7 +169,7 @@ const Agenda = () => {
 
           {/* View mode tabs — segmented control plein largeur en mobile (iOS) */}
           <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as AgendaViewMode)} className="w-full sm:w-auto">
-            <TabsList className="grid grid-cols-4 w-full sm:w-auto sm:inline-flex">
+            <TabsList className="inline-flex  w-full sm:w-auto sm:inline-flex">
               <TabsTrigger value="day" className="gap-1.5">
                 <CalendarDays className="h-4 w-4" />
                 <span className="hidden sm:inline">Jour</span>
