@@ -45,39 +45,48 @@ function InvoiceCard({ inv, onClick, sent }: { inv: OwnerInvoice; onClick: () =>
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.99 }}
       transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-      className="relative w-full h-[120px] rounded-[20px] overflow-hidden text-left p-5 group"
-      style={{ background: `linear-gradient(135deg, ${c.from} 0%, ${c.to} 100%)`, boxShadow: "0 1px 2px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.18)" }}
+      className="invoice-card relative w-full rounded-[20px] overflow-hidden text-left p-4 sm:p-5 group min-h-[140px]"
+      style={{
+        background: `linear-gradient(135deg, ${c.from} 0%, ${c.to} 100%)`,
+        boxShadow: "0 1px 2px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.16)",
+      }}
     >
-      <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-[2px] pointer-events-none" />
+      <div className="absolute inset-0 bg-white/[0.03] pointer-events-none" />
       <div className="absolute inset-x-0 top-0 h-px bg-white/15" />
-      <div className="relative flex items-start justify-between h-full gap-4">
-        <div className="flex items-start gap-3 min-w-0">
-          <div className="h-10 w-10 rounded-full bg-white/[0.08] border border-white/[0.12] flex items-center justify-center text-white/85 text-xs font-semibold flex-shrink-0">
-            {initials}
-          </div>
-          <div className="min-w-0">
-            <h4 className="text-[18px] font-semibold text-white truncate">{inv.owner.name}</h4>
-            <p className="text-[12px] text-white/55 mt-0.5">{inv.propertyCount} logement{inv.propertyCount > 1 ? "s" : ""} • {inv.reservationCount} réservation{inv.reservationCount > 1 ? "s" : ""}</p>
-            <div className="mt-3 flex items-center gap-2">
-              <span className={cn("px-2 py-0.5 rounded-full text-[10.5px] font-medium",
-                sent ? "bg-[#6B7AE8]/20 text-[#6B7AE8]" : "bg-white/[0.08] text-white/70"
-              )}>
-                {sent ? "Envoyée" : "Brouillon"}
-              </span>
-              <span className="text-[10.5px] text-white/40 inline-flex items-center gap-1">
-                <Mail className="h-3 w-3" strokeWidth={1.5} /> mail + espace Noé
-              </span>
+      <div className="relative flex flex-col gap-3 sm:gap-4 h-full">
+        {/* Top row: avatar + name + amount */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <div className="h-10 w-10 rounded-full bg-white/[0.12] border border-white/[0.18] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+              {initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <h4 className="text-[16px] sm:text-[17px] font-semibold text-white leading-tight truncate">{inv.owner.name}</h4>
+              <p className="text-[11.5px] text-white/65 mt-0.5 leading-tight">
+                {inv.propertyCount} logement{inv.propertyCount > 1 ? "s" : ""} · {inv.reservationCount} résa.
+              </p>
             </div>
           </div>
+          <div className="text-right flex-shrink-0">
+            <p className="text-[9.5px] uppercase tracking-[0.1em] text-white/55 leading-none">Net à reverser</p>
+            <p
+              className="font-semibold text-white tabular-nums leading-none mt-1.5 whitespace-nowrap"
+              style={{ fontSize: "clamp(20px, 5.2vw, 24px)", letterSpacing: "-0.02em" }}
+            >
+              {formatMoney(inv.net)}
+            </p>
+          </div>
         </div>
-        <div className="text-right flex-shrink-0">
-          <p className="text-[10px] uppercase tracking-[0.1em] text-white/40">Net à reverser</p>
-          <p
-            className="font-light text-white tabular-nums leading-none mt-1"
-            style={{ fontSize: "26px", letterSpacing: "-0.02em" }}
-          >
-            {formatMoney(inv.net)}
-          </p>
+        {/* Bottom row: status badges */}
+        <div className="flex items-center gap-2 flex-wrap mt-auto">
+          <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium",
+            sent ? "bg-white/[0.18] text-white" : "bg-white/[0.12] text-white/85"
+          )}>
+            {sent ? "✓ Envoyée" : "Brouillon"}
+          </span>
+          <span className="text-[11px] text-white/60 inline-flex items-center gap-1">
+            <Mail className="h-3 w-3" strokeWidth={1.8} /> mail + espace Noé
+          </span>
         </div>
       </div>
     </motion.button>
