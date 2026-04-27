@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Apple-style shimmer skeleton.
- * Uses a moving gradient overlay rather than a flat pulse.
+ * Uses a moving linear gradient (background-position animation).
  */
 function Skeleton({
   className,
@@ -11,11 +11,10 @@ function Skeleton({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-md bg-muted/60",
-        "before:absolute before:inset-0 before:-translate-x-full",
-        "before:bg-gradient-to-r before:from-transparent before:via-white/40 before:to-transparent",
-        "before:animate-[shimmer-fast_1.6s_ease-in-out_infinite]",
-        "motion-reduce:before:hidden motion-reduce:animate-pulse",
+        "rounded-md bg-muted/60 animate-shimmer-fast",
+        "bg-[length:200%_100%]",
+        "bg-[linear-gradient(90deg,hsl(var(--muted))_0%,hsl(var(--muted)/0.4)_50%,hsl(var(--muted))_100%)]",
+        "motion-reduce:animate-pulse motion-reduce:bg-muted",
         className
       )}
       aria-busy="true"
