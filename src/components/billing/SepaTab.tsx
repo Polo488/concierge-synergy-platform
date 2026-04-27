@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, FileDown } from "lucide-react";
+import { CheckCircle2, FileDown, AlertTriangle, Lock } from "lucide-react";
 import { useFacturation } from "@/hooks/useFacturation";
+import { useFacturationMetier } from "@/hooks/useFacturationMetier";
 import { owners, properties, currentUser } from "@/mocks/facturation";
 import { formatMoney, maskIban } from "@/lib/facturationFormat";
 import { cn } from "@/lib/utils";
@@ -9,8 +10,26 @@ import { toast } from "sonner";
 
 export function SepaTab() {
   const { reservations, maintenance, cleaning, misc, negativeOps, periodLabel, generateSepa, sepaGenerated, sepaTransmitted, markSepaTransmitted } = useFacturation();
+  const { invoices: metierInvoices, escrow } = useFacturationMetier();
 
-  const transfers = useMemo(() => owners.map((o) => {
+  // Index par owner : facture(s) bloquée(s) ? reportée(s) ? net négatif sans décision ?
+  const ownerStatus = useMemo(() => {
+    const map = new Map<string, { blocked: boolean; deferred: boolean; netNegativeUndecided: boolean; blockers: string[] }>();
+    owners.forEach((o) => {
+      const list = metierInvoices.filter((i) => i.ownerId === o.id);
+      const blockers = new Set<string>();
+      list.forEach((i) => i.blockingReasons.forEach((b) => blockers.add(b)));
+      map.set(o.id, {
+        blocked: list.some((i) => i.status === "blocked"),
+        deferred: list.length > 0 && list.every((i) => i.negativeDecision === "deferred"),
+        netNegativeUndecided: list.some((i) => i.netOwner < 0 && i.negativeDecision === null),
+        blockers: Array.from(blockers),
+      });
+    });
+    return map;
+  }, [metierInvoices]);
+
+  const allTransfers = useMemo(() => owners.map((o) => {
     const propIds = new Set(properties.filter((p) => p.ownerId === o.id).map((p) => p.id));
     const ownerRes = reservations.filter((r) => propIds.has(r.propertyId));
     const net = ownerRes.reduce((a, r) => a + r.netOwner, 0)
@@ -18,8 +37,24 @@ export function SepaTab() {
       - cleaning.filter((c) => propIds.has(c.propertyId)).reduce((a, c) => a + c.billedPrice, 0)
       - misc.filter((m) => propIds.has(m.propertyId)).reduce((a, m) => a + m.amountHT * (1 + m.vatRate), 0)
       + negativeOps.filter((n) => propIds.has(n.propertyId) && n.decision === "owner").reduce((a, n) => a + n.amount, 0);
-    return { owner: o, amount: Math.round(net * 100) / 100, ref: `FAC-${periodLabel.slice(0, 3).toUpperCase()}-${o.id.toUpperCase()}`, hasReservations: ownerRes.length > 0 };
-  }).filter((t) => t.hasReservations && t.amount > 0), [reservations, maintenance, cleaning, misc, negativeOps, periodLabel]);
+    const status = ownerStatus.get(o.id)!;
+    const excluded = status.blocked || status.deferred || status.netNegativeUndecided || net < 0;
+    const reason = status.blocked ? "Facture bloquée"
+      : status.netNegativeUndecided ? "Net négatif — décision requise"
+      : status.deferred ? "Reportée mois suivant"
+      : net < 0 ? "Net négatif" : null;
+    return {
+      owner: o,
+      amount: Math.round(net * 100) / 100,
+      ref: `FAC-${periodLabel.slice(0, 3).toUpperCase()}-${o.id.toUpperCase()}`,
+      hasReservations: ownerRes.length > 0,
+      excluded,
+      reason,
+    };
+  }).filter((t) => t.hasReservations), [reservations, maintenance, cleaning, misc, negativeOps, periodLabel, ownerStatus]);
+
+  const transfers = allTransfers.filter((t) => !t.excluded);
+  const excludedTransfers = allTransfers.filter((t) => t.excluded);
 
   const total = transfers.reduce((a, t) => a + t.amount, 0);
   const [executionDate, setExecutionDate] = useState(() => {
