@@ -240,3 +240,7 @@
 
 /* Make sure the invoice "paper" preview stays readable in both modes (it's a printed doc — keep cream paper) */
 /* (it already uses bg-[#FAF8F4] / text-[#1a1a2e] — leave untouched) */
+
+/* ---- Scrollbar hide for horizontal scroll containers ---- */
+.bill-scope .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+.bill-scope .scrollbar-hide::-webkit-scrollbar { display: none; }
