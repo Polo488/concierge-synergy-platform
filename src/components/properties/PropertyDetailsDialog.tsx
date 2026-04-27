@@ -90,12 +90,16 @@ export const PropertyDetailsDialog = ({
     return (
       <>
         {/* Overlay */}
-        <div 
+        <div
           className="fixed inset-0 bg-black/40 z-[499]"
           onClick={onClose}
+          onTouchMove={(e) => e.preventDefault()}
         />
         {/* Bottom sheet */}
-        <div className="fixed bottom-0 left-0 right-0 h-[92vh] bg-[hsl(var(--background))] rounded-t-[20px] z-[500] overflow-y-auto overflow-x-hidden flex flex-col animate-in slide-in-from-bottom duration-300">
+        <div
+          className="fixed bottom-0 left-0 right-0 h-[92vh] bg-[hsl(var(--background))] rounded-t-[20px] z-[500] overflow-y-auto overflow-x-hidden flex flex-col animate-in slide-in-from-bottom duration-300 overscroll-contain"
+          style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
+        >
           {/* Handle bar */}
           <div className="flex justify-center pt-3 pb-1 sticky top-0 bg-[hsl(var(--background))] z-10">
             <div className="w-10 h-1 rounded-full bg-muted-foreground/20" />
