@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Mail, Download, Check, Pencil, Send } from "lucide-react";
+import { X, Mail, Download, Check, Pencil, Send, Lock, AlertTriangle } from "lucide-react";
 import { useFacturation } from "@/hooks/useFacturation";
+import { useFacturationMetier } from "@/hooks/useFacturationMetier";
 import { owners, properties, getOwnerByProperty, type Owner } from "@/mocks/facturation";
 import { formatMoney, ownerHashColor } from "@/lib/facturationFormat";
 import { cn } from "@/lib/utils";
@@ -12,10 +13,14 @@ interface OwnerInvoice {
   propertyCount: number;
   reservationCount: number;
   net: number;
+  blocked: boolean;
+  blockers: string[];
+  deferred: boolean;
 }
 
 function useOwnerInvoices(): OwnerInvoice[] {
   const { reservations, maintenance, cleaning, misc, negativeOps } = useFacturation();
+  const { invoices: metierInvoices } = useFacturationMetier();
   return useMemo(() => owners.map((o) => {
     const ownerProps = properties.filter((p) => p.ownerId === o.id);
     const propIds = new Set(ownerProps.map((p) => p.id));
@@ -26,13 +31,22 @@ function useOwnerInvoices(): OwnerInvoice[] {
       - misc.filter((m) => propIds.has(m.propertyId)).reduce((a, m) => a + m.amountHT * (1 + m.vatRate), 0)
       + negativeOps.filter((n) => propIds.has(n.propertyId) && n.decision === "owner").reduce((a, n) => a + n.amount, 0)
       + negativeOps.filter((n) => propIds.has(n.propertyId) && n.decision === "split").reduce((a, n) => a + n.amount / 2, 0);
+    // Aggrège blockers et statut depuis les factures métier de cet owner
+    const ownerMetier = metierInvoices.filter((mi) => mi.ownerId === o.id);
+    const blockerSet = new Set<string>();
+    ownerMetier.forEach((mi) => mi.blockingReasons.forEach((b) => blockerSet.add(b)));
+    const deferred = ownerMetier.some((mi) => mi.negativeDecision === "deferred");
+    const blocked = ownerMetier.some((mi) => mi.status === "blocked");
     return {
       owner: o,
       propertyCount: ownerProps.length,
       reservationCount: ownerRes.length,
       net: Math.round(net * 100) / 100,
+      blocked,
+      blockers: Array.from(blockerSet),
+      deferred,
     };
-  }).filter((i) => i.reservationCount > 0), [reservations, maintenance, cleaning, misc, negativeOps]);
+  }).filter((i) => i.reservationCount > 0), [reservations, maintenance, cleaning, misc, negativeOps, metierInvoices]);
 }
 
 function InvoiceCard({ inv, onClick, sent }: { inv: OwnerInvoice; onClick: () => void; sent: boolean }) {
@@ -79,14 +93,32 @@ function InvoiceCard({ inv, onClick, sent }: { inv: OwnerInvoice; onClick: () =>
         </div>
         {/* Bottom row: status badges */}
         <div className="flex items-center gap-2 flex-wrap mt-auto">
-          <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium",
-            sent ? "bg-white/[0.18] text-white" : "bg-white/[0.12] text-white/85"
-          )}>
-            {sent ? "✓ Envoyée" : "Brouillon"}
-          </span>
-          <span className="text-[11px] text-white/60 inline-flex items-center gap-1">
-            <Mail className="h-3 w-3" strokeWidth={1.8} /> mail + espace Noé
-          </span>
+          {inv.blocked ? (
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F87171]/20 text-[#F87171] inline-flex items-center gap-1">
+              <Lock className="h-3 w-3" strokeWidth={2} /> Bloquée
+            </span>
+          ) : inv.deferred ? (
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#6B7AE8]/20 text-[#6B7AE8] inline-flex items-center gap-1">
+              Reportée mois +1
+            </span>
+          ) : (
+            <span className={cn("px-2.5 py-1 rounded-full text-[11px] font-medium",
+              sent ? "bg-white/[0.18] text-white" : "bg-white/[0.12] text-white/85"
+            )}>
+              {sent ? "✓ Envoyée" : "Prête à envoyer"}
+            </span>
+          )}
+          {inv.blocked && inv.blockers[0] && (
+            <span className="text-[10.5px] text-[#F87171]/85 inline-flex items-center gap-1 truncate max-w-full">
+              <AlertTriangle className="h-3 w-3 flex-shrink-0" strokeWidth={2} />
+              <span className="truncate">{inv.blockers[0]}</span>
+            </span>
+          )}
+          {!inv.blocked && !inv.deferred && (
+            <span className="text-[11px] text-white/60 inline-flex items-center gap-1">
+              <Mail className="h-3 w-3" strokeWidth={1.8} /> mail + espace Noé
+            </span>
+          )}
         </div>
       </div>
     </motion.button>
@@ -301,7 +333,10 @@ export function InvoicesTab() {
   const [confirm, setConfirm] = useState(false);
   const [sending, setSending] = useState(false);
 
-  const remaining = invoices.filter((i) => !sentOwnerIds.has(i.owner.id)).length;
+  const eligible = invoices.filter((i) => !i.blocked && !i.deferred);
+  const remaining = eligible.filter((i) => !sentOwnerIds.has(i.owner.id)).length;
+  const blockedCount = invoices.filter((i) => i.blocked).length;
+  const deferredCount = invoices.filter((i) => i.deferred).length;
 
   return (
     <div className="space-y-5">
@@ -314,6 +349,20 @@ export function InvoicesTab() {
           >
             Générer maintenant
           </button>
+        </div>
+      )}
+
+      {(blockedCount > 0 || deferredCount > 0) && (
+        <div className="flex items-start gap-3 px-4 py-3 rounded-[14px] bg-[#F87171]/[0.06] border border-[#F87171]/[0.18]">
+          <AlertTriangle className="h-4 w-4 text-[#F87171] mt-0.5 flex-shrink-0" strokeWidth={1.8} />
+          <p className="text-[12.5px] text-white/85 leading-relaxed">
+            {blockedCount > 0 && (
+              <><strong className="font-semibold text-[#F87171]">{blockedCount} facture{blockedCount > 1 ? "s" : ""} bloquée{blockedCount > 1 ? "s" : ""}</strong> — exclues de l'envoi tant que les pré-requis (BA validé, IBAN, décision sur net négatif) ne sont pas remplis. </>
+            )}
+            {deferredCount > 0 && (
+              <><strong className="font-semibold text-[#6B7AE8]">{deferredCount} facture{deferredCount > 1 ? "s" : ""} reportée{deferredCount > 1 ? "s" : ""}</strong> au mois suivant.</>
+            )}
+          </p>
         </div>
       )}
 
@@ -330,7 +379,7 @@ export function InvoicesTab() {
             className="w-full px-6 py-4 rounded-[16px] text-sm font-semibold bg-[#FF5C1A] hover:bg-[#FF5C1A]/90 text-white shadow-[0_8px_24px_rgba(255,92,26,0.35)] active:scale-[0.99] transition-all inline-flex items-center justify-center gap-2"
           >
             <Send className="h-4 w-4" strokeWidth={1.5} />
-            Envoyer les {remaining} factures aux propriétaires
+            Envoyer les {remaining} facture{remaining > 1 ? "s" : ""} éligibles aux propriétaires
           </button>
         </div>
       )}

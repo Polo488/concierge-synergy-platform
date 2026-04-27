@@ -1,16 +1,20 @@
 import { motion } from "framer-motion";
 import { useFacturation, type TabKey } from "@/hooks/useFacturation";
+import { useFacturationMetier } from "@/hooks/useFacturationMetier";
 import { cn } from "@/lib/utils";
 
-interface TabDef { key: TabKey; label: string; counter?: number; }
+interface TabDef { key: TabKey; label: string; counter?: number; counterTone?: "warn" | "danger" | "info"; }
 
 export function FacturationTabs() {
   const { activeTab, setActiveTab, totals, cartG } = useFacturation();
+  const { reconciliation, invoiceStats, closingChecks } = useFacturationMetier();
   const tabs: TabDef[] = [
     { key: "reservations", label: "Réservations" },
-    { key: "negatives", label: "Opérations négatives", counter: totals.negPending || undefined },
+    { key: "negatives", label: "Opérations négatives", counter: totals.negPending || undefined, counterTone: "warn" },
     { key: "complements", label: "Compléments" },
-    { key: "invoices", label: "Factures" },
+    { key: "reconciliation", label: "Réconciliation", counter: reconciliation.unmatched || undefined, counterTone: "warn" },
+    { key: "invoices", label: "Factures", counter: invoiceStats.blocked || undefined, counterTone: "danger" },
+    ...(cartG ? [{ key: "escrow" as TabKey, label: "Séquestre", counter: closingChecks.canClose ? undefined : closingChecks.blockers.length || undefined, counterTone: "info" as const }] : []),
     ...(cartG ? [{ key: "sepa" as TabKey, label: "Virements SEPA" }] : []),
   ];
 
@@ -39,7 +43,12 @@ export function FacturationTabs() {
               <span className="relative inline-flex items-center gap-2">
                 {t.label}
                 {t.counter !== undefined && (
-                  <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-semibold bg-[#F5C842]/20 text-[#F5C842]">
+                  <span className={cn(
+                    "inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-semibold",
+                    t.counterTone === "danger" ? "bg-[#F87171]/20 text-[#F87171]"
+                    : t.counterTone === "info" ? "bg-[#6B7AE8]/20 text-[#6B7AE8]"
+                    : "bg-[#F5C842]/20 text-[#F5C842]"
+                  )}>
                     {t.counter}
                   </span>
                 )}

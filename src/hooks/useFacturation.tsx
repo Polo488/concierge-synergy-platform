@@ -20,7 +20,7 @@ import {
 } from "@/mocks/facturation";
 
 export type CycleStatus = "draft" | "processing" | "validated" | "sent";
-export type TabKey = "reservations" | "negatives" | "complements" | "invoices" | "sepa";
+export type TabKey = "reservations" | "negatives" | "complements" | "reconciliation" | "invoices" | "escrow" | "sepa";
 
 interface ImportedFile {
   name: string;

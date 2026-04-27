@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, FileDown } from "lucide-react";
+import { CheckCircle2, FileDown, AlertTriangle, Lock } from "lucide-react";
 import { useFacturation } from "@/hooks/useFacturation";
+import { useFacturationMetier } from "@/hooks/useFacturationMetier";
 import { owners, properties, currentUser } from "@/mocks/facturation";
 import { formatMoney, maskIban } from "@/lib/facturationFormat";
 import { cn } from "@/lib/utils";
@@ -9,8 +10,26 @@ import { toast } from "sonner";
 
 export function SepaTab() {
   const { reservations, maintenance, cleaning, misc, negativeOps, periodLabel, generateSepa, sepaGenerated, sepaTransmitted, markSepaTransmitted } = useFacturation();
+  const { invoices: metierInvoices, escrow } = useFacturationMetier();
 
-  const transfers = useMemo(() => owners.map((o) => {
+  // Index par owner : facture(s) bloquée(s) ? reportée(s) ? net négatif sans décision ?
+  const ownerStatus = useMemo(() => {
+    const map = new Map<string, { blocked: boolean; deferred: boolean; netNegativeUndecided: boolean; blockers: string[] }>();
+    owners.forEach((o) => {
+      const list = metierInvoices.filter((i) => i.ownerId === o.id);
+      const blockers = new Set<string>();
+      list.forEach((i) => i.blockingReasons.forEach((b) => blockers.add(b)));
+      map.set(o.id, {
+        blocked: list.some((i) => i.status === "blocked"),
+        deferred: list.length > 0 && list.every((i) => i.negativeDecision === "deferred"),
+        netNegativeUndecided: list.some((i) => i.netOwner < 0 && i.negativeDecision === null),
+        blockers: Array.from(blockers),
+      });
+    });
+    return map;
+  }, [metierInvoices]);
+
+  const allTransfers = useMemo(() => owners.map((o) => {
     const propIds = new Set(properties.filter((p) => p.ownerId === o.id).map((p) => p.id));
     const ownerRes = reservations.filter((r) => propIds.has(r.propertyId));
     const net = ownerRes.reduce((a, r) => a + r.netOwner, 0)
@@ -18,8 +37,24 @@ export function SepaTab() {
       - cleaning.filter((c) => propIds.has(c.propertyId)).reduce((a, c) => a + c.billedPrice, 0)
       - misc.filter((m) => propIds.has(m.propertyId)).reduce((a, m) => a + m.amountHT * (1 + m.vatRate), 0)
       + negativeOps.filter((n) => propIds.has(n.propertyId) && n.decision === "owner").reduce((a, n) => a + n.amount, 0);
-    return { owner: o, amount: Math.round(net * 100) / 100, ref: `FAC-${periodLabel.slice(0, 3).toUpperCase()}-${o.id.toUpperCase()}`, hasReservations: ownerRes.length > 0 };
-  }).filter((t) => t.hasReservations && t.amount > 0), [reservations, maintenance, cleaning, misc, negativeOps, periodLabel]);
+    const status = ownerStatus.get(o.id)!;
+    const excluded = status.blocked || status.deferred || status.netNegativeUndecided || net < 0;
+    const reason = status.blocked ? "Facture bloquée"
+      : status.netNegativeUndecided ? "Net négatif — décision requise"
+      : status.deferred ? "Reportée mois suivant"
+      : net < 0 ? "Net négatif" : null;
+    return {
+      owner: o,
+      amount: Math.round(net * 100) / 100,
+      ref: `FAC-${periodLabel.slice(0, 3).toUpperCase()}-${o.id.toUpperCase()}`,
+      hasReservations: ownerRes.length > 0,
+      excluded,
+      reason,
+    };
+  }).filter((t) => t.hasReservations), [reservations, maintenance, cleaning, misc, negativeOps, periodLabel, ownerStatus]);
+
+  const transfers = allTransfers.filter((t) => !t.excluded);
+  const excludedTransfers = allTransfers.filter((t) => t.excluded);
 
   const total = transfers.reduce((a, t) => a + t.amount, 0);
   const [executionDate, setExecutionDate] = useState(() => {
@@ -61,6 +96,34 @@ export function SepaTab() {
           } />
         </div>
       </div>
+
+      {/* Bannière exclusions */}
+      {excludedTransfers.length > 0 && (
+        <div className="flex items-start gap-3 px-4 py-3 rounded-[14px] bg-[#F87171]/[0.06] border border-[#F87171]/[0.18]">
+          <Lock className="h-4 w-4 text-[#F87171] mt-0.5 flex-shrink-0" strokeWidth={1.8} />
+          <div className="text-[12.5px] text-white/85 leading-relaxed min-w-0">
+            <p className="font-semibold text-[#F87171] mb-1">{excludedTransfers.length} bénéficiaire{excludedTransfers.length > 1 ? "s" : ""} exclu{excludedTransfers.length > 1 ? "s" : ""} du XML SEPA</p>
+            <ul className="space-y-0.5 text-white/70">
+              {excludedTransfers.slice(0, 4).map((t) => (
+                <li key={t.owner.id} className="truncate">• <span className="text-white/85">{t.owner.name}</span> — {t.reason}</li>
+              ))}
+              {excludedTransfers.length > 4 && (
+                <li className="text-white/55">+ {excludedTransfers.length - 4} autre{excludedTransfers.length - 4 > 1 ? "s" : ""}</li>
+              )}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Bannière simulation séquestre */}
+      {!escrow.simulationOk && transfers.length > 0 && (
+        <div className="flex items-start gap-3 px-4 py-3 rounded-[14px] bg-[#F5C842]/[0.08] border border-[#F5C842]/[0.25]">
+          <AlertTriangle className="h-4 w-4 text-[#F5C842] mt-0.5 flex-shrink-0" strokeWidth={1.8} />
+          <p className="text-[12.5px] text-white/85 leading-relaxed">
+            <strong className="font-semibold text-[#F5C842]">Génération bloquée</strong> — la simulation ferait passer le séquestre à <strong className="tabular-nums">{formatMoney(escrow.simulatedAfterSepa)}</strong>. Vérifiez les rapprochements bancaires ou reportez certaines factures.
+          </p>
+        </div>
+      )}
 
       {/* MOBILE: card list */}
       <div className="space-y-2 lg:hidden">
@@ -122,7 +185,7 @@ export function SepaTab() {
       <div className="flex flex-col items-center gap-3 pt-2">
         {!sepaGenerated ? (
           <motion.button
-            disabled={generating || transfers.length === 0}
+            disabled={generating || transfers.length === 0 || !escrow.simulationOk}
             onClick={handleGenerate}
             whileTap={{ scale: 0.98 }}
             className="w-full sm:w-auto sm:min-w-[320px] px-5 sm:px-6 py-4 rounded-[16px] text-[14px] sm:text-sm font-semibold bg-[#FF5C1A] hover:bg-[#FF5C1A]/90 text-white shadow-[0_8px_24px_rgba(255,92,26,0.35)] disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 justify-center min-h-[48px]"

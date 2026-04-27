@@ -9,6 +9,9 @@ import { NegativeOpsTab } from "@/components/billing/NegativeOpsTab";
 import { ComplementsTab } from "@/components/billing/ComplementsTab";
 import { InvoicesTab } from "@/components/billing/InvoicesTab";
 import { SepaTab } from "@/components/billing/SepaTab";
+import { ReconciliationTab } from "@/components/billing/ReconciliationTab";
+import { EscrowTab } from "@/components/billing/EscrowTab";
+import { FacturationMetierBridge } from "@/components/billing/FacturationMetierBridge";
 import { toast } from "sonner";
 
 function PrimaryCta() {
@@ -67,7 +70,9 @@ function FacturationContent() {
           {activeTab === "reservations" && <ReservationsTab />}
           {activeTab === "negatives" && <NegativeOpsTab />}
           {activeTab === "complements" && <ComplementsTab />}
+          {activeTab === "reconciliation" && <ReconciliationTab />}
           {activeTab === "invoices" && <InvoicesTab />}
+          {activeTab === "escrow" && <EscrowTab />}
           {activeTab === "sepa" && <SepaTab />}
         </motion.div>
       </AnimatePresence>
@@ -79,6 +84,7 @@ export default function Billing() {
   useEffect(() => { document.title = "Facturation — Noé"; }, []);
   return (
     <FacturationProvider>
+      <FacturationMetierBridge>
       <section className="bill-scope relative isolate -mx-[var(--app-gutter)] -mt-[clamp(1.25rem,3vw,2rem)] -mb-[clamp(1.25rem,3vw,2rem)] min-h-[calc(100dvh-72px)] overflow-hidden bg-background px-[var(--app-gutter)] pt-[clamp(1.25rem,3vw,2rem)] pb-[clamp(1.25rem,3vw,2rem)] text-foreground">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,hsl(var(--primary)/0.12),transparent_28%),radial-gradient(circle_at_86%_16%,hsl(var(--status-info)/0.10),transparent_30%),radial-gradient(circle_at_78%_78%,hsl(var(--status-success)/0.08),transparent_28%)]" />
         <div className="mx-auto w-full max-w-[1280px]">
@@ -89,6 +95,7 @@ export default function Billing() {
         <FacturationContent />
         </div>
       </section>
+      </FacturationMetierBridge>
     </FacturationProvider>
   );
 }
