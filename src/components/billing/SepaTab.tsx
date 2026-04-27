@@ -46,8 +46,8 @@ export function SepaTab() {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-[20px] bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] p-7 sm:p-9">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="rounded-[20px] bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] p-5 sm:p-7 lg:p-9">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <Stat label="Total à virer" value={formatMoney(total)} large />
           <Stat label="Bénéficiaires" value={`${transfers.length}`} />
           <Stat label="IBAN émetteur" value={maskIban(currentUser.sepaIban)} mono />
@@ -56,13 +56,37 @@ export function SepaTab() {
               type="date"
               value={executionDate}
               onChange={(e) => setExecutionDate(e.target.value)}
-              className="bg-transparent border border-white/[0.08] rounded-[10px] px-2 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#FF5C1A]/40"
+              className="bg-transparent border border-white/[0.08] rounded-[10px] px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#FF5C1A]/40 w-full min-h-[36px]"
             />
           } />
         </div>
       </div>
 
-      <div className="rounded-[20px] bg-white/[0.02] border border-white/[0.04] overflow-hidden">
+      {/* MOBILE: card list */}
+      <div className="space-y-2 lg:hidden">
+        {transfers.map((t) => (
+          <div key={t.owner.id} className="rounded-[16px] bg-white/[0.03] border border-white/[0.05] p-4">
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <div className="min-w-0">
+                <p className="font-semibold text-white text-[15px] truncate">{t.owner.name}</p>
+                <p className="text-[11px] font-mono text-white/55 mt-0.5 truncate">{maskIban(t.owner.iban)}</p>
+              </div>
+              <p className="text-[18px] font-semibold text-white tabular-nums whitespace-nowrap flex-shrink-0">{formatMoney(t.amount)}</p>
+            </div>
+            <div className="flex items-center justify-between gap-2 mt-2">
+              <span className="text-[10.5px] font-mono text-white/45 truncate">{t.ref}</span>
+              <span className={cn("px-2 py-0.5 rounded-full text-[10.5px] font-medium flex-shrink-0",
+                sepaTransmitted ? "bg-[#4ADE80]/15 text-[#4ADE80]" : sepaGenerated ? "bg-[#6B7AE8]/15 text-[#6B7AE8]" : "bg-white/[0.08] text-white/65"
+              )}>
+                {sepaTransmitted ? "Exécuté" : sepaGenerated ? "Inclus dans XML" : "À générer"}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* DESKTOP: table */}
+      <div className="hidden lg:block rounded-[20px] bg-white/[0.02] border border-white/[0.04] overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-[11px] uppercase tracking-[0.08em] text-white/45 border-b border-white/[0.06]">
