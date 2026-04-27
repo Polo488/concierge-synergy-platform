@@ -408,7 +408,7 @@ const Billing = () => {
     try {
       const result = await importFromPlatform(platformParams);
       if (result.success) {
-        toast.success(M.billing.importSuccess(result.importedCount, `entrées ${platformParams.platform}`));
+        toast.success(M.billing.importSuccess(result.importedCount, `entrée ${platformParams.platform}`));
         if (result.unassignedCount > 0) {
           toast.warning(M.billing.importPartial(result.unassignedCount));
         }
