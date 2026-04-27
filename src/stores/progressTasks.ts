@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { useEffect, useState } from "react";
 
 export interface ProgressTask {
   id: string;
@@ -7,50 +7,60 @@ export interface ProgressTask {
   progress?: number;
   /** Optional sub-label (e.g. "12/40 logements") */
   detail?: string;
-  /** Status — "running" | "success" | "error" */
+  /** Status */
   status: "running" | "success" | "error";
-  /** Auto-dismiss after success (ms). Default 1500 */
   successTimeout?: number;
-  /** Optional onClick — e.g. expand details */
   onClick?: () => void;
 }
 
-interface Store {
-  tasks: ProgressTask[];
-  start: (task: Omit<ProgressTask, "status"> & { status?: ProgressTask["status"] }) => string;
-  update: (id: string, patch: Partial<ProgressTask>) => void;
-  succeed: (id: string, label?: string) => void;
-  fail: (id: string, label?: string) => void;
-  dismiss: (id: string) => void;
-}
+type Listener = (tasks: ProgressTask[]) => void;
 
+let tasks: ProgressTask[] = [];
+const listeners = new Set<Listener>();
 let counter = 0;
+
+const emit = () => {
+  // shallow-copy to trigger re-renders
+  const snap = [...tasks];
+  listeners.forEach((l) => l(snap));
+};
+
 const nextId = () => `pt-${Date.now()}-${++counter}`;
 
-export const useProgressTasks = create<Store>((set, get) => ({
-  tasks: [],
-  start: (task) => {
+export const progressTasks = {
+  start(task: Omit<ProgressTask, "status" | "id"> & { id?: string; status?: ProgressTask["status"] }): string {
     const id = task.id ?? nextId();
-    set((s) => ({
-      tasks: [...s.tasks.filter((t) => t.id !== id), { ...task, id, status: task.status ?? "running" }],
-    }));
+    tasks = [...tasks.filter((t) => t.id !== id), { ...task, id, status: task.status ?? "running" }];
+    emit();
     return id;
   },
-  update: (id, patch) =>
-    set((s) => ({
-      tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)),
-    })),
-  succeed: (id, label) => {
-    get().update(id, { status: "success", ...(label ? { label } : {}) });
-    const timeout = get().tasks.find((t) => t.id === id)?.successTimeout ?? 1500;
-    setTimeout(() => get().dismiss(id), timeout);
+  update(id: string, patch: Partial<ProgressTask>) {
+    tasks = tasks.map((t) => (t.id === id ? { ...t, ...patch } : t));
+    emit();
   },
-  fail: (id, label) => {
-    get().update(id, { status: "error", ...(label ? { label } : {}) });
-    setTimeout(() => get().dismiss(id), 4000);
+  succeed(id: string, label?: string) {
+    const t = tasks.find((x) => x.id === id);
+    if (!t) return;
+    progressTasks.update(id, { status: "success", ...(label ? { label } : {}) });
+    setTimeout(() => progressTasks.dismiss(id), t.successTimeout ?? 1500);
   },
-  dismiss: (id) =>
-    set((s) => ({
-      tasks: s.tasks.filter((t) => t.id !== id),
-    })),
-}));
+  fail(id: string, label?: string) {
+    progressTasks.update(id, { status: "error", ...(label ? { label } : {}) });
+    setTimeout(() => progressTasks.dismiss(id), 4000);
+  },
+  dismiss(id: string) {
+    tasks = tasks.filter((t) => t.id !== id);
+    emit();
+  },
+};
+
+export function useProgressTasks(): ProgressTask[] {
+  const [snapshot, setSnapshot] = useState<ProgressTask[]>(tasks);
+  useEffect(() => {
+    listeners.add(setSnapshot);
+    return () => {
+      listeners.delete(setSnapshot);
+    };
+  }, []);
+  return snapshot;
+}
