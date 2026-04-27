@@ -97,10 +97,18 @@ export const TOAST_MESSAGES = {
 
   // ───────────────────────── Facturation ─────────────────────────
   billing: {
-    importSuccess: (count: number, source = "réservations") =>
-      `Import réussi : ${count} ${source} importée${count > 1 ? "s" : ""}`,
-    importPartial: (count: number) =>
-      `${count} entrée${count > 1 ? "s" : ""} non assignée${count > 1 ? "s" : ""}, vérifiez l'onglet Contrôle`,
+    /**
+     * @param count nombre d'éléments importés
+     * @param singular forme au singulier (ex: "réservation", "entrée airbnb"). Le 's' final est ajouté si count > 1.
+     */
+    importSuccess: (count: number, singular = "réservation") => {
+      const s = count > 1 ? "s" : "";
+      return `Import réussi : ${count} ${singular}${s} importée${s}`;
+    },
+    importPartial: (count: number) => {
+      const s = count > 1 ? "s" : "";
+      return `${count} entrée${s} non assignée${s}, vérifiez l'onglet Contrôle`;
+    },
     importError: (msg?: string) =>
       msg ? `Erreur lors de l'import : ${msg}` : "Une erreur est survenue lors de l'import",
     datesRequired: "Veuillez spécifier les dates de début et de fin",
