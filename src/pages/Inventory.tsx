@@ -141,7 +141,7 @@ const Inventory = () => {
 
   const handleAddItem = () => {
     const { name, category, stock, min, orderUrl } = newItemData;
-    if (!name.trim()) { toast.error("Veuillez entrer un nom"); return; }
+    if (!name.trim()) { toast.error(M.common.invalidName); return; }
     const stockNum = parseInt(stock, 10) || 0;
     const minNum = parseInt(min, 10) || 0;
     const newItem: InventoryItem = {
