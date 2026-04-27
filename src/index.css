@@ -662,21 +662,46 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ============================================
-   LIQUID GLASS — Apple light, off-white ambient
+   LIQUID GLASS — Apple iOS 26 / macOS Tahoe
    ============================================ */
 
-/* Body Apple-like : antialiasing, safe area iOS, fond clair sobre */
+:root {
+  /* Apple iOS 26 surfaces (light) */
+  --bg-app: 240 10% 96.5%;            /* #F5F5F7 */
+  --surface-1: 0 0% 100%;             /* white base */
+  --label-1: 240 33% 14%;             /* Noé navy as primary text */
+  --label-2: 240 6% 25%;
+  --label-3: 240 4% 45%;
+  --label-4: 240 4% 65%;
+  --hairline: 240 6% 90%;             /* iOS hairline */
+  --separator: 240 6% 92%;
+  --r-card: 22px;
+  --r-control: 10px;
+}
+
+.dark {
+  --bg-app: 240 12% 8%;
+  --surface-1: 240 10% 14%;
+  --label-1: 240 14% 92%;
+  --label-2: 240 8% 70%;
+  --label-3: 240 6% 50%;
+  --label-4: 240 6% 35%;
+  --hairline: 240 8% 22%;
+  --separator: 240 8% 18%;
+}
+
+/* Body Apple-like : antialiasing, safe area iOS */
 body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+  background-color: hsl(var(--bg-app));
+  color: hsl(var(--label-1));
   min-height: 100vh;
-  min-height: 100dvh; /* dynamic viewport for mobile browsers */
+  min-height: 100dvh;
   position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   -webkit-tap-highlight-color: transparent;
-  overscroll-behavior-y: none; /* no rubber-band */
+  /* DO NOT set overscroll-behavior: none — it can break scroll in some browsers */
 }
 
 /* iOS safe area padding utility */
@@ -687,93 +712,38 @@ body {
   .safe-right { padding-right: max(env(safe-area-inset-right), 0); }
 }
 
-/* Smooth scrolling momentum on touch */
 html, body, .scroll-smooth {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Tap targets minimum 44px on mobile (Apple HIG) */
 @media (pointer: coarse) {
   button, a[role="button"], [data-interactive] {
     min-height: 44px;
   }
 }
 
-/* Wrapper qui pose des orbes lumineux pastel TRÈS diffus, fond clair */
+/* Apple ambient background — F5F5F7 with subtle warm orange tint top-right.
+   No animation, no orbs. Static. */
 .liquid-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  overflow: hidden;
   background:
-    radial-gradient(120% 80% at 100% 0%, hsla(220, 30%, 96%, 1) 0%, transparent 60%),
-    radial-gradient(100% 70% at 0% 100%, hsla(220, 20%, 97%, 1) 0%, transparent 60%),
-    linear-gradient(180deg, hsl(220, 20%, 99%) 0%, hsl(220, 20%, 97%) 100%);
+    radial-gradient(circle at 92% 8%, hsla(18, 100%, 55%, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 0% 100%, hsla(220, 60%, 70%, 0.04) 0%, transparent 50%),
+    hsl(var(--bg-app));
 }
-.liquid-bg::before,
-.liquid-bg::after,
-.liquid-bg > .orb {
-  content: "";
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(100px);
-  opacity: 0.45;
-  animation: orb-drift 32s ease-in-out infinite;
-}
-.liquid-bg::before {
-  top: -15%; left: -10%;
-  width: 540px; height: 540px;
-  background: radial-gradient(circle, hsla(18, 100%, 75%, 0.55) 0%, transparent 70%);
-}
-.liquid-bg::after {
-  bottom: -20%; right: -10%;
-  width: 640px; height: 640px;
-  background: radial-gradient(circle, hsla(330, 80%, 85%, 0.45) 0%, transparent 70%);
-  animation-delay: -16s;
-}
-.liquid-bg > .orb-3 {
-  top: 40%; left: 50%;
-  width: 520px; height: 520px;
-  background: radial-gradient(circle, hsla(220, 80%, 85%, 0.4) 0%, transparent 70%);
-  animation-delay: -8s;
-  transform: translate(-50%, -50%);
-}
+.liquid-bg > .orb { display: none; }
 
-/* Reduce orb intensity on mobile for perf and lisibilité */
-@media (max-width: 768px) {
-  .liquid-bg::before,
-  .liquid-bg::after,
-  .liquid-bg > .orb {
-    opacity: 0.32;
-    filter: blur(70px);
-  }
-}
-
-/* Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
-  .liquid-bg::before,
-  .liquid-bg::after,
-  .liquid-bg > .orb {
-    animation: none;
-  }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
 }
 
-@keyframes orb-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(40px, -30px) scale(1.05); }
-  66% { transform: translate(-30px, 30px) scale(0.95); }
-}
-.liquid-bg > .orb-3 { animation-name: orb-drift-center; }
-@keyframes orb-drift-center {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-45%, -55%) scale(1.06); }
-}
 
 /* Surface verre standard (cartes) — Apple light */
 .glass-surface {
