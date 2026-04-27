@@ -41,6 +41,7 @@ import OwnerPortal from "./pages/OwnerPortal";
 import LegalWatch from "./pages/LegalWatch";
 import WelcomeGuide from "./pages/WelcomeGuide";
 import WelcomeGuidePublic from "./pages/WelcomeGuidePublic";
+import ProviderCallPage from "./pages/ProviderCallPage";
 import Transitory from "./pages/Transitory";
 import IdeaBox from "./pages/IdeaBox";
 import Feedbacks from "./pages/Feedbacks";
