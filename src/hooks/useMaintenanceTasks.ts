@@ -86,7 +86,7 @@ export const useMaintenanceTasks = () => {
       };
       
       setInProgressTasks(prev => [updatedTask, ...prev]);
-      toast.success(`Intervention assignée à ${technicianName}${scheduledDate ? ` pour le ${scheduledDate}` : ''}`);
+      toast.success(M.maintenance.interventionAssigned(technicianName, scheduledDate));
       return updatedTask;
     }
     
