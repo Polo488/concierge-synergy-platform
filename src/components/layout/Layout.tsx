@@ -38,7 +38,7 @@ export function Layout() {
       <main
         style={{
           marginLeft: isMobile ? 0 : `${sidebarOffset}px`,
-          paddingTop: 'calc(56px + env(safe-area-inset-top, 0px))',
+          paddingTop: 'calc(72px + env(safe-area-inset-top, 0px))',
         }}
         className="w-auto max-w-full transition-all duration-300 ease-out relative z-10"
       >
