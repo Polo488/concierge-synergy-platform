@@ -120,68 +120,88 @@ html { height: 100%; }
   }
 
   .dark {
-    --background: 222 25% 8%;
-    --foreground: 220 14% 90%;
+    /* ============================================
+       Apple iOS 26 — Dark Mode (system colors)
+       Reference: developer.apple.com/design/human-interface-guidelines/color
+       ============================================ */
 
-    --card: 222 20% 12%;
-    --card-foreground: 220 14% 90%;
+    /* Backgrounds — true black base with subtle elevation steps */
+    --background: 240 6% 6%;             /* near-black with cool tint #0E0E10 */
+    --foreground: 240 14% 96%;           /* iOS label primary #F2F2F7 */
 
-    --popover: 222 20% 12%;
-    --popover-foreground: 220 14% 90%;
+    --card: 240 6% 11%;                  /* secondarySystemBackground #1C1C1E */
+    --card-foreground: 240 14% 96%;
 
-    --primary: 18 100% 55%;
+    --popover: 240 6% 13%;               /* tertiarySystemBackground #2C2C2E */
+    --popover-foreground: 240 14% 96%;
+
+    /* Brand */
+    --primary: 18 100% 60%;              /* Noé orange a touch lighter for contrast */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 222 15% 15%;
-    --secondary-foreground: 220 14% 80%;
+    /* Fills — iOS dynamic system fills */
+    --secondary: 240 6% 16%;             /* systemFill ~#3A3A3C */
+    --secondary-foreground: 240 14% 96%;
 
-    --muted: 222 15% 15%;
-    --muted-foreground: 220 10% 55%;
+    --muted: 240 6% 14%;                 /* secondarySystemFill */
+    --muted-foreground: 240 6% 66%;      /* secondaryLabel #EBEBF5 60% */
 
-    --accent: 222 15% 18%;
-    --accent-foreground: 220 14% 90%;
+    --accent: 240 6% 18%;                /* tertiarySystemFill */
+    --accent-foreground: 240 14% 96%;
 
-    --destructive: 0 62% 50%;
+    --destructive: 4 90% 58%;            /* iOS systemRed dark */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 222 15% 18%;
-    --input: 222 15% 18%;
-    --ring: 18 100% 55%;
+    /* Separators — opaque value of iOS separator (~#38383A) */
+    --border: 240 5% 22%;
+    --input: 240 5% 22%;
+    --ring: 18 100% 60%;
 
-    --glass-bg: 222 20% 12%;
-    --glass-blur: 20px;
-    --glass-border: 222 15% 20%;
+    /* Glass — translucent over near-black */
+    --glass-bg: 240 6% 11%;
+    --glass-bg-alpha: 0.55;
+    --glass-bg-strong-alpha: 0.72;
+    --glass-blur: 24px;
+    --glass-blur-strong: 40px;
+    --glass-saturate: 180%;
+    --glass-border: 240 6% 30%;
+    --glass-border-alpha: 0.35;
+    --glass-highlight-alpha: 0.08;
     --glass-shadow: 0 0% 0%;
 
-    --noe-navy: 220 14% 90%;
-    --noe-orange: 18 100% 55%;
-    --noe-yellow: 43 90% 58%;
+    /* Brand tokens */
+    --noe-navy: 240 14% 96%;             /* invert: text becomes light */
+    --noe-orange: 18 100% 60%;
+    --noe-yellow: 48 100% 60%;
 
-    --status-success: 152 50% 50%;
-    --status-success-light: 152 40% 15%;
-    --status-warning: 38 70% 55%;
-    --status-warning-light: 38 50% 15%;
-    --status-error: 0 60% 55%;
-    --status-error-light: 0 50% 15%;
-    --status-info: 210 65% 55%;
-    --status-info-light: 210 50% 15%;
-    --status-pending: 270 45% 60%;
-    --status-pending-light: 270 35% 15%;
+    /* Status — iOS dark variants */
+    --status-success: 142 70% 50%;
+    --status-success-light: 142 50% 14%;
+    --status-warning: 38 100% 60%;
+    --status-warning-light: 38 70% 14%;
+    --status-error: 4 90% 62%;
+    --status-error-light: 4 70% 14%;
+    --status-info: 211 100% 60%;
+    --status-info-light: 211 70% 14%;
+    --status-pending: 270 70% 65%;
+    --status-pending-light: 270 50% 14%;
 
-    --nav-pilotage: 217 65% 60%;
-    --nav-pilotage-light: 217 50% 15%;
-    --nav-operations: 152 45% 50%;
-    --nav-operations-light: 152 40% 15%;
-    --nav-revenus: 25 70% 55%;
-    --nav-revenus-light: 25 50% 15%;
-    --nav-experience: 270 50% 60%;
-    --nav-experience-light: 270 40% 15%;
-    --nav-organisation: 220 10% 55%;
-    --nav-organisation-light: 220 10% 15%;
+    /* Navigation pills */
+    --nav-pilotage: 211 100% 65%;
+    --nav-pilotage-light: 211 70% 16%;
+    --nav-operations: 142 65% 55%;
+    --nav-operations-light: 142 50% 14%;
+    --nav-revenus: 18 100% 62%;
+    --nav-revenus-light: 18 70% 14%;
+    --nav-experience: 270 70% 68%;
+    --nav-experience-light: 270 50% 16%;
+    --nav-organisation: 240 8% 65%;
+    --nav-organisation-light: 240 8% 16%;
 
-    --channel-airbnb: 0 84% 55%;
-    --channel-booking: 217 91% 55%;
-    --channel-other: 220 13% 55%;
+    /* Booking channels */
+    --channel-airbnb: 0 90% 65%;
+    --channel-booking: 217 100% 65%;
+    --channel-other: 240 8% 65%;
   }
 
   * {
