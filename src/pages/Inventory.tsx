@@ -132,10 +132,10 @@ const Inventory = () => {
   const handleAdjustStock = (increase: boolean) => {
     if (!currentItem) return;
     const amount = parseInt(adjustmentAmount, 10) || 0;
-    if (amount <= 0) { toast.error("Veuillez entrer une quantité valide"); return; }
+    if (amount <= 0) { toast.error(M.common.invalidQuantity); return; }
     const newStock = increase ? currentItem.stock + amount : Math.max(0, currentItem.stock - amount);
     updateInventoryItem(currentItem.category, currentItem.id, newStock);
-    toast.success(`Stock ${increase ? 'augmenté' : 'diminué'} de ${amount} unités`);
+    toast.success(M.inventory.stockUpdated(amount, increase));
     setManageDialogOpen(false);
   };
 
