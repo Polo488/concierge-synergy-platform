@@ -69,28 +69,34 @@ const TabsList = React.forwardRef<
     <TabsPrimitive.List
       ref={listRef}
       className={cn(
-        // Container iOS segmented
-        "relative inline-flex items-center gap-0.5 rounded-[10px] p-[3px]",
-        "bg-[hsl(var(--label-1)/0.055)] dark:bg-white/[0.08]",
+        // Container iOS segmented — liquid glass translucide
+        "relative inline-flex items-center gap-0 rounded-[9px] sm:rounded-[10px]",
+        "p-[2px] sm:p-[3px]",
+        "bg-[hsl(var(--label-1)/0.05)] dark:bg-white/[0.06]",
+        "backdrop-blur-[20px] backdrop-saturate-[180%]",
+        "border border-[hsl(var(--label-1)/0.04)] dark:border-white/[0.06]",
+        "shadow-[inset_0_1px_0_hsl(0_0%_100%/0.4)] dark:shadow-[inset_0_1px_0_hsl(0_0%_100%/0.04)]",
         "text-muted-foreground align-top",
-        // Scroll horizontal sans scrollbar (mobile + desktop si overflow)
+        // Scroll horizontal sans scrollbar
         "max-w-full overflow-x-auto overflow-y-hidden whitespace-nowrap",
         "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
-        // Hauteur fixe iOS
-        "h-9",
+        // Hauteur compacte iOS — 30px mobile, 34px desktop
+        "h-[30px] sm:h-[34px]",
         className
       )}
       {...props}
     >
-      {/* Thumb glissant */}
+      {/* Thumb glissant — vrai liquid glass */}
       <span
         aria-hidden
         className={cn(
-          "pointer-events-none absolute top-[3px] bottom-[3px] rounded-[8px] z-0",
-          "bg-gradient-to-b from-[hsl(var(--surface-1)/0.82)] to-[hsl(var(--bg-app)/0.64)]",
-          "shadow-[inset_0_1px_0_hsl(var(--surface-1)/0.72),0_1px_2px_hsl(var(--label-1)/0.07)]",
-          "backdrop-blur-[8px] backdrop-saturate-[115%]",
-          "dark:bg-white/[0.14] dark:from-transparent dark:to-transparent dark:shadow-none",
+          "pointer-events-none absolute top-[2px] bottom-[2px] sm:top-[3px] sm:bottom-[3px]",
+          "rounded-[7px] sm:rounded-[8px] z-0",
+          "bg-gradient-to-b from-[hsl(var(--surface-1)/0.92)] to-[hsl(var(--surface-1)/0.78)]",
+          "shadow-[inset_0_1px_0_hsl(0_0%_100%/0.7),0_1px_2px_hsl(var(--label-1)/0.08),0_2px_6px_hsl(var(--label-1)/0.06)]",
+          "backdrop-blur-[12px] backdrop-saturate-[160%]",
+          "dark:from-white/[0.16] dark:to-white/[0.10]",
+          "dark:shadow-[inset_0_1px_0_hsl(0_0%_100%/0.12),0_1px_2px_hsl(0_0%_0%/0.4)]",
           "transition-[left,width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
           !thumb.visible && "opacity-0"
         )}
@@ -109,12 +115,15 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "relative z-10 inline-flex items-center justify-center whitespace-nowrap gap-1.5",
-      "h-7 rounded-[8px] px-3.5 text-[13px] font-semibold tracking-[-0.01em]",
+      "relative z-10 inline-flex items-center justify-center whitespace-nowrap gap-1 sm:gap-1.5",
+      // Compact iOS sizing — smaller on mobile
+      "h-[26px] sm:h-[28px] rounded-[7px] sm:rounded-[8px]",
+      "px-2.5 sm:px-3.5 text-[12px] sm:text-[13px]",
+      "font-semibold tracking-[-0.01em]",
       "transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)]",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-0",
       "disabled:pointer-events-none disabled:opacity-50",
-      "text-[hsl(var(--label-1)/0.6)] hover:text-[hsl(var(--label-1)/0.8)]",
+      "text-[hsl(var(--label-1)/0.55)] hover:text-[hsl(var(--label-1)/0.8)]",
       "data-[state=active]:text-[hsl(var(--label-1))]",
       "dark:data-[state=active]:text-white",
       "active:scale-[0.97]",
