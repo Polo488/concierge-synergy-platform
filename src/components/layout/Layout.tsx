@@ -27,7 +27,7 @@ export function Layout() {
   const sidebarOffset = isMobile ? 0 : isTablet ? 64 : 240;
 
   return (
-    <div className="relative w-full max-w-[100vw]">
+    <div className="app-shell relative w-full max-w-[100vw]">
       {/* Apple ambient bg — F2F2F7 + 3 halos fixes (orange/blue/yellow) */}
       <div className="liquid-bg" aria-hidden="true" />
 
@@ -56,12 +56,18 @@ export function Layout() {
         }}
         className="w-auto max-w-full transition-all duration-300 ease-out relative z-10"
       >
-        <div className={cn(
-          "mx-auto max-w-[1280px] animate-fade-in box-border w-full safe-left safe-right safe-bottom",
-          // Apple iOS standard side margins: 20px mobile (Settings/Health) → 32px desktop.
-          // Generous gutters so titles, cards & chips never stick to the edge.
-          "py-[clamp(1.25rem,3vw,2rem)] px-5 sm:px-7 lg:px-8"
-        )}>
+        <div
+          className={cn(
+            "mx-auto max-w-[1280px] animate-fade-in box-border w-full safe-left safe-right safe-bottom",
+          )}
+          style={{
+            // Apple iOS gutter (20px mobile → 28-32px desktop) via shared token.
+            paddingLeft: 'max(env(safe-area-inset-left), var(--app-gutter))',
+            paddingRight: 'max(env(safe-area-inset-right), var(--app-gutter))',
+            paddingTop: 'clamp(1.25rem, 3vw, 2rem)',
+            paddingBottom: 'clamp(1.25rem, 3vw, 2rem)',
+          }}
+        >
           <Outlet />
         </div>
       </main>
