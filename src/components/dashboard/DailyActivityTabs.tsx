@@ -92,25 +92,34 @@ const CheckInsList = ({ checkIns }: { checkIns: TodayBooking[] }) => {
     <div className="space-y-3">
       {checkIns.map((booking) => (
         <ListItem key={booking.id} onClick={() => navigate('/app/calendar')}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-2 rounded-full bg-accent">
+          <div className="flex items-start gap-3 sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+              <div className="p-2 rounded-full bg-accent flex-shrink-0">
                 <LogIn className="h-4 w-4 text-primary" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-[15px] font-heading text-foreground">{booking.guestName}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="font-semibold text-[15px] font-heading text-foreground break-words">{booking.guestName}</span>
                   <ChannelBadge channel={booking.channel} />
                 </div>
                 <div className="flex items-center gap-3 text-[13px] mt-1 text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Home className="h-3 w-3" />
-                    {booking.propertyName}
+                  <span className="flex items-center gap-1 min-w-0">
+                    <Home className="h-3 w-3 flex-shrink-0" />
+                    <span className="truncate">{booking.propertyName}</span>
                   </span>
+                </div>
+                {/* Mobile: status + time inline under text */}
+                <div className="flex items-center gap-2 mt-2 sm:hidden flex-wrap">
+                  <StatusBadge status={booking.status} />
+                  <div className="flex items-center gap-1 text-[13px] font-bold text-foreground">
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                    {booking.time}
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            {/* Desktop: right-aligned status + time */}
+            <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
               <StatusBadge status={booking.status} />
               <div className="flex items-center gap-1 text-sm font-bold text-foreground">
                 <Clock className="h-4 w-4 text-muted-foreground" />
