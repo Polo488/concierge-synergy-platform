@@ -119,8 +119,8 @@ describe("Catalogue de libellés (TOAST_MESSAGES) — couverture par module", ()
   });
 
   it("Facturation expose import success/partial/error + datesRequired", () => {
-    expect(M.billing.importSuccess(5)).toMatch(/5 réservations/);
-    expect(M.billing.importSuccess(1)).toMatch(/1 réservation$/);
+    expect(M.billing.importSuccess(5)).toBe("Import réussi : 5 réservations importées");
+    expect(M.billing.importSuccess(1)).toBe("Import réussi : 1 réservation importée");
     expect(M.billing.importPartial(2)).toMatch(/2 entrées non assignées/);
     expect(M.billing.importError("timeout")).toContain("timeout");
     expect(M.billing.importError()).toBeTruthy();
