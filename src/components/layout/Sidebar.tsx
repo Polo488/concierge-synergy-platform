@@ -338,7 +338,7 @@ export function Sidebar() {
           isMobile ? "z-[210]" : "z-40"
         )}
         style={{
-          borderRight: '1px solid rgba(0,0,0,0.06)',
+          borderRight: '1px solid hsl(var(--hairline))',
           borderRadius: 0,
         }}
       >
