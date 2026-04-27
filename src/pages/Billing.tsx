@@ -401,23 +401,23 @@ const Billing = () => {
   // Handle platform import
   const handlePlatformImport = async () => {
     if (!platformParams.startDate || !platformParams.endDate) {
-      toast.error("Veuillez spécifier les dates de début et de fin");
+      toast.error(M.billing.datesRequired);
       return;
     }
     
     try {
       const result = await importFromPlatform(platformParams);
       if (result.success) {
-        toast.success(`Import réussi: ${result.importedCount} entrées importées de ${platformParams.platform}.`);
+        toast.success(M.billing.importSuccess(result.importedCount, `entrées ${platformParams.platform}`));
         if (result.unassignedCount > 0) {
-          toast.warning(`${result.unassignedCount} entrées non assignées, vérifiez l'onglet Contrôle.`);
+          toast.warning(M.billing.importPartial(result.unassignedCount));
         }
         setPlatformImportOpen(false);
       } else {
-        toast.error(`Erreur lors de l'import: ${result.message}`);
+        toast.error(M.billing.importError(result.message));
       }
     } catch (error) {
-      toast.error("Une erreur est survenue lors de l'import");
+      toast.error(M.billing.importError());
       console.error(error);
     }
   };
