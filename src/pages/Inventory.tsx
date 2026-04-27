@@ -192,7 +192,7 @@ const Inventory = () => {
   const renderMobileCard = (item: InventoryItem) => {
     const ratio = getStockRatio(item.stock, item.min);
     return (
-      <div key={item.id} className="bg-card rounded-xl border border-border p-3.5 mb-2 shadow-sm">
+      <div key={item.id} className="glass-surface rounded-2xl p-3.5 mb-2">
         <div className="flex items-start justify-between gap-2">
           <span className="text-sm font-semibold text-foreground truncate max-w-[180px]">{item.name}</span>
           {item.status === 'low' ? (
@@ -216,14 +216,14 @@ const Inventory = () => {
           <div className={`h-full rounded-full transition-all ${getProgressColorClass(ratio)}`} style={{ width: `${getProgressWidth(item.stock, item.min)}%` }} />
         </div>
         <div className="flex justify-end gap-2 mt-3">
-          <button onClick={() => handleManageItem(item)} className="flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-card text-xs text-foreground hover:bg-accent/50 transition-colors">
+          <Button size="sm" variant="outline" onClick={() => handleManageItem(item)} className="h-8 px-3 text-xs gap-1.5">
             <Settings className="h-3 w-3" /> Gérer
-          </button>
+          </Button>
           {item.status === 'low' && (
-            <button onClick={() => handleOrderClick(item)} className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">
+            <Button size="sm" onClick={() => handleOrderClick(item)} className="h-8 px-3 text-xs gap-1.5">
               <ShoppingCart className="h-3 w-3" /> Commander
               {item.orderUrl && <ExternalLink className="h-3 w-3" />}
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -272,14 +272,14 @@ const Inventory = () => {
               <TableCell className="text-right py-3">
                 <div className="flex items-center justify-end gap-2">
                   {item.status === 'low' && (
-                    <button onClick={() => handleOrderClick(item)} className="flex items-center gap-1 h-[30px] px-2.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">
+                    <Button size="sm" onClick={() => handleOrderClick(item)} className="h-8 px-3 text-xs gap-1.5">
                       <ShoppingCart className="h-3 w-3" /> Commander
                       {item.orderUrl && <ExternalLink className="h-3 w-3" />}
-                    </button>
+                    </Button>
                   )}
-                  <button onClick={() => handleManageItem(item)} className="flex items-center gap-1 h-[30px] px-2.5 rounded-md border border-border bg-card text-xs text-foreground hover:bg-accent/50 transition-colors">
+                  <Button size="sm" variant="outline" onClick={() => handleManageItem(item)} className="h-8 px-3 text-xs gap-1.5">
                     <Settings className="h-3 w-3" /> Gérer
-                  </button>
+                  </Button>
                 </div>
               </TableCell>
             </TableRow>
@@ -309,37 +309,37 @@ const Inventory = () => {
       
       {/* KPI Cards */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="flex items-center gap-2.5 rounded-xl border border-[hsl(258,89%,85%)] bg-[hsl(258,89%,97%)] p-3 md:p-3.5">
-          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[hsl(258,89%,90%)]">
-            <Package className="h-5 w-5 text-[hsl(258,89%,52%)]" />
+        <div className="glass-surface flex items-center gap-2.5 rounded-2xl p-3 md:p-3.5">
+          <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[hsl(258,89%,52%)]/12">
+            <Package className="h-5 w-5 text-[hsl(258,89%,52%)]" strokeWidth={2} />
           </div>
           <div>
-            <p className="text-xl font-bold text-foreground">{allItems.length}</p>
+            <p className="text-xl font-bold text-foreground tabular-nums">{allItems.length}</p>
             <p className="text-[11px] text-muted-foreground">Articles</p>
           </div>
         </div>
-        <div className="flex items-center gap-2.5 rounded-xl border border-[hsl(0,93%,85%)] bg-[hsl(0,86%,97%)] p-3 md:p-3.5">
-          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[hsl(0,86%,90%)]">
-            <AlertTriangle className={`h-5 w-5 text-[hsl(0,72%,51%)] ${totalLowStock > 0 ? 'animate-pulse' : ''}`} />
+        <div className="glass-surface flex items-center gap-2.5 rounded-2xl p-3 md:p-3.5">
+          <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[hsl(0,72%,51%)]/12">
+            <AlertTriangle className={`h-5 w-5 text-[hsl(0,72%,51%)] ${totalLowStock > 0 ? 'animate-pulse' : ''}`} strokeWidth={2} />
           </div>
           <div>
-            <p className={`text-xl font-bold ${totalLowStock > 0 ? 'text-[hsl(0,72%,51%)]' : 'text-foreground'}`}>{totalLowStock}</p>
+            <p className={`text-xl font-bold tabular-nums ${totalLowStock > 0 ? 'text-[hsl(0,72%,51%)]' : 'text-foreground'}`}>{totalLowStock}</p>
             <p className="text-[11px] text-muted-foreground">Stock bas</p>
           </div>
         </div>
-        <div className="flex items-center gap-2.5 rounded-xl border border-[hsl(142,76%,82%)] bg-[hsl(142,76%,97%)] p-3 md:p-3.5">
-          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[hsl(142,76%,90%)]">
-            <CheckCircle className="h-5 w-5 text-[hsl(142,72%,29%)]" />
+        <div className="glass-surface flex items-center gap-2.5 rounded-2xl p-3 md:p-3.5">
+          <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[hsl(142,72%,29%)]/12">
+            <CheckCircle className="h-5 w-5 text-[hsl(142,72%,29%)]" strokeWidth={2} />
           </div>
           <div>
-            <p className="text-xl font-bold text-foreground">{totalOk}</p>
+            <p className="text-xl font-bold text-foreground tabular-nums">{totalOk}</p>
             <p className="text-[11px] text-muted-foreground">En stock</p>
           </div>
         </div>
       </div>
       
       {/* Section */}
-      <div className="bg-card rounded-xl border border-border p-4">
+      <div className="glass-surface rounded-2xl p-4">
         {/* Title + buttons */}
         <div className="flex items-center justify-between gap-2 mb-3">
           <h2 className="text-base font-bold text-foreground whitespace-nowrap">Gestion des stocks</h2>
@@ -404,7 +404,7 @@ const Inventory = () => {
 
         {/* Low stock alert banner */}
         {showLowStockOnly && displayItems.length > 0 && (
-          <div className="flex items-center gap-2 rounded-xl bg-[hsl(0,86%,97%)] p-2.5 px-3.5 mb-3 border border-[hsl(0,93%,90%)]">
+          <div className="glass-thin flex items-center gap-2 rounded-2xl p-2.5 px-3.5 mb-3 border border-[hsl(0,72%,51%)]/20">
             <AlertTriangle className="h-4 w-4 text-[hsl(0,72%,51%)] shrink-0" />
             <span className="text-[13px] font-semibold text-[hsl(0,72%,51%)]">
               {displayItems.length} article{displayItems.length > 1 ? 's' : ''} nécessite{displayItems.length > 1 ? 'nt' : ''} un réapprovisionnement
