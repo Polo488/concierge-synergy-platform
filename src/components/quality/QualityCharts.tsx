@@ -57,12 +57,12 @@ const tagLabels: Record<string, string> = {
 };
 
 const tooltipStyle: React.CSSProperties = {
-  background: 'hsl(var(--surface-1) / 0.96)',
-  backdropFilter: 'blur(18px) saturate(140%)',
-  WebkitBackdropFilter: 'blur(18px) saturate(140%)',
-  border: '1px solid hsl(var(--hairline) / 0.72)',
+  background: 'linear-gradient(180deg, hsl(var(--surface-1) / 0.84), hsl(var(--bg-app) / 0.72))',
+  backdropFilter: 'blur(10px) saturate(118%)',
+  WebkitBackdropFilter: 'blur(10px) saturate(118%)',
+  border: '1px solid hsl(var(--hairline) / 0.5)',
   borderRadius: 12,
-  boxShadow: '0 10px 24px -18px hsl(var(--label-1) / 0.28)',
+  boxShadow: '0 10px 24px -20px hsl(var(--label-1) / 0.24)',
   fontSize: 12,
   padding: '8px 12px',
   color: 'hsl(var(--label-1))',
