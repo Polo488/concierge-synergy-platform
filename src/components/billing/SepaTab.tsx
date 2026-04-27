@@ -125,12 +125,12 @@ export function SepaTab() {
             disabled={generating || transfers.length === 0}
             onClick={handleGenerate}
             whileTap={{ scale: 0.98 }}
-            className="px-6 py-4 rounded-[16px] text-sm font-semibold bg-[#FF5C1A] hover:bg-[#FF5C1A]/90 text-white shadow-[0_8px_24px_rgba(255,92,26,0.35)] disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 min-w-[320px] justify-center"
+            className="w-full sm:w-auto sm:min-w-[320px] px-5 sm:px-6 py-4 rounded-[16px] text-[14px] sm:text-sm font-semibold bg-[#FF5C1A] hover:bg-[#FF5C1A]/90 text-white shadow-[0_8px_24px_rgba(255,92,26,0.35)] disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 justify-center min-h-[48px]"
           >
             {generating ? (
               <motion.span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }} />
-            ) : <FileDown className="h-4 w-4" strokeWidth={1.5} />}
-            {generating ? "Génération…" : "Générer le fichier XML SEPA (pain.001.001.03)"}
+            ) : <FileDown className="h-4 w-4 flex-shrink-0" strokeWidth={1.8} />}
+            <span className="truncate">{generating ? "Génération…" : "Générer le XML SEPA"}</span>
           </motion.button>
         ) : (
           <motion.div
