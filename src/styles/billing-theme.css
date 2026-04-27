@@ -1,0 +1,50 @@
+/* ============================================================
+   Billing module — adaptive theme
+   Maps the dark-styled utility classes used inside the billing
+   components to design tokens that work in BOTH light and dark.
+   Scoped exclusively under `.bill-scope`.
+   ============================================================ */
+
+.bill-scope {
+  /* Foreground reference (used by overrides below). */
+  --bill-fg: var(--foreground);
+  --bill-surface: var(--card);
+  --bill-border: var(--border);
+}
+
+/* ---- Text ---- */
+.bill-scope .text-white { color: hsl(var(--foreground)) !important; }
+.bill-scope .text-white\/85 { color: hsl(var(--foreground) / 0.92) !important; }
+.bill-scope .text-white\/80 { color: hsl(var(--foreground) / 0.88) !important; }
+.bill-scope .text-white\/75 { color: hsl(var(--foreground) / 0.82) !important; }
+.bill-scope .text-white\/70 { color: hsl(var(--foreground) / 0.78) !important; }
+.bill-scope .text-white\/65 { color: hsl(var(--muted-foreground)) !important; }
+.bill-scope .text-white\/60 { color: hsl(var(--muted-foreground)) !important; }
+.bill-scope .text-white\/55 { color: hsl(var(--muted-foreground)) !important; }
+.bill-scope .text-white\/50 { color: hsl(var(--muted-foreground) / 0.9) !important; }
+.bill-scope .text-white\/45 { color: hsl(var(--muted-foreground) / 0.85) !important; }
+.bill-scope .text-white\/40 { color: hsl(var(--muted-foreground) / 0.8) !important; }
+
+/* ---- Surfaces (white/0.0X used for translucent dark cards) ---- */
+.bill-scope .bg-white\/\[0\.015\] { background-color: hsl(var(--foreground) / 0.025) !important; }
+.bill-scope .bg-white\/\[0\.02\]  { background-color: hsl(var(--foreground) / 0.03) !important; }
+.bill-scope .bg-white\/\[0\.03\]  { background-color: hsl(var(--foreground) / 0.04) !important; }
+.bill-scope .bg-white\/\[0\.04\]  { background-color: hsl(var(--foreground) / 0.05) !important; }
+.bill-scope .bg-white\/\[0\.05\]  { background-color: hsl(var(--foreground) / 0.06) !important; }
+.bill-scope .bg-white\/\[0\.06\]  { background-color: hsl(var(--foreground) / 0.07) !important; }
+.bill-scope .bg-white\/\[0\.08\]  { background-color: hsl(var(--foreground) / 0.08) !important; }
+.bill-scope .bg-white\/\[0\.1\]   { background-color: hsl(var(--foreground) / 0.1) !important; }
+.bill-scope .hover\:bg-white\/\[0\.08\]:hover { background-color: hsl(var(--foreground) / 0.1) !important; }
+.bill-scope .hover\:bg-white\/\[0\.1\]:hover  { background-color: hsl(var(--foreground) / 0.12) !important; }
+
+/* ---- Borders ---- */
+.bill-scope .border-white\/\[0\.04\] { border-color: hsl(var(--border) / 0.6) !important; }
+.bill-scope .border-white\/\[0\.05\] { border-color: hsl(var(--border) / 0.7) !important; }
+.bill-scope .border-white\/\[0\.06\] { border-color: hsl(var(--border) / 0.8) !important; }
+.bill-scope .border-white\/\[0\.08\] { border-color: hsl(var(--border)) !important; }
+.bill-scope .border-white\/\[0\.12\] { border-color: hsl(var(--border)) !important; }
+.bill-scope .border-white\/15        { border-color: hsl(var(--border)) !important; }
+.bill-scope .bg-white\/15            { background-color: hsl(var(--border)) !important; }
+
+/* ---- Focus rings ---- */
+.bill-scope .focus\:ring-white\/20:focus { box-shadow: 0 0 0 2px hsl(var(--ring) / 0.3) !important; }
