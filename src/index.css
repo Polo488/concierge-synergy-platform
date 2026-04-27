@@ -1000,16 +1000,13 @@ html, body, .scroll-smooth {
   box-shadow: none !important;
 }
 
+/* Thumb supprimé — l'état actif est rendu directement sur le bouton.
+   On force le masquage de tout résidu .ios-segmented-thumb. */
 .ios-segmented-thumb {
-  position: absolute;
-  top: 2px;
-  bottom: 2px;
-  border-radius: 7px;
-  z-index: 0;
-  transition: left 300ms cubic-bezier(0.32, 0.72, 0, 1), width 300ms cubic-bezier(0.32, 0.72, 0, 1);
+  display: none !important;
 }
 
-.ios-segmented-thumb,
+.ios-segmented [role="tab"][data-state="active"],
 .ios-tabs-list [role="tab"][data-state="active"] {
   background: hsla(var(--surface-1) / 0.92) !important;
   color: hsl(var(--label-1)) !important;
@@ -1023,7 +1020,7 @@ html, body, .scroll-smooth {
   background: hsl(0 0% 100% / 0.08) !important;
 }
 
-.dark .ios-segmented-thumb,
+.dark .ios-segmented [role="tab"][data-state="active"],
 .dark .ios-tabs-list [role="tab"][data-state="active"] {
   background: hsl(0 0% 100% / 0.16) !important;
 }
@@ -1034,12 +1031,6 @@ html, body, .scroll-smooth {
     height: 34px;
     padding: 3px;
     border-radius: 10px;
-  }
-
-  .ios-segmented-thumb {
-    top: 3px;
-    bottom: 3px;
-    border-radius: 8px;
   }
 }
 
