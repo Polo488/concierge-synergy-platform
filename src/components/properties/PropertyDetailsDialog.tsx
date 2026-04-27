@@ -46,7 +46,20 @@ export const PropertyDetailsDialog = ({
   useEffect(() => {
     setLocalProperty(property);
   }, [property]);
-  
+
+  // Lock body scroll while mobile bottom sheet is open
+  useEffect(() => {
+    if (!isMobile || !property) return;
+    const previousOverflow = document.body.style.overflow;
+    const previousTouch = document.body.style.touchAction;
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.touchAction = previousTouch;
+    };
+  }, [isMobile, property]);
+
   if (!property || !localProperty) return null;
 
   const handleBannerNoteSave = (note: string) => {
