@@ -46,7 +46,8 @@ function KpiCard({ label, value, delta, sub, warn, onClick, sparkline, className
       whileTap={{ scale: 0.985 }}
       transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "relative h-[180px] w-full min-w-0 text-left rounded-[20px] p-5 sm:p-7 overflow-hidden",
+        "relative w-full min-w-0 text-left rounded-[20px] p-4 sm:p-5 lg:p-7 overflow-hidden",
+        "min-h-[124px] sm:min-h-[160px] lg:min-h-[180px]",
         "bg-white/[0.04] backdrop-blur-xl",
         "shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.18)]",
         "border border-white/[0.06]",
@@ -55,7 +56,7 @@ function KpiCard({ label, value, delta, sub, warn, onClick, sparkline, className
       )}
     >
       {sparkData && (
-        <div className="absolute inset-x-4 bottom-3 h-12 opacity-40 dark:opacity-25 pointer-events-none">
+        <div className="absolute inset-x-3 sm:inset-x-4 bottom-2 sm:bottom-3 h-8 sm:h-12 opacity-40 dark:opacity-25 pointer-events-none">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={sparkData}>
               <Line type="monotone" dataKey="y" stroke="hsl(var(--bill-orange))" strokeWidth={1.5} dot={false} />
@@ -63,18 +64,18 @@ function KpiCard({ label, value, delta, sub, warn, onClick, sparkline, className
           </ResponsiveContainer>
         </div>
       )}
-      <div className="relative h-full flex flex-col justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-[10.5px] font-semibold tracking-[0.14em] uppercase text-white/55">{label}</span>
-          {warn && <AlertTriangle className="h-3.5 w-3.5 text-[#F5C842]" strokeWidth={1.8} />}
+      <div className="relative h-full flex flex-col justify-between gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-[10px] sm:text-[10.5px] font-semibold tracking-[0.12em] sm:tracking-[0.14em] uppercase text-white/55 truncate">{label}</span>
+          {warn && <AlertTriangle className="h-3.5 w-3.5 text-[#F5C842] flex-shrink-0" strokeWidth={1.8} />}
         </div>
         <div
           className="font-heading font-semibold text-white leading-none truncate"
-          style={{ fontSize: "clamp(30px, 8.5vw, 40px)", letterSpacing: "-0.025em", fontVariantNumeric: "tabular-nums" }}
+          style={{ fontSize: "clamp(24px, 7vw, 40px)", letterSpacing: "-0.025em", fontVariantNumeric: "tabular-nums" }}
         >
           {value}
         </div>
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-2 text-xs flex-wrap">
           {delta && (
             <span
               className={cn(
@@ -87,7 +88,7 @@ function KpiCard({ label, value, delta, sub, warn, onClick, sparkline, className
             </span>
           )}
           {(delta?.vs || sub) && (
-            <span className="text-white/55 text-[11.5px]">{delta?.vs ?? sub}</span>
+            <span className="text-white/55 text-[11px] sm:text-[11.5px] truncate">{delta?.vs ?? sub}</span>
           )}
         </div>
       </div>
