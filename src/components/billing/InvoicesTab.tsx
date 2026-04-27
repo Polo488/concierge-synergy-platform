@@ -333,7 +333,10 @@ export function InvoicesTab() {
   const [confirm, setConfirm] = useState(false);
   const [sending, setSending] = useState(false);
 
-  const remaining = invoices.filter((i) => !sentOwnerIds.has(i.owner.id)).length;
+  const eligible = invoices.filter((i) => !i.blocked && !i.deferred);
+  const remaining = eligible.filter((i) => !sentOwnerIds.has(i.owner.id)).length;
+  const blockedCount = invoices.filter((i) => i.blocked).length;
+  const deferredCount = invoices.filter((i) => i.deferred).length;
 
   return (
     <div className="space-y-5">
