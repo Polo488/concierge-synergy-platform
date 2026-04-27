@@ -120,35 +120,31 @@ const QualityStats = () => {
         {/* Ménage Tab - Existing Content Preserved */}
         <TabsContent value="menage" className="space-y-6 mt-6">
           {/* Monthly Summary Card */}
-          <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
+          <div className="glass-surface p-4 rounded-[18px]">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Sparkles className="h-5 w-5 text-primary" />
+              <div className="h-10 w-10 rounded-full bg-[hsl(var(--ios-orange)/_0.10)] flex items-center justify-center flex-shrink-0">
+                <Sparkles className="h-5 w-5 text-[hsl(var(--ios-orange))]" strokeWidth={2} />
               </div>
               <div>
-                <h3 className="font-medium">Récap mensuel ménage</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="font-semibold text-[hsl(var(--label-1))]">Récap mensuel ménage</h3>
+                <p className="text-sm text-[hsl(240_6%_25%/_0.6)]">
                   {kpis.tasks_completed} ménages • Note moyenne: {kpis.average_rating_overall.toFixed(1)}/5 • Taux repasse: {kpis.repasse_rate.toFixed(1)}%
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Sub-tabs for Ménage section */}
+          {/* Sub-tabs for Ménage section — iOS segmented */}
           <Tabs value={menageSubTab} onValueChange={setMenageSubTab}>
-            <TabsList className="bg-muted/30">
-              <TabsTrigger value="dashboard" className="gap-2">
-                <BarChart3 className="h-4 w-4" />
-                Dashboard
-              </TabsTrigger>
-              <TabsTrigger value="properties" className="gap-2">
-                <Building className="h-4 w-4" />
-                Propriétés
-              </TabsTrigger>
-              <TabsTrigger value="agents" className="gap-2">
-                <Users className="h-4 w-4" />
-                Agents
-              </TabsTrigger>
+            <SegmentedControl
+              options={menageOptions}
+              value={menageSubTab}
+              onChange={setMenageSubTab}
+            />
+            <TabsList className="hidden">
+              <TabsTrigger value="dashboard" />
+              <TabsTrigger value="properties" />
+              <TabsTrigger value="agents" />
             </TabsList>
 
             <TabsContent value="dashboard" className="space-y-6 mt-6">
