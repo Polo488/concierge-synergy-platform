@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Mail, Download, Check, Pencil, Send } from "lucide-react";
+import { X, Mail, Download, Check, Pencil, Send, Lock, AlertTriangle } from "lucide-react";
 import { useFacturation } from "@/hooks/useFacturation";
+import { useFacturationMetier } from "@/hooks/useFacturationMetier";
 import { owners, properties, getOwnerByProperty, type Owner } from "@/mocks/facturation";
 import { formatMoney, ownerHashColor } from "@/lib/facturationFormat";
 import { cn } from "@/lib/utils";
