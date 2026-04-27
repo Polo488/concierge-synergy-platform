@@ -164,9 +164,16 @@ export function SepaTab() {
 
 function Stat({ label, value, large, mono }: { label: string; value: React.ReactNode; large?: boolean; mono?: boolean }) {
   return (
-    <div>
-      <p className="text-[10px] uppercase tracking-[0.12em] text-white/45">{label}</p>
-      <div className={cn("mt-2 text-white", large ? "text-[36px] font-light leading-none tracking-tight" : "text-base", mono && "font-mono text-sm")} style={large ? { fontVariantNumeric: "tabular-nums" } : undefined}>
+    <div className="min-w-0">
+      <p className="text-[10px] uppercase tracking-[0.12em] text-white/45 truncate">{label}</p>
+      <div
+        className={cn(
+          "mt-2 text-white",
+          large ? "font-semibold leading-none tracking-tight" : "text-base",
+          mono && "font-mono text-[12px] sm:text-sm break-all"
+        )}
+        style={large ? { fontVariantNumeric: "tabular-nums", fontSize: "clamp(22px, 5.5vw, 36px)", letterSpacing: "-0.02em" } : undefined}
+      >
         {value}
       </div>
     </div>
