@@ -289,7 +289,7 @@ export function RuleBuilderDialog({
             <div className="space-y-6">
               <div>
                 <Label className="text-base">Type de déclencheur</Label>
-                <div className="grid grid-cols-3 gap-4 mt-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
                   <button
                     type="button"
                     onClick={() => setTriggerType('time-based')}
