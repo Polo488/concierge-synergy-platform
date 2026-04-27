@@ -70,7 +70,7 @@ const TaskTypeBadge = ({ type }: { type: 'cleaning' | 'maintenance' | 'repasse' 
 
 const ListItem = ({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
   <div
-    className="p-4 rounded-[10px] cursor-pointer transition-colors border border-border hover:bg-accent/50"
+    className="px-4 py-3 rounded-[14px] cursor-pointer transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
     onClick={onClick}
   >
     {children}
