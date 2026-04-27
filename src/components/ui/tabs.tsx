@@ -1,4 +1,4 @@
-import * as React from "react"
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 
 import { cn } from "@/lib/utils"
@@ -12,21 +12,21 @@ const Tabs = TabsPrimitive.Root
  * - Compatible avec les usages existants (className grid grid-cols-N reste possible
  *   si l'appelant insiste, mais le défaut est le segmented pill scrollable).
  */
-const TabsList = React.forwardRef<
+const TabsList = forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
 >(({ className, children, ...props }, ref) => {
-  const listRef = React.useRef<HTMLDivElement | null>(null)
-  const [thumb, setThumb] = React.useState<{ left: number; width: number; visible: boolean }>({
+  const listRef = useRef<HTMLDivElement | null>(null)
+  const [thumb, setThumb] = useState<{ left: number; width: number; visible: boolean }>({
     left: 0,
     width: 0,
     visible: false,
   })
 
   // Merge external ref
-  React.useImperativeHandle(ref, () => listRef.current as HTMLDivElement)
+  useImperativeHandle(ref, () => listRef.current as HTMLDivElement)
 
-  const updateThumb = React.useCallback(() => {
+  const updateThumb = useCallback(() => {
     const container = listRef.current
     if (!container) return
     const active = container.querySelector<HTMLElement>('[data-state="active"]')
@@ -43,7 +43,7 @@ const TabsList = React.forwardRef<
     })
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     updateThumb()
     const container = listRef.current
     if (!container) return
@@ -77,6 +77,7 @@ const TabsList = React.forwardRef<
         "border border-[hsl(var(--label-1)/0.04)] dark:border-white/[0.06]",
         "shadow-[inset_0_1px_0_hsl(0_0%_100%/0.4)] dark:shadow-[inset_0_1px_0_hsl(0_0%_100%/0.04)]",
         "text-muted-foreground align-top",
+        "outline-none ring-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
         // Scroll horizontal sans scrollbar (suppression complète webkit + firefox + edge)
         "max-w-full overflow-x-auto overflow-y-hidden whitespace-nowrap",
         "[scrollbar-width:none] [-ms-overflow-style:none]",
@@ -111,7 +112,7 @@ const TabsList = React.forwardRef<
 })
 TabsList.displayName = TabsPrimitive.List.displayName
 
-const TabsTrigger = React.forwardRef<
+const TabsTrigger = forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
 >(({ className, ...props }, ref) => (
@@ -124,7 +125,7 @@ const TabsTrigger = React.forwardRef<
       "px-2.5 sm:px-3.5 text-[12px] sm:text-[13px]",
       "font-semibold tracking-[-0.01em]",
       "transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)]",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-0",
+      "outline-none ring-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
       "disabled:pointer-events-none disabled:opacity-50",
       "text-[hsl(var(--label-1)/0.55)] hover:text-[hsl(var(--label-1)/0.8)]",
       "data-[state=active]:text-[hsl(var(--label-1))]",
@@ -137,7 +138,7 @@ const TabsTrigger = React.forwardRef<
 ))
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
 
-const TabsContent = React.forwardRef<
+const TabsContent = forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
 >(({ className, ...props }, ref) => (
