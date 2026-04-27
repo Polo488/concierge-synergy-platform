@@ -890,23 +890,23 @@ html, body, .scroll-smooth {
   display: inline-flex;
   padding: 3px;
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.06);
+  background: hsla(var(--label-1) / 0.06);
 }
-.dark .ios-segmented { background: rgba(255, 255, 255, 0.08); }
+.dark .ios-segmented { background: hsla(0, 0%, 100% / 0.08); }
 
 .ios-segmented-thumb {
   position: absolute;
   top: 3px;
   bottom: 3px;
   border-radius: 8px;
-  background: white;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.10), 0 1px 2px rgba(0, 0, 0, 0.04);
+  background: hsla(var(--surface-1) / 0.96);
+  box-shadow: 0 1px 2px hsla(var(--label-1) / 0.08), 0 8px 18px -14px hsla(var(--label-1) / 0.24);
   transition: left 300ms cubic-bezier(0.32, 0.72, 0, 1), width 300ms cubic-bezier(0.32, 0.72, 0, 1);
   z-index: 0;
 }
 .dark .ios-segmented-thumb {
-  background: hsl(240 10% 22%);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+  background: hsla(0, 0%, 100% / 0.14);
+  box-shadow: none;
 }
 
 .ios-segmented [data-state="active"] {
@@ -915,8 +915,8 @@ html, body, .scroll-smooth {
 
 /* Legacy radix-style segmented (kept for backwards compat) */
 .ios-segmented [data-state="active"]:not(.ios-segmented-thumb) {
-  background: hsl(var(--surface-1));
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  background: transparent;
+  box-shadow: none;
 }
 
 /* ==========================================================================
