@@ -49,7 +49,7 @@ export function ComplementsTab() {
   return (
     <div className="space-y-5">
       <SettingsGroup title="Maintenance" count={maintenance.length} total={totalMaint}>
-        <table className="w-full text-sm">
+        <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="text-[11px] uppercase tracking-[0.08em] text-white/45">
               <th className="px-6 py-2 text-left font-medium">Date</th>
@@ -78,7 +78,7 @@ export function ComplementsTab() {
       </SettingsGroup>
 
       <SettingsGroup title="Ménage & linge" count={cleaning.length} total={totalClean}>
-        <table className="w-full text-sm">
+        <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="text-[11px] uppercase tracking-[0.08em] text-white/45">
               <th className="px-6 py-2 text-left font-medium">Date</th>
@@ -103,7 +103,7 @@ export function ComplementsTab() {
       </SettingsGroup>
 
       <SettingsGroup title="Frais divers" count={misc.length} total={totalMisc}>
-        <table className="w-full text-sm">
+        <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="text-[11px] uppercase tracking-[0.08em] text-white/45">
               <th className="px-6 py-2 text-left font-medium">Date</th>
