@@ -178,7 +178,7 @@ const Inventory = () => {
       case 'Linge': setLinen(updateFn); break;
       case 'Maintenance': setMaintenance(updateFn); break;
     }
-    toast.success('Lien de commande mis à jour');
+    toast.success(M.inventory.orderLinkUpdated);
   };
 
   const getStockRatio = (stock: number, min: number) => min > 0 ? stock / min : 1;
