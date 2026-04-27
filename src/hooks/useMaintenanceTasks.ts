@@ -1,7 +1,8 @@
 
 import { useState } from 'react';
 import { MaintenanceTask, NewMaintenanceFormData, InventoryItem } from '@/types/maintenance';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
+import { TOAST_MESSAGES as M } from '@/lib/toastMessages';
 import { getInitialMaintenanceTasks, getMaintenanceInventoryData } from '@/components/maintenance/MaintenanceInventoryData';
 import { calculateMaintenanceStats } from '@/utils/maintenanceUtils';
 
