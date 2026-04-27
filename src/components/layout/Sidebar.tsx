@@ -252,17 +252,27 @@ export function Sidebar() {
       <Link
         to={item.path}
         className={cn(
-          "flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 relative min-h-[44px]",
+          "flex items-center gap-3 h-9 px-3 mx-1 rounded-[8px] transition-colors duration-150 relative",
           isActive
-            ? "bg-primary/10 text-foreground font-semibold"
-            : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]",
-          isCollapsed && "justify-center px-2"
+            ? "bg-[hsl(var(--ios-orange)/_0.10)] text-[hsl(var(--ios-orange))] font-semibold"
+            : "text-[hsl(var(--label-1))] hover:bg-black/[0.04]",
+          isCollapsed && "justify-center mx-0 px-2"
         )}
       >
-        <item.icon size={18} className={cn("flex-shrink-0", isActive ? "text-primary" : "text-muted-foreground")} />
-        {!isCollapsed && <span className="text-sm truncate">{item.name}</span>}
+        <item.icon
+          size={18}
+          strokeWidth={2}
+          className={cn(
+            "flex-shrink-0",
+            isActive ? "text-[hsl(var(--ios-orange))]" : "text-[hsl(240_6%_25%/_0.6)]"
+          )}
+        />
+        {!isCollapsed && <span className="text-sm font-medium truncate">{item.name}</span>}
         {isBilling && (
-          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full border-2 border-background animate-[billing-pulse_2s_ease-in-out_infinite]" style={{ background: '#FF5C1A' }} />
+          <span
+            className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border-2 border-[hsl(var(--bg-app))] animate-[billing-pulse_2s_ease-in-out_infinite]"
+            style={{ background: '#FF5C1A' }}
+          />
         )}
       </Link>
     );
