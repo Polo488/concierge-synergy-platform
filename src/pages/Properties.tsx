@@ -227,7 +227,7 @@ const Properties = () => {
                 {viewMode === 'list' ? <Grid3X3 className="h-3.5 w-3.5" /> : <List className="h-3.5 w-3.5" />}
                 {viewMode === 'list' ? 'Grille' : 'Liste'}
               </Button>
-              <Button size="sm" className="gap-1 text-xs" onClick={() => toast.info('Fonctionnalité disponible au lancement')}>
+              <Button size="sm" className="gap-1 text-xs" onClick={() => toast.info(M.common.notAvailable)}>
                 <PlusCircle className="h-3.5 w-3.5" /> Ajouter un logement
               </Button>
             </div>
