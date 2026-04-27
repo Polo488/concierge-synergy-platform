@@ -46,7 +46,7 @@ function KpiCard({ label, value, delta, sub, warn, onClick, sparkline, className
       whileTap={{ scale: 0.985 }}
       transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "relative h-[180px] w-full text-left rounded-[20px] p-7 overflow-hidden",
+        "relative h-[180px] w-full min-w-0 text-left rounded-[20px] p-5 sm:p-7 overflow-hidden",
         "bg-white/[0.03] backdrop-blur-xl",
         "shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.18)]",
         "border border-white/[0.04]",
@@ -71,7 +71,7 @@ function KpiCard({ label, value, delta, sub, warn, onClick, sparkline, className
         </div>
         <div
           className="font-heading font-light text-white leading-none truncate"
-          style={{ fontSize: "44px", letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}
+          style={{ fontSize: "clamp(34px, 10vw, 44px)", fontVariantNumeric: "tabular-nums" }}
         >
           {value}
         </div>
