@@ -288,7 +288,7 @@ export function MessagingRulesList({
         </div>
 
         {/* ============ MOBILE — Liste de rows iOS (Settings-like) ============ */}
-        <div className="md:hidden -mx-4 sm:-mx-6">
+        <div className="md:hidden edge-safe">
           {filteredRules.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground text-sm">
               Aucune règle trouvée
