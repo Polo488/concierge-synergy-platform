@@ -13,6 +13,8 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { RoutePermission } from "./components/auth/RoutePermission";
 import { TutorialProvider } from "./contexts/TutorialContext";
 import { TutorialOverlay } from "./components/tutorial/TutorialOverlay";
+import { CommandPaletteProvider } from "./components/command/CommandPalette";
+import { GlobalShortcuts } from "./components/command/GlobalShortcuts";
 // App pages
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
@@ -62,6 +64,8 @@ const App = () => (
                   <Toaster />
                   <Sonner />
                   <TutorialOverlay />
+                  <CommandPaletteProvider />
+                  <GlobalShortcuts />
                   
                   <Routes>
                     {/* Root → login */}
