@@ -58,9 +58,9 @@ export function Layout() {
       >
         <div className={cn(
           "mx-auto max-w-[1280px] animate-fade-in box-border w-full safe-left safe-right safe-bottom",
-          // Apple iOS standard side margins: 16px mobile (≈ Settings/Mail) → 24px desktop.
-          // Avoids titles & cards sticking to the screen edge on small viewports.
-          "py-[clamp(1rem,3vw,2rem)] px-[clamp(1rem,4vw,1.5rem)]"
+          // Apple iOS standard side margins: 20px mobile (Settings/Health) → 32px desktop.
+          // Generous gutters so titles, cards & chips never stick to the edge.
+          "py-[clamp(1.25rem,3vw,2rem)] px-5 sm:px-7 lg:px-8"
         )}>
           <Outlet />
         </div>
