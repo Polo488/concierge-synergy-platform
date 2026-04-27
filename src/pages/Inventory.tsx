@@ -164,7 +164,7 @@ const Inventory = () => {
     if (item.orderUrl) {
       window.open(item.orderUrl, '_blank', 'noopener,noreferrer');
     } else {
-      toast.info('Aucun lien de commande configuré. Cliquez sur "Gérer" pour en ajouter un.');
+      toast.info(M.inventory.orderLinkMissing);
     }
   };
 
