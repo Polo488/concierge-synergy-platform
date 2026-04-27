@@ -309,16 +309,17 @@ export function Sidebar() {
         />
       )}
       
-      {/* Mobile hamburger button — perfectly aligned with the glass top-bar (h:48 / top:8 / left:8) */}
+      {/* Mobile hamburger button — inscribed inside the glass top-bar (top:8 / h:48) */}
       {isMobile && (
         <button
           className={cn(
             "fixed z-[250] transition-all duration-300",
-            "glass-pill rounded-full h-9 w-9 flex items-center justify-center text-foreground shadow-sm",
-            isOpen ? "left-[232px]" : "left-[14px]"
+            "rounded-full h-8 w-8 flex items-center justify-center text-foreground",
+            "bg-transparent hover:bg-black/5 dark:hover:bg-white/10 active:scale-95",
+            isOpen ? "left-[228px]" : "left-[16px]"
           )}
           style={{
-            top: 'calc(env(safe-area-inset-top, 0px) + 14px)',
+            top: 'calc(env(safe-area-inset-top, 0px) + 16px)',
           }}
           aria-label={isOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
           onClick={() => setIsOpen(!isOpen)}
