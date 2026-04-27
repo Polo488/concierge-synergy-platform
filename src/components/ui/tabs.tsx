@@ -8,13 +8,20 @@ const Tabs = TabsPrimitive.Root
 const TabsList = forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.List
-    ref={ref}
-    className={cn("ios-tabs-list !border-0 !shadow-none !outline-none !ring-0 !ring-offset-0", className)}
-    {...props}
-  />
-))
+>(({ className, ...props }, ref) => {
+  const shouldStayHidden = className?.split(/\s+/).includes("hidden")
+
+  return (
+    <TabsPrimitive.List
+      ref={ref}
+      className={cn(
+        !shouldStayHidden && "ios-tabs-list !border-0 !shadow-none !outline-none !ring-0 !ring-offset-0",
+        className
+      )}
+      {...props}
+    />
+  )
+})
 TabsList.displayName = TabsPrimitive.List.displayName
 
 const TabsTrigger = forwardRef<
