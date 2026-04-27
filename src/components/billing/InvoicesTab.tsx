@@ -352,6 +352,20 @@ export function InvoicesTab() {
         </div>
       )}
 
+      {(blockedCount > 0 || deferredCount > 0) && (
+        <div className="flex items-start gap-3 px-4 py-3 rounded-[14px] bg-[#F87171]/[0.06] border border-[#F87171]/[0.18]">
+          <AlertTriangle className="h-4 w-4 text-[#F87171] mt-0.5 flex-shrink-0" strokeWidth={1.8} />
+          <p className="text-[12.5px] text-white/85 leading-relaxed">
+            {blockedCount > 0 && (
+              <><strong className="font-semibold text-[#F87171]">{blockedCount} facture{blockedCount > 1 ? "s" : ""} bloquée{blockedCount > 1 ? "s" : ""}</strong> — exclues de l'envoi tant que les pré-requis (BA validé, IBAN, décision sur net négatif) ne sont pas remplis. </>
+            )}
+            {deferredCount > 0 && (
+              <><strong className="font-semibold text-[#6B7AE8]">{deferredCount} facture{deferredCount > 1 ? "s" : ""} reportée{deferredCount > 1 ? "s" : ""}</strong> au mois suivant.</>
+            )}
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {invoices.map((inv) => (
           <InvoiceCard key={inv.owner.id} inv={inv} sent={sentOwnerIds.has(inv.owner.id)} onClick={() => setOpen(inv)} />
@@ -365,7 +379,7 @@ export function InvoicesTab() {
             className="w-full px-6 py-4 rounded-[16px] text-sm font-semibold bg-[#FF5C1A] hover:bg-[#FF5C1A]/90 text-white shadow-[0_8px_24px_rgba(255,92,26,0.35)] active:scale-[0.99] transition-all inline-flex items-center justify-center gap-2"
           >
             <Send className="h-4 w-4" strokeWidth={1.5} />
-            Envoyer les {remaining} factures aux propriétaires
+            Envoyer les {remaining} facture{remaining > 1 ? "s" : ""} éligibles aux propriétaires
           </button>
         </div>
       )}
