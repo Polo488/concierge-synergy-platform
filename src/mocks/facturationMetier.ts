@@ -266,17 +266,18 @@ export const bankTransactions = buildBankStatement();
 // ============================================================
 function buildBaList(): BonATirer[] {
   let seq = 1;
-  return properties.map((prop) => {
+  const baItems: BonATirer[] = [];
+  properties.forEach((prop) => {
     const propRes = RES.filter((r) => r.propertyId === prop.id && r.status === "confirmed");
+    if (propRes.length === 0) return;
     const propPayouts = OTA_PAYOUTS.filter((p) => {
       if (p.platform === "booking") return p.propertyId === prop.id;
-      // Airbnb : on rattache via les transactions
       return OTA_TRANSACTIONS.some(
         (t) => t.payoutId === p.id && propRes.some((r) => r.id === t.reservationId)
       );
     });
     const grossReceived = propRes.reduce((a, r) => a + (r.gross - r.otaCommission), 0);
-    return {
+    baItems.push({
       id: `BA-2026-10-${pad(seq, 4)}`,
       number: 20260000 + seq++,
       propertyId: prop.id,
@@ -287,10 +288,11 @@ function buildBaList(): BonATirer[] {
       grossReceived: Math.round(grossReceived * 100) / 100,
       refunds: 0,
       aircover: 0,
-      status: "draft",
+      status: "draft" as BaStatus,
       blockingReasons: [],
-    };
-  }).filter((ba) => ba.reservationIds.length > 0);
+    });
+  });
+  return baItems;
 }
 
 export const initialBaList = buildBaList();
