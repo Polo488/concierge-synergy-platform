@@ -16,7 +16,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       position="bottom-center"
       className="toaster group"
+      visibleToasts={4}
+      gap={10}
+      offset={24}
       toastOptions={{
+        // Durée par défaut standardisée — variantes peuvent overrider via lib/toast.ts
+        duration: 3500,
         classNames: {
           toast: [
             "group toast",
