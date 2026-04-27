@@ -155,7 +155,7 @@ const Inventory = () => {
       case 'Linge': setLinen(prev => [...prev, newItem]); break;
       case 'Maintenance': setMaintenance(prev => [...prev, newItem]); break;
     }
-    toast.success(`Article "${name}" ajouté avec succès`);
+    toast.success(M.inventory.itemAdded(name));
     setNewItemDialogOpen(false);
     setNewItemData({ name: '', category: 'Consommables', stock: '0', min: '10', orderUrl: '' });
   };
