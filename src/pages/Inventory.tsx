@@ -13,7 +13,8 @@ import {
 } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
+import { TOAST_MESSAGES as M } from '@/lib/toastMessages';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface InventoryItem {
