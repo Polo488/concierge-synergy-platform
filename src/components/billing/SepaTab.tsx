@@ -46,8 +46,8 @@ export function SepaTab() {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-[20px] bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] p-7 sm:p-9">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="rounded-[20px] bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] p-5 sm:p-7 lg:p-9">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <Stat label="Total à virer" value={formatMoney(total)} large />
           <Stat label="Bénéficiaires" value={`${transfers.length}`} />
           <Stat label="IBAN émetteur" value={maskIban(currentUser.sepaIban)} mono />
@@ -56,13 +56,37 @@ export function SepaTab() {
               type="date"
               value={executionDate}
               onChange={(e) => setExecutionDate(e.target.value)}
-              className="bg-transparent border border-white/[0.08] rounded-[10px] px-2 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#FF5C1A]/40"
+              className="bg-transparent border border-white/[0.08] rounded-[10px] px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#FF5C1A]/40 w-full min-h-[36px]"
             />
           } />
         </div>
       </div>
 
-      <div className="rounded-[20px] bg-white/[0.02] border border-white/[0.04] overflow-hidden">
+      {/* MOBILE: card list */}
+      <div className="space-y-2 lg:hidden">
+        {transfers.map((t) => (
+          <div key={t.owner.id} className="rounded-[16px] bg-white/[0.03] border border-white/[0.05] p-4">
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <div className="min-w-0">
+                <p className="font-semibold text-white text-[15px] truncate">{t.owner.name}</p>
+                <p className="text-[11px] font-mono text-white/55 mt-0.5 truncate">{maskIban(t.owner.iban)}</p>
+              </div>
+              <p className="text-[18px] font-semibold text-white tabular-nums whitespace-nowrap flex-shrink-0">{formatMoney(t.amount)}</p>
+            </div>
+            <div className="flex items-center justify-between gap-2 mt-2">
+              <span className="text-[10.5px] font-mono text-white/45 truncate">{t.ref}</span>
+              <span className={cn("px-2 py-0.5 rounded-full text-[10.5px] font-medium flex-shrink-0",
+                sepaTransmitted ? "bg-[#4ADE80]/15 text-[#4ADE80]" : sepaGenerated ? "bg-[#6B7AE8]/15 text-[#6B7AE8]" : "bg-white/[0.08] text-white/65"
+              )}>
+                {sepaTransmitted ? "Exécuté" : sepaGenerated ? "Inclus dans XML" : "À générer"}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* DESKTOP: table */}
+      <div className="hidden lg:block rounded-[20px] bg-white/[0.02] border border-white/[0.04] overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-[11px] uppercase tracking-[0.08em] text-white/45 border-b border-white/[0.06]">
@@ -101,12 +125,12 @@ export function SepaTab() {
             disabled={generating || transfers.length === 0}
             onClick={handleGenerate}
             whileTap={{ scale: 0.98 }}
-            className="px-6 py-4 rounded-[16px] text-sm font-semibold bg-[#FF5C1A] hover:bg-[#FF5C1A]/90 text-white shadow-[0_8px_24px_rgba(255,92,26,0.35)] disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 min-w-[320px] justify-center"
+            className="w-full sm:w-auto sm:min-w-[320px] px-5 sm:px-6 py-4 rounded-[16px] text-[14px] sm:text-sm font-semibold bg-[#FF5C1A] hover:bg-[#FF5C1A]/90 text-white shadow-[0_8px_24px_rgba(255,92,26,0.35)] disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 justify-center min-h-[48px]"
           >
             {generating ? (
               <motion.span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }} />
-            ) : <FileDown className="h-4 w-4" strokeWidth={1.5} />}
-            {generating ? "Génération…" : "Générer le fichier XML SEPA (pain.001.001.03)"}
+            ) : <FileDown className="h-4 w-4 flex-shrink-0" strokeWidth={1.8} />}
+            <span className="truncate">{generating ? "Génération…" : "Générer le XML SEPA"}</span>
           </motion.button>
         ) : (
           <motion.div
@@ -140,9 +164,16 @@ export function SepaTab() {
 
 function Stat({ label, value, large, mono }: { label: string; value: React.ReactNode; large?: boolean; mono?: boolean }) {
   return (
-    <div>
-      <p className="text-[10px] uppercase tracking-[0.12em] text-white/45">{label}</p>
-      <div className={cn("mt-2 text-white", large ? "text-[36px] font-light leading-none tracking-tight" : "text-base", mono && "font-mono text-sm")} style={large ? { fontVariantNumeric: "tabular-nums" } : undefined}>
+    <div className="min-w-0">
+      <p className="text-[10px] uppercase tracking-[0.12em] text-white/45 truncate">{label}</p>
+      <div
+        className={cn(
+          "mt-2 text-white",
+          large ? "font-semibold leading-none tracking-tight" : "text-base",
+          mono && "font-mono text-[12px] sm:text-sm break-all"
+        )}
+        style={large ? { fontVariantNumeric: "tabular-nums", fontSize: "clamp(22px, 5.5vw, 36px)", letterSpacing: "-0.02em" } : undefined}
+      >
         {value}
       </div>
     </div>

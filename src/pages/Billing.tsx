@@ -29,7 +29,7 @@ function PrimaryCta() {
       onClick={ctx.action}
       whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-      className="px-5 py-2.5 rounded-[12px] text-sm font-semibold bg-[#FF5C1A] hover:bg-[#FF5C1A]/90 text-white shadow-[0_4px_14px_rgba(255,92,26,0.35)] active:scale-[0.98] transition-all"
+      className="w-full sm:w-auto px-5 py-3 sm:py-2.5 rounded-[14px] sm:rounded-[12px] text-[15px] sm:text-sm font-semibold bg-[#FF5C1A] hover:bg-[#FF5C1A]/90 text-white shadow-[0_4px_14px_rgba(255,92,26,0.35)] active:scale-[0.98] transition-all min-h-[44px]"
     >
       <AnimatePresence mode="wait">
         <motion.span key={ctx.label} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.2 }}>
@@ -44,9 +44,11 @@ function FacturationContent() {
   const { activeTab } = useFacturation();
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <FacturationPeriodPill />
-        <FacturationProgress />
+      <header className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex items-center justify-between gap-3 sm:justify-start">
+          <FacturationPeriodPill />
+          <FacturationProgress />
+        </div>
         <PrimaryCta />
       </header>
 

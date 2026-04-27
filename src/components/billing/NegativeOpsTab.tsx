@@ -35,22 +35,22 @@ function NegativeCard({ op }: { op: NegativeOp }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-      className="rounded-[20px] bg-[#F5C842]/[0.04] border border-[#F5C842]/[0.12] p-7 space-y-5"
+      className="rounded-[20px] bg-[#F5C842]/[0.04] border border-[#F5C842]/[0.12] p-5 sm:p-7 space-y-4 sm:space-y-5"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
+      <div className="flex items-start justify-between gap-3 sm:gap-4">
+        <div className="min-w-0">
           <p className="text-[10px] font-semibold tracking-[0.14em] uppercase text-[#F5C842]">{TYPE_LABEL[op.type]}</p>
-          <h4 className="mt-2 text-base font-semibold text-white">Réservation {op.platform === "booking" ? "Booking" : "Airbnb"} #{op.ref}</h4>
+          <h4 className="mt-2 text-[15px] sm:text-base font-semibold text-white leading-tight">Réservation {op.platform === "booking" ? "Booking" : "Airbnb"} #{op.ref}</h4>
         </div>
         <div
-          className="text-[#F87171] font-light tabular-nums leading-none"
-          style={{ fontSize: "32px", letterSpacing: "-0.02em" }}
+          className="text-[#F87171] font-semibold tabular-nums leading-none whitespace-nowrap flex-shrink-0"
+          style={{ fontSize: "clamp(22px, 6vw, 32px)", letterSpacing: "-0.02em" }}
         >
           {formatMoney(op.amount)}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[13px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-[13px]">
         <Info k="Voyageur" v={op.guest} />
         <Info k="Logement" v={`${property.name} • ${property.city}`} />
         <Info k="Propriétaire" v={owner.name} />
