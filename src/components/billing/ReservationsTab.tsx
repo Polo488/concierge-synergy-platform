@@ -71,14 +71,14 @@ function ReservationDrawer({ res, onClose }: { res: Reservation | null; onClose:
           <motion.aside
             initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
             transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] z-50 bg-[#1a1a2e]/95 backdrop-blur-2xl border-l border-white/[0.06] overflow-y-auto"
+            className="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] z-50 bg-[hsl(var(--bill-surface-1))] backdrop-blur-2xl border-l border-[hsl(var(--bill-stroke-soft))] overflow-y-auto"
           >
-            <div className="sticky top-0 flex items-center justify-between px-6 py-4 border-b border-white/[0.06] bg-[#1a1a2e]/90 backdrop-blur-xl">
-              <div>
+            <div className="sticky top-0 flex items-center justify-between px-5 sm:px-6 py-4 border-b border-[hsl(var(--bill-stroke-soft))] bg-[hsl(var(--bill-surface-1))]/95 backdrop-blur-xl">
+              <div className="min-w-0">
                 <p className="text-[10px] uppercase tracking-[0.12em] text-white/40">Réservation</p>
-                <h3 className="text-base font-semibold text-white">{res.ref}</h3>
+                <h3 className="text-base font-semibold text-white truncate">{res.ref}</h3>
               </div>
-              <button onClick={onClose} className="p-2 rounded-full hover:bg-white/[0.06]">
+              <button onClick={onClose} className="p-2 rounded-full hover:bg-white/[0.06] flex-shrink-0">
                 <X className="h-4 w-4 text-white/70" strokeWidth={1.5} />
               </button>
             </div>
