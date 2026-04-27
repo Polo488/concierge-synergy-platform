@@ -19,7 +19,9 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/30 backdrop-blur-[16px] backdrop-saturate-150",
+      // Apple-like scrim: neutral dim that flattens vivid colors behind the sheet,
+      // light blur (no saturation boost — was creating iridescent halos).
+      "fixed inset-0 z-50 bg-black/45 backdrop-blur-[8px]",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
       "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
@@ -40,11 +42,13 @@ const DialogContent = React.forwardRef<
       className={cn(
         "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 p-6 text-foreground",
         "rounded-[22px]",
-        "bg-white/82 dark:bg-[hsl(240,10%,12%)]/82",
-        "backdrop-blur-[60px] backdrop-saturate-200",
-        "border border-white/40 dark:border-white/[0.08]",
-        "shadow-[0_24px_60px_rgba(0,0,0,0.20),0_8px_20px_rgba(0,0,0,0.10),inset_0_1px_0_rgba(255,255,255,0.6)]",
-        "dark:shadow-[0_24px_60px_rgba(0,0,0,0.50),0_8px_20px_rgba(0,0,0,0.30),inset_0_1px_0_rgba(255,255,255,0.05)]",
+        // Near-opaque sheet (Apple modal cards are not see-through). No saturation boost
+        // → no iridescent halos from colored content (charts, photos) behind.
+        "bg-[hsl(0,0%,99%)]/[0.96] dark:bg-[hsl(240,10%,12%)]/[0.94]",
+        "backdrop-blur-[20px]",
+        "border border-black/[0.06] dark:border-white/[0.08]",
+        "shadow-[0_20px_48px_-12px_rgba(16,24,40,0.18),0_4px_12px_-4px_rgba(16,24,40,0.08),inset_0_1px_0_rgba(255,255,255,0.65)]",
+        "dark:shadow-[0_24px_60px_rgba(0,0,0,0.55),0_8px_20px_rgba(0,0,0,0.30),inset_0_1px_0_rgba(255,255,255,0.04)]",
         "duration-200",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
