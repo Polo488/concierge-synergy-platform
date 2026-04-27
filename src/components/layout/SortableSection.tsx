@@ -81,7 +81,7 @@ export function SortableSection({
             className={cn(
               "p-1 rounded-md cursor-grab active:cursor-grabbing",
               "opacity-0 group-hover/section:opacity-100 transition-opacity duration-150",
-              "text-[hsl(240_4%_45%)] hover:text-[hsl(var(--label-1))]",
+              "text-[hsl(var(--label-3))] hover:text-[hsl(var(--label-1))]",
               "touch-none -ml-1"
             )}
             title="Réorganiser"
@@ -95,7 +95,7 @@ export function SortableSection({
             "transition-colors"
           )}>
             <span
-              className="text-[11px] font-semibold uppercase text-[hsl(240_6%_25%/_0.4)]"
+              className="text-[11px] font-semibold uppercase text-[hsl(var(--label-3))]"
               style={{ letterSpacing: '0.06em' }}
             >
               {section.title}
@@ -104,7 +104,7 @@ export function SortableSection({
               size={12}
               strokeWidth={2}
               className={cn(
-                "transition-transform duration-200 text-[hsl(240_6%_25%/_0.3)]",
+                "transition-transform duration-200 text-[hsl(var(--label-3))]",
                 isExpanded && "rotate-180"
               )}
             />
