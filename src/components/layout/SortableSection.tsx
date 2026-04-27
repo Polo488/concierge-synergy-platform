@@ -81,7 +81,7 @@ export function SortableSection({
             className={cn(
               "p-1 rounded-md cursor-grab active:cursor-grabbing",
               "opacity-0 group-hover/section:opacity-100 transition-opacity duration-150",
-              "text-[hsl(240_4%_45%)] hover:text-[hsl(var(--label-1))]",
+              "text-[hsl(var(--label-3))] hover:text-[hsl(var(--label-1))]",
               "touch-none -ml-1"
             )}
             title="Réorganiser"
@@ -95,7 +95,7 @@ export function SortableSection({
             "transition-colors"
           )}>
             <span
-              className="text-[11px] font-semibold uppercase text-[hsl(240_6%_25%/_0.4)]"
+              className="text-[11px] font-semibold uppercase text-[hsl(var(--label-3))]"
               style={{ letterSpacing: '0.06em' }}
             >
               {section.title}
@@ -104,7 +104,7 @@ export function SortableSection({
               size={12}
               strokeWidth={2}
               className={cn(
-                "transition-transform duration-200 text-[hsl(240_6%_25%/_0.3)]",
+                "transition-transform duration-200 text-[hsl(var(--label-3))]",
                 isExpanded && "rotate-180"
               )}
             />
@@ -123,7 +123,7 @@ export function SortableSection({
                   "flex items-center gap-3 h-9 px-3 mx-2 rounded-[8px] transition-colors duration-150",
                   isActive
                     ? "bg-[hsl(var(--ios-orange)/_0.10)] text-[hsl(var(--ios-orange))] font-semibold"
-                    : "text-[hsl(var(--label-1))] hover:bg-black/[0.04]",
+                    : "text-[hsl(var(--label-1))] hover:bg-[hsl(var(--label-1)/0.06)] dark:hover:bg-white/5",
                   !isOpen && "md:mx-0 md:justify-center md:px-2"
                 )}
               >
@@ -132,7 +132,7 @@ export function SortableSection({
                   strokeWidth={2}
                   className={cn(
                     "flex-shrink-0",
-                    isActive ? "text-[hsl(var(--ios-orange))]" : "text-[hsl(240_6%_25%/_0.6)]"
+                    isActive ? "text-[hsl(var(--ios-orange))]" : "text-[hsl(var(--label-2))]"
                   )}
                 />
 
@@ -162,7 +162,7 @@ export function SortableSection({
                     "relative h-9 w-9 flex items-center justify-center rounded-[8px] transition-colors duration-150",
                     isActive
                       ? "bg-[hsl(var(--ios-orange)/_0.10)] text-[hsl(var(--ios-orange))]"
-                      : "text-[hsl(240_6%_25%/_0.6)] hover:bg-black/[0.04]"
+                      : "text-[hsl(var(--label-2))] hover:bg-[hsl(var(--label-1)/0.06)] dark:hover:bg-white/5"
                   )}
                 >
                   <item.icon size={18} strokeWidth={2} />

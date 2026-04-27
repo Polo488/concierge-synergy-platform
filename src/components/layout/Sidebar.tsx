@@ -338,7 +338,7 @@ export function Sidebar() {
           isMobile ? "z-[210]" : "z-40"
         )}
         style={{
-          borderRight: '1px solid rgba(0,0,0,0.06)',
+          borderRight: '1px solid hsl(var(--hairline))',
           borderRadius: 0,
         }}
       >
@@ -364,7 +364,7 @@ export function Sidebar() {
             isCollapsed && "flex justify-center px-2"
           )}>
             <div className={cn(
-              "flex items-center gap-3 rounded-[12px] p-2 transition-colors hover:bg-black/[0.04]",
+              "flex items-center gap-3 rounded-[12px] p-2 transition-colors hover:bg-[hsl(var(--label-1)/0.06)] dark:hover:bg-white/5",
               isCollapsed && "p-1"
             )}>
               <div className="h-8 w-8 rounded-full bg-[hsl(var(--label-3)/_0.15)] flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -379,14 +379,14 @@ export function Sidebar() {
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] font-semibold text-[hsl(var(--label-1))] truncate leading-tight">{user.name}</p>
-                  <p className="text-[12px] text-[hsl(240_6%_25%/_0.6)] leading-tight">{user.role}</p>
+                  <p className="text-[12px] text-[hsl(var(--label-2))] leading-tight">{user.role}</p>
                 </div>
               )}
             </div>
           </div>
         )}
         
-        <div className="mx-4 h-px bg-black/[0.06] flex-shrink-0" />
+        <div className="mx-4 h-px bg-[hsl(var(--hairline))] flex-shrink-0" />
 
         {/* Navigation */}
         <nav className="flex-1 py-3 px-1 overflow-y-auto space-y-0.5">
@@ -409,7 +409,7 @@ export function Sidebar() {
                       "flex items-center gap-3 h-9 px-3 mx-1 rounded-[8px] transition-colors duration-150",
                       isActive
                         ? "bg-[hsl(var(--ios-orange)/_0.10)] text-[hsl(var(--ios-orange))] font-semibold"
-                        : "text-[hsl(var(--label-1))] hover:bg-black/[0.04]",
+                        : "text-[hsl(var(--label-1))] hover:bg-[hsl(var(--label-1)/0.06)] dark:hover:bg-white/5",
                       isCollapsed && "justify-center mx-0 px-2"
                     )}
                   >
@@ -418,7 +418,7 @@ export function Sidebar() {
                       strokeWidth={2}
                       className={cn(
                         "flex-shrink-0",
-                        isActive ? "text-[hsl(var(--ios-orange))]" : "text-[hsl(240_6%_25%/_0.6)]"
+                        isActive ? "text-[hsl(var(--ios-orange))]" : "text-[hsl(var(--label-2))]"
                       )}
                     />
                     {!isCollapsed && <span className="text-sm font-medium">{item.name}</span>}
@@ -484,7 +484,7 @@ export function Sidebar() {
                 <TooltipTrigger asChild>
                   <button
                     onClick={logout}
-                    className="flex items-center justify-center w-full h-9 rounded-[8px] transition-colors text-[hsl(240_6%_25%/_0.6)] hover:text-[hsl(var(--label-1))] hover:bg-black/[0.04]"
+                    className="flex items-center justify-center w-full h-9 rounded-[8px] transition-colors text-[hsl(var(--label-2))] hover:text-[hsl(var(--label-1))] hover:bg-[hsl(var(--label-1)/0.06)] dark:hover:bg-white/5"
                   >
                     <LogOut size={18} strokeWidth={2} />
                   </button>
@@ -495,9 +495,9 @@ export function Sidebar() {
           ) : (
             <button
               onClick={logout}
-              className="flex items-center w-full gap-3 px-3 h-9 mx-1 rounded-[8px] transition-colors text-[hsl(var(--label-1))] hover:bg-black/[0.04]"
+              className="flex items-center w-full gap-3 px-3 h-9 mx-1 rounded-[8px] transition-colors text-[hsl(var(--label-1))] hover:bg-[hsl(var(--label-1)/0.06)] dark:hover:bg-white/5"
             >
-              <LogOut size={18} strokeWidth={2} className="text-[hsl(240_6%_25%/_0.6)]" />
+              <LogOut size={18} strokeWidth={2} className="text-[hsl(var(--label-2))]" />
               <span className="text-sm font-medium">Déconnexion</span>
             </button>
           )}
@@ -515,7 +515,7 @@ export function Sidebar() {
                 size={14}
                 strokeWidth={2}
                 className={cn(
-                  "transition-transform duration-300 text-[hsl(240_6%_25%/_0.6)]",
+                  "transition-transform duration-300 text-[hsl(var(--label-2))]",
                   !isOpen && "rotate-180"
                 )}
               />
