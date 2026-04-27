@@ -613,34 +613,46 @@ export function RuleBuilderDialog({
               </div>
             </div>
           )}
+          </div>
         </ScrollArea>
 
-        <DialogFooter className="flex justify-between">
-          <div>
+        {/* Apple-style sticky footer: stacked on mobile, primary action full width */}
+        <DialogFooter className="px-4 sm:px-6 py-3 border-t border-black/[0.06] bg-background/80 backdrop-blur-sm flex flex-col-reverse sm:flex-row sm:justify-between gap-2 sm:gap-3">
+          <div className="flex w-full sm:w-auto">
             {currentStep > 1 && (
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep(prev => prev - 1)}
+                className="w-full sm:w-auto"
               >
                 <ChevronLeft className="h-4 w-4 mr-2" />
                 Précédent
               </Button>
             )}
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="flex-1 sm:flex-none"
+            >
               Annuler
             </Button>
             {currentStep < STEPS.length ? (
               <Button
                 onClick={() => setCurrentStep(prev => prev + 1)}
                 disabled={!canProceed()}
+                className="flex-1 sm:flex-none"
               >
                 Suivant
                 <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={handleSave} disabled={!canProceed()}>
+              <Button
+                onClick={handleSave}
+                disabled={!canProceed()}
+                className="flex-1 sm:flex-none"
+              >
                 {rule ? 'Enregistrer' : 'Créer la règle'}
               </Button>
             )}
