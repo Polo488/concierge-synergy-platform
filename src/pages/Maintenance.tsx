@@ -46,16 +46,14 @@ const MaintenanceContent = () => {
   };
 
   const handleExport = () => {
-    toast.success('Export lancé', {
-      description: 'Le fichier CSV des interventions a été téléchargé.',
-      duration: 3000,
+    toast.success(M.maintenance.exportStarted, {
+      description: M.maintenance.exportStartedDesc,
     });
   };
 
   const handleCalendar = () => {
-    toast.success('Calendrier synchronisé', {
-      description: 'Les interventions ont été synchronisées avec le calendrier.',
-      duration: 3000,
+    toast.success(M.maintenance.calendarSynced, {
+      description: M.maintenance.calendarSyncedDesc,
     });
   };
 
