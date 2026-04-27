@@ -253,7 +253,7 @@ const TasksList = ({ tasks }: { tasks: TodayTask[] }) => {
 
 export const DailyActivityTabs = ({ checkIns, checkOuts, tasks }: DailyActivityTabsProps) => {
   return (
-    <div className="glass-card p-6">
+    <div className="glass-card p-4 sm:p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-[18px] font-semibold tracking-[-0.01em] text-[hsl(var(--label-1))]">Activité du jour</h2>
         <span className="text-[13px] text-[hsl(var(--label-2))] tabular">
