@@ -789,8 +789,8 @@ html, body, .scroll-smooth {
   border-color: hsla(var(--hairline) / 0.82);
   box-shadow:
     inset 0 1px 0 hsla(0, 0%, 100%, 0.06),
-    0 1px 2px hsla(0, 0%, 0% / 0.24),
-    0 14px 34px -22px hsla(0, 0%, 0% / 0.7);
+    0 1px 2px hsl(0 0% 0% / 0.24),
+    0 14px 34px -22px hsl(0 0% 0% / 0.7);
 }
 
 /* Variants — thin / regular / thick */
@@ -892,7 +892,7 @@ html, body, .scroll-smooth {
   border-radius: 10px;
   background: hsla(var(--label-1) / 0.06);
 }
-.dark .ios-segmented { background: hsla(0, 0%, 100% / 0.08); }
+.dark .ios-segmented { background: hsl(0 0% 100% / 0.08); }
 
 .ios-segmented-thumb {
   position: absolute;
@@ -905,7 +905,7 @@ html, body, .scroll-smooth {
   z-index: 0;
 }
 .dark .ios-segmented-thumb {
-  background: hsla(0, 0%, 100% / 0.14);
+  background: hsl(0 0% 100% / 0.14);
   box-shadow: none;
 }
 
