@@ -212,21 +212,32 @@ const TasksList = ({ tasks }: { tasks: TodayTask[] }) => {
     <div className="space-y-3">
       {tasks.map((task) => (
         <ListItem key={task.id} onClick={() => handleClick(task)}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <TaskTypeBadge type={task.type} />
-              <div>
-                <div className="flex items-center gap-2">
-                  <Home className="h-3 w-3 text-muted-foreground" />
-                  <span className="font-semibold text-[15px] font-heading text-foreground">{task.property}</span>
+          <div className="flex items-start gap-3 sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+              <div className="flex-shrink-0">
+                <TaskTypeBadge type={task.type} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Home className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                  <span className="font-semibold text-[15px] font-heading text-foreground truncate">{task.property}</span>
                 </div>
-                <div className="flex items-center gap-2 text-[13px] mt-1 text-muted-foreground">
-                  <User className="h-3 w-3" />
-                  {task.agent || <span className="text-amber-600 dark:text-amber-400 font-medium">Non assigné</span>}
+                <div className="flex items-center gap-2 text-[13px] mt-1 text-muted-foreground min-w-0">
+                  <User className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">
+                    {task.agent || <span className="text-amber-600 dark:text-amber-400 font-medium">Non assigné</span>}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 mt-2 sm:hidden flex-wrap">
+                  <StatusBadge status={task.status} />
+                  <div className="flex items-center gap-1 text-[13px] font-bold text-foreground">
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                    {task.time}
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
               <StatusBadge status={task.status} />
               <div className="flex items-center gap-1 text-sm font-bold text-foreground">
                 <Clock className="h-4 w-4 text-muted-foreground" />
