@@ -1,12 +1,15 @@
 import { useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFacturation, FacturationProvider } from "@/hooks/useFacturation";
+import { BillingTenantProvider, useBillingTenant } from "@/hooks/useBillingTenant";
 import { FacturationPeriodPill, FacturationProgress } from "@/components/billing/FacturationHeader";
+import { BillingModeToggle } from "@/components/billing/BillingModeToggle";
 import { KpiHero } from "@/components/billing/KpiHero";
 import { FacturationTabs } from "@/components/billing/FacturationTabs";
 import { ReservationsTab } from "@/components/billing/ReservationsTab";
 import { NegativeOpsTab } from "@/components/billing/NegativeOpsTab";
 import { ComplementsTab } from "@/components/billing/ComplementsTab";
+import { ProviderCallsTab } from "@/components/billing/ProviderCallsTab";
 import { InvoicesTab } from "@/components/billing/InvoicesTab";
 import { SepaTab } from "@/components/billing/SepaTab";
 import { ReconciliationTab } from "@/components/billing/ReconciliationTab";
