@@ -520,20 +520,6 @@ html { height: 100%; }
   outline-offset: 2px;
 }
 
-/* Radix/iOS segmented controls: remove the global orange/yellow focus halo.
-   The active glass thumb already provides the visual state; keyboard focus must
-   stay discreet and never draw an external outline around the whole TabsList. */
-:where([role="tablist"], [role="tab"], .ios-segmented):focus,
-:where([role="tablist"], [role="tab"], .ios-segmented):focus-visible,
-:where([role="tablist"] [role="tab"]):focus,
-:where([role="tablist"] [role="tab"]):focus-visible {
-  outline: none !important;
-  outline-offset: 0 !important;
-  --tw-ring-offset-width: 0px !important;
-  --tw-ring-shadow: 0 0 #0000 !important;
-  --tw-ring-offset-shadow: 0 0 #0000 !important;
-}
-
 /* ============================================
    SMOOTH THEME TRANSITION
    ============================================ */
@@ -1036,6 +1022,65 @@ html, body, .scroll-smooth {
 .ios-segmented [data-state="active"]:not(.ios-segmented-thumb) {
   background: transparent;
   box-shadow: none;
+}
+
+.ios-tabs-list {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  height: 30px;
+  max-width: 100%;
+  padding: 2px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  border: 0;
+  border-radius: 9px;
+  background: hsla(var(--label-1) / 0.06);
+  box-shadow: inset 0 1px 0 hsla(0 0% 100% / 0.32), 0 1px 2px hsla(var(--label-1) / 0.06);
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+}
+
+.ios-tabs-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.ios-tabs-list:focus,
+.ios-tabs-list:focus-visible,
+.ios-tabs-list [role="tab"]:focus,
+.ios-tabs-list [role="tab"]:focus-visible {
+  outline: 0;
+}
+
+.ios-tabs-list [role="tab"][data-state="active"] {
+  background: linear-gradient(180deg, hsla(var(--surface-1) / 0.96), hsla(var(--surface-1) / 0.82));
+  color: hsl(var(--label-1));
+  box-shadow: inset 0 1px 0 hsla(0 0% 100% / 0.72), 0 1px 2px hsla(var(--label-1) / 0.08);
+}
+
+.dark .ios-tabs-list {
+  background: hsl(0 0% 100% / 0.07);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.05), 0 1px 2px hsl(0 0% 0% / 0.28);
+}
+
+.dark .ios-tabs-list [role="tab"][data-state="active"] {
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.18), hsl(0 0% 100% / 0.11));
+  color: hsl(var(--label-1));
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.12), 0 1px 2px hsl(0 0% 0% / 0.4);
+}
+
+@media (min-width: 640px) {
+  .ios-tabs-list {
+    height: 34px;
+    padding: 3px;
+    border-radius: 10px;
+  }
 }
 
 /* ==========================================================================
