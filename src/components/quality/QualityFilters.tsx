@@ -108,10 +108,10 @@ export function QualityFilters({
           <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[hsl(240_6%_25%/_0.5)]">
             Période
           </span>
-          <SegmentedControl<PeriodValue>
+          <SegmentedControl
             options={periodOptions}
             value={currentPeriod}
-            onChange={handlePeriodChange}
+            onChange={(v) => handlePeriodChange(v as PeriodValue)}
             size="sm"
           />
           <Popover>
