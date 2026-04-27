@@ -119,119 +119,132 @@ function InvoicePreview({ inv, onClose }: { inv: OwnerInvoice | null; onClose: (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.98 }}
             transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-50 flex flex-col"
+            className="invoice-modal fixed inset-0 z-50 flex flex-col"
           >
-            <div className="flex items-center justify-between px-6 py-3 bg-black/60 backdrop-blur-xl border-b border-white/[0.06]">
-              <div className="text-sm text-white/85 font-medium">Facture — {inv.owner.name} — {periodLabel}</div>
-              <div className="flex items-center gap-1">
+            {/* TOOLBAR */}
+            <div className="flex items-center justify-between gap-2 px-3 sm:px-6 py-2.5 sm:py-3 bg-[hsl(var(--bill-surface-1))]/95 backdrop-blur-xl border-b border-[hsl(var(--bill-stroke-soft))]">
+              {/* Left: close + title */}
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <button onClick={onClose} className="p-2 rounded-full hover:bg-[hsl(var(--bill-surface-hover))] text-[hsl(var(--bill-label))] flex-shrink-0">
+                  <X className="h-4 w-4" strokeWidth={1.8} />
+                </button>
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase tracking-[0.1em] text-[hsl(var(--bill-label-3))] leading-none">Facture · {periodLabel}</p>
+                  <p className="text-[13px] sm:text-sm font-semibold text-[hsl(var(--bill-label))] truncate leading-tight mt-0.5">{inv.owner.name}</p>
+                </div>
+              </div>
+              {/* Right: actions — icons on mobile, icon+label sm+ */}
+              <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
                 <ToolbarBtn icon={Download} label="PDF" onClick={() => toast.success("PDF téléchargé")} />
-                <ToolbarBtn icon={Mail} label="Envoyer" onClick={() => { markInvoiceSent(inv.owner.id); toast.success(`Facture envoyée à ${inv.owner.name}`); onClose(); }} />
-                <ToolbarBtn icon={Check} label="Marquer envoyée" onClick={() => { markInvoiceSent(inv.owner.id); toast.success("Statut mis à jour"); onClose(); }} />
+                <ToolbarBtn icon={Mail} label="Envoyer" onClick={() => { markInvoiceSent(inv.owner.id); toast.success(`Facture envoyée à ${inv.owner.name}`); onClose(); }} primary />
+                <ToolbarBtn icon={Check} label="Marquée" onClick={() => { markInvoiceSent(inv.owner.id); toast.success("Statut mis à jour"); onClose(); }} />
                 <ToolbarBtn icon={Pencil} label="Éditer" onClick={onClose} />
-                <button onClick={onClose} className="ml-2 p-2 rounded-full hover:bg-white/[0.08] text-white/85"><X className="h-4 w-4" strokeWidth={1.5} /></button>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-6 sm:p-10 flex justify-center">
-              <div className="w-full max-w-3xl bg-[#FAF8F4] text-[#1a1a2e] rounded-[8px] shadow-2xl p-8 sm:p-12 font-body" style={{ fontFamily: "Inter, sans-serif" }}>
-                <div className="flex justify-between items-start pb-6 border-b border-black/10">
-                  <div>
-                    <p className="text-2xl font-heading font-semibold tracking-tight">Noé</p>
-                    <p className="text-xs text-black/55 mt-1">Conciergerie STR · Paris</p>
-                    <p className="text-xs text-black/55">SIRET 902 412 537 00018</p>
+            {/* DOCUMENT */}
+            <div className="flex-1 overflow-y-auto bg-[hsl(var(--bill-bg))]">
+              <div className="px-3 sm:px-6 py-4 sm:py-8 flex justify-center">
+                <div className="w-full max-w-3xl bg-[#FAF8F4] text-[#1a1a2e] rounded-[12px] shadow-[0_24px_64px_rgba(0,0,0,0.18)] p-5 sm:p-10 lg:p-12 font-body" style={{ fontFamily: "Inter, sans-serif" }}>
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-3 pb-5 sm:pb-6 border-b border-black/10">
+                    <div>
+                      <p className="text-2xl font-heading font-semibold tracking-tight">Noé</p>
+                      <p className="text-xs text-black/55 mt-1">Conciergerie STR · Paris</p>
+                      <p className="text-xs text-black/55">SIRET 902 412 537 00018</p>
+                    </div>
+                    <div className="sm:text-right">
+                      <p className="text-[10px] uppercase tracking-[0.1em] text-black/45">Facture</p>
+                      <p className="text-[13px] sm:text-base font-mono">FAC-{periodLabel.slice(0, 3).toUpperCase()}-{inv.owner.id.toUpperCase()}</p>
+                      <p className="text-xs text-black/55 mt-1">Émise le {new Date().toLocaleDateString("fr-FR")}</p>
+                      <p className="text-xs text-black/55">Période : {periodLabel}</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[11px] uppercase tracking-[0.1em] text-black/45">Facture</p>
-                    <p className="text-base font-mono">FAC-{periodLabel.slice(0, 3).toUpperCase()}-{inv.owner.id.toUpperCase()}</p>
-                    <p className="text-xs text-black/55 mt-1">Émise le {new Date().toLocaleDateString("fr-FR")}</p>
-                    <p className="text-xs text-black/55">Période : {periodLabel}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 py-5 sm:py-6 border-b border-black/10 text-sm">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.1em] text-black/45">Adressée à</p>
+                      <p className="mt-1 font-medium">{inv.owner.name}</p>
+                      <p className="text-black/65 break-all text-[13px]">{inv.owner.email}</p>
+                    </div>
+                    <div className="sm:text-right">
+                      <p className="text-[10px] uppercase tracking-[0.1em] text-black/45">Coordonnées bancaires</p>
+                      <p className="mt-1 font-mono text-[11px] sm:text-xs break-all">{inv.owner.iban}</p>
+                      <p className="text-black/55 text-xs">{inv.owner.bic}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-6 py-6 border-b border-black/10 text-sm">
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.1em] text-black/45">Adressée à</p>
-                    <p className="mt-1 font-medium">{inv.owner.name}</p>
-                    <p className="text-black/65">{inv.owner.email}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[11px] uppercase tracking-[0.1em] text-black/45">Coordonnées bancaires</p>
-                    <p className="mt-1 font-mono text-xs">{inv.owner.iban}</p>
-                    <p className="text-black/55 text-xs">{inv.owner.bic}</p>
-                  </div>
-                </div>
 
-                <DocSection title={`Réservations (${ownerRes.length})`}>
-                  <DocTable headers={["Date", "Voyageur", "Bien", "Nuits", "Brut", "Net prop."]}>
-                    {ownerRes.map((r) => (
-                      <tr key={r.id} className="border-t border-black/5">
-                        <td className="py-1.5 text-xs">{new Date(r.checkIn).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })}</td>
-                        <td className="py-1.5 text-xs">{r.guest}</td>
-                        <td className="py-1.5 text-xs text-black/65">{properties.find(p => p.id === r.propertyId)?.name}</td>
-                        <td className="py-1.5 text-xs text-right">{r.nights}</td>
-                        <td className="py-1.5 text-xs text-right tabular-nums">{formatMoney(r.gross)}</td>
-                        <td className="py-1.5 text-xs text-right tabular-nums font-medium">{formatMoney(r.netOwner)}</td>
-                      </tr>
-                    ))}
-                  </DocTable>
-                </DocSection>
-
-                {ownerNegs.length > 0 && (
-                  <DocSection title="Opérations négatives traitées">
-                    <DocTable headers={["Réf.", "Voyageur", "Décision", "Impact"]}>
-                      {ownerNegs.map((n) => (
-                        <tr key={n.id} className="border-t border-black/5">
-                          <td className="py-1.5 text-xs">{n.ref}</td>
-                          <td className="py-1.5 text-xs">{n.guest}</td>
-                          <td className="py-1.5 text-xs text-black/65">
-                            {n.decision === "owner" ? "Imputé propriétaire" : n.decision === "noe" ? "Absorbé Noé" : n.decision === "split" ? "Réparti 50/50" : "Personnalisé"}
-                          </td>
-                          <td className="py-1.5 text-xs text-right tabular-nums text-[#B91C1C]">{formatMoney(n.decision === "split" ? n.amount / 2 : n.decision === "owner" ? n.amount : 0)}</td>
+                  <DocSection title={`Réservations (${ownerRes.length})`}>
+                    <DocTable headers={["Date", "Voyageur", "Bien", "N.", "Brut", "Net prop."]}>
+                      {ownerRes.map((r) => (
+                        <tr key={r.id} className="border-t border-black/5">
+                          <td className="py-1.5 text-[11px] sm:text-xs whitespace-nowrap">{new Date(r.checkIn).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })}</td>
+                          <td className="py-1.5 text-[11px] sm:text-xs">{r.guest}</td>
+                          <td className="py-1.5 text-[11px] sm:text-xs text-black/65">{properties.find(p => p.id === r.propertyId)?.name}</td>
+                          <td className="py-1.5 text-[11px] sm:text-xs text-right">{r.nights}</td>
+                          <td className="py-1.5 text-[11px] sm:text-xs text-right tabular-nums whitespace-nowrap">{formatMoney(r.gross)}</td>
+                          <td className="py-1.5 text-[11px] sm:text-xs text-right tabular-nums font-medium whitespace-nowrap">{formatMoney(r.netOwner)}</td>
                         </tr>
                       ))}
                     </DocTable>
                   </DocSection>
-                )}
 
-                <DocSection title="Prestations complémentaires">
-                  <DocTable headers={["Date", "Type", "Bien", "Prix"]}>
-                    {[
-                      ...ownerMaint.map((m) => ({ id: m.id, date: m.date, type: "Maintenance", prop: m.propertyId, amount: m.billedPrice })),
-                      ...ownerClean.map((c) => ({ id: c.id, date: c.date, type: c.type === "menage" ? "Ménage" : "Linge", prop: c.propertyId, amount: c.billedPrice })),
-                      ...ownerMisc.map((m) => ({ id: m.id, date: m.date, type: m.label, prop: m.propertyId, amount: m.amountHT * (1 + m.vatRate) })),
-                    ].map((l) => (
-                      <tr key={l.id} className="border-t border-black/5">
-                        <td className="py-1.5 text-xs">{new Date(l.date).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })}</td>
-                        <td className="py-1.5 text-xs">{l.type}</td>
-                        <td className="py-1.5 text-xs text-black/65">{properties.find(p => p.id === l.prop)?.name}</td>
-                        <td className="py-1.5 text-xs text-right tabular-nums">{formatMoney(l.amount)}</td>
-                      </tr>
-                    ))}
-                  </DocTable>
-                </DocSection>
+                  {ownerNegs.length > 0 && (
+                    <DocSection title="Opérations négatives traitées">
+                      <DocTable headers={["Réf.", "Voyageur", "Décision", "Impact"]}>
+                        {ownerNegs.map((n) => (
+                          <tr key={n.id} className="border-t border-black/5">
+                            <td className="py-1.5 text-[11px] sm:text-xs whitespace-nowrap">{n.ref}</td>
+                            <td className="py-1.5 text-[11px] sm:text-xs">{n.guest}</td>
+                            <td className="py-1.5 text-[11px] sm:text-xs text-black/65">
+                              {n.decision === "owner" ? "Imputé propriétaire" : n.decision === "noe" ? "Absorbé Noé" : n.decision === "split" ? "Réparti 50/50" : "Personnalisé"}
+                            </td>
+                            <td className="py-1.5 text-[11px] sm:text-xs text-right tabular-nums text-[#B91C1C] whitespace-nowrap">{formatMoney(n.decision === "split" ? n.amount / 2 : n.decision === "owner" ? n.amount : 0)}</td>
+                          </tr>
+                        ))}
+                      </DocTable>
+                    </DocSection>
+                  )}
 
-                <DocSection title="Honoraires conciergerie">
-                  <div className="flex justify-between text-sm py-2">
-                    <span>Honoraires Noé ({(inv.owner.commissionRate * 100).toFixed(0)}% net OTA)</span>
-                    <span className="tabular-nums">{formatMoney(noeTotal)}</span>
-                  </div>
-                  <div className="flex justify-between text-xs py-1 text-black/55">
-                    <span>Sur un brut de</span>
-                    <span className="tabular-nums">{formatMoney(grossTotal)}</span>
-                  </div>
-                </DocSection>
+                  <DocSection title="Prestations complémentaires">
+                    <DocTable headers={["Date", "Type", "Bien", "Prix"]}>
+                      {[
+                        ...ownerMaint.map((m) => ({ id: m.id, date: m.date, type: "Maintenance", prop: m.propertyId, amount: m.billedPrice })),
+                        ...ownerClean.map((c) => ({ id: c.id, date: c.date, type: c.type === "menage" ? "Ménage" : "Linge", prop: c.propertyId, amount: c.billedPrice })),
+                        ...ownerMisc.map((m) => ({ id: m.id, date: m.date, type: m.label, prop: m.propertyId, amount: m.amountHT * (1 + m.vatRate) })),
+                      ].map((l) => (
+                        <tr key={l.id} className="border-t border-black/5">
+                          <td className="py-1.5 text-[11px] sm:text-xs whitespace-nowrap">{new Date(l.date).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })}</td>
+                          <td className="py-1.5 text-[11px] sm:text-xs">{l.type}</td>
+                          <td className="py-1.5 text-[11px] sm:text-xs text-black/65">{properties.find(p => p.id === l.prop)?.name}</td>
+                          <td className="py-1.5 text-[11px] sm:text-xs text-right tabular-nums whitespace-nowrap">{formatMoney(l.amount)}</td>
+                        </tr>
+                      ))}
+                    </DocTable>
+                  </DocSection>
 
-                <div className="mt-8 flex justify-end">
-                  <div className="text-right">
-                    <p className="text-[11px] uppercase tracking-[0.1em] text-black/45">Total net à reverser</p>
-                    <p className="text-3xl font-heading font-light tabular-nums" style={{ letterSpacing: "-0.02em" }}>{formatMoney(inv.net)}</p>
-                    <p className="text-[11px] text-black/50 mt-1">TVA non applicable, art. 293 B CGI</p>
+                  <DocSection title="Honoraires conciergerie">
+                    <div className="flex justify-between text-sm py-2 gap-3">
+                      <span>Honoraires Noé ({(inv.owner.commissionRate * 100).toFixed(0)}% net OTA)</span>
+                      <span className="tabular-nums whitespace-nowrap">{formatMoney(noeTotal)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs py-1 text-black/55 gap-3">
+                      <span>Sur un brut de</span>
+                      <span className="tabular-nums whitespace-nowrap">{formatMoney(grossTotal)}</span>
+                    </div>
+                  </DocSection>
+
+                  <div className="mt-6 sm:mt-8 flex justify-end">
+                    <div className="text-right">
+                      <p className="text-[10px] uppercase tracking-[0.1em] text-black/45">Total net à reverser</p>
+                      <p className="text-[28px] sm:text-3xl font-heading font-semibold tabular-nums" style={{ letterSpacing: "-0.02em" }}>{formatMoney(inv.net)}</p>
+                      <p className="text-[10px] sm:text-[11px] text-black/50 mt-1">TVA non applicable, art. 293 B CGI</p>
+                    </div>
                   </div>
+
+                  {cartG && (
+                    <p className="mt-8 sm:mt-10 text-[10px] text-black/45 leading-relaxed border-t border-black/10 pt-4">
+                      Reversement effectué via le compte séquestre Carte G n° CG-2026-001 conformément à l'article 6 de la loi Hoguet et au mandat de gestion. IBAN bénéficiaire : <span className="font-mono break-all">{inv.owner.iban}</span>.
+                    </p>
+                  )}
                 </div>
-
-                {cartG && (
-                  <p className="mt-10 text-[10px] text-black/45 leading-relaxed border-t border-black/10 pt-4">
-                    Reversement effectué via le compte séquestre Carte G n° CG-2026-001 conformément à l'article 6 de la loi Hoguet et au mandat de gestion. IBAN bénéficiaire : <span className="font-mono">{inv.owner.iban}</span>.
-                  </p>
-                )}
               </div>
             </div>
           </motion.div>
@@ -241,10 +254,20 @@ function InvoicePreview({ inv, onClose }: { inv: OwnerInvoice | null; onClose: (
   );
 }
 
-function ToolbarBtn({ icon: Icon, label, onClick }: { icon: any; label: string; onClick: () => void }) {
+function ToolbarBtn({ icon: Icon, label, onClick, primary }: { icon: any; label: string; onClick: () => void; primary?: boolean }) {
   return (
-    <button onClick={onClick} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-white/80 hover:bg-white/[0.08] transition-colors">
-      <Icon className="h-3.5 w-3.5" strokeWidth={1.5} /> {label}
+    <button
+      onClick={onClick}
+      title={label}
+      className={cn(
+        "inline-flex items-center justify-center gap-1.5 rounded-full text-[12.5px] font-medium transition-colors min-h-[36px]",
+        primary
+          ? "bg-[#FF5C1A] text-white hover:bg-[#FF5C1A]/90 px-2.5 sm:px-3.5"
+          : "text-[hsl(var(--bill-label-2))] hover:bg-[hsl(var(--bill-surface-hover))] px-2.5 sm:px-3"
+      )}
+    >
+      <Icon className="h-4 w-4" strokeWidth={1.8} />
+      <span className="hidden sm:inline">{label}</span>
     </button>
   );
 }
