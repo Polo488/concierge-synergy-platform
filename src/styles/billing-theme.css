@@ -244,3 +244,27 @@
 /* ---- Scrollbar hide for horizontal scroll containers ---- */
 .bill-scope .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
 .bill-scope .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+/* ---- Invoice cards: gradient background owns its own contrast (always white text) ---- */
+.bill-scope .invoice-card .text-white,
+.bill-scope .invoice-card .text-white\/85,
+.bill-scope .invoice-card .text-white\/80,
+.bill-scope .invoice-card .text-white\/70,
+.bill-scope .invoice-card .text-white\/65,
+.bill-scope .invoice-card .text-white\/60,
+.bill-scope .invoice-card .text-white\/55,
+.bill-scope .invoice-card .text-white\/50,
+.bill-scope .invoice-card .text-white\/45,
+.bill-scope .invoice-card .text-white\/40 { color: #fff !important; }
+.bill-scope .invoice-card .text-white\/85 { color: rgba(255,255,255,0.92) !important; }
+.bill-scope .invoice-card .text-white\/70 { color: rgba(255,255,255,0.78) !important; }
+.bill-scope .invoice-card .text-white\/65 { color: rgba(255,255,255,0.72) !important; }
+.bill-scope .invoice-card .text-white\/60 { color: rgba(255,255,255,0.68) !important; }
+.bill-scope .invoice-card .text-white\/55 { color: rgba(255,255,255,0.62) !important; }
+.bill-scope .invoice-card .text-white\/40 { color: rgba(255,255,255,0.5) !important; }
+.bill-scope .invoice-card .bg-white\/\[0\.08\],
+.bill-scope .invoice-card .bg-white\/\[0\.12\],
+.bill-scope .invoice-card .bg-white\/\[0\.18\] { background-color: rgba(255,255,255,0.18) !important; }
+.bill-scope .invoice-card .border-white\/\[0\.12\],
+.bill-scope .invoice-card .border-white\/\[0\.18\] { border-color: rgba(255,255,255,0.22) !important; }
+.bill-scope .invoice-card .bg-white\/15 { background-color: rgba(255,255,255,0.18) !important; }
