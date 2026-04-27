@@ -520,20 +520,6 @@ html { height: 100%; }
   outline-offset: 2px;
 }
 
-/* Radix/iOS segmented controls: remove the global orange/yellow focus halo.
-   The active glass thumb already provides the visual state; keyboard focus must
-   stay discreet and never draw an external outline around the whole TabsList. */
-:where([role="tablist"], [role="tab"], .ios-segmented):focus,
-:where([role="tablist"], [role="tab"], .ios-segmented):focus-visible,
-:where([role="tablist"] [role="tab"]):focus,
-:where([role="tablist"] [role="tab"]):focus-visible {
-  outline: none !important;
-  outline-offset: 0 !important;
-  --tw-ring-offset-width: 0px !important;
-  --tw-ring-shadow: 0 0 #0000 !important;
-  --tw-ring-offset-shadow: 0 0 #0000 !important;
-}
-
 /* ============================================
    SMOOTH THEME TRANSITION
    ============================================ */
