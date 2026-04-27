@@ -13,6 +13,14 @@ html, body {
 }
 html { height: 100%; }
 
+/* iOS-style global gutter (Settings/Health: 20px mobile, 28-32px desktop) */
+:root {
+  --app-gutter: 20px;
+}
+@media (min-width: 640px) { :root { --app-gutter: 28px; } }
+@media (min-width: 1024px) { :root { --app-gutter: 32px; } }
+
+
 /* Fluid typography */
 @layer base {
   h1 { font-size: clamp(1.125rem, 2.5vw, 1.625rem); }
