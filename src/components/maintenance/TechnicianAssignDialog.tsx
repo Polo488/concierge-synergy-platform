@@ -39,7 +39,7 @@ const TechnicianAssignDialog = ({ taskId, onSubmit, onCancel }: TechnicianAssign
     e.preventDefault();
     
     if (!selectedTechnician) {
-      toast.error("Veuillez sélectionner un technicien");
+      toast.error(M.maintenance.technicianRequired);
       return;
     }
     
