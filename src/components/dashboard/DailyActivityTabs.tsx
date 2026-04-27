@@ -13,33 +13,38 @@ interface DailyActivityTabsProps {
 
 const ChannelBadge = ({ channel }: { channel: 'airbnb' | 'booking' | 'direct' }) => {
   const config = {
-    airbnb: { label: 'Airbnb', className: 'bg-[#FF5A5F] text-white hover:bg-[#FF5A5F]' },
-    booking: { label: 'Booking', className: 'bg-[#003580] text-white hover:bg-[#003580]' },
-    direct: { label: 'Direct', className: 'bg-gray-500 text-white hover:bg-gray-500' }
+    airbnb: { label: 'Airbnb', style: { background: 'rgba(255,90,95,0.12)', color: '#FF5A5F' } },
+    booking: { label: 'Booking', style: { background: 'rgba(0,59,149,0.12)', color: '#003B95' } },
+    direct: { label: 'Direct', style: { background: 'hsla(240,6%,15%,0.08)', color: 'hsl(var(--label-1))' } }
   };
 
   return (
-    <Badge variant="secondary" className={cn('text-xs', config[channel].className)}>
+    <span
+      className="inline-flex items-center h-[18px] px-2 rounded-full text-[10px] font-semibold uppercase tracking-wider"
+      style={config[channel].style}
+    >
       {config[channel].label}
-    </Badge>
+    </span>
   );
 };
 
 const StatusBadge = ({ status }: { status: string }) => {
-  const config: Record<string, { label: string; cls: string }> = {
-    confirmed: { label: 'Confirmé', cls: 'bg-status-success-light text-status-success' },
-    pending: { label: 'En attente', cls: 'bg-status-warning-light text-status-warning' },
-    issue: { label: 'Problème', cls: 'bg-status-error-light text-status-error' },
-    todo: { label: 'À faire', cls: 'bg-muted text-muted-foreground' },
-    inProgress: { label: 'En cours', cls: 'bg-status-info-light text-status-info' },
-    completed: { label: 'Terminé', cls: 'bg-status-success-light text-status-success' },
-    scheduled: { label: 'Planifié', cls: 'bg-status-pending-light text-status-pending' }
+  const config: Record<string, { label: string; bg: string; color: string }> = {
+    confirmed:  { label: 'Confirmé',  bg: 'rgba(52,199,89,0.12)', color: '#1F8A3F' },
+    pending:    { label: 'En attente', bg: 'rgba(255,204,0,0.15)', color: '#8B6B00' },
+    issue:      { label: 'Problème',  bg: 'rgba(255,59,48,0.12)', color: '#C8281F' },
+    todo:       { label: 'À faire',   bg: 'hsla(240,6%,15%,0.08)', color: 'hsl(var(--label-2))' },
+    inProgress: { label: 'En cours',  bg: 'rgba(0,122,255,0.12)', color: '#0064D6' },
+    completed:  { label: 'Terminé',   bg: 'rgba(52,199,89,0.12)', color: '#1F8A3F' },
+    scheduled:  { label: 'Planifié',  bg: 'rgba(157,99,209,0.12)', color: '#6A3DA8' },
   };
-
   const cfg = config[status] || config.todo;
-
   return (
-    <span className={cn("text-xs font-medium px-2.5 py-1 rounded-full", cfg.cls)}>
+    <span
+      className="inline-flex items-center gap-1.5 h-[22px] px-2.5 rounded-full text-[11px] font-semibold"
+      style={{ background: cfg.bg, color: cfg.color }}
+    >
+      <span className="w-1.5 h-1.5 rounded-full" style={{ background: cfg.color }} />
       {cfg.label}
     </span>
   );
