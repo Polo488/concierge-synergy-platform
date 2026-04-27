@@ -11,7 +11,7 @@ const TabsList = forwardRef<
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
-    className={cn("ios-tabs-list", className)}
+    className={cn("ios-tabs-list !border-0 !shadow-none !outline-none !ring-0 !ring-offset-0", className)}
     {...props}
   />
 ))
@@ -29,9 +29,9 @@ const TabsTrigger = forwardRef<
       "h-[26px] sm:h-[28px] rounded-[7px] sm:rounded-[8px]",
       "px-2.5 sm:px-3.5 text-[12px] sm:text-[13px]",
       "font-semibold tracking-normal",
-      "border-0 bg-transparent shadow-none",
+      "!border-0 bg-transparent !shadow-none",
       "transition-[background,color,box-shadow,transform] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)]",
-      "outline-none ring-0 ring-offset-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+      "!outline-none !ring-0 !ring-offset-0 focus:!outline-none focus-visible:!outline-none focus-visible:!ring-0 focus-visible:!ring-offset-0",
       "disabled:pointer-events-none disabled:opacity-50",
       "text-[hsl(var(--label-1)/0.55)] hover:text-[hsl(var(--label-1)/0.8)]",
       "data-[state=active]:text-[hsl(var(--label-1))]",
