@@ -22,14 +22,36 @@ const ToastViewport = React.forwardRef<
 ))
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
+/**
+ * Apple iOS 26 Toast — notification iOS, glass translucide, rounded 18px.
+ */
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
+  [
+    "group pointer-events-auto relative flex w-full items-center justify-between gap-3",
+    "overflow-hidden rounded-[18px] px-4 py-3.5 pr-10",
+    "transition-all ease-[cubic-bezier(0.32,0.72,0,1)]",
+    "data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)]",
+    "data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none",
+    "data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out",
+    "data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full",
+    "data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
+  ].join(" "),
   {
     variants: {
       variant: {
-        default: "border bg-background text-foreground",
-        destructive:
-          "destructive group border-destructive bg-destructive text-destructive-foreground",
+        default: [
+          "text-foreground border border-white/50 dark:border-white/10",
+          "bg-white/80 dark:bg-[hsl(240,10%,12%)]/80",
+          "backdrop-blur-[40px] backdrop-saturate-150",
+          "shadow-[0_12px_40px_-8px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.7)]",
+          "dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]",
+        ].join(" "),
+        destructive: [
+          "destructive group text-white border border-white/20",
+          "bg-gradient-to-b from-[#FF453A]/95 to-[#FF3B30]/95",
+          "backdrop-blur-[40px] backdrop-saturate-150",
+          "shadow-[0_12px_40px_-8px_rgba(255,59,48,0.40),inset_0_1px_0_rgba(255,255,255,0.20)]",
+        ].join(" "),
       },
     },
     defaultVariants: {
@@ -60,7 +82,11 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
+      "inline-flex h-8 shrink-0 items-center justify-center rounded-full px-3.5 text-[13px] font-semibold tracking-[-0.01em]",
+      "bg-foreground/[0.08] text-foreground hover:bg-foreground/[0.14]",
+      "dark:bg-white/[0.10] dark:text-white dark:hover:bg-white/[0.16]",
+      "transition-colors focus:outline-none focus:ring-2 focus:ring-ring/40 disabled:pointer-events-none disabled:opacity-50",
+      "group-[.destructive]:bg-white/20 group-[.destructive]:text-white group-[.destructive]:hover:bg-white/30",
       className
     )}
     {...props}
