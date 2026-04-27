@@ -13,10 +13,14 @@ interface OwnerInvoice {
   propertyCount: number;
   reservationCount: number;
   net: number;
+  blocked: boolean;
+  blockers: string[];
+  deferred: boolean;
 }
 
 function useOwnerInvoices(): OwnerInvoice[] {
   const { reservations, maintenance, cleaning, misc, negativeOps } = useFacturation();
+  const { invoices: metierInvoices } = useFacturationMetier();
   return useMemo(() => owners.map((o) => {
     const ownerProps = properties.filter((p) => p.ownerId === o.id);
     const propIds = new Set(ownerProps.map((p) => p.id));
@@ -27,13 +31,22 @@ function useOwnerInvoices(): OwnerInvoice[] {
       - misc.filter((m) => propIds.has(m.propertyId)).reduce((a, m) => a + m.amountHT * (1 + m.vatRate), 0)
       + negativeOps.filter((n) => propIds.has(n.propertyId) && n.decision === "owner").reduce((a, n) => a + n.amount, 0)
       + negativeOps.filter((n) => propIds.has(n.propertyId) && n.decision === "split").reduce((a, n) => a + n.amount / 2, 0);
+    // Aggrège blockers et statut depuis les factures métier de cet owner
+    const ownerMetier = metierInvoices.filter((mi) => mi.ownerId === o.id);
+    const blockerSet = new Set<string>();
+    ownerMetier.forEach((mi) => mi.blockingReasons.forEach((b) => blockerSet.add(b)));
+    const deferred = ownerMetier.some((mi) => mi.negativeDecision === "deferred");
+    const blocked = ownerMetier.some((mi) => mi.status === "blocked");
     return {
       owner: o,
       propertyCount: ownerProps.length,
       reservationCount: ownerRes.length,
       net: Math.round(net * 100) / 100,
+      blocked,
+      blockers: Array.from(blockerSet),
+      deferred,
     };
-  }).filter((i) => i.reservationCount > 0), [reservations, maintenance, cleaning, misc, negativeOps]);
+  }).filter((i) => i.reservationCount > 0), [reservations, maintenance, cleaning, misc, negativeOps, metierInvoices]);
 }
 
 function InvoiceCard({ inv, onClick, sent }: { inv: OwnerInvoice; onClick: () => void; sent: boolean }) {
