@@ -113,96 +113,91 @@ export default function GuestExperience() {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-            <MessageSquare className="h-8 w-8 text-primary" />
-            Communication Intelligente
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Automatisez et personnalisez toutes vos communications avec les voyageurs
-          </p>
-        </div>
+    <div className="space-y-6">
+      {/* Header — Apple style: stack sur mobile, ligne sur desktop */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-[28px] sm:text-[32px] font-bold tracking-tight text-[hsl(var(--label-1))] flex items-center gap-2.5">
+          <MessageSquare className="h-7 w-7 text-primary shrink-0" strokeWidth={2} />
+          <span className="truncate">Communication Intelligente</span>
+        </h1>
+        <p className="text-[14px] text-[hsl(var(--label-2)/0.68)]">
+          Automatisez et personnalisez toutes vos communications avec les voyageurs
+        </p>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Règles actives</CardTitle>
-            <Zap className="h-4 w-4 text-muted-foreground" />
+      {/* Stats Overview — 2x2 mobile, 4 cols desktop */}
+      <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
+        <Card className="rounded-[18px]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-4 pt-4">
+            <CardTitle className="text-[12px] font-medium text-[hsl(var(--label-2))]">Règles actives</CardTitle>
+            <Zap className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeRules}</div>
-            <p className="text-xs text-muted-foreground">
-              sur {stats.totalRules} règles
-            </p>
+          <CardContent className="px-4 pb-4">
+            <div className="text-[22px] font-bold text-[hsl(var(--label-1))]">{stats.activeRules}</div>
+            <p className="text-[11px] text-muted-foreground">sur {stats.totalRules} règles</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Messages envoyés</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+        <Card className="rounded-[18px]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-4 pt-4">
+            <CardTitle className="text-[12px] font-medium text-[hsl(var(--label-2))]">Messages envoyés</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalSent}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalFailed} échecs, {stats.totalSkipped} ignorés
-            </p>
+          <CardContent className="px-4 pb-4">
+            <div className="text-[22px] font-bold text-[hsl(var(--label-1))]">{stats.totalSent}</div>
+            <p className="text-[11px] text-muted-foreground">{stats.totalFailed} échecs</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Modèles</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+        <Card className="rounded-[18px]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-4 pt-4">
+            <CardTitle className="text-[12px] font-medium text-[hsl(var(--label-2))]">Modèles</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeTemplates}</div>
-            <p className="text-xs text-muted-foreground">
-              modèles actifs
-            </p>
+          <CardContent className="px-4 pb-4">
+            <div className="text-[22px] font-bold text-[hsl(var(--label-1))]">{stats.activeTemplates}</div>
+            <p className="text-[11px] text-muted-foreground">modèles actifs</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Revenus Upsell</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        <Card className="rounded-[18px]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-4 pt-4">
+            <CardTitle className="text-[12px] font-medium text-[hsl(var(--label-2))]">Revenus Upsell</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.upsellRevenue}€</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.activeUpsells} offres actives
-            </p>
+          <CardContent className="px-4 pb-4">
+            <div className="text-[22px] font-bold text-[hsl(var(--label-1))]">{stats.upsellRevenue}€</div>
+            <p className="text-[11px] text-muted-foreground">{stats.activeUpsells} actives</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Main Tabs */}
+      {/* Main Tabs — scroll horizontal silencieux mobile, grid desktop */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
-          <TabsTrigger value="rules" className="flex items-center gap-2">
-            <Zap className="h-4 w-4" />
-            <span className="hidden sm:inline">Règles</span>
-          </TabsTrigger>
-          <TabsTrigger value="templates" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            <span className="hidden sm:inline">Modèles</span>
-          </TabsTrigger>
-          <TabsTrigger value="upsells" className="flex items-center gap-2">
-            <Gift className="h-4 w-4" />
-            <span className="hidden sm:inline">Upsells</span>
-          </TabsTrigger>
-          <TabsTrigger value="logs" className="flex items-center gap-2">
-            <History className="h-4 w-4" />
-            <span className="hidden sm:inline">Historique</span>
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            <span className="hidden sm:inline">Paramètres</span>
-          </TabsTrigger>
-        </TabsList>
+        <div
+          className="overflow-x-auto -mx-1 px-1"
+          style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none' }}
+        >
+          <TabsList className="inline-flex w-auto sm:w-full sm:grid sm:grid-cols-5">
+            <TabsTrigger value="rules" className="flex items-center gap-1.5 px-3">
+              <Zap className="h-4 w-4" />
+              <span>Règles</span>
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="flex items-center gap-1.5 px-3">
+              <FileText className="h-4 w-4" />
+              <span>Modèles</span>
+            </TabsTrigger>
+            <TabsTrigger value="upsells" className="flex items-center gap-1.5 px-3">
+              <Gift className="h-4 w-4" />
+              <span>Upsells</span>
+            </TabsTrigger>
+            <TabsTrigger value="logs" className="flex items-center gap-1.5 px-3">
+              <History className="h-4 w-4" />
+              <span>Historique</span>
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-1.5 px-3">
+              <Settings className="h-4 w-4" />
+              <span>Réglages</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="rules">
           <MessagingRulesList
