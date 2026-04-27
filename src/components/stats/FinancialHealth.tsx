@@ -174,7 +174,7 @@ export function FinancialHealth() {
   }, []);
 
   return (
-    <div className="space-y-6 bg-[#FBF6EC] -mx-4 sm:-mx-6 px-4 sm:px-6 py-6 rounded-2xl">
+    <div className="space-y-6 bg-[#FBF6EC] edge-safe py-6 rounded-2xl">
 
       {/* ============ 1. HERO (dark navy with gradient + rotating seal + giant n.) ============ */}
       <div

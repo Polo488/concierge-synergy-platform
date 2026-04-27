@@ -13,6 +13,14 @@ html, body {
 }
 html { height: 100%; }
 
+/* iOS-style global gutter (Settings/Health: 20px mobile, 28-32px desktop) */
+:root {
+  --app-gutter: 20px;
+}
+@media (min-width: 640px) { :root { --app-gutter: 28px; } }
+@media (min-width: 1024px) { :root { --app-gutter: 32px; } }
+
+
 /* Fluid typography */
 @layer base {
   h1 { font-size: clamp(1.125rem, 2.5vw, 1.625rem); }
@@ -711,13 +719,29 @@ body {
   /* DO NOT set overscroll-behavior: none — it can break scroll in some browsers */
 }
 
-/* iOS safe area padding utility */
+/* iOS safe area padding utility — guarantees 20px+ visual gutter on mobile */
 @supports (padding: max(0px)) {
   .safe-top { padding-top: max(env(safe-area-inset-top), 0.5rem); }
   .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
-  .safe-left { padding-left: max(env(safe-area-inset-left), 0); }
-  .safe-right { padding-right: max(env(safe-area-inset-right), 0); }
+  .safe-left { padding-left: max(env(safe-area-inset-left), var(--app-gutter)); }
+  .safe-right { padding-right: max(env(safe-area-inset-right), var(--app-gutter)); }
 }
+
+/* Anti-overflow guard: any horizontally scrolling row inside the app shell
+   keeps the iOS gutter visible on both edges, even when content overflows.
+   Use class `edge-safe` to opt-in on rows that previously used negative margins. */
+.app-shell [class*="overflow-x-auto"],
+.app-shell .edge-safe {
+  scroll-padding-left: var(--app-gutter);
+  scroll-padding-right: var(--app-gutter);
+}
+.app-shell .edge-safe {
+  margin-left: calc(var(--app-gutter) * -1);
+  margin-right: calc(var(--app-gutter) * -1);
+  padding-left: var(--app-gutter);
+  padding-right: var(--app-gutter);
+}
+
 
 html, body, .scroll-smooth {
   scroll-behavior: smooth;
