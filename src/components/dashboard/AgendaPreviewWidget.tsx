@@ -123,25 +123,22 @@ export const AgendaPreviewWidget = ({
   const navigate = useNavigate();
 
   return (
-    <div className="bg-card rounded-2xl p-5 shadow-soft">
-      <div className="flex items-center justify-between mb-1">
-        <h3 className="text-[17px] font-bold flex items-center gap-2 font-heading text-foreground">
-          <Calendar className="h-5 w-5 text-primary" />
+    <div className="glass-card p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-[18px] font-semibold tracking-[-0.01em] flex items-center gap-2 text-[hsl(var(--label-1))]">
+          <Calendar className="h-4 w-4 text-[hsl(var(--label-2))]" strokeWidth={2} />
           Agenda
         </h3>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/app/agenda')}
-            className="gap-1 text-[13px] font-medium text-primary"
-          >
-            Voir tout
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/app/agenda')}
+          className="gap-1 text-[13px] font-semibold h-8 px-2 text-primary hover:text-primary"
+        >
+          Voir tout
+          <ChevronRight className="h-3 w-3" />
+        </Button>
       </div>
-      <div className="mb-4 border-b border-border" />
 
       <div className="space-y-4">
         <DaySection 
