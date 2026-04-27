@@ -75,19 +75,16 @@ export function KPICards({ kpis }: KPICardsProps) {
       {cards.map((card) => {
         const s = toneStyles[card.tone];
         return (
-          <div
-            key={card.title}
-            className="glass-surface rounded-2xl p-4 md:p-5 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5"
-          >
+          <div key={card.title} className="glass-surface rounded-[22px] p-4 md:p-5 overflow-hidden">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 space-y-1">
-                <p className="text-[12px] md:text-[13px] font-medium text-[hsl(240_6%_25%/0.6)] tracking-[-0.005em] truncate">
+                <p className="text-[12px] md:text-[13px] font-medium text-[hsl(var(--label-2)/0.72)] tracking-normal truncate">
                   {card.title}
                 </p>
-                <p className={cn('text-[26px] md:text-[30px] font-semibold leading-none tracking-[-0.02em]', s.value)}>
+                <p className={cn('text-[26px] md:text-[30px] font-semibold leading-none tracking-normal', s.value)}>
                   {card.value}
                 </p>
-                <p className="text-[11px] md:text-[12px] text-[hsl(240_6%_25%/0.55)] tracking-[-0.005em]">
+                <p className="text-[11px] md:text-[12px] text-[hsl(var(--label-2)/0.62)] tracking-normal">
                   {card.subtitle}
                 </p>
               </div>
