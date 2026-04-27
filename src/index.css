@@ -950,80 +950,10 @@ html, body, .scroll-smooth {
 }
 
 /* ==========================================================================
-   iOS 26 — SEGMENTED CONTROL (Liquid Glass)
-   Compact iOS sizing with responsive heights for mobile.
+   iOS 26 — SEGMENTED / TABS CONTROL
+   Base unique, sans bordure/halo externe ni ligne jaune/orange.
    ========================================================================== */
-.ios-segmented {
-  position: relative;
-  display: inline-flex;
-  padding: 2px;
-  border-radius: 9px;
-  background: hsla(var(--label-1) / 0.05);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid hsla(var(--label-1) / 0.04);
-  box-shadow: inset 0 1px 0 hsla(255 255 255 / 0.4);
-  height: 30px;
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  white-space: nowrap;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.ios-segmented::-webkit-scrollbar { display: none; }
-@media (min-width: 640px) {
-  .ios-segmented {
-    padding: 3px;
-    border-radius: 10px;
-    height: 34px;
-  }
-}
-.dark .ios-segmented {
-  background: hsl(0 0% 100% / 0.06);
-  border-color: hsl(0 0% 100% / 0.06);
-  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04);
-}
-
-.ios-segmented-thumb {
-  position: absolute;
-  top: 2px;
-  bottom: 2px;
-  border-radius: 7px;
-  background: linear-gradient(180deg, hsla(var(--surface-1) / 0.92), hsla(var(--surface-1) / 0.78));
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  box-shadow:
-    inset 0 1px 0 hsla(255 255 255 / 0.7),
-    0 1px 2px hsla(var(--label-1) / 0.08),
-    0 2px 6px hsla(var(--label-1) / 0.06);
-  transition: left 300ms cubic-bezier(0.32, 0.72, 0, 1), width 300ms cubic-bezier(0.32, 0.72, 0, 1);
-  z-index: 0;
-}
-@media (min-width: 640px) {
-  .ios-segmented-thumb {
-    top: 3px;
-    bottom: 3px;
-    border-radius: 8px;
-  }
-}
-.dark .ios-segmented-thumb {
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.16), hsl(0 0% 100% / 0.10));
-  box-shadow:
-    inset 0 1px 0 hsl(0 0% 100% / 0.12),
-    0 1px 2px hsl(0 0% 0% / 0.4);
-}
-
-.ios-segmented [data-state="active"] {
-  color: hsl(var(--label-1));
-}
-
-/* Legacy radix-style segmented (kept for backwards compat) */
-.ios-segmented [data-state="active"]:not(.ios-segmented-thumb) {
-  background: transparent;
-  box-shadow: none;
-}
-
+.ios-segmented,
 .ios-tabs-list {
   position: relative;
   display: inline-flex;
@@ -1037,49 +967,79 @@ html, body, .scroll-smooth {
   white-space: nowrap;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  border: 0;
+  border: 0 !important;
+  outline: 0 !important;
   border-radius: 9px;
-  background: hsla(var(--label-1) / 0.06);
-  box-shadow: inset 0 1px 0 hsla(0 0% 100% / 0.32), 0 1px 2px hsla(var(--label-1) / 0.06);
-  backdrop-filter: blur(18px) saturate(170%);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  background: hsla(var(--label-1) / 0.055) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  -webkit-tap-highlight-color: transparent;
 }
 
+.ios-segmented::-webkit-scrollbar,
 .ios-tabs-list::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;
 }
 
+.ios-segmented:focus,
+.ios-segmented:focus-visible,
+.ios-segmented:focus-within,
 .ios-tabs-list:focus,
 .ios-tabs-list:focus-visible,
+.ios-tabs-list:focus-within,
+.ios-segmented [role="tab"]:focus,
+.ios-segmented [role="tab"]:focus-visible,
+.ios-segmented button:focus,
+.ios-segmented button:focus-visible,
 .ios-tabs-list [role="tab"]:focus,
 .ios-tabs-list [role="tab"]:focus-visible {
-  outline: 0;
+  outline: 0 !important;
+  box-shadow: none !important;
 }
 
+.ios-segmented-thumb {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: 7px;
+  z-index: 0;
+  transition: left 300ms cubic-bezier(0.32, 0.72, 0, 1), width 300ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.ios-segmented-thumb,
 .ios-tabs-list [role="tab"][data-state="active"] {
-  background: linear-gradient(180deg, hsla(var(--surface-1) / 0.96), hsla(var(--surface-1) / 0.82));
-  color: hsl(var(--label-1));
-  box-shadow: inset 0 1px 0 hsla(0 0% 100% / 0.72), 0 1px 2px hsla(var(--label-1) / 0.08);
+  background: hsla(var(--surface-1) / 0.92) !important;
+  color: hsl(var(--label-1)) !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
 }
 
+.dark .ios-segmented,
 .dark .ios-tabs-list {
-  background: hsl(0 0% 100% / 0.07);
-  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.05), 0 1px 2px hsl(0 0% 0% / 0.28);
+  background: hsl(0 0% 100% / 0.08) !important;
 }
 
+.dark .ios-segmented-thumb,
 .dark .ios-tabs-list [role="tab"][data-state="active"] {
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.18), hsl(0 0% 100% / 0.11));
-  color: hsl(var(--label-1));
-  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.12), 0 1px 2px hsl(0 0% 0% / 0.4);
+  background: hsl(0 0% 100% / 0.16) !important;
 }
 
 @media (min-width: 640px) {
+  .ios-segmented,
   .ios-tabs-list {
     height: 34px;
     padding: 3px;
     border-radius: 10px;
+  }
+
+  .ios-segmented-thumb {
+    top: 3px;
+    bottom: 3px;
+    border-radius: 8px;
   }
 }
 
