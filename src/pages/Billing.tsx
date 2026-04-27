@@ -51,9 +51,10 @@ function FacturationContent() {
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
-        <div className="flex items-center justify-between gap-3 sm:justify-start">
+        <div className="flex items-center gap-3 flex-wrap">
           <FacturationPeriodPill />
           <FacturationProgress />
+          <BillingModeToggle />
         </div>
         <PrimaryCta />
       </header>
@@ -73,6 +74,7 @@ function FacturationContent() {
           {activeTab === "reservations" && <ReservationsTab />}
           {activeTab === "negatives" && <NegativeOpsTab />}
           {activeTab === "complements" && <ComplementsTab />}
+          {activeTab === "provider-calls" && <ProviderCallsTab />}
           {activeTab === "reconciliation" && <ReconciliationTab />}
           {activeTab === "invoices" && <InvoicesTab />}
           {activeTab === "escrow" && <EscrowTab />}
