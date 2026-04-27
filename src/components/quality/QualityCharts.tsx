@@ -1,14 +1,12 @@
-
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  LineChart, 
-  Line, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -25,8 +23,25 @@ interface QualityChartsProps {
   issueFrequency: IssueFrequency[];
 }
 
-const COLORS = ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e'];
-const ISSUE_COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#6366f1'];
+// Palette iOS-like cohérente avec le système (orange Noé + teintes status)
+const RATING_COLORS = [
+  'hsl(var(--status-error))',
+  'hsl(var(--status-warning))',
+  'hsl(var(--ios-yellow))',
+  'hsl(var(--status-success))',
+  'hsl(var(--status-success))',
+];
+
+const ISSUE_COLORS = [
+  'hsl(var(--ios-orange))',
+  'hsl(var(--ios-blue))',
+  'hsl(var(--status-pending))',
+  'hsl(var(--ios-yellow))',
+  'hsl(var(--status-success))',
+  'hsl(var(--status-warning))',
+  'hsl(var(--status-error))',
+  'hsl(var(--status-info))',
+];
 
 const tagLabels: Record<string, string> = {
   dust: 'Poussière',
@@ -41,183 +56,168 @@ const tagLabels: Record<string, string> = {
   general: 'Général',
 };
 
+const tooltipStyle: React.CSSProperties = {
+  background: 'hsl(var(--card) / 0.85)',
+  backdropFilter: 'blur(30px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+  border: '1px solid hsl(var(--separator))',
+  borderRadius: 14,
+  boxShadow: '0 10px 30px rgba(0,0,0,0.10)',
+  fontSize: 12,
+  padding: '8px 12px',
+  color: 'hsl(var(--label-1))',
+};
+
+function ChartCard({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="glass-surface rounded-2xl p-4 md:p-5">
+      <div className="mb-3 md:mb-4">
+        <h3 className="text-[15px] md:text-[16px] font-semibold tracking-[-0.015em] text-[hsl(var(--label-1))]">
+          {title}
+        </h3>
+        {subtitle && (
+          <p className="text-[12px] text-[hsl(240_6%_25%/0.6)] mt-0.5 tracking-[-0.005em]">{subtitle}</p>
+        )}
+      </div>
+      <div className="h-[240px] md:h-[260px]">{children}</div>
+    </div>
+  );
+}
+
 export function QualityCharts({
   ratingDistribution,
   ratingTrend,
   repasseTrend,
   issueFrequency,
 }: QualityChartsProps) {
-  // Format trend data
-  const formattedRatingTrend = ratingTrend.slice(-14).map(point => ({
+  const formattedRatingTrend = ratingTrend.slice(-14).map((point) => ({
     ...point,
     formattedDate: format(parseISO(point.date), 'dd/MM', { locale: fr }),
   }));
 
-  const formattedRepasseTrend = repasseTrend.slice(-14).map(point => ({
+  const formattedRepasseTrend = repasseTrend.slice(-14).map((point) => ({
     ...point,
     formattedDate: format(parseISO(point.date), 'dd/MM', { locale: fr }),
   }));
+
+  const axisTick = { fontSize: 11, fill: 'hsl(240 6% 25% / 0.55)' };
+  const grid = 'hsl(var(--separator))';
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Rating Trend */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-medium">Évolution des notes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={formattedRatingTrend}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="formattedDate" 
-                  tick={{ fontSize: 12 }} 
-                  className="text-muted-foreground"
-                />
-                <YAxis 
-                  domain={[1, 5]} 
-                  tick={{ fontSize: 12 }}
-                  className="text-muted-foreground"
-                />
-                <Tooltip 
-                  formatter={(value: number) => [value.toFixed(2), 'Note']}
-                  labelFormatter={(label) => `Date: ${label}`}
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="hsl(var(--primary))" 
-                  strokeWidth={2}
-                  dot={{ fill: 'hsl(var(--primary))' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5">
+      <ChartCard title="Évolution des notes" subtitle="14 derniers jours">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={formattedRatingTrend} margin={{ top: 6, right: 8, left: -12, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={grid} />
+            <XAxis dataKey="formattedDate" tick={axisTick} axisLine={false} tickLine={false} />
+            <YAxis domain={[1, 5]} tick={axisTick} axisLine={false} tickLine={false} />
+            <Tooltip
+              formatter={(value: number) => [value.toFixed(2), 'Note']}
+              labelFormatter={(label) => `${label}`}
+              contentStyle={tooltipStyle}
+              cursor={{ stroke: 'hsl(var(--ios-orange) / 0.2)', strokeWidth: 1 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="hsl(var(--ios-orange))"
+              strokeWidth={2.5}
+              dot={{ fill: 'hsl(var(--ios-orange))', r: 3, strokeWidth: 0 }}
+              activeDot={{ r: 5, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartCard>
 
-      {/* Rating Distribution */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-medium">Distribution des notes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={ratingDistribution}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="rating" 
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => `${value}★`}
-                />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip 
-                  formatter={(value: number) => [value, 'Nombre']}
-                  labelFormatter={(label) => `Note: ${label}★`}
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}
-                />
-                <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                  {ratingDistribution.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[entry.rating - 1]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+      <ChartCard title="Distribution des notes" subtitle="Répartition globale">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={ratingDistribution} margin={{ top: 6, right: 8, left: -12, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
+            <XAxis
+              dataKey="rating"
+              tick={axisTick}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(value) => `${value}★`}
+            />
+            <YAxis tick={axisTick} axisLine={false} tickLine={false} />
+            <Tooltip
+              formatter={(value: number) => [value, 'Nombre']}
+              labelFormatter={(label) => `Note ${label}★`}
+              contentStyle={tooltipStyle}
+              cursor={{ fill: 'hsl(var(--ios-orange) / 0.06)' }}
+            />
+            <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+              {ratingDistribution.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={RATING_COLORS[entry.rating - 1]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartCard>
 
-      {/* Repasse Trend */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-medium">Taux de repasse</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={formattedRepasseTrend}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="formattedDate" 
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis 
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => `${value}%`}
-                />
-                <Tooltip 
-                  formatter={(value: number) => [`${value.toFixed(1)}%`, 'Taux']}
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#ef4444" 
-                  strokeWidth={2}
-                  dot={{ fill: '#ef4444' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+      <ChartCard title="Taux de repasse" subtitle="14 derniers jours">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={formattedRepasseTrend} margin={{ top: 6, right: 8, left: -12, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={grid} />
+            <XAxis dataKey="formattedDate" tick={axisTick} axisLine={false} tickLine={false} />
+            <YAxis tick={axisTick} axisLine={false} tickLine={false} tickFormatter={(value) => `${value}%`} />
+            <Tooltip
+              formatter={(value: number) => [`${value.toFixed(1)}%`, 'Taux']}
+              contentStyle={tooltipStyle}
+              cursor={{ stroke: 'hsl(var(--status-error) / 0.2)', strokeWidth: 1 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="hsl(var(--status-error))"
+              strokeWidth={2.5}
+              dot={{ fill: 'hsl(var(--status-error))', r: 3, strokeWidth: 0 }}
+              activeDot={{ r: 5, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartCard>
 
-      {/* Issue Frequency */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-medium">Problèmes fréquents</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={issueFrequency.slice(0, 8).map(issue => ({
-                    ...issue,
-                    name: tagLabels[issue.tag] || issue.tag,
-                  }))}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={40}
-                  outerRadius={80}
-                  paddingAngle={2}
-                  dataKey="count"
-                  nameKey="name"
-                  label={({ name, percentage }) => `${name}: ${percentage.toFixed(0)}%`}
-                  labelLine={false}
-                >
-                  {issueFrequency.slice(0, 8).map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={ISSUE_COLORS[index % ISSUE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value: number, name: string) => [value, name]}
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+      <ChartCard title="Problèmes fréquents" subtitle="Top des signalements">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={issueFrequency.slice(0, 8).map((issue) => ({
+                ...issue,
+                name: tagLabels[issue.tag] || issue.tag,
+              }))}
+              cx="50%"
+              cy="50%"
+              innerRadius={48}
+              outerRadius={88}
+              paddingAngle={3}
+              dataKey="count"
+              nameKey="name"
+              stroke="hsl(var(--card))"
+              strokeWidth={2}
+              label={({ name, percentage }) => `${name} ${percentage.toFixed(0)}%`}
+              labelLine={false}
+            >
+              {issueFrequency.slice(0, 8).map((_, index) => (
+                <Cell key={`cell-${index}`} fill={ISSUE_COLORS[index % ISSUE_COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value: number, name: string) => [value, name]}
+              contentStyle={tooltipStyle}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartCard>
     </div>
   );
 }
