@@ -15,6 +15,7 @@ import { TutorialProvider } from "./contexts/TutorialContext";
 import { TutorialOverlay } from "./components/tutorial/TutorialOverlay";
 import { CommandPaletteProvider } from "./components/command/CommandPalette";
 import { GlobalShortcuts } from "./components/command/GlobalShortcuts";
+import { DynamicIsland } from "./components/ui/dynamic-island";
 // App pages
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
@@ -66,6 +67,7 @@ const App = () => (
                   <TutorialOverlay />
                   <CommandPaletteProvider />
                   <GlobalShortcuts />
+                  <DynamicIsland />
                   
                   <Routes>
                     {/* Root → login */}
