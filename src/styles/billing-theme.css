@@ -1,50 +1,242 @@
 /* ============================================================
-   Billing module — adaptive theme
-   Maps the dark-styled utility classes used inside the billing
-   components to design tokens that work in BOTH light and dark.
-   Scoped exclusively under `.bill-scope`.
+   Billing module — Apple HIG adaptive theme
+   Scoped under `.bill-scope`. Provides true light & dark surfaces,
+   labels and state colors calibrated for WCAG AA contrast.
    ============================================================ */
 
+/* ---------- Tokens : LIGHT (default Apple system) ---------- */
 .bill-scope {
-  /* Foreground reference (used by overrides below). */
-  --bill-fg: var(--foreground);
-  --bill-surface: var(--card);
-  --bill-border: var(--border);
+  /* Backgrounds (Apple system grouped backgrounds) */
+  --bill-bg:            0 0% 96%;       /* systemGroupedBackground */
+  --bill-surface-1:     0 0% 100%;      /* secondarySystemGroupedBackground */
+  --bill-surface-2:     220 14% 97%;    /* tertiarySystemGroupedBackground */
+  --bill-surface-hover: 220 14% 94%;
+  --bill-stroke:        220 13% 88%;    /* opaque separator */
+  --bill-stroke-soft:   220 13% 92%;
+
+  /* Labels (Apple labelColor cascade) */
+  --bill-label:         222 22% 11%;    /* primary label  ~ #1A1D24 */
+  --bill-label-2:       222 12% 32%;    /* secondary      */
+  --bill-label-3:       222 8%  46%;    /* tertiary       */
+  --bill-label-4:       222 6%  60%;    /* quaternary     */
+
+  /* Brand & accents */
+  --bill-orange:        15 100% 55%;
+  --bill-orange-ink:    0 0% 100%;
+  --bill-blue:          212 90% 48%;    /* systemBlue light */
+  --bill-green:         142 64% 38%;    /* systemGreen light (AA on white) */
+  --bill-yellow:        36 95% 38%;     /* darker yellow text for AA */
+  --bill-red:           0 78% 48%;
+  --bill-violet:        250 65% 52%;
+
+  /* Tinted fills (light: low-saturation pastel surface + dark text for AA) */
+  --bill-fill-blue:     212 90% 95%;
+  --bill-fill-green:    142 60% 92%;
+  --bill-fill-yellow:   42 100% 92%;
+  --bill-fill-red:      0 80% 95%;
+  --bill-fill-violet:   250 70% 95%;
+  --bill-fill-neutral:  220 14% 92%;
+
+  /* Shadows (Apple subtle elevation) */
+  --bill-shadow-sm: 0 1px 2px hsl(220 30% 10% / 0.04);
+  --bill-shadow-md: 0 1px 2px hsl(220 30% 10% / 0.04), 0 8px 24px hsl(220 30% 10% / 0.06);
+  --bill-shadow-lg: 0 4px 12px hsl(220 30% 10% / 0.06), 0 24px 48px hsl(220 30% 10% / 0.10);
+
+  /* Halo gradients (very soft in light) */
+  --bill-halo-1: hsl(15 100% 60% / 0.08);
+  --bill-halo-2: hsl(212 90% 55% / 0.06);
+  --bill-halo-3: hsl(142 50% 50% / 0.05);
 }
 
-/* ---- Text ---- */
-.bill-scope .text-white { color: hsl(var(--foreground)) !important; }
-.bill-scope .text-white\/85 { color: hsl(var(--foreground) / 0.92) !important; }
-.bill-scope .text-white\/80 { color: hsl(var(--foreground) / 0.88) !important; }
-.bill-scope .text-white\/75 { color: hsl(var(--foreground) / 0.82) !important; }
-.bill-scope .text-white\/70 { color: hsl(var(--foreground) / 0.78) !important; }
-.bill-scope .text-white\/65 { color: hsl(var(--muted-foreground)) !important; }
-.bill-scope .text-white\/60 { color: hsl(var(--muted-foreground)) !important; }
-.bill-scope .text-white\/55 { color: hsl(var(--muted-foreground)) !important; }
-.bill-scope .text-white\/50 { color: hsl(var(--muted-foreground) / 0.9) !important; }
-.bill-scope .text-white\/45 { color: hsl(var(--muted-foreground) / 0.85) !important; }
-.bill-scope .text-white\/40 { color: hsl(var(--muted-foreground) / 0.8) !important; }
+/* ---------- Tokens : DARK (OLED black à la iOS 26) ---------- */
+.dark .bill-scope,
+.bill-scope.dark {
+  --bill-bg:            240 10% 4%;
+  --bill-surface-1:     240 10% 7%;
+  --bill-surface-2:     240 10% 9%;
+  --bill-surface-hover: 240 10% 12%;
+  --bill-stroke:        240 8% 18%;
+  --bill-stroke-soft:   240 8% 14%;
 
-/* ---- Surfaces (white/0.0X used for translucent dark cards) ---- */
-.bill-scope .bg-white\/\[0\.015\] { background-color: hsl(var(--foreground) / 0.025) !important; }
-.bill-scope .bg-white\/\[0\.02\]  { background-color: hsl(var(--foreground) / 0.03) !important; }
-.bill-scope .bg-white\/\[0\.03\]  { background-color: hsl(var(--foreground) / 0.04) !important; }
-.bill-scope .bg-white\/\[0\.04\]  { background-color: hsl(var(--foreground) / 0.05) !important; }
-.bill-scope .bg-white\/\[0\.05\]  { background-color: hsl(var(--foreground) / 0.06) !important; }
-.bill-scope .bg-white\/\[0\.06\]  { background-color: hsl(var(--foreground) / 0.07) !important; }
-.bill-scope .bg-white\/\[0\.08\]  { background-color: hsl(var(--foreground) / 0.08) !important; }
-.bill-scope .bg-white\/\[0\.1\]   { background-color: hsl(var(--foreground) / 0.1) !important; }
-.bill-scope .hover\:bg-white\/\[0\.08\]:hover { background-color: hsl(var(--foreground) / 0.1) !important; }
-.bill-scope .hover\:bg-white\/\[0\.1\]:hover  { background-color: hsl(var(--foreground) / 0.12) !important; }
+  --bill-label:         0 0% 98%;
+  --bill-label-2:       0 0% 78%;
+  --bill-label-3:       0 0% 60%;
+  --bill-label-4:       0 0% 42%;
+
+  --bill-orange:        15 100% 60%;
+  --bill-orange-ink:    0 0% 100%;
+  --bill-blue:          212 100% 68%;
+  --bill-green:         142 70% 60%;
+  --bill-yellow:        42 95% 62%;
+  --bill-red:           0 84% 68%;
+  --bill-violet:        250 80% 72%;
+
+  --bill-fill-blue:     212 100% 68% / 0.16;
+  --bill-fill-green:    142 70% 55% / 0.16;
+  --bill-fill-yellow:   42 95% 60% / 0.18;
+  --bill-fill-red:      0 80% 60% / 0.16;
+  --bill-fill-violet:   250 80% 70% / 0.18;
+  --bill-fill-neutral:  0 0% 100% / 0.08;
+
+  --bill-shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --bill-shadow-md: 0 1px 2px rgba(0,0,0,0.3), 0 12px 32px rgba(0,0,0,0.45);
+  --bill-shadow-lg: 0 8px 24px rgba(0,0,0,0.5), 0 32px 64px rgba(0,0,0,0.6);
+
+  --bill-halo-1: hsl(15 100% 60% / 0.22);
+  --bill-halo-2: hsl(212 100% 60% / 0.16);
+  --bill-halo-3: hsl(142 70% 50% / 0.10);
+}
+
+/* ---------- Base typography : SF stack with tabular nums ---------- */
+.bill-scope {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter",
+               system-ui, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
+  color: hsl(var(--bill-label));
+}
+.bill-scope h1, .bill-scope h2, .bill-scope h3, .bill-scope h4,
+.bill-scope .font-heading {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter",
+               system-ui, sans-serif;
+  letter-spacing: -0.022em;
+  color: hsl(var(--bill-label));
+}
+.bill-scope .tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* ============================================================
+   OVERRIDES — map legacy "white/X" utilities → adaptive tokens
+   ============================================================ */
+
+/* ---- Page background halos ---- */
+.bill-scope > .bg-\[radial-gradient\(circle_at_12\%_8\%\2c hsl\(var\(--primary\)\/0\.12\)\2c transparent_28\%\)\2c radial-gradient\(circle_at_86\%_16\%\2c hsl\(var\(--status-info\)\/0\.10\)\2c transparent_30\%\)\2c radial-gradient\(circle_at_78\%_78\%\2c hsl\(var\(--status-success\)\/0\.08\)\2c transparent_28\%\)\] {
+  background:
+    radial-gradient(circle at 12% 8%, var(--bill-halo-1), transparent 32%),
+    radial-gradient(circle at 86% 16%, var(--bill-halo-2), transparent 34%),
+    radial-gradient(circle at 78% 78%, var(--bill-halo-3), transparent 30%);
+}
+
+/* ---- Text colors (label cascade) ---- */
+.bill-scope .text-white,
+.bill-scope .text-white\/95 { color: hsl(var(--bill-label)) !important; }
+.bill-scope .text-white\/90,
+.bill-scope .text-white\/85,
+.bill-scope .text-white\/80 { color: hsl(var(--bill-label) / 0.95) !important; }
+.bill-scope .text-white\/75,
+.bill-scope .text-white\/70,
+.bill-scope .text-white\/65 { color: hsl(var(--bill-label-2)) !important; }
+.bill-scope .text-white\/60,
+.bill-scope .text-white\/55,
+.bill-scope .text-white\/50 { color: hsl(var(--bill-label-3)) !important; }
+.bill-scope .text-white\/45,
+.bill-scope .text-white\/40,
+.bill-scope .text-white\/30 { color: hsl(var(--bill-label-4)) !important; }
+.bill-scope .placeholder\:text-white\/30::placeholder { color: hsl(var(--bill-label-4)) !important; }
+
+/* ---- Surfaces (cards, rows, inputs) ---- */
+.bill-scope .bg-white\/\[0\.015\] { background-color: hsl(var(--bill-surface-2) / 0.5) !important; }
+.bill-scope .bg-white\/\[0\.02\],
+.bill-scope .bg-white\/\[0\.025\] { background-color: hsl(var(--bill-surface-2)) !important; }
+.bill-scope .bg-white\/\[0\.03\],
+.bill-scope .bg-white\/\[0\.04\],
+.bill-scope .bg-white\/\[0\.045\],
+.bill-scope .bg-white\/\[0\.05\] { background-color: hsl(var(--bill-surface-1)) !important; }
+.bill-scope .bg-white\/\[0\.06\],
+.bill-scope .bg-white\/\[0\.08\] { background-color: hsl(var(--bill-surface-hover)) !important; }
+.bill-scope .bg-white\/\[0\.1\]   { background-color: hsl(var(--bill-fill-neutral)) !important; }
+.bill-scope .bg-white\/8          { background-color: hsl(var(--bill-fill-neutral)) !important; }
+.bill-scope .bg-white\/30         { background-color: hsl(var(--bill-label-3)) !important; }
+.bill-scope .hover\:bg-white\/\[0\.04\]:hover,
+.bill-scope .hover\:bg-white\/\[0\.045\]:hover,
+.bill-scope .hover\:bg-white\/\[0\.05\]:hover { background-color: hsl(var(--bill-surface-hover)) !important; }
+.bill-scope .hover\:bg-white\/\[0\.06\]:hover,
+.bill-scope .hover\:bg-white\/\[0\.08\]:hover,
+.bill-scope .hover\:bg-white\/\[0\.1\]:hover { background-color: hsl(var(--bill-stroke-soft)) !important; }
+.bill-scope .focus\:bg-white\/\[0\.06\]:focus { background-color: hsl(var(--bill-surface-hover)) !important; }
 
 /* ---- Borders ---- */
-.bill-scope .border-white\/\[0\.04\] { border-color: hsl(var(--border) / 0.6) !important; }
-.bill-scope .border-white\/\[0\.05\] { border-color: hsl(var(--border) / 0.7) !important; }
-.bill-scope .border-white\/\[0\.06\] { border-color: hsl(var(--border) / 0.8) !important; }
-.bill-scope .border-white\/\[0\.08\] { border-color: hsl(var(--border)) !important; }
-.bill-scope .border-white\/\[0\.12\] { border-color: hsl(var(--border)) !important; }
-.bill-scope .border-white\/15        { border-color: hsl(var(--border)) !important; }
-.bill-scope .bg-white\/15            { background-color: hsl(var(--border)) !important; }
+.bill-scope .border-white\/\[0\.04\],
+.bill-scope .border-white\/\[0\.05\],
+.bill-scope .border-white\/\[0\.06\] { border-color: hsl(var(--bill-stroke-soft)) !important; }
+.bill-scope .border-white\/\[0\.08\],
+.bill-scope .border-white\/\[0\.1\],
+.bill-scope .border-white\/\[0\.12\],
+.bill-scope .border-white\/15,
+.bill-scope .border-white\/10 { border-color: hsl(var(--bill-stroke)) !important; }
+.bill-scope .focus\:border-white\/\[0\.1\]:focus { border-color: hsl(var(--bill-orange) / 0.4) !important; }
+.bill-scope .bg-white\/15 { background-color: hsl(var(--bill-stroke)) !important; }
 
-/* ---- Focus rings ---- */
-.bill-scope .focus\:ring-white\/20:focus { box-shadow: 0 0 0 2px hsl(var(--ring) / 0.3) !important; }
+/* ---- Shadows : Apple subtle elevation ---- */
+.bill-scope .shadow-\[0_1px_2px_rgba\(0\2c 0\2c 0\2c 0\.04\)\2c 0_8px_24px_rgba\(0\2c 0\2c 0\2c 0\.18\)\] {
+  box-shadow: var(--bill-shadow-md) !important;
+}
+.bill-scope .shadow-2xl { box-shadow: var(--bill-shadow-lg) !important; }
+
+/* ---- State badges & accents : adaptive AA-safe ---- */
+/* Green (success) */
+.bill-scope .bg-\[\#4ADE80\]\/12,
+.bill-scope .bg-\[\#4ADE80\]\/15,
+.bill-scope .bg-\[\#4ADE80\]\/20 { background-color: hsl(var(--bill-fill-green)) !important; }
+.bill-scope .text-\[\#4ADE80\]   { color: hsl(var(--bill-green)) !important; }
+.bill-scope .border-\[\#4ADE80\]\/20 { border-color: hsl(var(--bill-green) / 0.3) !important; }
+
+/* Yellow (warning) */
+.bill-scope .bg-\[\#F5C842\]\/12,
+.bill-scope .bg-\[\#F5C842\]\/15,
+.bill-scope .bg-\[\#F5C842\]\/20 { background-color: hsl(var(--bill-fill-yellow)) !important; }
+.bill-scope .text-\[\#F5C842\]   { color: hsl(var(--bill-yellow)) !important; }
+.bill-scope .ring-\[\#F5C842\]\/20 { --tw-ring-color: hsl(var(--bill-yellow) / 0.4) !important; }
+
+/* Red (error) */
+.bill-scope .bg-\[\#F87171\]\/12,
+.bill-scope .bg-\[\#F87171\]\/15,
+.bill-scope .bg-\[\#F87171\]\/20 { background-color: hsl(var(--bill-fill-red)) !important; }
+.bill-scope .text-\[\#F87171\]   { color: hsl(var(--bill-red)) !important; }
+.bill-scope .text-\[\#B91C1C\]   { color: hsl(var(--bill-red)) !important; }
+
+/* Violet/Indigo (sent) */
+.bill-scope .bg-\[\#6B7AE8\]\/\[0\.08\],
+.bill-scope .bg-\[\#6B7AE8\]\/15,
+.bill-scope .bg-\[\#6B7AE8\]\/20 { background-color: hsl(var(--bill-fill-violet)) !important; }
+.bill-scope .text-\[\#6B7AE8\]   { color: hsl(var(--bill-violet)) !important; }
+.bill-scope .border-\[\#6B7AE8\]\/\[0\.1\] { border-color: hsl(var(--bill-violet) / 0.25) !important; }
+.bill-scope .bg-\[\#6B7AE8\]     { background-color: hsl(var(--bill-violet)) !important; }
+
+/* Orange CTA — keep brand orange, adjust shadow & focus ring */
+.bill-scope .bg-\[\#FF5C1A\] { background-color: hsl(var(--bill-orange)) !important; color: hsl(var(--bill-orange-ink)) !important; }
+.bill-scope .hover\:bg-\[\#FF5C1A\]\/90:hover { background-color: hsl(var(--bill-orange) / 0.92) !important; }
+.bill-scope .text-\[\#FF5C1A\] { color: hsl(var(--bill-orange)) !important; }
+.bill-scope .shadow-\[0_4px_14px_rgba\(255\2c 92\2c 26\2c 0\.35\)\] {
+  box-shadow: 0 4px 14px hsl(var(--bill-orange) / 0.32) !important;
+}
+.bill-scope .shadow-\[0_4px_14px_rgba\(255\2c 92\2c 26\2c 0\.3\)\] {
+  box-shadow: 0 4px 14px hsl(var(--bill-orange) / 0.28) !important;
+}
+.bill-scope .shadow-\[0_8px_24px_rgba\(255\2c 92\2c 26\2c 0\.35\)\] {
+  box-shadow: 0 8px 24px hsl(var(--bill-orange) / 0.32) !important;
+}
+.bill-scope .shadow-\[0_0_12px_rgba\(255\2c 92\2c 26\2c 0\.5\)\] {
+  box-shadow: 0 0 12px hsl(var(--bill-orange) / 0.45) !important;
+}
+.bill-scope .focus\:ring-\[\#FF5C1A\]\/40:focus {
+  box-shadow: 0 0 0 3px hsl(var(--bill-orange) / 0.3) !important;
+  outline: none;
+}
+
+/* OTA dots */
+.bill-scope .bg-\[\#003580\] { background-color: hsl(212 100% 25%) !important; }
+.bill-scope .bg-\[\#FF5A5F\] { background-color: hsl(358 100% 67%) !important; }
+
+/* ---- Modal/drawer surfaces : adapt the dark navy fallback ---- */
+.bill-scope .bg-\[\#1a1a2e\]\/90,
+.bill-scope .bg-\[\#1a1a2e\]\/95 { background-color: hsl(var(--bill-surface-1) / 0.96) !important; backdrop-filter: blur(24px); }
+.bill-scope .bg-black\/50,
+.bill-scope .bg-black\/60,
+.bill-scope .bg-black\/70 { background-color: hsl(var(--bill-label) / 0.45) !important; }
+
+/* Backdrop blur layer that creates a haze over content */
+.bill-scope .bg-white\/\[0\.02\].backdrop-blur-\[2px\] { background-color: transparent !important; }
+
+/* Make sure the invoice "paper" preview stays readable in both modes (it's a printed doc — keep cream paper) */
+/* (it already uses bg-[#FAF8F4] / text-[#1a1a2e] — leave untouched) */
