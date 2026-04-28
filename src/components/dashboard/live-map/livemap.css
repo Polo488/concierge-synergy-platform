@@ -1,18 +1,27 @@
 /* === LiveMap markers — Noé iOS 26 === */
 
-.noe-marker {
+.noe-marker-shell {
+  width: 0;
+  height: 0;
   position: relative;
+  cursor: pointer;
+}
+
+.noe-marker {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transform: translate3d(0, 0, 0);
+  transform: translate3d(-50%, -50%, 0);
+  transform-origin: center;
 }
 
-.noe-marker:focus { outline: none; }
-.noe-marker:focus-visible .noe-marker__core {
+.noe-marker-shell:focus { outline: none; }
+.noe-marker-shell:focus-visible .noe-marker__core {
   box-shadow: 0 0 0 3px rgba(107, 122, 232, 0.55);
 }
 
@@ -120,15 +129,15 @@
   animation-delay: var(--noe-enter-delay, 0s);
 }
 @keyframes noe-marker-in {
-  from { opacity: 0; transform: scale(0.4); }
-  to   { opacity: 1; transform: scale(1);   }
+  from { opacity: 0; transform: translate3d(-50%, -50%, 0) scale(0.4); }
+  to   { opacity: 1; transform: translate3d(-50%, -50%, 0) scale(1);   }
 }
 
 /* === Reduced motion === */
 @media (prefers-reduced-motion: reduce) {
   .noe-marker__halo,
   .noe-cluster--has-occupied { animation: none !important; }
-  .noe-marker { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .noe-marker { animation: none !important; opacity: 1 !important; transform: translate3d(-50%, -50%, 0) !important; }
 }
 
 /* === MapLibre overrides : masquer attribution lourde, garder lien === */
