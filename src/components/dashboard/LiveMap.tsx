@@ -148,15 +148,17 @@ export function LiveMap() {
     });
   }, [logements, filter, tick, mapTheme]);
 
-  // Recentrer
+  // Recentrer sur Lyon
   const recenter = () => {
     const map = mapRef.current;
     if (!map) return;
-    const visible = logements.filter((l) => filter === 'all' || l.status === filter);
+    const visible = logements
+      .filter((l) => filter === 'all' || l.status === filter)
+      .filter((l) => l.lat > 45.6); // Lyon area only
     if (!visible.length) return;
     const bounds = new maplibregl.LngLatBounds();
     visible.forEach((l) => bounds.extend([l.lng, l.lat]));
-    map.fitBounds(bounds, { padding: 60, duration: 600, maxZoom: 13 });
+    map.fitBounds(bounds, { padding: 50, duration: 600, maxZoom: 13.5 });
   };
 
   return (
