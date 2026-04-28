@@ -61,21 +61,25 @@ export function LiveMap() {
       container: containerRef.current,
       style: mapTheme === 'dark' ? STYLE_DARK : STYLE_LIGHT,
       center: LYON_CENTER,
-      zoom: 12.2,
+      zoom: 12.4,
       attributionControl: { compact: true },
       cooperativeGestures: false,
     });
 
     map.on('load', () => {
       // Fit only Lyon-area logements (exclude Saint-Étienne ~45.42)
-      const lyonOnly = logements.filter((l) => l.lat > 45.6);
+      // Padding top élevé pour éviter le bandeau filtres, bottom pour attribution
+      const lyonOnly = logements.filter((l) => l.lat > 45.7);
       if (lyonOnly.length > 0) {
         const bounds = new maplibregl.LngLatBounds();
         lyonOnly.forEach((l) => bounds.extend([l.lng, l.lat]));
-        map.fitBounds(bounds, { padding: 50, duration: 800, maxZoom: 13.5 });
+        map.fitBounds(bounds, {
+          padding: { top: 70, bottom: 40, left: 30, right: 30 },
+          duration: 800,
+          maxZoom: 13.2,
+        });
       }
-      // Force resize after mount to fix off-canvas markers
-      window.setTimeout(() => map.resize(), 100);
+      window.setTimeout(() => map.resize(), 150);
     });
 
     mapRef.current = map;
