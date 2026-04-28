@@ -360,9 +360,9 @@ const ClientsManager: React.FC = () => {
 
       {/* Header */}
       <div className="flex flex-col gap-3 px-4 mb-4 md:flex-row md:justify-between md:items-center md:px-6">
-        <div className="flex justify-between items-start gap-3 md:flex-col md:gap-1">
-          <div>
-            <h2 className="text-xl font-bold whitespace-nowrap" style={{ color: '#1A1A2E', fontFamily: 'DM Sans, sans-serif' }}>
+        <div className="flex justify-between items-center gap-3 md:flex-col md:items-start md:gap-1 min-w-0">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-xl font-bold truncate" style={{ color: '#1A1A2E', fontFamily: 'DM Sans, sans-serif' }}>
               Gestion des Clients
             </h2>
             <p className="text-[13px] mt-1 hidden md:block" style={{ color: '#7A7A8C', fontFamily: 'DM Sans, sans-serif' }}>
@@ -376,12 +376,12 @@ const ClientsManager: React.FC = () => {
           }}>
             <DialogTrigger asChild>
               <button
-                className="flex items-center gap-1.5 shrink-0 rounded-full text-white text-[13px] font-semibold h-[38px] px-3.5"
+                className="flex items-center justify-center gap-1.5 shrink-0 rounded-full text-white text-[13px] font-semibold h-[38px] px-3.5 min-w-[38px]"
                 style={{ background: '#FF5C1A', fontFamily: 'DM Sans, sans-serif', whiteSpace: 'nowrap' }}
+                aria-label="Ajouter un client"
               >
                 <UserPlus size={14} />
                 <span className="hidden sm:inline">Ajouter un client</span>
-                <span className="sm:hidden">+ Client</span>
               </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[625px]">
