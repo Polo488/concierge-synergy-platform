@@ -20,8 +20,8 @@
   transform-origin: center;
 }
 
-.noe-marker:focus { outline: none; }
-.noe-marker:focus-visible .noe-marker__core {
+.noe-marker-shell:focus { outline: none; }
+.noe-marker-shell:focus-visible .noe-marker__core {
   box-shadow: 0 0 0 3px rgba(107, 122, 232, 0.55);
 }
 
