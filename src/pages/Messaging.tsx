@@ -186,7 +186,7 @@ const Messaging = () => {
 
   // Desktop layout
   return (
-    <div className="h-[calc(100vh-4rem)] flex bg-card">
+    <div className="h-[calc(100vh-4rem)] flex bg-transparent">
       <TutorialTrigger moduleId="messaging" />
       
       <div className="w-80 flex-shrink-0">
