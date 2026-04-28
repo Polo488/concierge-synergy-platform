@@ -3,10 +3,8 @@
    to light-mode equivalents without refactoring every component. */
 
 html:not(.dark) .dashboard-noe {
-  background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(255, 92, 26, 0.10), transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, rgba(107, 122, 232, 0.10), transparent 55%),
-    #F4F4F8 !important;
+  /* Transparent so body's .liquid-bg ambient halos remain visible behind dashboard content */
+  background: transparent !important;
   color: #0F0F1E !important;
 }
 
