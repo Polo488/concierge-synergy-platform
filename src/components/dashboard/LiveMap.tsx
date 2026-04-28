@@ -36,7 +36,14 @@ export function LiveMap() {
   const [popover, setPopover] = useState<PopoverState | null>(null);
   const [now, setNow] = useState(() => new Date());
 
-  const { logements, tick } = useLiveLogementsStatus();
+  const { logements: rawLogements, tick } = useLiveLogementsStatus();
+
+  // Règle métier : on ne distingue que "occupé aujourd'hui" (vert pulsant)
+  // vs "libre" (gris visible). Les check-ins à venir ne sont pas mis en avant.
+  const logements = useMemo<Logement[]>(
+    () => rawLogements.map((l) => (l.status === 'checkin' ? { ...l, status: 'free' as const } : l)),
+    [rawLogements]
+  );
 
   // Horloge live (affichage minute)
   useEffect(() => {
@@ -45,8 +52,11 @@ export function LiveMap() {
   }, []);
 
   const counts = useMemo(() => {
-    const c = { occupied: 0, checkin: 0, free: 0 };
-    logements.forEach((l) => { c[l.status]++; });
+    const c = { occupied: 0, free: 0 };
+    logements.forEach((l) => {
+      if (l.status === 'occupied') c.occupied++;
+      else c.free++;
+    });
     return c;
   }, [logements]);
 
