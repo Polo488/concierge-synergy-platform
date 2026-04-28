@@ -140,7 +140,7 @@ const Messaging = () => {
   // Mobile layout
   if (isMobile) {
     return (
-      <div className="h-[calc(100vh-4rem)] flex flex-col bg-card">
+      <div className="min-h-[calc(100vh-4rem)] flex flex-col bg-card">
         <TutorialTrigger moduleId="messaging" />
         
         {mobileShowThread && selectedConversation ? (
