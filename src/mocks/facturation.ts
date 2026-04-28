@@ -1,303 +1,439 @@
-// Mocks Facturation Noé — données financièrement cohérentes
-// Mois courant : Octobre 2026 / Précédent : Septembre 2026
+// Mocks Facturation Noé — données cohérentes et crédibles
+// Pro: SympaGroupe SARL — 41 logements (30 P1 / 8 P2 / 3 P3) — 18 propriétaires
+// 78 réservations sur Mars 2026 + historique nov 2025 → fév 2026
+
+export type ModeFacturation = "P1" | "P2" | "P3";
+export type Source = "airbnb" | "booking" | "direct";
+export type StepKey = "sync" | "ba" | "drafts" | "issue" | "sepa" | "wrap";
+export type StepState = "done" | "action" | "waiting" | "pending" | "blocked";
+export type BAState = "draft" | "blocked" | "ready" | "validated";
+export type AlertKind = null | "duplicate" | "negative";
+export type DraftState = "blocked" | "ready" | "validated" | "issued";
+export type SessionState = "draft" | "in_progress" | "issued" | "closed";
+
+export interface ProInfo {
+  name: string;
+  siret: string;
+  vatIntra: string;
+  address: string;
+  ibanCourant: string;
+  ibanSequestre: string;
+  carteG: { number: string; expiresAt: string };
+  vatRate: number;
+  invoicePrefix: string;
+}
 
 export interface Owner {
   id: string;
   name: string;
   email: string;
-  iban: string;
-  bic: string;
-  commissionRate: number; // ex 0.20
-  cartG: boolean;
+  iban?: string;
+  hasMandateSEPA: boolean;
 }
 
 export interface Property {
   id: string;
   name: string;
-  city: string;
   ownerId: string;
+  mode: ModeFacturation;
+  commissionRate: number;
+  cleaningSellHt: number;
+  cleaningBuyHt: number;
+  laundrySellHt: number;
+  keynestHt: number;
+  fixedMonthlyHt: number; // assurance + articles fixes
 }
-
-export type Platform = "booking" | "airbnb" | "direct";
-export type ReservationStatus = "confirmed" | "cancelled" | "to_check";
 
 export interface Reservation {
   id: string;
-  platform: Platform;
-  ref: string; // ex "BK-4827193"
-  guest: string;
+  apiReference: string;
   propertyId: string;
-  checkIn: string; // ISO
-  checkOut: string; // ISO
+  source: Source;
+  guest: string;
+  arrival: string; // ISO
+  departure: string;
   nights: number;
-  gross: number;
-  otaCommission: number;
-  touristTax: number;
-  noeFee: number;
-  netOwner: number;
-  status: ReservationStatus;
+  amount: number; // brut OTA
+  payout: number; // versé propriétaire / pro
+  hasKeynest: boolean;
 }
 
-export type NegativeOpType =
-  | "late_cancellation"
-  | "adjustment"
-  | "chargeback"
-  | "manual_credit";
-
-export type NegativeDecision =
-  | null
-  | "owner"
-  | "noe"
-  | "split"
-  | "custom";
-
-export interface NegativeOp {
+export interface BARow {
   id: string;
-  type: NegativeOpType;
-  platform: Platform;
-  ref: string;
+  reservationId: string;
+  apiReference: string;
+  date: string;
   guest: string;
-  propertyId: string;
-  amount: number; // négatif
-  occurredAt: string; // ISO
-  details: string;
-  recommended: NegativeDecision;
-  decision: NegativeDecision;
-  customAmount?: number;
-  note?: string;
-  resolvedAt?: string;
+  source: Source;
+  amount: number;
+  alert: AlertKind;
+  alertReason?: string;
+  validated: boolean;
 }
 
-export interface MaintenanceLine {
+export interface BA {
   id: string;
-  date: string;
   propertyId: string;
-  description: string;
-  materialCost: number;
-  laborCost: number;
-  defaultPrice: number;
-  billedPrice: number; // editable
+  ownerId: string;
+  month: string; // "2026-03"
+  state: BAState;
+  rows: BARow[];
+  total: number;
 }
 
-export interface CleaningLine {
-  id: string;
-  date: string;
-  propertyId: string;
-  type: "menage" | "linge";
-  defaultPrice: number;
-  billedPrice: number;
-}
-
-export interface MiscLine {
-  id: string;
-  date: string;
-  propertyId: string;
+export interface DraftLine {
   label: string;
-  amountHT: number;
-  vatRate: number; // 0.20
-  hasReceipt: boolean;
+  qty: number;
+  unitHt: number;
+  vatRate: number;
+  isReimbursement?: boolean; // débours
+  providerInvoiceRef?: string;
+  modified?: boolean;
 }
 
-// ───────── Propriétaires ─────────
-export const owners: Owner[] = [
-  { id: "o1", name: "Julien Martin", email: "j.martin@mail.fr", iban: "FR76 3000 4000 0312 3456 7890 143", bic: "BNPAFRPP", commissionRate: 0.20, cartG: true },
-  { id: "o2", name: "Camille Lefèvre", email: "c.lefevre@mail.fr", iban: "FR76 1027 8061 4100 0203 9876 521", bic: "CMCIFRPP", commissionRate: 0.22, cartG: true },
-  { id: "o3", name: "Antoine Rousseau", email: "a.rousseau@mail.fr", iban: "FR76 1820 6000 0512 8744 9001 287", bic: "AGRIFRPP", commissionRate: 0.18, cartG: true },
-  { id: "o4", name: "Sophie Bernard", email: "s.bernard@mail.fr", iban: "FR76 3000 3035 1000 0500 1234 879", bic: "SOGEFRPP", commissionRate: 0.20, cartG: true },
-  { id: "o5", name: "Marc Dubois", email: "m.dubois@mail.fr", iban: "FR76 1751 5900 0008 0011 1132 064", bic: "CEPAFRPP", commissionRate: 0.20, cartG: true },
-  { id: "o6", name: "Élodie Petit", email: "e.petit@mail.fr", iban: "FR76 1469 0000 0112 3456 7890 198", bic: "BPGSFRPP", commissionRate: 0.25, cartG: true },
-  { id: "o7", name: "Nicolas Garnier", email: "n.garnier@mail.fr", iban: "FR76 3000 2005 5000 0001 0203 045", bic: "CRLYFRPP", commissionRate: 0.20, cartG: true },
-  { id: "o8", name: "Laure Moreau", email: "l.moreau@mail.fr", iban: "FR76 1234 5678 9012 3456 7890 187", bic: "BNPAFRPP", commissionRate: 0.18, cartG: true },
+export interface Draft {
+  id: string;
+  propertyId: string;
+  ownerId: string;
+  baId: string;
+  month: string;
+  state: DraftState;
+  lines: DraftLine[];
+  blockingReasons: string[]; // ex: "iban_missing", "provider_invoice_missing"
+  totalHt: number;
+  totalVat: number;
+  totalTtc: number;
+  reimbursements: number;
+  baAmount: number;
+  net: number; // ce que le proprio doit (ou 0/avoir si trop-perçu)
+  invoiceNumber?: string;
+}
+
+export interface ProviderInvoiceTodo {
+  id: string;
+  providerName: string;
+  amountTtc: number;
+  date: string;
+  hint: string;
+}
+
+export interface ComplementaryTodo {
+  id: string;
+  ownerName: string;
+  monthLabel: string;
+  amount: number;
+}
+
+export interface VigilanceItem {
+  id: string;
+  level: "yellow" | "orange" | "red";
+  title: string;
+  detail: string;
+}
+
+export interface MonthSummary {
+  month: string;
+  label: string;
+  state: SessionState;
+  invoicesCount: number;
+  caTransited: number;
+  honoraires: number;
+  activeProperties: number;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const PRO: ProInfo = {
+  name: "SympaGroupe SARL",
+  siret: "853 421 097 00018",
+  vatIntra: "FR42853421097",
+  address: "12 rue Vendôme, 69006 Lyon",
+  ibanCourant: "FR76 1027 8073 0000 0214 5670 154",
+  ibanSequestre: "FR76 1027 8073 0000 0214 5670 998",
+  carteG: { number: "CPI 6901 2024 000 012 547", expiresAt: "2027-06-15" },
+  vatRate: 0.20,
+  invoicePrefix: "BNBLYON",
+};
+
+const OWNER_NAMES = [
+  "Élise Marchand", "Antoine Berthier", "Camille Rouvière", "Hugo Lévêque",
+  "Marie-Claire Aubert", "Pierre Salomon", "Léa Doumergue", "Vincent Roussel",
+  "Sophie Hennequin", "Thomas Vasseur", "Isabelle Dauphin", "Romain Cazeneuve",
+  "Clémence Moreau", "Jean-Baptiste Duroc", "Aurélie Lestrange", "Maxime Tournier",
+  "Hélène Vidal", "Nicolas Fabre"
 ];
 
-// ───────── Logements ─────────
-export const properties: Property[] = [
-  { id: "p1", name: "Appt Bastille 2P", city: "Paris 11e", ownerId: "o1" },
-  { id: "p2", name: "Loft Marais", city: "Paris 4e", ownerId: "o1" },
-  { id: "p3", name: "Studio Montmartre", city: "Paris 18e", ownerId: "o2" },
-  { id: "p4", name: "Appt Vieux-Lyon", city: "Lyon 5e", ownerId: "o2" },
-  { id: "p5", name: "Maison Confluence", city: "Lyon 2e", ownerId: "o3" },
-  { id: "p6", name: "Studio Croix-Rousse", city: "Lyon 4e", ownerId: "o4" },
-  { id: "p7", name: "Appt Vieux-Port", city: "Marseille 2e", ownerId: "o5" },
-  { id: "p8", name: "Villa Endoume", city: "Marseille 7e", ownerId: "o5" },
-  { id: "p9", name: "Appt Capitole", city: "Toulouse", ownerId: "o6" },
-  { id: "p10", name: "Studio Carmes", city: "Toulouse", ownerId: "o7" },
-  { id: "p11", name: "Appt Vieille-Ville", city: "Nice", ownerId: "o8" },
-  { id: "p12", name: "Studio Promenade", city: "Nice", ownerId: "o8" },
-];
-
-// ───────── Helpers génération ─────────
-function rng(seed: number) {
-  let s = seed >>> 0;
-  return () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 0xffffffff;
+export const OWNERS: Owner[] = OWNER_NAMES.map((name, i) => {
+  const slug = name.toLowerCase().replace(/[^a-z]/g, "");
+  return {
+    id: `o-${i + 1}`,
+    name,
+    email: `${slug.slice(0, 12)}@mail.fr`,
+    iban: i === 7 || i === 14 ? undefined : `FR76 ${1000 + i * 17} 0000 0000 ${String(1000 + i * 91).padStart(4, "0")} 000`,
+    hasMandateSEPA: i % 5 !== 0,
   };
+});
+
+// 41 logements : owners distribués (certains en ont plusieurs)
+const PROP_DEFS: Array<{ name: string; ownerIdx: number; mode: ModeFacturation }> = [
+  // P3 (mandant)
+  { name: "Loft Saxe-Gambetta", ownerIdx: 0, mode: "P3" },
+  { name: "Suite Croix-Rousse", ownerIdx: 0, mode: "P3" },
+  { name: "Atelier Guillotière", ownerIdx: 4, mode: "P3" },
+  // P2 (split)
+  { name: "Apt Bellecour 2P", ownerIdx: 1, mode: "P2" },
+  { name: "Studio Part-Dieu", ownerIdx: 1, mode: "P2" },
+  { name: "Apt Foch 3P", ownerIdx: 2, mode: "P2" },
+  { name: "Vieux Lyon Charme", ownerIdx: 5, mode: "P2" },
+  { name: "Confluence Vue", ownerIdx: 6, mode: "P2" },
+  { name: "Apt Brotteaux Sud", ownerIdx: 8, mode: "P2" },
+  { name: "Studio Monplaisir", ownerIdx: 11, mode: "P2" },
+  { name: "Loft Vaise", ownerIdx: 13, mode: "P2" },
+  // P1 (standard) — 30
+  { name: "Apt Bastille 2P", ownerIdx: 3, mode: "P1" },
+  { name: "Studio République", ownerIdx: 3, mode: "P1" },
+  { name: "Duplex Hôtel de Ville", ownerIdx: 7, mode: "P1" },
+  { name: "Apt Ainay 2P", ownerIdx: 9, mode: "P1" },
+  { name: "Suite Cordeliers", ownerIdx: 9, mode: "P1" },
+  { name: "Studio Terreaux", ownerIdx: 10, mode: "P1" },
+  { name: "Apt Massena", ownerIdx: 12, mode: "P1" },
+  { name: "Loft Jean Macé", ownerIdx: 14, mode: "P1" },
+  { name: "Apt Sans-Souci", ownerIdx: 15, mode: "P1" },
+  { name: "Studio Garibaldi", ownerIdx: 15, mode: "P1" },
+  { name: "Apt Berthelot", ownerIdx: 16, mode: "P1" },
+  { name: "Maison Caluire", ownerIdx: 17, mode: "P1" },
+  { name: "Apt Préfecture", ownerIdx: 17, mode: "P1" },
+  { name: "Studio Saint-Just", ownerIdx: 0, mode: "P1" },
+  { name: "Apt Fourvière", ownerIdx: 2, mode: "P1" },
+  { name: "Studio Mutualité", ownerIdx: 4, mode: "P1" },
+  { name: "Apt Liberté 3P", ownerIdx: 5, mode: "P1" },
+  { name: "Studio Thiers", ownerIdx: 6, mode: "P1" },
+  { name: "Apt Edgar Quinet", ownerIdx: 8, mode: "P1" },
+  { name: "Loft Tony Garnier", ownerIdx: 11, mode: "P1" },
+  { name: "Apt Place Carnot", ownerIdx: 13, mode: "P1" },
+  { name: "Studio Perrache", ownerIdx: 14, mode: "P1" },
+  { name: "Apt Servient", ownerIdx: 16, mode: "P1" },
+  { name: "Studio Lafayette", ownerIdx: 1, mode: "P1" },
+  { name: "Apt Wilson", ownerIdx: 3, mode: "P1" },
+  { name: "Loft Mermoz", ownerIdx: 5, mode: "P1" },
+  { name: "Studio Grange-Blanche", ownerIdx: 7, mode: "P1" },
+  { name: "Apt Place Bahadourian", ownerIdx: 9, mode: "P1" },
+  { name: "Studio Jet d'Eau", ownerIdx: 12, mode: "P1" },
+  { name: "Apt Lacassagne", ownerIdx: 16, mode: "P1" },
+];
+
+export const PROPERTIES: Property[] = PROP_DEFS.map((d, i) => ({
+  id: `p-${i + 1}`,
+  name: d.name,
+  ownerId: OWNERS[d.ownerIdx].id,
+  mode: d.mode,
+  commissionRate: d.mode === "P3" ? 0.20 : d.mode === "P2" ? 0.18 : 0.15,
+  cleaningSellHt: 75 + (i % 4) * 10,
+  cleaningBuyHt: 45 + (i % 3) * 5,
+  laundrySellHt: 18,
+  keynestHt: 8,
+  fixedMonthlyHt: 12, // assurance
+}));
+
+// Génération réservations Mars 2026 (78 résas réparties)
+function pad(n: number) { return String(n).padStart(2, "0"); }
+function dateStr(y: number, m: number, d: number) { return `${y}-${pad(m)}-${pad(d)}`; }
+
+const FIRST_NAMES = ["Marc", "Julie", "Tom", "Lina", "Paul", "Emma", "Leo", "Zoé", "Hugo", "Sara", "Nina", "Adam", "Eve", "Rémi", "Mia", "Liam", "Anna", "Noah", "Lola", "Théo"];
+const LAST_NAMES = ["Dupont", "Martin", "Bernard", "Petit", "Robert", "Richard", "Durand", "Leroy", "Moreau", "Laurent", "Simon", "Michel", "Lefevre", "Garcia", "David"];
+
+function makeGuest(seed: number) {
+  return `${FIRST_NAMES[seed % FIRST_NAMES.length]} ${LAST_NAMES[(seed * 7) % LAST_NAMES.length]}`;
 }
 
-const FIRST = ["Marie", "Lucas", "Emma", "Hugo", "Léa", "Nathan", "Chloé", "Théo", "Manon", "Louis", "Camille", "Jules", "Sarah", "Adam", "Inès", "Maxime", "Anaïs", "Antoine", "Clara", "Léo"];
-const LAST = ["Dupont", "Martin", "Bernard", "Robert", "Petit", "Durand", "Leroy", "Moreau", "Simon", "Laurent", "Lefebvre", "Michel", "Garcia", "David", "Bertrand", "Roux", "Vincent", "Fournier", "Morel", "Girard"];
-
-function randomGuest(r: () => number) {
-  return `${FIRST[Math.floor(r() * FIRST.length)]} ${LAST[Math.floor(r() * LAST.length)]}`;
-}
-
-function pad(n: number) { return n < 10 ? `0${n}` : `${n}`; }
-function isoDate(y: number, m: number, d: number) {
-  return `${y}-${pad(m)}-${pad(d)}`;
-}
-
-function generateReservations(year: number, month: number, count: number, platform: Platform, seed: number): Reservation[] {
-  const r = rng(seed);
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const list: Reservation[] = [];
-  for (let i = 0; i < count; i++) {
-    const propIdx = Math.floor(r() * properties.length);
-    const property = properties[propIdx];
-    const owner = owners.find((o) => o.id === property.ownerId)!;
-    const startDay = 1 + Math.floor(r() * (daysInMonth - 2));
-    const nights = 1 + Math.floor(r() * 6);
-    const checkInD = startDay;
-    const checkOutD = Math.min(daysInMonth, startDay + nights);
-    const realNights = checkOutD - checkInD;
-    const nightlyRate = 80 + Math.floor(r() * 220);
-    const gross = nightlyRate * realNights;
-    const otaRate = platform === "booking" ? 0.15 : platform === "airbnb" ? 0.03 : 0;
-    const otaCommission = Math.round(gross * otaRate * 100) / 100;
-    const touristTax = Math.round(realNights * 1.5 * 100) / 100;
-    const noeFee = Math.round((gross - otaCommission) * owner.commissionRate * 100) / 100;
-    const netOwner = Math.round((gross - otaCommission - touristTax - noeFee) * 100) / 100;
-    const status: ReservationStatus = r() < 0.04 ? "to_check" : "confirmed";
-    list.push({
-      id: `${platform[0]}-${seed}-${i}`,
-      platform,
-      ref: platform === "booking" ? `BK-${4800000 + Math.floor(r() * 99999)}` : platform === "airbnb" ? `AB-${5100000 + Math.floor(r() * 99999)}` : `DR-${1000 + i}`,
-      guest: randomGuest(r),
-      propertyId: property.id,
-      checkIn: isoDate(year, month, checkInD),
-      checkOut: isoDate(year, month, checkOutD),
-      nights: realNights,
-      gross,
-      otaCommission,
-      touristTax,
-      noeFee,
-      netOwner,
-      status,
+export const RESERVATIONS_MARS: Reservation[] = (() => {
+  const res: Reservation[] = [];
+  let id = 1;
+  PROPERTIES.forEach((p, idx) => {
+    const count = idx < 28 ? 2 : idx < 38 ? 1 : 3; // 28*2 + 10*1 + 3*3 = 75; on ajoute 3 = 78
+    for (let r = 0; r < count; r++) {
+      const arrivalDay = 2 + ((idx + r * 7) % 24);
+      const nights = 2 + ((idx + r) % 5);
+      const departureDay = Math.min(28, arrivalDay + nights);
+      const realNights = departureDay - arrivalDay;
+      const source: Source = r === 0 ? (idx % 2 === 0 ? "airbnb" : "booking") : (idx % 3 === 0 ? "booking" : "airbnb");
+      const nightlyRate = 90 + ((idx * 13 + r * 5) % 60);
+      const amount = nightlyRate * realNights;
+      const payout = p.mode === "P2" ? Math.round(amount * 0.78) : amount;
+      res.push({
+        id: `r-${id}`,
+        apiReference: `${source === "airbnb" ? "HMABC" : "BK"}${1000 + id * 13}`,
+        propertyId: p.id,
+        source,
+        guest: makeGuest(id),
+        arrival: dateStr(2026, 3, arrivalDay),
+        departure: dateStr(2026, 3, departureDay),
+        nights: realNights,
+        amount,
+        payout,
+        hasKeynest: idx % 3 === 0,
+      });
+      id++;
+    }
+  });
+  // 3 résas supplémentaires pour atteindre 78
+  while (res.length < 78) {
+    const p = PROPERTIES[res.length % PROPERTIES.length];
+    res.push({
+      id: `r-${res.length + 1}`,
+      apiReference: `BK${9000 + res.length}`,
+      propertyId: p.id,
+      source: "direct",
+      guest: makeGuest(res.length + 99),
+      arrival: dateStr(2026, 3, 26),
+      departure: dateStr(2026, 3, 28),
+      nights: 2,
+      amount: 200,
+      payout: 200,
+      hasKeynest: false,
     });
   }
+  return res;
+})();
+
+// Construction des BA pour Mars 2026 — 1 BA par logement actif
+export const BAS_MARS: BA[] = (() => {
+  const byProp = new Map<string, Reservation[]>();
+  RESERVATIONS_MARS.forEach(r => {
+    const arr = byProp.get(r.propertyId) || [];
+    arr.push(r);
+    byProp.set(r.propertyId, arr);
+  });
+  const list: BA[] = [];
+  let baId = 1;
+  byProp.forEach((reservations, propId) => {
+    const prop = PROPERTIES.find(p => p.id === propId)!;
+    const rows: BARow[] = reservations.map((r, idx) => {
+      // Injecter quelques alertes
+      let alert: AlertKind = null;
+      let alertReason: string | undefined;
+      let amount = r.payout;
+      if (baId === 3 && idx === 0) { alert = "duplicate"; alertReason = "Même apiRef + même montant qu'un BA de février 2026 (longue durée probable)"; }
+      if (baId === 7 && idx === 1) { alert = "negative"; alertReason = "Annulation tardive Airbnb"; amount = -312.40; }
+      if (baId === 12 && idx === 0) { alert = "duplicate"; alertReason = "Versement mensuel d'une longue durée déjà encaissée en février"; }
+      return {
+        id: `bar-${baId}-${idx}`,
+        reservationId: r.id,
+        apiReference: r.apiReference,
+        date: r.arrival,
+        guest: r.guest,
+        source: r.source,
+        amount,
+        alert,
+        alertReason,
+        validated: alert === null,
+      };
+    });
+    const total = rows.reduce((s, r) => s + r.amount, 0);
+    const hasAlert = rows.some(r => r.alert !== null);
+    list.push({
+      id: `ba-${baId}`,
+      propertyId: propId,
+      ownerId: prop.ownerId,
+      month: "2026-03",
+      state: hasAlert ? "blocked" : "ready",
+      rows,
+      total,
+    });
+    baId++;
+  });
   return list;
+})();
+
+// Brouillons — générés à partir des BA, avec quelques blocages
+export function buildDrafts(bas: BA[]): Draft[] {
+  return bas.map((ba, i) => {
+    const prop = PROPERTIES.find(p => p.id === ba.propertyId)!;
+    const owner = OWNERS.find(o => o.id === ba.ownerId)!;
+    const reservations = RESERVATIONS_MARS.filter(r => r.propertyId === ba.propertyId);
+    const passages = reservations.length;
+    const keynestCount = reservations.filter(r => r.hasKeynest).length;
+
+    const lines: DraftLine[] = [
+      { label: "Commission de gestion", qty: 1, unitHt: Math.round(ba.total * prop.commissionRate * 100) / 100, vatRate: PRO.vatRate },
+      { label: "Ménages réalisés", qty: passages, unitHt: prop.cleaningSellHt, vatRate: PRO.vatRate },
+      { label: "Blanchisserie", qty: passages, unitHt: prop.laundrySellHt, vatRate: PRO.vatRate },
+      ...(keynestCount > 0 ? [{ label: "Remise de clés Keynest", qty: keynestCount, unitHt: prop.keynestHt, vatRate: PRO.vatRate }] : []),
+      { label: "Articles fixes (assurance, abonnements)", qty: 1, unitHt: prop.fixedMonthlyHt, vatRate: PRO.vatRate },
+    ];
+
+    const totalHt = lines.reduce((s, l) => s + l.qty * l.unitHt, 0);
+    const totalVat = lines.reduce((s, l) => s + l.qty * l.unitHt * l.vatRate, 0);
+    const totalTtc = totalHt + totalVat;
+    const reimbursements = 0;
+    const baAmount = ba.total;
+    const net = totalTtc - baAmount;
+
+    // Blocages : 3 brouillons bloqués
+    const blockingReasons: string[] = [];
+    if (i === 1) blockingReasons.push("provider_invoice_missing");
+    if (i === 5 && !owner.iban) blockingReasons.push("iban_missing");
+    if (!owner.iban && owner.hasMandateSEPA) blockingReasons.push("iban_missing");
+    if (i === 9) blockingReasons.push("maintenance_pending");
+
+    const baValidated = ba.state === "validated";
+    const state: DraftState = blockingReasons.length > 0 ? "blocked" : (baValidated ? "ready" : "ready");
+
+    return {
+      id: `d-${i + 1}`,
+      propertyId: ba.propertyId,
+      ownerId: ba.ownerId,
+      baId: ba.id,
+      month: ba.month,
+      state,
+      lines,
+      blockingReasons,
+      totalHt: Math.round(totalHt * 100) / 100,
+      totalVat: Math.round(totalVat * 100) / 100,
+      totalTtc: Math.round(totalTtc * 100) / 100,
+      reimbursements,
+      baAmount,
+      net: Math.round(net * 100) / 100,
+    };
+  });
 }
 
-// ───────── Mois courant : Octobre 2026 ─────────
-export const CURRENT_PERIOD = { year: 2026, month: 10, label: "Octobre 2026" };
-export const PREVIOUS_PERIOD = { year: 2026, month: 9, label: "Septembre 2026" };
-
-export const reservations: Reservation[] = [
-  ...generateReservations(2026, 10, 47, "booking", 42),
-  ...generateReservations(2026, 10, 31, "airbnb", 1337),
+// Tâches en attente externe (panneau droit)
+export const PROVIDER_INVOICES_TODO: ProviderInvoiceTodo[] = [
+  { id: "pi-1", providerName: "Cleaning Lyon Pro", amountTtc: 432.00, date: "2026-04-03", hint: "Couvre 6 logements de mars" },
+  { id: "pi-2", providerName: "Net'Concept", amountTtc: 285.50, date: "2026-04-04", hint: "Apt Bastille + Studio République" },
+  { id: "pi-3", providerName: "Laundry Express", amountTtc: 178.20, date: "2026-04-05", hint: "Blanchisserie semaine 13" },
 ];
 
-export const previousReservations: Reservation[] = [
-  ...generateReservations(2026, 9, 38, "booking", 7),
-  ...generateReservations(2026, 9, 28, "airbnb", 13),
+export const COMPLEMENTARY_TODO: ComplementaryTodo[] = [
+  { id: "c-1", ownerName: "Élise Marchand", monthLabel: "Pour Janvier 2026", amount: 124.50 },
+  { id: "c-2", ownerName: "Antoine Berthier", monthLabel: "Pour Février 2026", amount: 87.30 },
 ];
 
-// ───────── Opérations négatives ─────────
-export const initialNegativeOps: NegativeOp[] = [
-  {
-    id: "neg-1",
-    type: "late_cancellation",
-    platform: "booking",
-    ref: "BK-4827193",
-    guest: "Marie Dupont",
-    propertyId: "p1",
-    amount: -312.40,
-    occurredAt: "2026-10-17T14:32:00",
-    details: "Période 18 oct → 22 oct (4 nuits). Annulée 17 oct 14h32. Politique : Flexible — remboursement intégral.",
-    recommended: "owner",
-    decision: null,
-  },
-  {
-    id: "neg-2",
-    type: "adjustment",
-    platform: "booking",
-    ref: "BK-4831207",
-    guest: "Lucas Bernard",
-    propertyId: "p4",
-    amount: -85.00,
-    occurredAt: "2026-10-22T09:11:00",
-    details: "Résolution centre Booking : compensation pour bruit (geste commercial conciergerie).",
-    recommended: "noe",
-    decision: null,
-  },
-  {
-    id: "neg-3",
-    type: "manual_credit",
-    platform: "airbnb",
-    ref: "AB-5118042",
-    guest: "Emma Petit",
-    propertyId: "p7",
-    amount: -148.50,
-    occurredAt: "2026-10-25T18:00:00",
-    details: "Avoir manuel — souci douche en début de séjour, remboursement partiel proposé.",
-    recommended: "split",
-    decision: null,
-  },
+export const VIGILANCE: VigilanceItem[] = [
+  { id: "v-1", level: "yellow", title: "Carte G expire J-47", detail: "Renouvellement à anticiper avant le 15/06/2027" },
+  { id: "v-2", level: "orange", title: "2 IBAN propriétaires manquants", detail: "Sophie Hennequin, Aurélie Lestrange" },
+  { id: "v-3", level: "yellow", title: "Garantie financière à renouveler", detail: "Échéance dans 4 mois" },
 ];
 
-// ───────── Maintenance ─────────
-export const maintenanceLines: MaintenanceLine[] = [
-  { id: "m1", date: "2026-10-03", propertyId: "p1", description: "Remplacement chauffe-eau 100L", materialCost: 320, laborCost: 180, defaultPrice: 550, billedPrice: 550 },
-  { id: "m2", date: "2026-10-07", propertyId: "p3", description: "Réparation volet roulant chambre", materialCost: 65, laborCost: 90, defaultPrice: 180, billedPrice: 180 },
-  { id: "m3", date: "2026-10-09", propertyId: "p5", description: "Débouchage évier cuisine", materialCost: 12, laborCost: 80, defaultPrice: 110, billedPrice: 95 },
-  { id: "m4", date: "2026-10-12", propertyId: "p7", description: "Pose serrure 5 points", materialCost: 145, laborCost: 120, defaultPrice: 290, billedPrice: 290 },
-  { id: "m5", date: "2026-10-15", propertyId: "p9", description: "Reprise peinture salon", materialCost: 60, laborCost: 220, defaultPrice: 320, billedPrice: 280 },
-  { id: "m6", date: "2026-10-18", propertyId: "p11", description: "Remplacement mitigeur SDB", materialCost: 95, laborCost: 70, defaultPrice: 195, billedPrice: 195 },
-  { id: "m7", date: "2026-10-21", propertyId: "p2", description: "Diagnostic fuite chaudière", materialCost: 0, laborCost: 110, defaultPrice: 110, billedPrice: 110 },
-  { id: "m8", date: "2026-10-26", propertyId: "p8", description: "Pose détecteurs de fumée x3", materialCost: 45, laborCost: 60, defaultPrice: 130, billedPrice: 130 },
+// Historique 6 mois
+export const HISTORY: MonthSummary[] = [
+  { month: "2026-03", label: "Mars 2026", state: "draft", invoicesCount: 0, caTransited: 0, honoraires: 0, activeProperties: 41 },
+  { month: "2026-02", label: "Février 2026", state: "issued", invoicesCount: 39, caTransited: 113820, honoraires: 16710, activeProperties: 39 },
+  { month: "2026-01", label: "Janvier 2026", state: "closed", invoicesCount: 38, caTransited: 98450, honoraires: 14580, activeProperties: 38 },
+  { month: "2025-12", label: "Décembre 2025", state: "closed", invoicesCount: 40, caTransited: 142300, honoraires: 21450, activeProperties: 40 },
+  { month: "2025-11", label: "Novembre 2025", state: "closed", invoicesCount: 37, caTransited: 89200, honoraires: 13180, activeProperties: 37 },
+  { month: "2025-10", label: "Octobre 2025", state: "closed", invoicesCount: 36, caTransited: 95680, honoraires: 14110, activeProperties: 36 },
 ];
 
-// ───────── Ménage / Linge (12 prestations) ─────────
-export const cleaningLines: CleaningLine[] = [
-  { id: "c1", date: "2026-10-04", propertyId: "p1", type: "menage", defaultPrice: 65, billedPrice: 65 },
-  { id: "c2", date: "2026-10-04", propertyId: "p1", type: "linge", defaultPrice: 28, billedPrice: 28 },
-  { id: "c3", date: "2026-10-08", propertyId: "p3", type: "menage", defaultPrice: 55, billedPrice: 55 },
-  { id: "c4", date: "2026-10-10", propertyId: "p5", type: "menage", defaultPrice: 75, billedPrice: 75 },
-  { id: "c5", date: "2026-10-10", propertyId: "p5", type: "linge", defaultPrice: 32, billedPrice: 32 },
-  { id: "c6", date: "2026-10-13", propertyId: "p7", type: "menage", defaultPrice: 70, billedPrice: 70 },
-  { id: "c7", date: "2026-10-16", propertyId: "p9", type: "menage", defaultPrice: 60, billedPrice: 60 },
-  { id: "c8", date: "2026-10-19", propertyId: "p11", type: "menage", defaultPrice: 65, billedPrice: 65 },
-  { id: "c9", date: "2026-10-22", propertyId: "p2", type: "menage", defaultPrice: 80, billedPrice: 80 },
-  { id: "c10", date: "2026-10-25", propertyId: "p8", type: "menage", defaultPrice: 90, billedPrice: 90 },
-  { id: "c11", date: "2026-10-25", propertyId: "p8", type: "linge", defaultPrice: 38, billedPrice: 38 },
-  { id: "c12", date: "2026-10-28", propertyId: "p12", type: "menage", defaultPrice: 60, billedPrice: 60 },
-];
+export const PERIODS = ["Janvier 2026", "Février 2026", "Mars 2026", "Avril 2026"];
 
-export const miscLines: MiscLine[] = [
-  { id: "x1", date: "2026-10-12", propertyId: "p1", label: "Recharge consommables café/thé", amountHT: 24.5, vatRate: 0.20, hasReceipt: true },
-  { id: "x2", date: "2026-10-20", propertyId: "p7", label: "Achat ampoule LED + piles télécommande", amountHT: 18.9, vatRate: 0.20, hasReceipt: false },
-];
-
-// ───────── Helpers calculs ─────────
-export function getProperty(id: string) {
-  return properties.find((p) => p.id === id)!;
-}
-export function getOwner(id: string) {
-  return owners.find((o) => o.id === id)!;
-}
-export function getOwnerByProperty(propertyId: string) {
-  return getOwner(getProperty(propertyId).ownerId);
+export function fmt(n: number) {
+  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 2 }).format(n);
 }
 
-export function sum<T>(arr: T[], pick: (v: T) => number) {
-  return arr.reduce((a, b) => a + pick(b), 0);
+export function fmtNoCents(n: number) {
+  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 }
-
-// User config (toggle SEPA via cartG)
-export const currentUser = {
-  name: "Conciergerie Noé Paris",
-  cartG: true,
-  sepaIban: "FR76 1234 5678 9012 3456 7890 198",
-  sepaBic: "BNPAFRPP",
-  sepaAccountRef: "CG-2026-001",
-};
