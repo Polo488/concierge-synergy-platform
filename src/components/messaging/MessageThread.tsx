@@ -185,7 +185,7 @@ export const MessageThread: React.FC<MessageThreadProps> = ({
   const nights = getNights(conversation.reservation.checkIn, conversation.reservation.checkOut);
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#FFFFFF' }}>
+    <div className={cn("flex flex-col", isMobile ? "min-h-full" : "h-full")} style={{ background: '#FFFFFF' }}>
       {/* ===== HEADER ===== */}
       <div className="sticky top-0 z-20" style={{ background: '#FFFFFF', borderBottom: '1px solid #F0F0F0' }}>
         {/* Line 1: Nav + Identity */}
