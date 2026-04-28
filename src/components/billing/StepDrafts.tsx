@@ -154,10 +154,6 @@ export function StepDrafts() {
     }
   }, [draftsGenerated, generating]);
 
-  if (generating && !draftsGenerated) {
-    return <GenerationOverlay onDone={() => { generateDrafts(); setGenerating(false); }} />;
-  }
-
   const filtered = useMemo(() => {
     if (filter === "all") return drafts;
     return drafts.filter(d => d.state === filter);
@@ -173,6 +169,10 @@ export function StepDrafts() {
   const selected = drafts.find(d => d.id === (selectedId || filtered[0]?.id));
   const allReady = counts.blocked === 0 && drafts.length > 0;
   const allValidated = counts.validated === drafts.length && drafts.length > 0;
+
+  if (generating && !draftsGenerated) {
+    return <GenerationOverlay onDone={() => { generateDrafts(); setGenerating(false); }} />;
+  }
 
   return (
     <div className="space-y-4">
