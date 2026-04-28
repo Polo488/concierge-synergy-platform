@@ -98,16 +98,21 @@ const Inventory = () => {
   };
 
   const displayItems = useMemo(() => {
-    let items = getCategoryItems();
+    let items = [...getCategoryItems()];
     if (searchQuery.trim()) {
       items = items.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
     }
+    if (statusFilter !== 'all') {
+      items = items.filter(item => item.status === statusFilter);
+    }
     if (showLowStockOnly) {
       items = items.filter(item => item.status === 'low');
-      items.sort((a, b) => (a.stock / a.min) - (b.stock / b.min));
     }
+    if (sortBy === 'name') items.sort((a, b) => a.name.localeCompare(b.name));
+    if (sortBy === 'stock_asc') items.sort((a, b) => a.stock - b.stock);
+    if (sortBy === 'stock_desc') items.sort((a, b) => b.stock - a.stock);
     return items;
-  }, [consummables, linen, maintenance, searchQuery, activeCategory, showLowStockOnly]);
+  }, [consummables, linen, maintenance, searchQuery, activeCategory, showLowStockOnly, sortBy, statusFilter]);
 
   const lowStockInCategory = useMemo(() => {
     return getCategoryItems().filter(item => item.status === 'low').length;
