@@ -67,6 +67,9 @@ const Inventory = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
+  const [filterPopoverOpen, setFilterPopoverOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<'name' | 'stock_asc' | 'stock_desc'>('name');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'low' | 'ok'>('all');
   
   const [manageDialogOpen, setManageDialogOpen] = useState(false);
   const [newItemDialogOpen, setNewItemDialogOpen] = useState(false);
@@ -76,6 +79,8 @@ const Inventory = () => {
     name: '', category: 'Consommables', stock: '0', min: '10', orderUrl: ''
   });
   const [editOrderUrl, setEditOrderUrl] = useState('');
+
+  const activeFilterCount = (sortBy !== 'name' ? 1 : 0) + (statusFilter !== 'all' ? 1 : 0);
 
   const allItems = [...consummables, ...linen, ...maintenance];
 
