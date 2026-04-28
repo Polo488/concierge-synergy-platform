@@ -1,231 +1,90 @@
-import { useEffect } from 'react';
-
-import { 
-  Package, Wrench, Sparkles, Clock
-} from 'lucide-react';
-import { DashboardCard } from '@/components/dashboard/DashboardCard';
-import { DailyKPICards } from '@/components/dashboard/DailyKPICards';
-import { DailyActivityTabs } from '@/components/dashboard/DailyActivityTabs';
-import { AgendaPreviewWidget } from '@/components/dashboard/AgendaPreviewWidget';
-import { useDashboardData } from '@/hooks/useDashboardData';
-import { useAgenda } from '@/hooks/useAgenda';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, 
-  Tooltip, ResponsiveContainer, LineChart, Line
-} from 'recharts';
-import { Button } from '@/components/ui/button';
-
-const overviewData = [
-  { name: 'Jan', value: 3500 },
-  { name: 'Fév', value: 3000 },
-  { name: 'Mar', value: 4500 },
-  { name: 'Avr', value: 3800 },
-  { name: 'Mai', value: 5000 },
-  { name: 'Jun', value: 4800 },
-  { name: 'Jul', value: 6000 },
-];
-
-const propertiesData = [
-  { name: 'Lun', occupied: 12, vacant: 3 },
-  { name: 'Mar', occupied: 13, vacant: 2 },
-  { name: 'Mer', occupied: 15, vacant: 0 },
-  { name: 'Jeu', occupied: 14, vacant: 1 },
-  { name: 'Ven', occupied: 10, vacant: 5 },
-  { name: 'Sam', occupied: 8, vacant: 7 },
-  { name: 'Dim', occupied: 9, vacant: 6 },
-];
+import { LiveMap } from '@/components/dashboard/LiveMap';
+import { DashboardKPIs } from '@/components/dashboard/DashboardKPIs';
+import { DashboardAgenda } from '@/components/dashboard/DashboardAgenda';
+import { DashboardActivity } from '@/components/dashboard/DashboardActivity';
+import { DashboardRevenue } from '@/components/dashboard/DashboardRevenue';
+import { DASHBOARD_KPIS } from '@/mocks/dashboard';
 
 const Dashboard = () => {
-  const { checkIns, checkOuts, tasks, stats } = useDashboardData();
-  const { todayEntries, tomorrowEntries, properties } = useAgenda();
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    document.title = 'Tableau de bord - GESTION BNB LYON';
+    document.title = 'Tableau de bord — Noé';
+    const id = window.setInterval(() => setNow(new Date()), 60_000);
+    return () => window.clearInterval(id);
   }, []);
 
+  const dateStr = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
   return (
-    <div className="space-y-8">
-      
+    <div
+      className="dashboard-noe min-h-full -m-4 sm:-m-6 lg:-m-8 p-4 sm:p-6 lg:p-8 space-y-5 sm:space-y-6"
+      style={{
+        background:
+          'radial-gradient(1200px 600px at 10% -10%, rgba(255,92,26,0.08), transparent 60%),' +
+          'radial-gradient(900px 500px at 110% 10%, rgba(107,122,232,0.10), transparent 55%),' +
+          '#1A1A2E',
+        color: '#fff',
+      }}
+    >
       <TutorialTrigger moduleId="dashboard" />
-      <div data-tutorial="dashboard-header" className="flex items-center justify-between">
-        <div>
+
+      {/* Header */}
+      <div data-tutorial="dashboard-header" className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
           <h1
-            className="text-[32px] font-bold tracking-[-0.02em] text-[hsl(var(--label-1))]"
-            style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif" }}
+            className="text-[24px] sm:text-[32px] font-bold tracking-[-0.02em] text-white"
+            style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, system-ui, sans-serif" }}
           >
             Tableau de bord
           </h1>
-          <p className="text-[15px] mt-1 text-[hsl(var(--label-2))]">
-            Vue opérationnelle de votre activité du jour
+          <p className="text-[13px] sm:text-[14px] mt-1 text-white/60">
+            Vue opérationnelle de votre activité
           </p>
         </div>
-        <TutorialButton moduleId="dashboard" />
-      </div>
-      
-      <div data-tutorial="dashboard-kpi">
-        <DailyKPICards stats={stats} />
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <span className="hidden sm:inline text-[14px] sm:text-[16px] text-white/70 capitalize">{dateStr}</span>
+          <span
+            className="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full"
+            style={{ background: 'rgba(74,222,128,0.12)', color: '#4ADE80', border: '1px solid rgba(74,222,128,0.25)' }}
+          >
+            <motion.span
+              className="h-1.5 w-1.5 rounded-full bg-[#4ADE80]"
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 1.8, ease: 'easeInOut' }}
+            />
+            En direct
+          </span>
+          <TutorialButton moduleId="dashboard" />
+        </div>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-[1fr_380px]" data-tutorial="dashboard-activity">
-        <DailyActivityTabs 
-          checkIns={checkIns} 
-          checkOuts={checkOuts} 
-          tasks={tasks} 
-        />
-        <AgendaPreviewWidget 
-          todayEntries={todayEntries}
-          tomorrowEntries={tomorrowEntries}
-          properties={properties}
-        />
+      {/* KPI cards */}
+      <div data-tutorial="dashboard-kpi">
+        <DashboardKPIs {...DASHBOARD_KPIS} />
       </div>
-      
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-        <DashboardCard 
-          title="Vue d'ensemble (revenus € )"
-          actions={<Button variant="ghost" size="sm" className="text-[13px] font-medium text-primary">Voir tout</Button>}
-          className="stagger-1"
-        >
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={overviewData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="name" className="text-muted-foreground" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis className="text-muted-foreground" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip 
-                  contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '10px', color: 'hsl(var(--foreground))' }}
-                  labelStyle={{ fontWeight: 600, fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#6B7AE8" 
-                  strokeWidth={3}
-                  dot={{ r: 4, strokeWidth: 2, fill: 'hsl(var(--card))', stroke: '#6B7AE8' }}
-                  activeDot={{ r: 7, strokeWidth: 0, fill: '#6B7AE8' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </DashboardCard>
-        
-        <DashboardCard 
-          title="Occupation des logements"
-          actions={<Button variant="ghost" size="sm" className="text-[13px] font-medium text-primary">Détails</Button>}
-          className="stagger-2"
-        >
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={propertiesData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="name" className="text-muted-foreground" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis className="text-muted-foreground" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip 
-                  contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '10px', color: 'hsl(var(--foreground))' }}
-                  labelStyle={{ fontWeight: 600, fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-                />
-                <Bar dataKey="occupied" name="Occupés" fill="hsl(var(--foreground))" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="vacant" name="Libres" fill="hsl(var(--muted))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </DashboardCard>
+
+      {/* Live map + Agenda */}
+      <div className="grid gap-4 sm:gap-5 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_400px]">
+        <div className="h-[380px] sm:h-[420px] lg:h-[520px]">
+          <LiveMap />
+        </div>
+        <div className="h-auto lg:h-[520px]">
+          <DashboardAgenda />
+        </div>
       </div>
-      
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        <DashboardCard 
-          title="Maintenance" 
-          actions={<Button variant="ghost" size="sm" className="text-[13px] font-medium text-primary">Voir tout</Button>}
-          className="stagger-1"
-        >
-          <div className="space-y-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="font-semibold font-heading text-foreground">Interventions récentes</p>
-                <p className="text-[13px] text-muted-foreground">7 interventions en cours</p>
-              </div>
-              <Wrench className="h-5 w-5 text-muted-foreground" />
-            </div>
-            
-            <div className="space-y-2">
-              {['Fuite robinet', 'Serrure bloquée', 'Ampoule à changer'].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-[10px] bg-muted/50 hover:bg-muted">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-foreground">{item}</span>
-                  </div>
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-status-warning-light text-status-warning">
-                    En cours
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </DashboardCard>
-        
-        <DashboardCard 
-          title="Entrepôt" 
-          actions={<Button variant="ghost" size="sm" className="text-[13px] font-medium text-primary">Voir tout</Button>}
-          className="stagger-2"
-        >
-          <div className="space-y-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="font-semibold font-heading text-foreground">État du stock</p>
-                <p className="text-[13px] text-muted-foreground">4 articles en alerte</p>
-              </div>
-              <Package className="h-5 w-5 text-muted-foreground" />
-            </div>
-            
-            <div className="space-y-2">
-              {[
-                { name: 'Papier toilette', stock: '15%' },
-                { name: 'Savon liquide', stock: '23%' },
-                { name: 'Housses couette', stock: '18%' }
-              ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-[10px] bg-muted/50">
-                  <span className="text-sm text-foreground">{item.name}</span>
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-status-error-light text-status-error">
-                    {item.stock}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </DashboardCard>
-        
-        <DashboardCard 
-          title="Ménage" 
-          actions={<Button variant="ghost" size="sm" className="text-[13px] font-medium text-primary">Voir tout</Button>}
-          className="stagger-3"
-        >
-          <div className="space-y-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="font-semibold font-heading text-foreground">Planification aujourd'hui</p>
-                <p className="text-[13px] text-muted-foreground">12 ménages planifiés</p>
-              </div>
-              <Sparkles className="h-5 w-5 text-muted-foreground" />
-            </div>
-            
-            <div className="space-y-2">
-              {[
-                { address: '12 Rue du Port', time: '11:00' },
-                { address: '8 Avenue des Fleurs', time: '14:30' },
-                { address: '23 Rue de la Paix', time: '16:00' }
-              ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-[10px] bg-muted/50">
-                  <span className="text-sm text-foreground">{item.address}</span>
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-status-info-light text-status-info">
-                    {item.time}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </DashboardCard>
+
+      {/* Activité du jour */}
+      <div data-tutorial="dashboard-activity">
+        <DashboardActivity />
       </div>
+
+      {/* Revenus mini-courbe */}
+      <DashboardRevenue />
     </div>
   );
 };
