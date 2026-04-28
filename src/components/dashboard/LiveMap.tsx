@@ -50,31 +50,32 @@ export function LiveMap() {
     return c;
   }, [logements]);
 
-  // Init map
+  // Init map — centered on Lyon
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    const lats = logements.map((l) => l.lat);
-    const lngs = logements.map((l) => l.lng);
-    const center: [number, number] = [
-      (Math.min(...lngs) + Math.max(...lngs)) / 2,
-      (Math.min(...lats) + Math.max(...lats)) / 2,
-    ];
+    // Centre Lyon (Bellecour)
+    const LYON_CENTER: [number, number] = [4.8357, 45.7640];
 
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: mapTheme === 'dark' ? STYLE_DARK : STYLE_LIGHT,
-      center,
-      zoom: 11,
+      center: LYON_CENTER,
+      zoom: 12.2,
       attributionControl: { compact: true },
       cooperativeGestures: false,
     });
 
     map.on('load', () => {
-      // Auto-fit bounding box
-      const bounds = new maplibregl.LngLatBounds();
-      logements.forEach((l) => bounds.extend([l.lng, l.lat]));
-      map.fitBounds(bounds, { padding: 60, duration: 800, maxZoom: 13 });
+      // Fit only Lyon-area logements (exclude Saint-Étienne ~45.42)
+      const lyonOnly = logements.filter((l) => l.lat > 45.6);
+      if (lyonOnly.length > 0) {
+        const bounds = new maplibregl.LngLatBounds();
+        lyonOnly.forEach((l) => bounds.extend([l.lng, l.lat]));
+        map.fitBounds(bounds, { padding: 50, duration: 800, maxZoom: 13.5 });
+      }
+      // Force resize after mount to fix off-canvas markers
+      window.setTimeout(() => map.resize(), 100);
     });
 
     mapRef.current = map;
