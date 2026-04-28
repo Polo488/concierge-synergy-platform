@@ -12,6 +12,7 @@ import {
   TableHeader, TableRow 
 } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/lib/toast';
 import { TOAST_MESSAGES as M } from '@/lib/toastMessages';
