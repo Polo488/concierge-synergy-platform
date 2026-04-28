@@ -205,8 +205,8 @@ export function PlanningHeader({
       </div>
 
       {/* Filters row */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-xs">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+        <div className="relative flex-1 min-w-[200px] max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Rechercher un employé..."
@@ -256,9 +256,9 @@ export function PlanningHeader({
           </Button>
         )}
 
-        <div className="flex-1" />
+        <div className="hidden sm:block flex-1" />
 
-        <span className="text-xs text-muted-foreground">
+        <span className="hidden md:inline text-xs text-muted-foreground">
           Dernière mise à jour : {format(new Date(), "dd/MM/yyyy 'à' HH:mm", { locale: fr })}
         </span>
       </div>
