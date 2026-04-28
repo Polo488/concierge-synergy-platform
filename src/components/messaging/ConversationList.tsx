@@ -116,7 +116,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
   ];
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#FFFFFF', borderRight: '1px solid #F0F0F0' }}>
+    <div className="flex flex-col min-h-full md:h-full" style={{ background: '#FFFFFF', borderRight: '1px solid #F0F0F0' }}>
       {/* Header */}
       <div style={{ padding: '16px 16px 0 16px', borderBottom: '1px solid #F0F0F0' }}>
         {/* Title row */}
