@@ -12,22 +12,22 @@ export const UserManagementTabs = () => {
 
   return (
     <Tabs defaultValue="users" className="w-full">
-      <TabsList className="inline-flex w-full  mb-6">
-        <TabsTrigger value="users" className="flex items-center gap-2">
-          <Users className="h-4 w-4" />
-          <span className="hidden sm:inline">Utilisateurs</span>
+      <TabsList className="grid grid-cols-4 w-full mb-6 h-auto p-1">
+        <TabsTrigger value="users" className="flex items-center justify-center gap-2 min-w-0 px-2">
+          <Users className="h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline truncate">Utilisateurs</span>
         </TabsTrigger>
-        <TabsTrigger value="roles" className="flex items-center gap-2">
-          <Shield className="h-4 w-4" />
-          <span className="hidden sm:inline">Rôles & Permissions</span>
+        <TabsTrigger value="roles" className="flex items-center justify-center gap-2 min-w-0 px-2">
+          <Shield className="h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline truncate">Rôles & Permissions</span>
         </TabsTrigger>
-        <TabsTrigger value="properties" className="flex items-center gap-2">
-          <Home className="h-4 w-4" />
-          <span className="hidden sm:inline">Accès Logements</span>
+        <TabsTrigger value="properties" className="flex items-center justify-center gap-2 min-w-0 px-2">
+          <Home className="h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline truncate">Accès Logements</span>
         </TabsTrigger>
-        <TabsTrigger value="operations" className="flex items-center gap-2">
-          <Wrench className="h-4 w-4" />
-          <span className="hidden sm:inline">Attributions</span>
+        <TabsTrigger value="operations" className="flex items-center justify-center gap-2 min-w-0 px-2">
+          <Wrench className="h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline truncate">Attributions</span>
         </TabsTrigger>
       </TabsList>
 

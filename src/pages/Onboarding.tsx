@@ -33,19 +33,20 @@ export default function Onboarding() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-primary/10">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="p-2.5 rounded-xl bg-primary/10 shrink-0">
             <Rocket size={22} className="text-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Onboarding de biens</h1>
-            <p className="text-sm text-muted-foreground">Industrialisez l'entrée de nouveaux logements dans votre système</p>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate">Onboarding de biens</h1>
+            <p className="text-[13px] sm:text-sm text-muted-foreground line-clamp-2">Industrialisez l'entrée de nouveaux logements dans votre système</p>
           </div>
         </div>
-        <Button onClick={() => setShowNewDialog(true)}>
+        <Button onClick={() => setShowNewDialog(true)} className="w-full sm:w-auto shrink-0">
           <Plus size={16} className="mr-1" />
-          Nouvel onboarding
+          <span className="sm:hidden">Nouvel onboarding</span>
+          <span className="hidden sm:inline">Nouvel onboarding</span>
         </Button>
       </div>
 
