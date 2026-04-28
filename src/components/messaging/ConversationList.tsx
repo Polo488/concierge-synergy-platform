@@ -260,7 +260,25 @@ export const ConversationList: React.FC<ConversationListProps> = ({
       </div>
 
       {/* Conversation list */}
-      <ScrollArea className="flex-1">
+      <div className="flex-1 md:hidden">
+        {conversations.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <MessageCircle size={48} style={{ color: '#C7C7CC' }} />
+            <p style={{ fontSize: 15, color: '#8E8E93', marginTop: 12 }}>Aucune conversation</p>
+          </div>
+        ) : (
+          conversations.map((conversation, idx) => (
+            <ConversationItem
+              key={conversation.id}
+              conversation={conversation}
+              isSelected={selectedConversationId === conversation.id}
+              onClick={() => onSelectConversation(conversation.id)}
+              isLast={idx === conversations.length - 1}
+            />
+          ))
+        )}
+      </div>
+      <ScrollArea className="flex-1 hidden md:block">
         <div>
           {conversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">
