@@ -25,10 +25,7 @@ const Dashboard = () => {
     <div
       className="dashboard-noe min-h-full -m-4 sm:-m-6 lg:-m-8 p-4 sm:p-6 lg:p-8 space-y-5 sm:space-y-6"
       style={{
-        background:
-          'radial-gradient(1200px 600px at 10% -10%, rgba(255,92,26,0.08), transparent 60%),' +
-          'radial-gradient(900px 500px at 110% 10%, rgba(107,122,232,0.10), transparent 55%),' +
-          '#1A1A2E',
+        background: 'transparent',
         color: '#fff',
       }}
     >
