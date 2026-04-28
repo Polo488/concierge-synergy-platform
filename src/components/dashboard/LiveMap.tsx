@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { useLiveLogementsStatus, checkinProgress, seededDelay } from './live-map/useLiveLogementsStatus';
 import type { Logement, LogementStatus } from '@/mocks/dashboard';
 
-type FilterKey = 'all' | 'occupied' | 'checkin' | 'free';
+type FilterKey = 'all' | 'occupied' | 'free';
 
 const STYLE_DARK =
   'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
@@ -187,8 +187,7 @@ export function LiveMap() {
         >
           <FilterChip active={filter === 'all'} onClick={() => setFilter('all')} label="Tous" count={logements.length} dotColor="rgba(255,255,255,0.7)" />
           <FilterChip active={filter === 'occupied'} onClick={() => setFilter('occupied')} label="occupés" count={counts.occupied} dotColor="#4ADE80" />
-          <FilterChip active={filter === 'checkin'} onClick={() => setFilter('checkin')} label="check-ins" count={counts.checkin} dotColor="#FF5C1A" />
-          <FilterChip active={filter === 'free'} onClick={() => setFilter('free')} label="libres" count={counts.free} dotColor="rgba(255,255,255,0.5)" />
+          <FilterChip active={filter === 'free'} onClick={() => setFilter('free')} label="libres" count={counts.free} dotColor="rgba(255,255,255,0.7)" />
         </div>
 
         <div className="flex items-center gap-1.5 pointer-events-auto">
