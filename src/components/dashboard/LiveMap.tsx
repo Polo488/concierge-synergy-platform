@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { useLiveLogementsStatus, checkinProgress, seededDelay } from './live-map/useLiveLogementsStatus';
 import type { Logement, LogementStatus } from '@/mocks/dashboard';
 
-type FilterKey = 'all' | 'occupied' | 'checkin' | 'free';
+type FilterKey = 'all' | 'occupied' | 'free';
 
 const STYLE_DARK =
   'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
@@ -36,7 +36,14 @@ export function LiveMap() {
   const [popover, setPopover] = useState<PopoverState | null>(null);
   const [now, setNow] = useState(() => new Date());
 
-  const { logements, tick } = useLiveLogementsStatus();
+  const { logements: rawLogements, tick } = useLiveLogementsStatus();
+
+  // Règle métier : on ne distingue que "occupé aujourd'hui" (vert pulsant)
+  // vs "libre" (gris visible). Les check-ins à venir ne sont pas mis en avant.
+  const logements = useMemo<Logement[]>(
+    () => rawLogements.map((l) => (l.status === 'checkin' ? { ...l, status: 'free' as const } : l)),
+    [rawLogements]
+  );
 
   // Horloge live (affichage minute)
   useEffect(() => {
@@ -45,8 +52,11 @@ export function LiveMap() {
   }, []);
 
   const counts = useMemo(() => {
-    const c = { occupied: 0, checkin: 0, free: 0 };
-    logements.forEach((l) => { c[l.status]++; });
+    const c = { occupied: 0, free: 0 };
+    logements.forEach((l) => {
+      if (l.status === 'occupied') c.occupied++;
+      else c.free++;
+    });
     return c;
   }, [logements]);
 
@@ -177,8 +187,7 @@ export function LiveMap() {
         >
           <FilterChip active={filter === 'all'} onClick={() => setFilter('all')} label="Tous" count={logements.length} dotColor="rgba(255,255,255,0.7)" />
           <FilterChip active={filter === 'occupied'} onClick={() => setFilter('occupied')} label="occupés" count={counts.occupied} dotColor="#4ADE80" />
-          <FilterChip active={filter === 'checkin'} onClick={() => setFilter('checkin')} label="check-ins" count={counts.checkin} dotColor="#FF5C1A" />
-          <FilterChip active={filter === 'free'} onClick={() => setFilter('free')} label="libres" count={counts.free} dotColor="rgba(255,255,255,0.5)" />
+          <FilterChip active={filter === 'free'} onClick={() => setFilter('free')} label="libres" count={counts.free} dotColor="rgba(255,255,255,0.7)" />
         </div>
 
         <div className="flex items-center gap-1.5 pointer-events-auto">
