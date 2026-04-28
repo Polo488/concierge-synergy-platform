@@ -1066,7 +1066,10 @@ html, body, .scroll-smooth {
   transform: translateX(20px);
 }
 .ios-toggle:active .ios-toggle-thumb {
-  width: 31px;
+  width: 30px;
+}
+.ios-toggle[data-state="checked"]:active .ios-toggle-thumb {
+  transform: translateX(17px);
 }
 .dark .ios-toggle { background: rgba(255, 255, 255, 0.16); }
 
