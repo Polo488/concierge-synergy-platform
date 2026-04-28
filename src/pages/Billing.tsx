@@ -11,6 +11,7 @@ import { StepIssue } from "@/components/billing/StepIssue";
 import { StepSepa } from "@/components/billing/StepSepa";
 import { StepWrap } from "@/components/billing/StepWrap";
 import { cn } from "@/lib/utils";
+import "@/styles/billing-light.css";
 
 function StepRenderer() {
   const { activeStep } = useSession();
@@ -83,7 +84,7 @@ export default function Billing() {
   useEffect(() => { document.title = "Facturation — Noé"; }, []);
   return (
     <FacturationSessionProvider>
-      <section className="relative isolate -mx-[var(--app-gutter)] -mt-[clamp(1.25rem,3vw,2rem)] -mb-[clamp(1.25rem,3vw,2rem)] min-h-[calc(100dvh-72px)] overflow-hidden bg-[#0F0F1E] text-white px-[var(--app-gutter)] pt-[clamp(1.25rem,3vw,2rem)] pb-[clamp(1.25rem,3vw,2rem)]">
+      <section className="facturation-cockpit relative isolate -mx-[var(--app-gutter)] -mt-[clamp(1.25rem,3vw,2rem)] -mb-[clamp(1.25rem,3vw,2rem)] min-h-[calc(100dvh-72px)] overflow-hidden bg-[#0F0F1E] text-white px-[var(--app-gutter)] pt-[clamp(1.25rem,3vw,2rem)] pb-[clamp(1.25rem,3vw,2rem)]">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,rgba(255,92,26,0.10),transparent_30%),radial-gradient(circle_at_86%_16%,rgba(107,122,232,0.10),transparent_32%),radial-gradient(circle_at_78%_82%,rgba(74,222,128,0.06),transparent_30%)]" />
         <div className="mx-auto w-full max-w-[1400px]">
           <div className="mb-5">

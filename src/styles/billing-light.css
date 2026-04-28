@@ -1,0 +1,238 @@
+/* ============================================================
+   Facturation — Light Mode Override
+   ------------------------------------------------------------
+   Le module Facturation est designé en dark first (cockpit navy
+   #0F0F1E + accent orange). Pour le mode clair, on ré-override
+   chirurgicalement chaque classe hardcodée utilisée dans
+   /src/components/billing/ et /src/pages/Billing.tsx via le
+   scope `html:not(.dark) .facturation-cockpit`.
+   ------------------------------------------------------------
+   Palette light cockpit :
+   - Background           : #F7F7FB (navy 4%)  → équivalent #0F0F1E
+   - Surface card         : navy/3..navy/8     → remplace white/[0.02..0.08]
+   - Texte primaire       : #0F0F1E            → remplace text-white
+   - Texte secondaire     : navy/X opacités    → remplace text-white/X
+   - Accents (orange,
+     vert, rouge, jaune,
+     bleu) restent, les
+     opacités fonctionnent
+     déjà très bien sur
+     fond clair.
+   ============================================================ */
+
+html:not(.dark) .facturation-cockpit {
+  /* ---- Background principal section ---- */
+}
+
+/* === Section root background === */
+html:not(.dark) .facturation-cockpit.bg-\[\#0F0F1E\],
+html:not(.dark) .facturation-cockpit .bg-\[\#0F0F1E\] {
+  background-color: #F4F4F8 !important;
+}
+
+/* === Halos radiaux (légers en clair) === */
+html:not(.dark) .facturation-cockpit > .pointer-events-none.absolute.inset-0 {
+  opacity: 0.55 !important;
+}
+
+/* === Surfaces glass (cards, sticky cols, modals) === */
+html:not(.dark) .facturation-cockpit .bg-white\/\[0\.025\] {
+  background-color: rgba(15, 15, 30, 0.035) !important;
+}
+html:not(.dark) .facturation-cockpit .bg-white\/\[0\.02\] {
+  background-color: rgba(15, 15, 30, 0.028) !important;
+}
+html:not(.dark) .facturation-cockpit .bg-white\/\[0\.03\] {
+  background-color: rgba(15, 15, 30, 0.04) !important;
+}
+html:not(.dark) .facturation-cockpit .bg-white\/\[0\.04\] {
+  background-color: rgba(15, 15, 30, 0.05) !important;
+}
+html:not(.dark) .facturation-cockpit .bg-white\/\[0\.05\] {
+  background-color: rgba(15, 15, 30, 0.06) !important;
+}
+html:not(.dark) .facturation-cockpit .bg-white\/\[0\.06\] {
+  background-color: rgba(15, 15, 30, 0.075) !important;
+}
+html:not(.dark) .facturation-cockpit .bg-white\/\[0\.08\] {
+  background-color: rgba(15, 15, 30, 0.09) !important;
+}
+html:not(.dark) .facturation-cockpit .bg-white\/\[0\.1\] {
+  background-color: rgba(15, 15, 30, 0.11) !important;
+}
+html:not(.dark) .facturation-cockpit .bg-white\/5 {
+  background-color: rgba(15, 15, 30, 0.06) !important;
+}
+html:not(.dark) .facturation-cockpit .bg-white\/10 {
+  background-color: rgba(15, 15, 30, 0.10) !important;
+}
+html:not(.dark) .facturation-cockpit .bg-white\/20 {
+  background-color: rgba(15, 15, 30, 0.20) !important;
+}
+html:not(.dark) .facturation-cockpit .bg-white\/30 {
+  background-color: rgba(15, 15, 30, 0.30) !important;
+}
+html:not(.dark) .facturation-cockpit .bg-white {
+  background-color: #FFFFFF !important;
+}
+
+/* Hover plein blanc (kbd, etc.) */
+html:not(.dark) .facturation-cockpit .hover\:bg-white\/5:hover {
+  background-color: rgba(15, 15, 30, 0.06) !important;
+}
+html:not(.dark) .facturation-cockpit .hover\:bg-white\/\[0\.02\]:hover {
+  background-color: rgba(15, 15, 30, 0.03) !important;
+}
+html:not(.dark) .facturation-cockpit .hover\:bg-white\/\[0\.04\]:hover {
+  background-color: rgba(15, 15, 30, 0.05) !important;
+}
+html:not(.dark) .facturation-cockpit .hover\:bg-white\/\[0\.05\]:hover {
+  background-color: rgba(15, 15, 30, 0.065) !important;
+}
+html:not(.dark) .facturation-cockpit .hover\:bg-white\/\[0\.08\]:hover {
+  background-color: rgba(15, 15, 30, 0.09) !important;
+}
+html:not(.dark) .facturation-cockpit .hover\:bg-white\/\[0\.1\]:hover {
+  background-color: rgba(15, 15, 30, 0.115) !important;
+}
+
+/* === Borders === */
+html:not(.dark) .facturation-cockpit .border-white\/\[0\.03\] {
+  border-color: rgba(15, 15, 30, 0.06) !important;
+}
+html:not(.dark) .facturation-cockpit .border-white\/\[0\.04\] {
+  border-color: rgba(15, 15, 30, 0.07) !important;
+}
+html:not(.dark) .facturation-cockpit .border-white\/\[0\.05\] {
+  border-color: rgba(15, 15, 30, 0.08) !important;
+}
+html:not(.dark) .facturation-cockpit .border-white\/\[0\.06\] {
+  border-color: rgba(15, 15, 30, 0.09) !important;
+}
+html:not(.dark) .facturation-cockpit .border-white\/\[0\.08\] {
+  border-color: rgba(15, 15, 30, 0.11) !important;
+}
+html:not(.dark) .facturation-cockpit .border-white\/\[0\.1\] {
+  border-color: rgba(15, 15, 30, 0.13) !important;
+}
+
+/* === Rings === */
+html:not(.dark) .facturation-cockpit .ring-white\/5 {
+  --tw-ring-color: rgba(15, 15, 30, 0.07) !important;
+}
+html:not(.dark) .facturation-cockpit .ring-white\/10 {
+  --tw-ring-color: rgba(15, 15, 30, 0.12) !important;
+}
+html:not(.dark) .facturation-cockpit .ring-white\/\[0\.04\] {
+  --tw-ring-color: rgba(15, 15, 30, 0.07) !important;
+}
+html:not(.dark) .facturation-cockpit .ring-white\/\[0\.05\] {
+  --tw-ring-color: rgba(15, 15, 30, 0.08) !important;
+}
+html:not(.dark) .facturation-cockpit .ring-white\/\[0\.06\] {
+  --tw-ring-color: rgba(15, 15, 30, 0.09) !important;
+}
+html:not(.dark) .facturation-cockpit .ring-white\/\[0\.08\] {
+  --tw-ring-color: rgba(15, 15, 30, 0.11) !important;
+}
+
+/* === Texte === */
+html:not(.dark) .facturation-cockpit .text-white {
+  color: #0F0F1E !important;
+}
+html:not(.dark) .facturation-cockpit .text-white\/85 {
+  color: rgba(15, 15, 30, 0.85) !important;
+}
+html:not(.dark) .facturation-cockpit .text-white\/80 {
+  color: rgba(15, 15, 30, 0.80) !important;
+}
+html:not(.dark) .facturation-cockpit .text-white\/75 {
+  color: rgba(15, 15, 30, 0.72) !important;
+}
+html:not(.dark) .facturation-cockpit .text-white\/70 {
+  color: rgba(15, 15, 30, 0.68) !important;
+}
+html:not(.dark) .facturation-cockpit .text-white\/65 {
+  color: rgba(15, 15, 30, 0.62) !important;
+}
+html:not(.dark) .facturation-cockpit .text-white\/60 {
+  color: rgba(15, 15, 30, 0.58) !important;
+}
+html:not(.dark) .facturation-cockpit .text-white\/55 {
+  color: rgba(15, 15, 30, 0.54) !important;
+}
+html:not(.dark) .facturation-cockpit .text-white\/50 {
+  color: rgba(15, 15, 30, 0.50) !important;
+}
+html:not(.dark) .facturation-cockpit .text-white\/45 {
+  color: rgba(15, 15, 30, 0.46) !important;
+}
+html:not(.dark) .facturation-cockpit .text-white\/40 {
+  color: rgba(15, 15, 30, 0.42) !important;
+}
+html:not(.dark) .facturation-cockpit .text-white\/35 {
+  color: rgba(15, 15, 30, 0.38) !important;
+}
+html:not(.dark) .facturation-cockpit .text-white\/25 {
+  color: rgba(15, 15, 30, 0.30) !important;
+}
+
+/* === StepWrap fullscreen overlay (toujours dark, même en clair) === */
+/* On garde le ceremonial fullscreen sombre car c'est un moment immersif. */
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\].bg-\[\#0F0F1E\] {
+  background-color: #0F0F1E !important; /* on garde l'overlay sombre */
+}
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/85,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/80,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/75,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/70,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/65,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/60,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/55,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/50,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/45,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/40,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/35 {
+  color: rgba(255, 255, 255, var(--alpha, 1)) !important;
+}
+/* re-pin opacités pour StepWrap sombre */
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white { color: #fff !important; }
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/85 { color: rgba(255,255,255,0.85) !important; }
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/80 { color: rgba(255,255,255,0.8) !important; }
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/75 { color: rgba(255,255,255,0.75) !important; }
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/70 { color: rgba(255,255,255,0.7) !important; }
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/65 { color: rgba(255,255,255,0.65) !important; }
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/60 { color: rgba(255,255,255,0.6) !important; }
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/55 { color: rgba(255,255,255,0.55) !important; }
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/50 { color: rgba(255,255,255,0.5) !important; }
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/45 { color: rgba(255,255,255,0.45) !important; }
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/40 { color: rgba(255,255,255,0.4) !important; }
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .text-white\/35 { color: rgba(255,255,255,0.35) !important; }
+
+/* Surfaces blanches dans StepWrap restent translucides claires */
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .bg-white\/\[0\.05\],
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .bg-white\/\[0\.04\],
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .bg-white\/\[0\.06\],
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .bg-white\/\[0\.08\],
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .bg-white\/\[0\.1\],
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .bg-white\/\[0\.025\],
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .bg-white\/\[0\.02\],
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .bg-white\/\[0\.03\],
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .bg-white\/5,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .bg-white\/10,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .bg-white\/20,
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .bg-white\/30 {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .border-white\/\[0\.06\],
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .border-white\/\[0\.08\],
+html:not(.dark) .facturation-cockpit .fixed.inset-0.z-\[100\] .border-white\/\[0\.1\] {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* === Period dropdown popover bg === */
+html:not(.dark) .facturation-cockpit .bg-\[\#1a1a2e\]\/95 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 12px 48px -12px rgba(15, 15, 30, 0.18), 0 0 0 1px rgba(15, 15, 30, 0.06) !important;
+}
