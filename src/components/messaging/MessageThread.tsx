@@ -261,27 +261,33 @@ export const MessageThread: React.FC<MessageThreadProps> = ({
       </button>
 
       {/* ===== MESSAGES ZONE ===== */}
-      <ScrollArea className="flex-1" style={{ background: '#F2F2F7' }}>
-        <div className="flex flex-col gap-1 p-4">
-          {conversation.messages.map((message, idx) => {
-            const prevMsg = idx > 0 ? conversation.messages[idx - 1] : null;
-            const showTimestamp = !prevMsg || 
-              (message.timestamp.getTime() - prevMsg.timestamp.getTime() > 10 * 60 * 1000);
-
-            return (
-              <React.Fragment key={message.id}>
-                {showTimestamp && (
-                  <p className="text-center my-2" style={{ fontSize: 11, color: '#8E8E93' }}>
-                    {format(message.timestamp, "d MMM 'à' HH:mm", { locale: fr })}
-                  </p>
-                )}
-                <MessageBubble message={message} />
-              </React.Fragment>
-            );
-          })}
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
+      {(() => {
+        const list = (
+          <div className="flex flex-col gap-1 p-4">
+            {conversation.messages.map((message, idx) => {
+              const prevMsg = idx > 0 ? conversation.messages[idx - 1] : null;
+              const showTimestamp = !prevMsg ||
+                (message.timestamp.getTime() - prevMsg.timestamp.getTime() > 10 * 60 * 1000);
+              return (
+                <React.Fragment key={message.id}>
+                  {showTimestamp && (
+                    <p className="text-center my-2" style={{ fontSize: 11, color: '#8E8E93' }}>
+                      {format(message.timestamp, "d MMM 'à' HH:mm", { locale: fr })}
+                    </p>
+                  )}
+                  <MessageBubble message={message} />
+                </React.Fragment>
+              );
+            })}
+            <div ref={messagesEndRef} />
+          </div>
+        );
+        return isMobile ? (
+          <div className="flex-1" style={{ background: '#F2F2F7' }}>{list}</div>
+        ) : (
+          <ScrollArea className="flex-1" style={{ background: '#F2F2F7' }}>{list}</ScrollArea>
+        );
+      })()}
 
       {/* ===== QUICK ACTIONS BAR ===== */}
       {isMobile && (
