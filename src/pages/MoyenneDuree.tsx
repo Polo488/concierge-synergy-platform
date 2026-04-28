@@ -484,20 +484,20 @@ const MoyenneDuree = () => {
                   </div>
 
                   {/* Line 3 - Financial */}
-                  <div className="flex border-t border-[#F5F5F5] pt-[10px] mt-[10px]">
-                    <div className="flex-1 text-center">
-                      <p className="text-[14px] font-bold text-[#1A1A2E]">{formatter.currency(loc.loyer)}</p>
+                  <div className="flex border-t border-[#F5F5F5] pt-[10px] mt-[10px] min-w-0">
+                    <div className="flex-1 min-w-0 text-center px-1">
+                      <p className="text-[13px] font-bold text-[#1A1A2E] truncate">{formatter.currency(loc.loyer)}</p>
                       <p className="text-[10px] text-[#9A9AAF]">Loyer</p>
                     </div>
                     <div className="w-px bg-[#EEEEEE]" />
-                    <div className="flex-1 text-center">
-                      <p className="text-[14px] font-bold text-[#1A1A2E]">{formatter.currency(loc.charges)}</p>
+                    <div className="flex-1 min-w-0 text-center px-1">
+                      <p className="text-[13px] font-bold text-[#1A1A2E] truncate">{formatter.currency(loc.charges)}</p>
                       <p className="text-[10px] text-[#9A9AAF]">Charges</p>
                     </div>
                     <div className="w-px bg-[#EEEEEE]" />
-                    <div className="flex-1 text-center">
-                      <p className="text-[14px] font-bold text-[#1A1A2E]">{formatter.currency(loc.loyer + loc.charges)}</p>
-                      <p className="text-[10px] text-[#9A9AAF]">Total mensuel</p>
+                    <div className="flex-1 min-w-0 text-center px-1">
+                      <p className="text-[13px] font-bold text-[#1A1A2E] truncate">{formatter.currency(loc.loyer + loc.charges)}</p>
+                      <p className="text-[10px] text-[#9A9AAF]">Total</p>
                     </div>
                   </div>
 
