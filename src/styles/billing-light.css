@@ -25,9 +25,10 @@ html:not(.dark) .facturation-cockpit {
 }
 
 /* === Section root background === */
+/* Transparent so body's .liquid-bg ambient halos remain visible behind billing content */
 html:not(.dark) .facturation-cockpit.bg-\[\#0F0F1E\],
 html:not(.dark) .facturation-cockpit .bg-\[\#0F0F1E\] {
-  background-color: #F4F4F8 !important;
+  background-color: transparent !important;
 }
 
 /* === Halos radiaux (légers en clair) === */
