@@ -127,6 +127,7 @@ function InvoiceCard({ inv, onClick, sent }: { inv: OwnerInvoice; onClick: () =>
 
 function InvoicePreview({ inv, onClose }: { inv: OwnerInvoice | null; onClose: () => void }) {
   const { reservations, maintenance, cleaning, misc, negativeOps, periodLabel, cartG, markInvoiceSent } = useFacturation();
+  const { monthClosed } = useFacturationMetier();
 
   if (!inv) return null;
   const propIds = new Set(properties.filter((p) => p.ownerId === inv.owner.id).map((p) => p.id));
@@ -161,16 +162,16 @@ function InvoicePreview({ inv, onClose }: { inv: OwnerInvoice | null; onClose: (
                   <X className="h-4 w-4" strokeWidth={1.8} />
                 </button>
                 <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-[0.1em] text-[hsl(var(--bill-label-3))] leading-none">Facture · {periodLabel}</p>
+                  <p className="text-[10px] uppercase tracking-[0.1em] text-[hsl(var(--bill-label-3))] leading-none">Facture · {periodLabel}{monthClosed ? " · Verrouillé" : ""}</p>
                   <p className="text-[13px] sm:text-sm font-semibold text-[hsl(var(--bill-label))] truncate leading-tight mt-0.5">{inv.owner.name}</p>
                 </div>
               </div>
               {/* Right: actions — icons on mobile, icon+label sm+ */}
               <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
                 <ToolbarBtn icon={Download} label="PDF" onClick={() => toast.success("PDF téléchargé")} />
-                <ToolbarBtn icon={Mail} label="Envoyer" onClick={() => { markInvoiceSent(inv.owner.id); toast.success(`Facture envoyée à ${inv.owner.name}`); onClose(); }} primary />
-                <ToolbarBtn icon={Check} label="Marquée" onClick={() => { markInvoiceSent(inv.owner.id); toast.success("Statut mis à jour"); onClose(); }} />
-                <ToolbarBtn icon={Pencil} label="Éditer" onClick={onClose} />
+                <ToolbarBtn icon={Mail} label="Envoyer" disabled={monthClosed || inv.blocked} onClick={() => { markInvoiceSent(inv.owner.id); toast.success(`Facture envoyée à ${inv.owner.name}`); onClose(); }} primary />
+                <ToolbarBtn icon={Check} label="Marquée" disabled={monthClosed} onClick={() => { markInvoiceSent(inv.owner.id); toast.success("Statut mis à jour"); onClose(); }} />
+                <ToolbarBtn icon={Pencil} label="Éditer" disabled={monthClosed} onClick={onClose} />
               </div>
             </div>
             {/* DOCUMENT */}
@@ -286,13 +287,14 @@ function InvoicePreview({ inv, onClose }: { inv: OwnerInvoice | null; onClose: (
   );
 }
 
-function ToolbarBtn({ icon: Icon, label, onClick, primary }: { icon: any; label: string; onClick: () => void; primary?: boolean }) {
+function ToolbarBtn({ icon: Icon, label, onClick, primary, disabled }: { icon: any; label: string; onClick: () => void; primary?: boolean; disabled?: boolean }) {
   return (
     <button
       onClick={onClick}
-      title={label}
+      disabled={disabled}
+      title={disabled ? `${label} — indisponible (mois clôturé)` : label}
       className={cn(
-        "inline-flex items-center justify-center gap-1.5 rounded-full text-[12.5px] font-medium transition-colors min-h-[36px]",
+        "inline-flex items-center justify-center gap-1.5 rounded-full text-[12.5px] font-medium transition-colors min-h-[36px] disabled:opacity-40 disabled:cursor-not-allowed",
         primary
           ? "bg-[#FF5C1A] text-white hover:bg-[#FF5C1A]/90 px-2.5 sm:px-3.5"
           : "text-[hsl(var(--bill-label-2))] hover:bg-[hsl(var(--bill-surface-hover))] px-2.5 sm:px-3"
