@@ -317,17 +317,21 @@ function ChannelChip({ channel }: { channel: 'airbnb' | 'booking' | 'direct' }) 
 
 function buildMarkerEl(l: Logement, enterDelay: number): HTMLDivElement {
   const el = document.createElement('div');
-  el.className = `noe-marker noe-marker--${l.status}`;
+  el.className = 'noe-marker-shell';
   el.tabIndex = 0;
   el.setAttribute('role', 'button');
   el.setAttribute('aria-label', `${l.name} – ${labelStatus(l.status)}`);
-  el.style.setProperty('--noe-enter-delay', `${enterDelay}s`);
+
+  const marker = document.createElement('div');
+  marker.className = `noe-marker noe-marker--${l.status}`;
+  marker.style.setProperty('--noe-enter-delay', `${enterDelay}s`);
+  el.appendChild(marker);
 
   if (l.status === 'occupied') {
-    el.style.setProperty('--noe-delay', `${seededDelay(l.id)}s`);
-    el.innerHTML = `<div class="noe-marker__halo"></div><div class="noe-marker__core"></div>`;
+    marker.style.setProperty('--noe-delay', `${seededDelay(l.id)}s`);
+    marker.innerHTML = `<div class="noe-marker__halo"></div><div class="noe-marker__core"></div>`;
   } else if (l.status === 'checkin') {
-    el.innerHTML = `
+    marker.innerHTML = `
       <svg class="noe-marker__ring" viewBox="0 0 28 28">
         <circle cx="14" cy="14" r="12" fill="none" stroke="rgba(255,92,26,0.18)" stroke-width="2"/>
         <circle class="noe-ring-progress" cx="14" cy="14" r="12" fill="none" stroke="rgba(255,92,26,0.85)" stroke-width="2"
@@ -337,7 +341,7 @@ function buildMarkerEl(l: Logement, enterDelay: number): HTMLDivElement {
       <div class="noe-marker__core"></div>`;
     updateRing(el, checkinProgress(l.checkinAt));
   } else {
-    el.innerHTML = `<div class="noe-marker__core"></div>`;
+    marker.innerHTML = `<div class="noe-marker__core"></div>`;
   }
   return el;
 }
