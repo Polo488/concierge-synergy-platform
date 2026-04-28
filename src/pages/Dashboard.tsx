@@ -8,6 +8,7 @@ import { DashboardAgenda } from '@/components/dashboard/DashboardAgenda';
 import { DashboardActivity } from '@/components/dashboard/DashboardActivity';
 import { DashboardRevenue } from '@/components/dashboard/DashboardRevenue';
 import { DASHBOARD_KPIS } from '@/mocks/dashboard';
+import '@/styles/dashboard-light.css';
 
 const Dashboard = () => {
   const [now, setNow] = useState(() => new Date());
