@@ -1,0 +1,138 @@
+/* === LiveMap markers — Noé iOS 26 === */
+
+.noe-marker {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform: translate3d(0, 0, 0);
+}
+
+.noe-marker:focus { outline: none; }
+.noe-marker:focus-visible .noe-marker__core {
+  box-shadow: 0 0 0 3px rgba(107, 122, 232, 0.55);
+}
+
+/* === Type 1: Occupé (vert pulsant) === */
+.noe-marker--occupied .noe-marker__core {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #4ADE80;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.5), inset 0 0 0 1px rgba(255,255,255,0.15);
+  position: relative;
+  z-index: 2;
+}
+.noe-marker--occupied .noe-marker__core::after {
+  /* point central plus dense */
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #16a34a;
+}
+.noe-marker--occupied .noe-marker__halo {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #4ADE80;
+  opacity: 0.6;
+  animation: noe-pulse 2s ease-out infinite;
+  animation-delay: var(--noe-delay, 0s);
+  z-index: 1;
+}
+@keyframes noe-pulse {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  80%  { transform: scale(2);   opacity: 0;   }
+  100% { transform: scale(2.1); opacity: 0;   }
+}
+
+/* === Type 2: Check-in <24h (orange + anneau countdown) === */
+.noe-marker--checkin .noe-marker__core {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #FF5C1A;
+  box-shadow: 0 0 8px rgba(255,92,26,0.45), inset 0 0 0 1px rgba(255,255,255,0.2);
+  z-index: 2;
+}
+.noe-marker--checkin .noe-marker__ring {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 28px;
+  height: 28px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* === Type 3: Libre (cercle creux) === */
+.noe-marker--free .noe-marker__core {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.45);
+  box-shadow: 0 0 4px rgba(0,0,0,0.4);
+}
+:root.light .noe-marker--free .noe-marker__core,
+.light .noe-marker--free .noe-marker__core {
+  border-color: rgba(15, 15, 30, 0.45);
+  box-shadow: 0 0 4px rgba(0,0,0,0.08);
+}
+
+/* === Cluster === */
+.noe-cluster {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+.noe-cluster--has-occupied {
+  animation: noe-cluster-pulse 2.5s ease-in-out infinite;
+}
+@keyframes noe-cluster-pulse {
+  0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 0 rgba(74,222,128,0.0); }
+  50%      { box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 6px rgba(74,222,128,0.18); }
+}
+
+/* === Apparition au chargement (ripple) === */
+.noe-marker {
+  animation: noe-marker-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--noe-enter-delay, 0s);
+}
+@keyframes noe-marker-in {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: 1; transform: scale(1);   }
+}
+
+/* === Reduced motion === */
+@media (prefers-reduced-motion: reduce) {
+  .noe-marker__halo,
+  .noe-cluster--has-occupied { animation: none !important; }
+  .noe-marker { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
+
+/* === MapLibre overrides : masquer attribution lourde, garder lien === */
+.maplibregl-ctrl-attrib { font-size: 10px; opacity: 0.5; }
+.maplibregl-ctrl-attrib-button { display: none !important; }
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl { margin: 0 6px 6px 0; }
+.maplibregl-canvas:focus { outline: none; }
