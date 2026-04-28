@@ -185,7 +185,7 @@ export const MessageThread: React.FC<MessageThreadProps> = ({
   const nights = getNights(conversation.reservation.checkIn, conversation.reservation.checkOut);
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#FFFFFF' }}>
+    <div className={cn("flex flex-col", isMobile ? "min-h-full" : "h-full")} style={{ background: '#FFFFFF' }}>
       {/* ===== HEADER ===== */}
       <div className="sticky top-0 z-20" style={{ background: '#FFFFFF', borderBottom: '1px solid #F0F0F0' }}>
         {/* Line 1: Nav + Identity */}
@@ -261,27 +261,33 @@ export const MessageThread: React.FC<MessageThreadProps> = ({
       </button>
 
       {/* ===== MESSAGES ZONE ===== */}
-      <ScrollArea className="flex-1" style={{ background: '#F2F2F7' }}>
-        <div className="flex flex-col gap-1 p-4">
-          {conversation.messages.map((message, idx) => {
-            const prevMsg = idx > 0 ? conversation.messages[idx - 1] : null;
-            const showTimestamp = !prevMsg || 
-              (message.timestamp.getTime() - prevMsg.timestamp.getTime() > 10 * 60 * 1000);
-
-            return (
-              <React.Fragment key={message.id}>
-                {showTimestamp && (
-                  <p className="text-center my-2" style={{ fontSize: 11, color: '#8E8E93' }}>
-                    {format(message.timestamp, "d MMM 'à' HH:mm", { locale: fr })}
-                  </p>
-                )}
-                <MessageBubble message={message} />
-              </React.Fragment>
-            );
-          })}
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
+      {(() => {
+        const list = (
+          <div className="flex flex-col gap-1 p-4">
+            {conversation.messages.map((message, idx) => {
+              const prevMsg = idx > 0 ? conversation.messages[idx - 1] : null;
+              const showTimestamp = !prevMsg ||
+                (message.timestamp.getTime() - prevMsg.timestamp.getTime() > 10 * 60 * 1000);
+              return (
+                <React.Fragment key={message.id}>
+                  {showTimestamp && (
+                    <p className="text-center my-2" style={{ fontSize: 11, color: '#8E8E93' }}>
+                      {format(message.timestamp, "d MMM 'à' HH:mm", { locale: fr })}
+                    </p>
+                  )}
+                  <MessageBubble message={message} />
+                </React.Fragment>
+              );
+            })}
+            <div ref={messagesEndRef} />
+          </div>
+        );
+        return isMobile ? (
+          <div className="flex-1" style={{ background: '#F2F2F7' }}>{list}</div>
+        ) : (
+          <ScrollArea className="flex-1" style={{ background: '#F2F2F7' }}>{list}</ScrollArea>
+        );
+      })()}
 
       {/* ===== QUICK ACTIONS BAR ===== */}
       {isMobile && (
