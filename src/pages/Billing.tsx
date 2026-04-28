@@ -4,6 +4,7 @@ import { useFacturation, FacturationProvider } from "@/hooks/useFacturation";
 import { BillingTenantProvider, useBillingTenant } from "@/hooks/useBillingTenant";
 import { FacturationPeriodPill, FacturationProgress } from "@/components/billing/FacturationHeader";
 import { BillingModeToggle } from "@/components/billing/BillingModeToggle";
+import { MonthClosedBadge } from "@/components/billing/MonthClosedBadge";
 import { KpiHero } from "@/components/billing/KpiHero";
 import { FacturationTabs } from "@/components/billing/FacturationTabs";
 import { ReservationsTab } from "@/components/billing/ReservationsTab";
@@ -55,6 +56,7 @@ function FacturationContent() {
           <FacturationPeriodPill />
           <FacturationProgress />
           <BillingModeToggle />
+          <MonthClosedBadge />
         </div>
         <PrimaryCta />
       </header>
