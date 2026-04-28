@@ -356,10 +356,55 @@ const Inventory = () => {
         <div className="flex items-center justify-between gap-2 mb-3">
           <h2 className="text-base font-bold text-foreground whitespace-nowrap">Gestion des stocks</h2>
           <div className="flex items-center gap-2 shrink-0">
-            <Button size="sm" variant="outline" className="h-9 gap-1.5 text-xs whitespace-nowrap">
-              <Filter className="h-3.5 w-3.5" />
-              {!isMobile && 'Filtrer'}
-            </Button>
+            <Popover open={filterPopoverOpen} onOpenChange={setFilterPopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button size="sm" variant="outline" className="relative h-9 gap-1.5 text-xs whitespace-nowrap">
+                  <Filter className="h-3.5 w-3.5" />
+                  {!isMobile && 'Filtrer'}
+                  {activeFilterCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[hsl(var(--ios-orange,16_100%,55%))]" style={{ background: '#FF5C1A' }} />
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-72 p-4 space-y-4">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">Statut stock</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {([{v:'all',l:'Tous'},{v:'low',l:'Stock bas'},{v:'ok',l:'En stock'}] as const).map(opt => (
+                      <button
+                        key={opt.v}
+                        onClick={() => setStatusFilter(opt.v as any)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                          statusFilter === opt.v ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:bg-muted/70'
+                        }`}
+                      >{opt.l}</button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">Tri</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {([{v:'name',l:'Nom A-Z'},{v:'stock_asc',l:'Stock ↑'},{v:'stock_desc',l:'Stock ↓'}] as const).map(opt => (
+                      <button
+                        key={opt.v}
+                        onClick={() => setSortBy(opt.v as any)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                          sortBy === opt.v ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:bg-muted/70'
+                        }`}
+                      >{opt.l}</button>
+                    ))}
+                  </div>
+                </div>
+                {activeFilterCount > 0 && (
+                  <button
+                    onClick={() => { setStatusFilter('all'); setSortBy('name'); }}
+                    className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                  >
+                    <X className="h-3 w-3" /> Réinitialiser
+                  </button>
+                )}
+              </PopoverContent>
+            </Popover>
             <Button size="sm" className="h-9 gap-1.5 text-xs whitespace-nowrap" onClick={() => setNewItemDialogOpen(true)}>
               <PlusCircle className="h-3.5 w-3.5" /> Ajouter
             </Button>
