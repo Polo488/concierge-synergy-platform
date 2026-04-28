@@ -102,7 +102,7 @@ const HRPlanning = () => {
   }, [hrPlanning]);
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-transparent">
       {/* Header */}
       <PlanningHeader 
         currentMonth={hrPlanning.currentMonth}
