@@ -1,5 +1,4 @@
 
-import { BookingForm, SelectOption } from "../moyenne-duree/types";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,123 +24,124 @@ export const AddCleaningTaskDialog = ({
 }: AddCleaningTaskDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0 gap-0">
+        <DialogHeader className="px-6 pt-6 pb-3 shrink-0">
           <DialogTitle>Ajouter un ménage</DialogTitle>
           <DialogDescription>
             Complétez les informations pour ajouter un nouveau ménage
           </DialogDescription>
         </DialogHeader>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Propriété</label>
-              <Input
-                value={newTask.property}
-                onChange={(e) => setNewTask({...newTask, property: e.target.value})}
-                placeholder="Nom de l'appartement"
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2">
+
+        <div className="flex-1 overflow-y-auto px-6 pb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-4 min-w-0">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Check-out</label>
+                <label className="text-sm font-medium">Propriété</label>
                 <Input
-                  type="time"
-                  value={newTask.checkoutTime}
-                  onChange={(e) => setNewTask({...newTask, checkoutTime: e.target.value})}
+                  value={newTask.property}
+                  onChange={(e) => setNewTask({ ...newTask, property: e.target.value })}
+                  placeholder="Nom de l'appartement"
                 />
               </div>
-              
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2 min-w-0">
+                  <label className="text-sm font-medium">Check-out</label>
+                  <Input
+                    type="time"
+                    value={newTask.checkoutTime}
+                    onChange={(e) => setNewTask({ ...newTask, checkoutTime: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2 min-w-0">
+                  <label className="text-sm font-medium">Check-in</label>
+                  <Input
+                    type="time"
+                    value={newTask.checkinTime}
+                    onChange={(e) => setNewTask({ ...newTask, checkinTime: e.target.value })}
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <label className="text-sm font-medium">Check-in</label>
+                <label className="text-sm font-medium">Date</label>
                 <Input
-                  type="time"
-                  value={newTask.checkinTime}
-                  onChange={(e) => setNewTask({...newTask, checkinTime: e.target.value})}
+                  type="date"
+                  value={newTask.date}
+                  onChange={(e) => setNewTask({ ...newTask, date: e.target.value })}
                 />
               </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Statut</label>
+                <Select
+                  value={newTask.status}
+                  onValueChange={(value: any) => setNewTask({ ...newTask, status: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todo">À faire</SelectItem>
+                    <SelectItem value="completed">Terminé</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Agent de ménage</label>
+                <Select
+                  value={newTask.cleaningAgent}
+                  onValueChange={(value: string) => setNewTask({ ...newTask, cleaningAgent: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un agent" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="non_assigne">Non assigné</SelectItem>
+                    {cleaningAgents.map((agent) => (
+                      <SelectItem key={agent} value={agent}>{agent}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Date</label>
-              <Input
-                type="date"
-                value={newTask.date}
-                onChange={(e) => setNewTask({...newTask, date: e.target.value})}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Statut</label>
-              <Select 
-                value={newTask.status} 
-                onValueChange={(value: any) => setNewTask({...newTask, status: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todo">À faire</SelectItem>
-                  <SelectItem value="completed">Terminé</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Agent de ménage</label>
-              <Select 
-                value={newTask.cleaningAgent} 
-                onValueChange={(value: string) => setNewTask({...newTask, cleaningAgent: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un agent" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="non_assigne">Non assigné</SelectItem>
-                  {cleaningAgents.map((agent) => (
-                    <SelectItem key={agent} value={agent}>{agent}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Linge et literie</label>
-              <Input
-                value={newTask.linens.join(', ')}
-                onChange={(e) => setNewTask({...newTask, linens: e.target.value.split(', ')})}
-                placeholder="Serviettes bain x2, Housse de couette queen x1, Taies d'oreiller x2"
-              />
-              <p className="text-xs text-muted-foreground">
-                Comprend tout type de linge: draps, serviettes, housses, taies, etc.
-              </p>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Consommables</label>
-              <Input
-                value={newTask.consumables.join(', ')}
-                onChange={(e) => setNewTask({...newTask, consumables: e.target.value.split(', ')})}
-                placeholder="Capsules café x4, Sachets thé x2"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Commentaires</label>
-              <Input
-                value={newTask.comments}
-                onChange={(e) => setNewTask({...newTask, comments: e.target.value})}
-                placeholder="Instructions spéciales..."
-              />
+
+            <div className="space-y-4 min-w-0">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Linge et literie</label>
+                <Input
+                  value={newTask.linens.join(', ')}
+                  onChange={(e) => setNewTask({ ...newTask, linens: e.target.value.split(', ') })}
+                  placeholder="Serviettes bain x2, Housse de couette queen x1"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Comprend tout type de linge: draps, serviettes, housses, taies, etc.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Consommables</label>
+                <Input
+                  value={newTask.consumables.join(', ')}
+                  onChange={(e) => setNewTask({ ...newTask, consumables: e.target.value.split(', ') })}
+                  placeholder="Capsules café x4, Sachets thé x2"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Commentaires</label>
+                <Input
+                  value={newTask.comments}
+                  onChange={(e) => setNewTask({ ...newTask, comments: e.target.value })}
+                  placeholder="Instructions spéciales..."
+                />
+              </div>
             </div>
           </div>
         </div>
-        
-        <DialogFooter>
+
+        <DialogFooter className="px-6 py-4 border-t border-border shrink-0 bg-background">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
           <Button onClick={onAddTask}>Ajouter</Button>
         </DialogFooter>
