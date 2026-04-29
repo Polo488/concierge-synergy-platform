@@ -181,31 +181,29 @@ export function LiveMap() {
 
       {/* Bandeau supérieur */}
       <div className="absolute top-0 left-0 right-0 z-10 p-3 sm:p-4 flex items-center justify-between gap-2 pointer-events-none">
-        <div
-          className="flex items-center gap-1.5 sm:gap-2 rounded-full px-2 py-1.5 backdrop-blur-md pointer-events-auto overflow-x-auto max-w-[calc(100%-110px)] sm:max-w-none"
-          style={{ background: 'rgba(26,26,46,0.7)', border: '1px solid rgba(255,255,255,0.08)' }}
-        >
-          <FilterChip active={filter === 'all'} onClick={() => setFilter('all')} label="Tous" count={logements.length} dotColor="rgba(255,255,255,0.7)" />
-          <FilterChip active={filter === 'occupied'} onClick={() => setFilter('occupied')} label="occupés" count={counts.occupied} dotColor="#4ADE80" />
-          <FilterChip active={filter === 'free'} onClick={() => setFilter('free')} label="libres" count={counts.free} dotColor="rgba(255,255,255,0.7)" />
-        </div>
+        <LiquidGlassPill className="pointer-events-auto overflow-x-auto max-w-[calc(100%-110px)] sm:max-w-none">
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5">
+            <FilterChip active={filter === 'all'} onClick={() => setFilter('all')} label="Tous" count={logements.length} dotColor="rgba(255,255,255,0.85)" />
+            <FilterChip active={filter === 'occupied'} onClick={() => setFilter('occupied')} label="occupés" count={counts.occupied} dotColor="#4ADE80" />
+            <FilterChip active={filter === 'free'} onClick={() => setFilter('free')} label="libres" count={counts.free} dotColor="rgba(255,255,255,0.85)" />
+          </div>
+        </LiquidGlassPill>
 
         <div className="flex items-center gap-1.5 pointer-events-auto">
-          <span
-            className="hidden sm:inline-block text-[11px] tabular-nums px-2.5 py-1.5 rounded-full backdrop-blur-md text-white/60"
-            style={{ background: 'rgba(26,26,46,0.7)', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            {now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-          </span>
-          <IconBtn onClick={recenter} aria-label="Recentrer">
+          <LiquidGlassPill className="hidden sm:inline-flex">
+            <span className="text-[11px] tabular-nums px-2.5 py-1.5 text-white/85" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.25)' }}>
+              {now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </LiquidGlassPill>
+          <LiquidGlassIconBtn onClick={recenter} aria-label="Recentrer">
             <Compass className="h-4 w-4" strokeWidth={1.5} />
-          </IconBtn>
-          <IconBtn
+          </LiquidGlassIconBtn>
+          <LiquidGlassIconBtn
             onClick={() => setMapTheme(mapTheme === 'dark' ? 'light' : 'dark')}
             aria-label="Changer thème carte"
           >
             {mapTheme === 'dark' ? <Sun className="h-4 w-4" strokeWidth={1.5} /> : <Moon className="h-4 w-4" strokeWidth={1.5} />}
-          </IconBtn>
+          </LiquidGlassIconBtn>
         </div>
       </div>
 
@@ -294,6 +292,64 @@ function IconBtn({ children, onClick, ...rest }: React.ButtonHTMLAttributes<HTML
     >
       {children}
     </button>
+  );
+}
+
+/* ========= Liquid Glass primitives (iOS 26 — Niveau 1) ========= */
+
+function LiquidGlassPill({
+  children,
+  className,
+}: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn('relative inline-flex rounded-full overflow-hidden isolate', className)}>
+      {/* Couche réfraction */}
+      <div
+        className="absolute inset-0 -z-10"
+        style={{
+          backdropFilter: 'blur(3px)',
+          WebkitBackdropFilter: 'blur(3px)',
+          filter: 'url(#liquid-lens)',
+        }}
+      />
+      {/* Teinte translucide */}
+      <div
+        className="absolute inset-0 -z-10 rounded-full"
+        style={{ background: 'rgba(255, 255, 255, 0.18)' }}
+      />
+      {/* Bord brillant + ombre */}
+      <div
+        className="absolute inset-0 rounded-full pointer-events-none"
+        style={{
+          boxShadow: `
+            inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.85),
+            inset 0 -1px 1px 0 rgba(255, 255, 255, 0.4),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+            0 8px 24px rgba(0, 0, 0, 0.12),
+            0 2px 6px rgba(0, 0, 0, 0.08)
+          `,
+        }}
+      />
+      <div className="relative z-10 inline-flex">{children}</div>
+    </div>
+  );
+}
+
+function LiquidGlassIconBtn({
+  children,
+  onClick,
+  ...rest
+}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <LiquidGlassPill>
+      <button
+        onClick={onClick}
+        className="relative h-8 w-8 rounded-full flex items-center justify-center text-white/90 hover:text-white transition-colors"
+        {...rest}
+      >
+        {children}
+      </button>
+    </LiquidGlassPill>
   );
 }
 

@@ -48,53 +48,40 @@ html:not(.dark) .dashboard-noe [style*="rgba(26,26,46,0.92)"] {
   border-color: rgba(15, 15, 30, 0.10) !important;
 }
 
-/* === KPI Liquid Glass — no opaque white/grey fill === */
+/* === Frosted Glass simple — KPI cards (Niveau 2 iOS 26) === */
 .dashboard-noe .dashboard-kpi-liquid-glass {
   isolation: isolate;
-  --kpi-lens-a: 18 100% 56%;
-  --kpi-lens-b: 210 100% 62%;
-  border-radius: 24px !important;
-  background:
-    radial-gradient(115% 90% at 8% 0%, hsl(var(--kpi-lens-a) / 0.20) 0%, transparent 48%),
-    radial-gradient(115% 88% at 100% 10%, hsl(var(--kpi-lens-b) / 0.16) 0%, transparent 54%),
-    linear-gradient(135deg, hsl(0 0% 100% / 0.018), hsl(0 0% 100% / 0.004) 52%, hsl(0 0% 100% / 0.014)) !important;
-  border: 1px solid hsl(0 0% 100% / 0.68) !important;
-  backdrop-filter: blur(14px) saturate(235%) contrast(1.12) brightness(1.02) !important;
-  -webkit-backdrop-filter: blur(14px) saturate(235%) contrast(1.12) brightness(1.02) !important;
+  border-radius: 20px !important;
+  background: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
   box-shadow:
-    inset 0 1px 1px hsl(0 0% 100% / 0.82),
-    inset 0 -26px 44px hsl(0 0% 100% / 0.012),
-    inset 0 0 0 1px hsl(0 0% 100% / 0.14),
-    0 18px 46px hsl(232 24% 22% / 0.075) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.06) !important;
 }
 
-.dashboard-noe .dashboard-kpi-liquid-glass:nth-child(2) { --kpi-lens-a: 205 100% 64%; --kpi-lens-b: 260 84% 70%; }
-.dashboard-noe .dashboard-kpi-liquid-glass:nth-child(3) { --kpi-lens-a: 270 84% 70%; --kpi-lens-b: 18 100% 62%; }
-.dashboard-noe .dashboard-kpi-liquid-glass:nth-child(4) { --kpi-lens-a: 142 71% 50%; --kpi-lens-b: 211 100% 60%; }
-
-.dashboard-noe .dashboard-kpi-liquid-glass::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background:
-    linear-gradient(145deg, hsl(0 0% 100% / 0.18) 0%, transparent 31%),
-    radial-gradient(90% 70% at 88% 12%, hsl(204 100% 78% / 0.05), transparent 58%);
-  mix-blend-mode: screen;
-  opacity: 0.48;
-  pointer-events: none;
+/* === Frosted Glass simple — Agenda / Activity / Revenue cards (Niveau 2) === */
+.dashboard-noe .dashboard-frosted-card {
+  background: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.06) !important;
 }
 
-.dashboard-noe .dashboard-kpi-liquid-glass::after {
-  content: "";
-  position: absolute;
-  inset: 1px;
-  z-index: -1;
-  border-radius: inherit;
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.052), transparent 36%, hsl(0 0% 100% / 0.008));
-  box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.12);
-  pointer-events: none;
+html.dark .dashboard-noe .dashboard-frosted-card,
+.dark .dashboard-noe .dashboard-frosted-card {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.20),
+    0 8px 24px rgba(0, 0, 0, 0.30) !important;
 }
 
 /* === LiveMap container background === */
@@ -116,32 +103,15 @@ html:not(.dark) .dashboard-noe .noe-cluster {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
 }
 
-html.dark .dashboard-noe .dashboard-kpi-card,
-.dark .dashboard-noe .dashboard-kpi-card {
-  background:
-    radial-gradient(115% 90% at 8% 0%, hsl(var(--kpi-lens-a) / 0.16) 0%, transparent 48%),
-    radial-gradient(115% 88% at 100% 10%, hsl(var(--kpi-lens-b) / 0.14) 0%, transparent 54%),
-    linear-gradient(135deg, hsl(0 0% 100% / 0.052), hsl(0 0% 100% / 0.012) 54%, hsl(0 0% 100% / 0.04)) !important;
-  border-color: hsl(0 0% 100% / 0.30) !important;
-  backdrop-filter: blur(18px) saturate(245%) contrast(1.12) brightness(1.06) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(245%) contrast(1.12) brightness(1.06) !important;
+/* === KPI Frosted Glass — dark mode === */
+html.dark .dashboard-noe .dashboard-kpi-liquid-glass,
+.dark .dashboard-noe .dashboard-kpi-liquid-glass {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
   box-shadow:
-    inset 0 1px 1px hsl(0 0% 100% / 0.28),
-    inset 0 -22px 38px hsl(0 0% 100% / 0.025),
-    inset 0 0 0 1px hsl(0 0% 100% / 0.055),
-    0 18px 46px hsl(0 0% 0% / 0.28) !important;
-}
-
-html.dark .dashboard-noe .dashboard-kpi-liquid-glass::before,
-.dark .dashboard-noe .dashboard-kpi-liquid-glass::before {
-  background:
-    linear-gradient(145deg, hsl(0 0% 100% / 0.26) 0%, transparent 31%),
-    radial-gradient(90% 70% at 88% 12%, hsl(204 100% 72% / 0.13), transparent 58%);
-  opacity: 0.78;
-}
-
-html.dark .dashboard-noe .dashboard-kpi-liquid-glass::after,
-.dark .dashboard-noe .dashboard-kpi-liquid-glass::after {
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.12), transparent 36%, hsl(0 0% 100% / 0.035));
-  box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.20),
+    0 8px 24px rgba(0, 0, 0, 0.30) !important;
 }
