@@ -84,8 +84,8 @@ html:not(.dark) .dashboard-noe [style*="rgba(26,26,46,0.92)"] {
   inset: 1px;
   z-index: -1;
   border-radius: inherit;
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.34), transparent 36%, hsl(0 0% 100% / 0.08));
-  box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.22);
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.18), transparent 36%, hsl(0 0% 100% / 0.035));
+  box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.18);
   pointer-events: none;
 }
 
