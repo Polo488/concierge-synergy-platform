@@ -196,12 +196,6 @@ export function LiveMap() {
           <LiquidGlassIconBtn onClick={recenter} aria-label="Recentrer">
             <Compass className="h-4 w-4" strokeWidth={1.5} />
           </LiquidGlassIconBtn>
-          <LiquidGlassIconBtn
-            onClick={() => setMapTheme(mapTheme === 'dark' ? 'light' : 'dark')}
-            aria-label="Changer thème carte"
-          >
-            {mapTheme === 'dark' ? <Sun className="h-4 w-4" strokeWidth={1.5} /> : <Moon className="h-4 w-4" strokeWidth={1.5} />}
-          </LiquidGlassIconBtn>
         </div>
       </div>
 
