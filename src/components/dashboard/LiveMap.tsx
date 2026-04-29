@@ -29,10 +29,8 @@ export function LiveMap() {
   const mapRef = useRef<MLMap | null>(null);
   const markersRef = useRef<Map<string, Marker>>(new globalThis.Map());
 
-  const [mapTheme, setMapTheme] = useState<'dark' | 'light'>(() => {
-    if (typeof window === 'undefined') return 'dark';
-    return (localStorage.getItem(STORAGE_KEY) as 'dark' | 'light') || 'dark';
-  });
+  const { resolvedTheme } = useTheme();
+  const mapTheme: 'dark' | 'light' = resolvedTheme === 'dark' ? 'dark' : 'light';
   const [filter, setFilter] = useState<FilterKey>('all');
   const [popover, setPopover] = useState<PopoverState | null>(null);
   const [now, setNow] = useState(() => new Date());
