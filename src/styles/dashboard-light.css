@@ -119,15 +119,16 @@ html:not(.dark) .dashboard-noe .noe-cluster {
 html.dark .dashboard-noe .dashboard-kpi-card,
 .dark .dashboard-noe .dashboard-kpi-card {
   background:
-    radial-gradient(135% 90% at 18% 0%, hsl(0 0% 100% / 0.26) 0%, hsl(0 0% 100% / 0.08) 34%, transparent 64%),
-    linear-gradient(135deg, hsl(0 0% 100% / 0.12), hsl(0 0% 100% / 0.035) 54%, hsl(0 0% 100% / 0.10)) !important;
-  border-color: hsl(0 0% 100% / 0.22) !important;
-  backdrop-filter: blur(46px) saturate(230%) contrast(1.08) brightness(1.08) !important;
-  -webkit-backdrop-filter: blur(46px) saturate(230%) contrast(1.08) brightness(1.08) !important;
+    radial-gradient(115% 90% at 8% 0%, hsl(var(--kpi-lens-a) / 0.16) 0%, transparent 48%),
+    radial-gradient(115% 88% at 100% 10%, hsl(var(--kpi-lens-b) / 0.14) 0%, transparent 54%),
+    linear-gradient(135deg, hsl(0 0% 100% / 0.052), hsl(0 0% 100% / 0.012) 54%, hsl(0 0% 100% / 0.04)) !important;
+  border-color: hsl(0 0% 100% / 0.30) !important;
+  backdrop-filter: blur(18px) saturate(245%) contrast(1.12) brightness(1.06) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(245%) contrast(1.12) brightness(1.06) !important;
   box-shadow:
-    inset 0 1px 1px hsl(0 0% 100% / 0.32),
-    inset 0 -22px 38px hsl(0 0% 100% / 0.05),
-    inset 0 0 0 1px hsl(0 0% 100% / 0.06),
+    inset 0 1px 1px hsl(0 0% 100% / 0.28),
+    inset 0 -22px 38px hsl(0 0% 100% / 0.025),
+    inset 0 0 0 1px hsl(0 0% 100% / 0.055),
     0 18px 46px hsl(0 0% 0% / 0.28) !important;
 }
 
