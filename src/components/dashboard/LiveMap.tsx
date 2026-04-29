@@ -28,6 +28,7 @@ export function LiveMap() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MLMap | null>(null);
   const markersRef = useRef<Map<string, Marker>>(new globalThis.Map());
+  const closeTimerRef = useRef<number | null>(null);
 
   const { resolvedTheme } = useTheme();
   const mapTheme: 'dark' | 'light' = resolvedTheme === 'dark' ? 'dark' : 'light';
