@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useLiveLogementsStatus, checkinProgress, seededDelay } from './live-map/useLiveLogementsStatus';
 import type { Logement, LogementStatus } from '@/mocks/dashboard';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type FilterKey = 'all' | 'occupied' | 'free';
 
