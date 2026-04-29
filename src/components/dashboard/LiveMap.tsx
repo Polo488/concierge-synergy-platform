@@ -218,11 +218,12 @@ export function LiveMap() {
             animate={{ opacity: 1, y: -8 }}
             exit={{ opacity: 0, y: 4 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute z-20"
+            className="absolute z-20 w-[280px]"
             style={{
               left: popover.x,
               top: popover.y,
               transform: 'translate(-50%, -100%)',
+              paddingBottom: 24,
             }}
             onMouseEnter={() => {
               if (closeTimerRef.current) {
@@ -232,11 +233,9 @@ export function LiveMap() {
             }}
             onMouseLeave={() => {
               if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
-              closeTimerRef.current = window.setTimeout(() => setPopover(null), 120);
+              closeTimerRef.current = window.setTimeout(() => setPopover(null), 200);
             }}
           >
-            {/* Hover bridge between marker and popover to avoid flicker */}
-            <div className="absolute left-0 right-0 -bottom-3 h-3" />
             <div
               className={cn(
                 "w-[280px] rounded-[14px] p-4 shadow-2xl",
