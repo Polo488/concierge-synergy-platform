@@ -351,7 +351,7 @@ export function Sidebar() {
           isCollapsed && "px-0"
         )}>
           <img
-            src={logoNoe}
+            src={resolvedTheme === 'dark' ? logoNoeDark : logoNoe}
             alt="Noé"
             className={cn(
               "h-10 w-auto object-contain max-w-full",
