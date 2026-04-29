@@ -1,6 +1,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import logoNoe from '@/assets/logo-noe.png';
+import logoNoeDark from '@/assets/logo-noe-dark.png';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
@@ -85,6 +87,7 @@ export function Sidebar() {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
   const { hasPermission, logout, user } = useAuth();
+  const { resolvedTheme } = useTheme();
   const { t } = useLanguage();
   const { sectionOrder, updateOrder, getOrderedSections, isLoaded } = useMenuOrder();
   
@@ -348,7 +351,7 @@ export function Sidebar() {
           isCollapsed && "px-0"
         )}>
           <img
-            src={logoNoe}
+            src={resolvedTheme === 'dark' ? logoNoeDark : logoNoe}
             alt="Noé"
             className={cn(
               "h-10 w-auto object-contain max-w-full",
