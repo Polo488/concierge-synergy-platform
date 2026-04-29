@@ -52,16 +52,16 @@ html:not(.dark) .dashboard-noe [style*="rgba(26,26,46,0.92)"] {
 .dashboard-noe .dashboard-kpi-liquid-glass {
   isolation: isolate;
   background:
-    radial-gradient(135% 90% at 16% 0%, hsl(0 0% 100% / 0.24) 0%, hsl(0 0% 100% / 0.055) 34%, transparent 66%),
-    linear-gradient(135deg, hsl(0 0% 100% / 0.105), hsl(0 0% 100% / 0.025) 54%, hsl(0 0% 100% / 0.08)) !important;
-  border: 1px solid hsl(0 0% 100% / 0.62) !important;
-  backdrop-filter: blur(52px) saturate(240%) contrast(1.08) brightness(1.04) !important;
-  -webkit-backdrop-filter: blur(52px) saturate(240%) contrast(1.08) brightness(1.04) !important;
+    radial-gradient(130% 88% at 16% 0%, hsl(0 0% 100% / 0.14) 0%, hsl(0 0% 100% / 0.025) 34%, transparent 66%),
+    linear-gradient(135deg, hsl(0 0% 100% / 0.055), hsl(0 0% 100% / 0.012) 54%, hsl(0 0% 100% / 0.035)) !important;
+  border: 1px solid hsl(0 0% 100% / 0.72) !important;
+  backdrop-filter: blur(22px) saturate(220%) contrast(1.1) brightness(1.02) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(220%) contrast(1.1) brightness(1.02) !important;
   box-shadow:
     inset 0 1px 1px hsl(0 0% 100% / 0.95),
-    inset 0 -26px 44px hsl(0 0% 100% / 0.055),
+    inset 0 -26px 44px hsl(0 0% 100% / 0.025),
     inset 0 0 0 1px hsl(0 0% 100% / 0.18),
-    0 18px 46px hsl(232 24% 22% / 0.09) !important;
+    0 18px 46px hsl(232 24% 22% / 0.075) !important;
 }
 
 .dashboard-noe .dashboard-kpi-liquid-glass::before {
@@ -71,10 +71,10 @@ html:not(.dark) .dashboard-noe [style*="rgba(26,26,46,0.92)"] {
   z-index: -1;
   border-radius: inherit;
   background:
-    linear-gradient(145deg, hsl(0 0% 100% / 0.42) 0%, transparent 31%),
-    radial-gradient(90% 70% at 88% 12%, hsl(204 100% 78% / 0.10), transparent 58%);
+    linear-gradient(145deg, hsl(0 0% 100% / 0.28) 0%, transparent 31%),
+    radial-gradient(90% 70% at 88% 12%, hsl(204 100% 78% / 0.07), transparent 58%);
   mix-blend-mode: screen;
-  opacity: 0.7;
+  opacity: 0.56;
   pointer-events: none;
 }
 
@@ -84,8 +84,8 @@ html:not(.dark) .dashboard-noe [style*="rgba(26,26,46,0.92)"] {
   inset: 1px;
   z-index: -1;
   border-radius: inherit;
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.18), transparent 36%, hsl(0 0% 100% / 0.035));
-  box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.18);
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.105), transparent 36%, hsl(0 0% 100% / 0.018));
+  box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.16);
   pointer-events: none;
 }
 
