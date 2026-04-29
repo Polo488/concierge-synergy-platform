@@ -16,7 +16,7 @@ const STYLE_DARK =
 const STYLE_LIGHT =
   'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
-const STORAGE_KEY = 'noe_map_theme';
+
 
 interface PopoverState {
   logement: Logement;
