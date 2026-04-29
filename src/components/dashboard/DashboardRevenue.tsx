@@ -12,11 +12,7 @@ export function DashboardRevenue() {
     <button
       type="button"
       onClick={() => navigate('/app/quality-stats')}
-      className="w-full text-left rounded-[20px] p-5 sm:p-6 backdrop-blur-xl transition-shadow hover:shadow-lg"
-      style={{
-        background: 'rgba(255,255,255,0.04)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 18px rgba(0,0,0,0.18)',
-      }}
+      className="dashboard-frosted-card w-full text-left rounded-[20px] p-5 sm:p-6 transition-shadow hover:shadow-lg"
     >
       <div className="flex items-center gap-4 sm:gap-6">
         <div className="flex-shrink-0 min-w-0">
