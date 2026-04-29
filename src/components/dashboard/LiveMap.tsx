@@ -181,31 +181,29 @@ export function LiveMap() {
 
       {/* Bandeau supérieur */}
       <div className="absolute top-0 left-0 right-0 z-10 p-3 sm:p-4 flex items-center justify-between gap-2 pointer-events-none">
-        <div
-          className="flex items-center gap-1.5 sm:gap-2 rounded-full px-2 py-1.5 backdrop-blur-md pointer-events-auto overflow-x-auto max-w-[calc(100%-110px)] sm:max-w-none"
-          style={{ background: 'rgba(26,26,46,0.7)', border: '1px solid rgba(255,255,255,0.08)' }}
-        >
-          <FilterChip active={filter === 'all'} onClick={() => setFilter('all')} label="Tous" count={logements.length} dotColor="rgba(255,255,255,0.7)" />
-          <FilterChip active={filter === 'occupied'} onClick={() => setFilter('occupied')} label="occupés" count={counts.occupied} dotColor="#4ADE80" />
-          <FilterChip active={filter === 'free'} onClick={() => setFilter('free')} label="libres" count={counts.free} dotColor="rgba(255,255,255,0.7)" />
-        </div>
+        <LiquidGlassPill className="pointer-events-auto overflow-x-auto max-w-[calc(100%-110px)] sm:max-w-none">
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5">
+            <FilterChip active={filter === 'all'} onClick={() => setFilter('all')} label="Tous" count={logements.length} dotColor="rgba(255,255,255,0.85)" />
+            <FilterChip active={filter === 'occupied'} onClick={() => setFilter('occupied')} label="occupés" count={counts.occupied} dotColor="#4ADE80" />
+            <FilterChip active={filter === 'free'} onClick={() => setFilter('free')} label="libres" count={counts.free} dotColor="rgba(255,255,255,0.85)" />
+          </div>
+        </LiquidGlassPill>
 
         <div className="flex items-center gap-1.5 pointer-events-auto">
-          <span
-            className="hidden sm:inline-block text-[11px] tabular-nums px-2.5 py-1.5 rounded-full backdrop-blur-md text-white/60"
-            style={{ background: 'rgba(26,26,46,0.7)', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            {now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-          </span>
-          <IconBtn onClick={recenter} aria-label="Recentrer">
+          <LiquidGlassPill className="hidden sm:inline-flex">
+            <span className="text-[11px] tabular-nums px-2.5 py-1.5 text-white/85" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.25)' }}>
+              {now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </LiquidGlassPill>
+          <LiquidGlassIconBtn onClick={recenter} aria-label="Recentrer">
             <Compass className="h-4 w-4" strokeWidth={1.5} />
-          </IconBtn>
-          <IconBtn
+          </LiquidGlassIconBtn>
+          <LiquidGlassIconBtn
             onClick={() => setMapTheme(mapTheme === 'dark' ? 'light' : 'dark')}
             aria-label="Changer thème carte"
           >
             {mapTheme === 'dark' ? <Sun className="h-4 w-4" strokeWidth={1.5} /> : <Moon className="h-4 w-4" strokeWidth={1.5} />}
-          </IconBtn>
+          </LiquidGlassIconBtn>
         </div>
       </div>
 
