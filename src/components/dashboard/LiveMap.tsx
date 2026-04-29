@@ -100,11 +100,10 @@ export function LiveMap() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Theme toggle (re-set style)
+  // Theme sync (re-set style when app theme changes)
   useEffect(() => {
     if (!mapRef.current) return;
     mapRef.current.setStyle(mapTheme === 'dark' ? STYLE_DARK : STYLE_LIGHT);
-    localStorage.setItem(STORAGE_KEY, mapTheme);
   }, [mapTheme]);
 
   // Render markers
