@@ -246,7 +246,7 @@ export default function BetaCaptureModal() {
                           <Input
                             value={channelManager}
                             onChange={e => setChannelManager(e.target.value)}
-                            placeholder="ex: Beds24, Smily, Lodgify..."
+                            placeholder="ex: Noé API, Smily, Lodgify..."
                             className="mt-2"
                           />
                         </motion.div>
