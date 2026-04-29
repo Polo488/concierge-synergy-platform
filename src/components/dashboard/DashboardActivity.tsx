@@ -76,11 +76,7 @@ export function DashboardActivity() {
 
   return (
     <div
-      className="rounded-[20px] p-5 sm:p-6 backdrop-blur-xl"
-      style={{
-        background: 'rgba(255,255,255,0.04)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 18px rgba(0,0,0,0.18)',
-      }}
+      className="dashboard-frosted-card rounded-[20px] p-5 sm:p-6"
     >
       <div className="flex items-center justify-between mb-4 gap-2">
         <h3 className="text-[16px] sm:text-[18px] font-semibold text-white">Activité du jour</h3>
