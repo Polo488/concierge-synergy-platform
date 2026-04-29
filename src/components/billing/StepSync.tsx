@@ -26,7 +26,7 @@ export function StepSync() {
     setBeds24SyncedAt(new Date().toISOString());
     setSyncing(false);
     setProgress(0);
-    toast.success("Sync Beds24 terminée — 78 réservations sur 41 logements");
+    toast.success("Sync Noé API terminée — 78 réservations sur 41 logements");
   };
 
   const handleFiles = useCallback((files: FileList | null) => {
@@ -47,7 +47,7 @@ export function StepSync() {
   return (
     <div className="space-y-6">
       <div className="grid gap-5 md:grid-cols-2">
-        {/* Beds24 */}
+        {/* Noé API */}
         <motion.div
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
           className="rounded-[20px] bg-white/[0.03] backdrop-blur-xl ring-1 ring-inset ring-white/[0.06] p-7 md:p-8 min-h-[280px] flex flex-col"
@@ -59,7 +59,7 @@ export function StepSync() {
             <h3 className="text-[17px] font-semibold text-white">Noé API</h3>
           </div>
           <p className="text-[13.5px] text-white/55 mt-1 flex-1">
-            Synchronisation automatique des réservations depuis ton compte Beds24.
+            Synchronisation automatique des réservations depuis ton compte Noé API.
           </p>
 
           {syncing ? (

@@ -154,7 +154,7 @@ export function FacturationSessionProvider({ children }: { children: ReactNode }
     const s6: StepState = !(sdrGenerated || sctGenerated) ? "pending" : wrapSeen ? "done" : "action";
 
     return [
-      { key: "sync", number: 1, title: "Synchronisation", state: s1, subtitle: syncDone ? "Données importées" : "Beds24 + CSV" },
+      { key: "sync", number: 1, title: "Synchronisation", state: s1, subtitle: syncDone ? "Données importées" : "Noé API + CSV" },
       { key: "ba", number: 2, title: "Construction des BA", state: s2, subtitle: `${baValidated}/${bas.length} validés`, counter: baBlocked || undefined },
       { key: "drafts", number: 3, title: "Brouillons de facture", state: s3, subtitle: draftsGenerated ? `${draftsValidated}/${drafts.length} prêts` : "À générer", counter: draftsBlocked || undefined },
       { key: "issue", number: 4, title: "Émission & envoi", state: s4, subtitle: invoicesIssued ? "Factures émises" : "Prêt à émettre" },

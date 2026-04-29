@@ -250,7 +250,7 @@ export default function BetaOnboarding() {
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden mt-3">
                     <input value={channelManager} onChange={e => setChannelManager(e.target.value)}
-                      className={inputClass('')} placeholder="Lequel ? (Smily, Lodgify, Beds24...)" />
+                      className={inputClass('')} placeholder="Lequel ? (Smily, Lodgify, Noé API...)" />
                   </motion.div>
                 )}
               </AnimatePresence>
