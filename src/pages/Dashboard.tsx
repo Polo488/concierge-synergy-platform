@@ -31,6 +31,17 @@ const Dashboard = () => {
     >
       <TutorialTrigger moduleId="dashboard" />
 
+      {/* SVG filter for Liquid Glass refraction (Niveau 1) */}
+      <svg style={{ position: 'absolute', width: 0, height: 0 }} aria-hidden="true">
+        <defs>
+          <filter id="liquid-lens" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves={2} seed={42} result="noise" />
+            <feGaussianBlur in="noise" stdDeviation="3" result="blurredNoise" />
+            <feDisplacementMap in="SourceGraphic" in2="blurredNoise" scale="40" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
+      </svg>
+
       {/* Header */}
       <div data-tutorial="dashboard-header" className="flex items-start justify-between gap-3">
         <div className="min-w-0">
