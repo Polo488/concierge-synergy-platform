@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useLiveLogementsStatus, checkinProgress, seededDelay } from './live-map/useLiveLogementsStatus';
 import type { Logement, LogementStatus } from '@/mocks/dashboard';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type FilterKey = 'all' | 'occupied' | 'free';
 
@@ -15,7 +16,7 @@ const STYLE_DARK =
 const STYLE_LIGHT =
   'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
-const STORAGE_KEY = 'noe_map_theme';
+
 
 interface PopoverState {
   logement: Logement;
@@ -28,10 +29,8 @@ export function LiveMap() {
   const mapRef = useRef<MLMap | null>(null);
   const markersRef = useRef<Map<string, Marker>>(new globalThis.Map());
 
-  const [mapTheme, setMapTheme] = useState<'dark' | 'light'>(() => {
-    if (typeof window === 'undefined') return 'dark';
-    return (localStorage.getItem(STORAGE_KEY) as 'dark' | 'light') || 'dark';
-  });
+  const { resolvedTheme } = useTheme();
+  const mapTheme: 'dark' | 'light' = resolvedTheme === 'dark' ? 'dark' : 'light';
   const [filter, setFilter] = useState<FilterKey>('all');
   const [popover, setPopover] = useState<PopoverState | null>(null);
   const [now, setNow] = useState(() => new Date());
@@ -101,11 +100,10 @@ export function LiveMap() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Theme toggle (re-set style)
+  // Theme sync (re-set style when app theme changes)
   useEffect(() => {
     if (!mapRef.current) return;
     mapRef.current.setStyle(mapTheme === 'dark' ? STYLE_DARK : STYLE_LIGHT);
-    localStorage.setItem(STORAGE_KEY, mapTheme);
   }, [mapTheme]);
 
   // Render markers
@@ -197,12 +195,6 @@ export function LiveMap() {
           </LiquidGlassPill>
           <LiquidGlassIconBtn onClick={recenter} aria-label="Recentrer">
             <Compass className="h-4 w-4" strokeWidth={1.5} />
-          </LiquidGlassIconBtn>
-          <LiquidGlassIconBtn
-            onClick={() => setMapTheme(mapTheme === 'dark' ? 'light' : 'dark')}
-            aria-label="Changer thème carte"
-          >
-            {mapTheme === 'dark' ? <Sun className="h-4 w-4" strokeWidth={1.5} /> : <Moon className="h-4 w-4" strokeWidth={1.5} />}
           </LiquidGlassIconBtn>
         </div>
       </div>
