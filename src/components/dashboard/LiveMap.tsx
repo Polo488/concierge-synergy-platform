@@ -295,6 +295,64 @@ function IconBtn({ children, onClick, ...rest }: React.ButtonHTMLAttributes<HTML
   );
 }
 
+/* ========= Liquid Glass primitives (iOS 26 — Niveau 1) ========= */
+
+function LiquidGlassPill({
+  children,
+  className,
+}: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn('relative inline-flex rounded-full overflow-hidden isolate', className)}>
+      {/* Couche réfraction */}
+      <div
+        className="absolute inset-0 -z-10"
+        style={{
+          backdropFilter: 'blur(3px)',
+          WebkitBackdropFilter: 'blur(3px)',
+          filter: 'url(#liquid-lens)',
+        }}
+      />
+      {/* Teinte translucide */}
+      <div
+        className="absolute inset-0 -z-10 rounded-full"
+        style={{ background: 'rgba(255, 255, 255, 0.18)' }}
+      />
+      {/* Bord brillant + ombre */}
+      <div
+        className="absolute inset-0 rounded-full pointer-events-none"
+        style={{
+          boxShadow: `
+            inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.85),
+            inset 0 -1px 1px 0 rgba(255, 255, 255, 0.4),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+            0 8px 24px rgba(0, 0, 0, 0.12),
+            0 2px 6px rgba(0, 0, 0, 0.08)
+          `,
+        }}
+      />
+      <div className="relative z-10 inline-flex">{children}</div>
+    </div>
+  );
+}
+
+function LiquidGlassIconBtn({
+  children,
+  onClick,
+  ...rest
+}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <LiquidGlassPill>
+      <button
+        onClick={onClick}
+        className="relative h-8 w-8 rounded-full flex items-center justify-center text-white/90 hover:text-white transition-colors"
+        {...rest}
+      >
+        {children}
+      </button>
+    </LiquidGlassPill>
+  );
+}
+
 function StatusLine({ logement }: { logement: Logement }) {
   if (logement.status === 'occupied') {
     return <div className="text-[12px] mt-1" style={{ color: '#4ADE80' }}>● Occupé jusqu'à {logement.guestUntil}</div>;
