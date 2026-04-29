@@ -218,40 +218,76 @@ export function LiveMap() {
             animate={{ opacity: 1, y: -8 }}
             exit={{ opacity: 0, y: 4 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute z-20 pointer-events-none"
+            className="absolute z-20"
             style={{
               left: popover.x,
               top: popover.y,
               transform: 'translate(-50%, -100%)',
             }}
+            onMouseEnter={() => {
+              if (closeTimerRef.current) {
+                window.clearTimeout(closeTimerRef.current);
+                closeTimerRef.current = null;
+              }
+            }}
+            onMouseLeave={() => {
+              if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+              closeTimerRef.current = window.setTimeout(() => setPopover(null), 120);
+            }}
           >
+            {/* Hover bridge between marker and popover to avoid flicker */}
+            <div className="absolute left-0 right-0 -bottom-3 h-3" />
             <div
-              className="w-[280px] rounded-[14px] p-4 shadow-2xl pointer-events-auto"
+              className={cn(
+                "w-[280px] rounded-[14px] p-4 shadow-2xl",
+                mapTheme === 'dark' ? "text-white" : "text-[#1A1A2E]"
+              )}
               style={{
-                background: 'rgba(26,26,46,0.92)',
+                background: mapTheme === 'dark' ? 'rgba(26,26,46,0.94)' : 'rgba(255,255,255,0.96)',
                 backdropFilter: 'blur(24px) saturate(180%)',
-                border: '1px solid rgba(255,255,255,0.12)',
+                border: mapTheme === 'dark'
+                  ? '1px solid rgba(255,255,255,0.12)'
+                  : '1px solid rgba(0,0,0,0.08)',
               }}
             >
               <div className="flex items-start gap-3">
-                <div className="h-[60px] w-[60px] rounded-[10px] flex items-center justify-center text-3xl flex-shrink-0" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                <div
+                  className="h-[60px] w-[60px] rounded-[10px] flex items-center justify-center text-3xl flex-shrink-0"
+                  style={{ background: mapTheme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)' }}
+                >
                   {popover.logement.photo}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[14px] font-semibold text-white truncate">{popover.logement.name}</div>
-                  <div className="text-[12px] text-white/60 truncate">{popover.logement.address}</div>
+                  <div className={cn("text-[14px] font-semibold truncate", mapTheme === 'dark' ? "text-white" : "text-[#1A1A2E]")}>
+                    {popover.logement.name}
+                  </div>
+                  <div className={cn("text-[12px] truncate", mapTheme === 'dark' ? "text-white/60" : "text-[#1A1A2E]/60")}>
+                    {popover.logement.address}
+                  </div>
                   <StatusLine logement={popover.logement} />
                 </div>
               </div>
               {popover.logement.guestName && (
-                <div className="mt-3 pt-3 border-t border-white/[0.08] flex items-center justify-between">
-                  <span className="text-[12px] text-white/70 truncate">{popover.logement.guestName}</span>
+                <div
+                  className={cn(
+                    "mt-3 pt-3 border-t flex items-center justify-between",
+                    mapTheme === 'dark' ? "border-white/[0.08]" : "border-black/[0.06]"
+                  )}
+                >
+                  <span className={cn("text-[12px] truncate", mapTheme === 'dark' ? "text-white/70" : "text-[#1A1A2E]/70")}>
+                    {popover.logement.guestName}
+                  </span>
                   {popover.logement.channel && <ChannelChip channel={popover.logement.channel} />}
                 </div>
               )}
               <button
-                className="mt-3 w-full text-[12px] font-medium text-white/80 hover:text-white py-2 rounded-[10px] transition-colors"
-                style={{ background: 'rgba(255,255,255,0.06)' }}
+                className={cn(
+                  "mt-3 w-full text-[12px] font-medium py-2 rounded-[10px] transition-colors",
+                  mapTheme === 'dark'
+                    ? "text-white/80 hover:text-white"
+                    : "text-[#1A1A2E]/80 hover:text-[#1A1A2E]"
+                )}
+                style={{ background: mapTheme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)' }}
                 onClick={() => { /* navigate to logement (à brancher) */ }}
               >
                 Ouvrir la fiche
