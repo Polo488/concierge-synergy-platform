@@ -54,12 +54,24 @@ function KpiCard({ label, value, Icon, to, delay = 0 }: KpiCardProps) {
       }}
     >
       <div className="flex items-center justify-between">
-        <span className="text-[13px] sm:text-[14px] font-medium text-[#1A1A2E]/70 dark:text-white/70">{label}</span>
-        <Icon className="h-4 w-4 text-[#1A1A2E]/55 dark:text-white/55" strokeWidth={1.5} />
+        <span
+          className="text-[13px] sm:text-[14px] font-semibold text-[#1A1A2E]/85 dark:text-white/90"
+          style={{ textShadow: '0 1px 2px rgba(255,255,255,0.45)' }}
+        >
+          {label}
+        </span>
+        <Icon
+          className="h-4 w-4 text-[#1A1A2E]/75 dark:text-white/80"
+          strokeWidth={1.75}
+          style={{ filter: 'drop-shadow(0 1px 1px rgba(255,255,255,0.35))' }}
+        />
       </div>
       <div
         className="mt-3 sm:mt-4 text-[44px] sm:text-[56px] leading-none font-light tabular-nums tracking-[-0.02em] text-[#1A1A2E] dark:text-white"
-        style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, system-ui, sans-serif" }}
+        style={{
+          fontFamily: "'Plus Jakarta Sans', -apple-system, system-ui, sans-serif",
+          textShadow: '0 1px 2px rgba(255,255,255,0.4)',
+        }}
       >
         {v}
       </div>
