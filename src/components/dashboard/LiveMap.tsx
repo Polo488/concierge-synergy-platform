@@ -144,14 +144,23 @@ export function LiveMap() {
       const enterDelay = Math.min(0.9, dist * 25); // ripple
       const el = buildMarkerEl(l, enterDelay);
 
-      el.addEventListener('mouseenter', () => {
+      const openPopover = () => {
+        if (closeTimerRef.current) {
+          window.clearTimeout(closeTimerRef.current);
+          closeTimerRef.current = null;
+        }
         const point = map.project([l.lng, l.lat]);
         setPopover({ logement: l, x: point.x, y: point.y });
-      });
-      el.addEventListener('mouseleave', () => setPopover(null));
-      el.addEventListener('click', () => {
-        const point = map.project([l.lng, l.lat]);
-        setPopover({ logement: l, x: point.x, y: point.y });
+      };
+      const scheduleClose = () => {
+        if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = window.setTimeout(() => setPopover(null), 180);
+      };
+      el.addEventListener('mouseenter', openPopover);
+      el.addEventListener('mouseleave', scheduleClose);
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openPopover();
       });
 
       const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
