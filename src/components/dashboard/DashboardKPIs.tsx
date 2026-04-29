@@ -43,12 +43,15 @@ function KpiCard({ label, value, Icon, to, delay = 0 }: KpiCardProps) {
       whileHover={{ y: -2 }}
       className={cn(
         'group relative w-full text-left h-[124px] sm:h-[140px] rounded-[20px] p-5 sm:p-6',
-        'backdrop-blur-xl transition-shadow',
+        'transition-shadow border border-white/40',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C1A]/50'
       )}
       style={{
-        background: 'rgba(255,255,255,0.04)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 18px rgba(0,0,0,0.18)',
+        background: 'rgba(255, 255, 255, 0.55)',
+        backdropFilter: 'blur(24px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+        boxShadow:
+          'inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06)',
       }}
     >
       <div className="flex items-center justify-between">
