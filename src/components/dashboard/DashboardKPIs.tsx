@@ -47,14 +47,21 @@ function KpiCard({ label, value, Icon, to, delay = 0 }: KpiCardProps) {
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C1A]/50'
       )}
       style={{
-        background: 'hsl(0 0% 100% / 0.38)',
-        backdropFilter: 'blur(30px) saturate(220%) brightness(1.1)',
-        WebkitBackdropFilter: 'blur(30px) saturate(220%) brightness(1.1)',
-        borderColor: 'hsl(0 0% 100% / 0.5)',
+        background: 'linear-gradient(135deg, hsl(0 0% 100% / 0.42), hsl(0 0% 100% / 0.22))',
+        backdropFilter: 'blur(34px) saturate(240%) brightness(1.18)',
+        WebkitBackdropFilter: 'blur(34px) saturate(240%) brightness(1.18)',
+        borderColor: 'hsl(0 0% 100% / 0.58)',
         boxShadow:
-          'inset 0 1px 0 hsl(0 0% 100% / 0.85), inset 0 -18px 44px hsl(var(--noe-navy) / 0.08), 0 10px 30px hsl(var(--noe-navy) / 0.10)',
+          'inset 0 1px 0 hsl(0 0% 100% / 0.95), inset 0 -22px 46px hsl(var(--noe-navy) / 0.06), 0 12px 32px hsl(var(--noe-navy) / 0.08)',
       }}
     >
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background: 'radial-gradient(circle at 30% 0%, hsl(0 0% 100% / 0.24), transparent 46%)',
+        }}
+      />
       <span
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-3 top-0 h-px rounded-full"
