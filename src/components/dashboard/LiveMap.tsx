@@ -154,7 +154,7 @@ export function LiveMap() {
       };
       const scheduleClose = () => {
         if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
-        closeTimerRef.current = window.setTimeout(() => setPopover(null), 180);
+        closeTimerRef.current = window.setTimeout(() => setPopover(null), 400);
       };
       el.addEventListener('mouseenter', openPopover);
       el.addEventListener('mouseleave', scheduleClose);
