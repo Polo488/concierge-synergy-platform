@@ -42,16 +42,10 @@ function KpiCard({ label, value, Icon, to, delay = 0 }: KpiCardProps) {
       transition={{ duration: 0.4, delay, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ y: -2 }}
       className={cn(
-        'dashboard-kpi-card group relative w-full text-left h-[124px] sm:h-[140px] rounded-2xl p-6',
-        'transition-shadow border border-white/40 dark:border-white/10',
+        'dashboard-kpi-card dashboard-kpi-liquid-glass group relative w-full overflow-hidden text-left h-[124px] sm:h-[140px] rounded-2xl p-6',
+        'transition-shadow',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C1A]/50'
       )}
-      style={{
-        background: 'rgba(255, 255, 255, 0.55)',
-        backdropFilter: 'blur(24px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 8px 24px rgba(0, 0, 0, 0.06)',
-      }}
     >
       <div className="flex items-center justify-between">
         <span
