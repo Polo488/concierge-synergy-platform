@@ -87,6 +87,7 @@ export function Sidebar() {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
   const { hasPermission, logout, user } = useAuth();
+  const { resolvedTheme } = useTheme();
   const { t } = useLanguage();
   const { sectionOrder, updateOrder, getOrderedSections, isLoaded } = useMenuOrder();
   
