@@ -1,6 +1,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import logoNoe from '@/assets/logo-noe.png';
+import logoNoeDark from '@/assets/logo-noe-dark.png';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
