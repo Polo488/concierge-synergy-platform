@@ -39,11 +39,7 @@ export function DashboardAgenda() {
   const navigate = useNavigate();
   return (
     <div
-      className="rounded-[20px] p-5 sm:p-6 h-full flex flex-col backdrop-blur-xl"
-      style={{
-        background: 'rgba(255,255,255,0.04)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 18px rgba(0,0,0,0.18)',
-      }}
+      className="dashboard-frosted-card rounded-[20px] p-5 sm:p-6 h-full flex flex-col"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
