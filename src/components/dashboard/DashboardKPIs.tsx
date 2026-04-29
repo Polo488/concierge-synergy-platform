@@ -42,18 +42,31 @@ function KpiCard({ label, value, Icon, to, delay = 0 }: KpiCardProps) {
       transition={{ duration: 0.4, delay, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ y: -2 }}
       className={cn(
-        'group relative w-full text-left h-[124px] sm:h-[140px] rounded-[20px] p-5 sm:p-6',
-        'transition-shadow border border-white/40',
+        'group relative isolate overflow-hidden w-full text-left h-[124px] sm:h-[140px] rounded-[20px] p-5 sm:p-6',
+        'transition-shadow border',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C1A]/50'
       )}
       style={{
-        background: 'rgba(255, 255, 255, 0.55)',
-        backdropFilter: 'blur(24px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+        background: 'linear-gradient(135deg, hsl(0 0% 100% / 0.42), hsl(0 0% 100% / 0.22))',
+        backdropFilter: 'blur(34px) saturate(240%) brightness(1.18)',
+        WebkitBackdropFilter: 'blur(34px) saturate(240%) brightness(1.18)',
+        borderColor: 'hsl(0 0% 100% / 0.58)',
         boxShadow:
-          'inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06)',
+          'inset 0 1px 0 hsl(0 0% 100% / 0.95), inset 0 -22px 46px hsl(var(--noe-navy) / 0.06), 0 12px 32px hsl(var(--noe-navy) / 0.08)',
       }}
     >
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background: 'radial-gradient(circle at 30% 0%, hsl(0 0% 100% / 0.24), transparent 46%)',
+        }}
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-3 top-0 h-px rounded-full"
+        style={{ background: 'hsl(0 0% 100% / 0.95)' }}
+      />
       <div className="flex items-center justify-between">
         <span className="text-[13px] sm:text-[14px] font-medium text-[#1A1A2E]/70">{label}</span>
         <Icon className="h-4 w-4 text-[#1A1A2E]/55" strokeWidth={1.5} />
