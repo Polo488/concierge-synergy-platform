@@ -56,7 +56,7 @@ export function StepSync() {
             <div className="h-10 w-10 rounded-2xl bg-[#6B7AE8]/15 flex items-center justify-center">
               <Cloud className="h-5 w-5 text-[#6B7AE8]" strokeWidth={1.6} />
             </div>
-            <h3 className="text-[17px] font-semibold text-white">Beds24 API</h3>
+            <h3 className="text-[17px] font-semibold text-white">Noé API</h3>
           </div>
           <p className="text-[13.5px] text-white/55 mt-1 flex-1">
             Synchronisation automatique des réservations depuis ton compte Beds24.
