@@ -80,6 +80,14 @@ export interface CleaningTask {
   linkedIssueId?: number;
   originalTaskId?: number;
   photos?: CleaningPhoto[];
+  /** True si une réservation arrive le même jour sur ce logement → ménage critique */
+  isSameDayCheckin?: boolean;
+  /** Comment le prestataire a été assigné */
+  assignedVia?: 'auto' | 'manual';
+  /** Audit trail */
+  lastAssignmentActor?: string;
+  lastAssignmentAt?: string;
+  validatedAt?: string;
 }
 
 export interface NewCleaningTask {
