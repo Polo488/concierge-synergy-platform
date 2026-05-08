@@ -5,6 +5,7 @@ import { CleaningStats } from '@/components/cleaning/CleaningStats';
 import { CleaningActions } from '@/components/cleaning/CleaningActions';
 import { CleaningTabs } from '@/components/cleaning/CleaningTabs';
 import { CleaningDialogs } from '@/components/cleaning/CleaningDialogs';
+import { CleaningDailyProgress } from '@/components/cleaning/CleaningDailyProgress';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { TutorialTrigger } from '@/components/tutorial/TutorialTrigger';
@@ -23,6 +24,8 @@ const Cleaning = () => {
     <CleaningProvider>
       <TutorialTrigger moduleId="cleaning" />
       <div className="space-y-4">
+        <CleaningDailyProgress />
+
         {!isCleaningAgent && (
           <div data-tutorial="cleaning-actions">
             <CleaningActions />
