@@ -240,6 +240,12 @@ const App = () => (
                         </RoutePermission>
                       } />
 
+                      <Route path="/app/cockpit-financier" element={
+                        <RoutePermission permission="cockpitFinancier">
+                          <CockpitFinancier />
+                        </RoutePermission>
+                      } />
+
                       <Route path="/app/welcome-guide" element={
                         <RoutePermission permission="welcomeGuide">
                           <WelcomeGuide />
