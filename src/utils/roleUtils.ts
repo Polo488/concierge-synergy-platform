@@ -81,7 +81,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
     case 'cleaning':
       return {
         name: 'Agent de ménage',
-        permissions: { ...allFalsePermissions, cleaning: true },
+        permissions: { ...allFalsePermissions, cleaning: true, cleaningInvoicing: true, cleaningPerformance: true, cleaningNotifications: true },
         defaultRoute: '/app/cleaning',
         canManageUsers: false,
       };
