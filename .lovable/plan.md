@@ -1,121 +1,89 @@
 
-# Cockpit Financier — Plan de build
+# Plan — Évolutions Ménage, Tarification & Espace Équipes Ménage
 
-Module unifié de pilotage de la rentabilité, route `/app/cockpit-financier`, icône `Gauge`, catégorie **Pilotage** dans la sidebar. Refactorise et regroupe Noé Score, Tréso Pulse et Perf Index, ajoute un radar de diagnostic, une analyse ménage, un import bancaire CSV et une page de prise de RDV audit.
+Le périmètre est large (4 chantiers, ~10 nouvelles surfaces UI, 1 nouveau rôle, plusieurs tables). Je propose de découper en **3 phases livrables** comme suggéré dans ton brief, et de commencer par la Phase 1 dans ce sprint. Chaque phase est testable indépendamment.
 
-## Architecture globale
+---
 
-- **Route** : `/app/cockpit-financier` (+ alias non préfixé qui redirige)
-- **Permission** : nouvelle clé `cockpitFinancier` dans `PermissionMap`, accordée aux rôles Admin / Supervisor / City Manager / Owner (Owner en lecture seule)
-- **Sidebar** : nouvelle entrée dans la section PILOTAGE, juste sous le Tableau de bord, icône `Gauge`
-- **Header persistant** : badge Score Cockpit (calculé : 40% Noé Score + 30% Perf Index + 20% Tréso Pulse + 10% pénalité failles), niveaux Critique/Fragile/Acceptable/Solide/Excellent, comparaison percentile anonymisée, bouton "Partager mon Score"
-- **5 onglets** en navigation horizontale scrollable (sans scrollbar visible mobile) : Vue d'ensemble · Diagnostic · Ménage · Charges réelles · Audit financier (badge orange "Offert")
+## Phase 1 — Opérationnel ménage quotidien (ce sprint)
 
-## Phasage
+### 1A. Auto-assignation prestataires (par logement)
+- Fiche logement (`PropertyDetailsDialog`) → nouvelle section **Équipe ménage assignée**
+  - Multi-select prestataires (avatars/chips, pattern existant)
+  - Mode : `rotation` (round-robin) ou `priorité` (fallback)
+  - Toggle **Auto-assignation ON/OFF**
+- À la création d'une tâche ménage (depuis réservation), appliquer la règle
+- Override manuel possible depuis module Ménage (inchangé)
+- Badge tâche : `Auto` / `Manuel` + log (qui, quand)
 
-```text
-Phase 1  Fondation        — route, sidebar, layout, header, mocks, score global
-Phase 2  Vue d'ensemble   — 3 cards refactorisées + sparklines + Bilan flash
-Phase 3  Diagnostic       — radar SVG animé + failles + drawer + confetti
-Phase 4  Ménage           — cards logements + drawer 4 leviers + simulateur
-Phase 5  Charges réelles  — dropzone CSV + animation 3 phases + validation
-Phase 6  Audit            — pitch + calendrier + témoignages + ressources
-Phase 7  Partage          — génération carte 1080×1920 + Web Share API
-```
+### 1B. Bandeau progression journalière
+- Composant `CleaningDailyProgress` sticky en haut du module Ménage
+- Format : `X / Y ménages effectués aujourd'hui` + barre animée (Framer Motion)
+- Couleurs : 0–50 % orange, 50–80 % jaune, 80–100 % vert
+- Popover au clic : breakdown (Effectués / En cours / Restants / Check-in J)
 
-## Composants principaux
+### 1C. Check-in jour J & alertes
+- Détection auto : tâche ménage + réservation check-in même date/logement → flag `is_same_day_checkin`
+- Badge **CHECK-IN 16H** orange, filtre dédié, section prioritaires en haut
+- Système d'alertes (in-app dans cette phase ; email/SMS Phase 2 via edge function)
+  - Seuils H-1 / H-30 / H-0
+  - Page **Settings → Notifications ménage** : toggles canaux, multi-select seuils, destinataires
+  - Centre notifs in-app : toast persistant pour critique, escalade manager si H-1 ignorée
+  - Actions rapides : Contacter / Réassigner / Marquer fait
 
-```text
-src/pages/CockpitFinancier.tsx
-src/components/cockpit/
-├── CockpitHeader.tsx              // score global + partage
-├── CockpitTabs.tsx                // navigation 5 onglets
-├── overview/
-│   ├── OverviewAlertBanner.tsx
-│   ├── NoeScoreCard.tsx
-│   ├── TresoPulseCard.tsx
-│   ├── PerfIndexCard.tsx
-│   ├── EvolutionStrip.tsx         // sparklines Recharts
-│   └── BilanFlashModal.tsx        // 5 questions, 1 par écran
-├── diagnostic/
-│   ├── RadarVisualization.tsx     // SVG, 4 phases d'animation
-│   ├── RadarScanButton.tsx
-│   ├── FlawsList.tsx + FlawCard.tsx
-│   ├── FlawDetailDrawer.tsx
-│   └── ScanHistory.tsx
-├── cleaning/
-│   ├── CleaningOverviewBanner.tsx
-│   ├── PropertyCleaningCard.tsx
-│   ├── CleaningLeversDrawer.tsx
-│   ├── LeverSimulator.tsx
-│   └── NegotiationTemplate.tsx
-├── csv/
-│   ├── CSVImportDropzone.tsx
-│   ├── CSVImportAnimation.tsx
-│   ├── CSVValidationView.tsx + CSVRowCard.tsx
-│   ├── CSVResultCard.tsx          // donut Recharts
-│   └── CSVMemorizedRules.tsx
-├── audit/
-│   ├── AuditPitchSection.tsx
-│   ├── AuditCalendar.tsx
-│   └── AuditTestimonials.tsx
-├── shared/
-│   ├── ShareScoreModal.tsx
-│   ├── AuditCTAModal.tsx
-│   └── CockpitConfetti.tsx
-src/hooks/cockpit/
-├── useCockpitScore.ts
-├── useRadarScan.ts
-├── useCSVParser.ts
-└── useAuditCTA.ts                 // gestion cookies / triggers
-src/data/cockpit-mock.ts           // toutes les données beta
-```
+---
 
-## Détails techniques par onglet
+## Phase 2 — Onglet Tarification fiche logement
+- Nouvel onglet **Tarification** dans la fiche logement
+- Carte **Ménage** : prix prestataire (HT/TTC), forfait facturé voyageur + description, toggle push API, marge auto (€ + %)
+- Carte **Location** : nuitée standard, min, max
+- Bouton **Pousser sur les plateformes** + statut sync par plateforme (Airbnb / Booking / Abritel) — UI seulement, l'intégration API plateformes sera mockée (pas de vraie clé Airbnb dans ce projet)
 
-### 1. Vue d'ensemble
-3 cards (border-left 4px : orange / bleu #6B7AE8 / jaune #F5C842), CountUp animés, mini-graph horizontal segmenté pour Noé Score, jauge BFR pour Tréso, ring SVG pour Perf Index. Bandeau évolution 6 mois en sparklines Recharts. Bilan flash : modal plein écran, slide horizontal entre questions, barre de progression, retour final avec 3 axes prioritaires + CTA Audit inline.
+---
 
-### 2. Diagnostic — radar
-SVG radar (320px desktop / 240px mobile), 4 cercles concentriques + croix diagonale, logo Noé centré. Animation de scan en 4 phases : préparation 300ms → balayage 4–5s (ligne radar avec gradient + trail, points d'alerte qui pop-in 600ms, halo pulse) → fin 500ms → résumé slide-up. 8 catégories de failles mockées, 3 sévérités (Critique rouge / Important orange / À surveiller jaune). Drawer détail : diagnostic, mini bar chart Toi vs marché, 3 actions, gain potentiel CountUp. Animation de correction : confetti orange (60 particules max, 1.5s), card devient verte, toast, mise à jour décrémentale du compteur global. Trigger Audit après correction d'une faille critique (cookie 7 jours). Historique des scans repliable.
+## Phase 3 — Espace Équipes de ménage (nouveau rôle)
+- Rôle `cleaningTeam` ajouté (déjà `cleaning` existe → on **renomme/étend** ce rôle plutôt que doubler)
+- Routes `/app/cleaning-team/*` : Dashboard, Mes ménages, Facturation, Performance, Profil
+- Mobile-first strict (ce rôle bossera depuis téléphone)
+- Facturation : calcul auto `nb ménages × prix prestataire`, génération PDF (jsPDF déjà en place)
+- Performance : note moyenne, évolution, comparatif anonymisé
+- RLS strict : la team ne voit QUE ses logements/ménages, jamais prix voyageur ni marges
 
-### 3. Ménage
-Banner stats (équilibrés / sous-facturés / à valider). Cards par logement avec border-left coloré, barre de progression écart €. Filtres pills. Drawer 4 leviers :
-- **Levier 1** : mini-simulateur avec stepper +/- 5€ et calcul live de l'équilibre
-- **Levier 2** : template message prestataire copiable / envoyable via messagerie
-- **Levier 3** : bar chart comparatif Toi vs médiane vs top 25%
-- **Levier 4** : passage en débours + check contrat
+---
 
-Animation succès post-action + trigger CTA Audit.
+## Backend (Supabase) — vue d'ensemble
 
-### 4. Charges réelles — CSV
-État vide avec dropzone drag & drop (animation pulse au hover fichier). Parser multi-format (BNP / CA / SG / CIC / Boursorama / Qonto) — détection séparateur, encoding, colonnes. Animation 3 phases : détection 1–2s → pré-classification 2–3s avec faisceau scanner et compteur live → résultats 3 cards slide-up. Vue de validation 3 colonnes (essentielles vert / non essentielles rouge / à valider jaune) — desktop : boutons ✓/✗ au hover, mobile : swipe gauche/droite + 1 colonne à la fois en swipe horizontal. Mémorisation : règles stockées avec toast discret. Carte résultat avec donut Recharts + résultat net en CountUp. Plan d'action : 3 optimisations chiffrées. Modal CTA Audit auto 2s après le résultat (cookie permanent 1ère fois). Historique des imports + drawer "Règles mémorisées".
+Tables touchées (3 migrations, une par phase) :
 
-### 5. Audit financier
-Header pitch, 3 cards d'avantages, calendrier (iframe Calendly OU widget custom 14 jours), choix 30 ou 60 min, 3 témoignages mockés, ressources (PDF / replay / calculateur). Pas de pop-up, badge orange "Offert" sur l'onglet.
+**Phase 1**
+- `properties` : `default_cleaning_team_ids[]`, `cleaning_assignment_mode`, `cleaning_auto_assign`
+- `cleaning_tasks` : `is_same_day_checkin`, `assigned_via`, `alert_h1_triggered`, `alert_h30_triggered`, `validated_at`, `last_assignment_actor`, `last_assignment_at`
+- `notification_preferences` : nouvelle table avec scope ménage
 
-### Partage social
-Carte image 1080×1920 générée via `<canvas>` (pas de dépendance externe) : gradient navy, logo Noé, score Plus Jakarta Sans 700 200px, 3 mini-stats, tagline. Boutons : Télécharger PNG / Partager (`navigator.share`) / Copier le lien.
+**Phase 2**
+- `properties` : `cleaning_provider_price`, `cleaning_provider_price_vat`, `cleaning_guest_fee`, `cleaning_fee_includes`, `cleaning_fee_push_api`, `nightly_rate_standard`, `nightly_rate_min`, `nightly_rate_max`, `platform_sync_status` (jsonb)
 
-## Données mockées
-Fichier `src/data/cockpit-mock.ts` avec : `getCockpitScore`, `generateRadarScan`, `getCleaningAnalysis` (41 logements), `getCSVImportMock`, `getAuditSlots`. Pas d'écriture en base pour la beta — état local + localStorage pour persistance entre sessions (clés `cockpit_*`). Le CTA Audit utilise des cookies `audit_last_dismissed` (7 jours) et `audit_first_csv_shown` (permanent).
+**Phase 3**
+- `cleaning_team_profiles` (id, user_id, name, iban, contact, …)
+- `cleaning_team_invoices` (period_start, period_end, total_amount, status, pdf_url, line_items)
+- `user_roles` : ajouter valeur `cleaning_team` à l'enum
+- RLS strictes sur toutes les tables ménage côté `cleaning_team`
 
-## Design system & contraintes
-- Couleurs : navy `#1A1A2E`, orange `#FF5C1A`, bleu `#6B7AE8`, jaune `#F5C842`, rouge `#E84545`, vert `#34C759` — toutes ajoutées en HSL aux tokens `index.css` / `tailwind.config.ts`
-- Typographies : Plus Jakarta Sans 700 (titres), Inter (corps), `tabular-nums` sur tous les chiffres monétaires
-- Easing global : `cubic-bezier(0.16, 1, 0.3, 1)` — durations 300–500ms (4–5s pour le radar)
-- `prefers-reduced-motion` strictement respecté : rotation radar remplacée par fade-in séquentiel, pas de confetti
-- Mobile : 100% no-overflow, drawers full-screen slide-up, CTA sticky bottom si pertinent, inputs ≥16px
-- Conformité memory iOS 26 : primitives glass-surface, halos visibles sur le body, pas de bounce/spring exagéré
-- Aucune mention d'IA dans la copy utilisateur, jargon comptable expliqué la 1ère fois, percentile anonymisé uniquement, pas de notification push agressive
+**Note honnête** : aujourd'hui le projet tourne en **mock data** (pas de vraies tables `properties` / `cleaning_tasks` côté Supabase — cf. `src/contexts/cleaning/initialState.ts`, `mockPropertyGenerator`). Pour rester cohérent et ne **rien casser**, je propose d'implémenter Phase 1 et 2 **sur le mock data** (extension des types + state), et de matérialiser les tables Supabase **uniquement en Phase 3** où l'auth réelle d'un prestataire externe l'exige. Si tu veux qu'on bascule TOUT sur Supabase dès maintenant, c'est un chantier à part (migration des mocks → DB) qu'il faut décider explicitement.
 
-## Permissions & rôles
-Mise à jour : `src/types/roles.ts` (ajout `cockpitFinancier: boolean`), `src/utils/roleUtils.ts` (Admin / Supervisor / City Manager : true ; Owner : true mais lecture seule sur certains onglets ; Employee / Cleaning / Maintenance : false).
+---
 
-## Hors scope (à valider)
-- Intégration réelle Calendly ou widget custom à confirmer (par défaut : iframe Calendly placeholder)
-- Pas d'écriture Supabase en phase beta — uniquement mocks + localStorage
-- Calculateur de seuil de rentabilité (ressource) : juste un lien, pas le mini-outil lui-même
+## Points à confirmer avant de coder
 
-## Estimation
-~15 jours dev linéaire. Livraison incrémentale onglet par onglet à valider après chaque phase.
+1. **Mock vs DB réelle** pour Phase 1/2 : on reste sur les mocks (rapide, pas de régression) OU on migre `properties`/`cleaning_tasks` vers Supabase d'abord (gros chantier additionnel) ?
+2. **Rôle `cleaning` existant vs nouveau `cleaning_team`** : je préfère **étendre** le rôle `cleaning` existant (déjà câblé partout : sidebar, RBAC, route `/app/cleaning`) plutôt qu'en créer un second qui ferait doublon. OK ?
+3. **Email/SMS d'alerte** : besoin d'une edge function + Resend (email Lovable Cloud) + provider SMS (Twilio = secret à ajouter). On fait **in-app uniquement Phase 1**, et email/SMS en Phase 2 quand tu valides l'ajout de Twilio ?
+4. **Push API plateformes** (Airbnb/Booking) : pas de vraies clés dispo → UI + statut mockés. OK ?
+
+---
+
+## Livraison ce sprint si tu valides
+
+Phase 1 complète : auto-assignation + barre progression + check-in J + alertes in-app + page settings notifications. Pas de régression sur les modules existants. Phases 2 et 3 dans des sprints suivants.
+
+Réponds-moi sur les 4 points ci-dessus et je démarre Phase 1 immédiatement.
