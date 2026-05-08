@@ -39,6 +39,7 @@ import SignatureAdmin from "./pages/SignatureAdmin";
 import Sign from "./pages/Sign";
 import OwnerPortal from "./pages/OwnerPortal";
 import LegalWatch from "./pages/LegalWatch";
+import CockpitFinancier from "./pages/CockpitFinancier";
 import WelcomeGuide from "./pages/WelcomeGuide";
 import WelcomeGuidePublic from "./pages/WelcomeGuidePublic";
 import ProviderCallPage from "./pages/ProviderCallPage";
@@ -236,6 +237,12 @@ const App = () => (
                       <Route path="/app/legal-watch" element={
                         <RoutePermission permission="legalWatch">
                           <LegalWatch />
+                        </RoutePermission>
+                      } />
+
+                      <Route path="/app/cockpit-financier" element={
+                        <RoutePermission permission="cockpitFinancier">
+                          <CockpitFinancier />
                         </RoutePermission>
                       } />
 
