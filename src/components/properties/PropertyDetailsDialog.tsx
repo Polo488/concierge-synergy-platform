@@ -242,6 +242,9 @@ export const PropertyDetailsDialog = ({
             <TabsTrigger value="repasse" className="flex items-center gap-1">
               <Sparkles className="h-4 w-4" /> Repasse
             </TabsTrigger>
+            <TabsTrigger value="tarif" className="flex items-center gap-1">
+              <Euro className="h-4 w-4" /> Tarification
+            </TabsTrigger>
           </TabsList>
           
           <PropertyInfoTab property={property} />
@@ -261,6 +264,7 @@ export const PropertyDetailsDialog = ({
             onViewTask={onViewTask}
             onViewIssue={onViewIssue}
           />
+          <PropertyTarifTab propertyId={property.id} />
         </Tabs>
       </DialogContent>
     </Dialog>
