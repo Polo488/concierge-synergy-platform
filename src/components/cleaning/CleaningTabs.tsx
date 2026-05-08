@@ -78,10 +78,14 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
   };
 
   const filterTasks = (tasks: any[]) => {
-    if (!searchTerm) return tasks;
+    let filtered = tasks;
+    if (sameDayOnly) {
+      filtered = filtered.filter((t) => t.isSameDayCheckin);
+    }
+    if (!searchTerm) return filtered;
     const searchLower = searchTerm.toLowerCase();
-    return tasks.filter(task => 
-      task.property.toLowerCase().includes(searchLower) || 
+    return filtered.filter(task =>
+      task.property.toLowerCase().includes(searchLower) ||
       (task.cleaningAgent && task.cleaningAgent.toLowerCase().includes(searchLower))
     );
   };
@@ -91,9 +95,21 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
     return tasks.filter(task => task.cleaningAgent === user.name);
   };
 
+  const sortByPriority = (tasks: any[]) =>
+    [...tasks].sort((a, b) => {
+      const aPrio = a.isSameDayCheckin && a.status !== 'completed' ? 1 : 0;
+      const bPrio = b.isSameDayCheckin && b.status !== 'completed' ? 1 : 0;
+      return bPrio - aPrio;
+    });
+
   const getFilteredTasks = (tasks: any[]) => {
-    return filterTasks(filterTasksByRole(tasks));
+    return sortByPriority(filterTasks(filterTasksByRole(tasks)));
   };
+
+  const sameDayCount = useMemo(
+    () => allTodayTasks.filter((t: any) => t.isSameDayCheckin && t.status !== 'completed').length,
+    [allTodayTasks]
+  );
 
   const openIssuesCount = allCleaningIssues.filter(i => i.status === 'open').length;
 
