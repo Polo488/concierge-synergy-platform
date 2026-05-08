@@ -7,6 +7,7 @@ const allFalsePermissions: PermissionMap = {
   users: false, guestExperience: false, agenda: false, messaging: false,
   hrPlanning: false, onboarding: false, ownerPortal: false, legalWatch: false,
   welcomeGuide: false, transitory: false, ideaBox: false, checkApartment: false,
+  cockpitFinancier: false,
 };
 
 // Define permissions and default routes for each role
