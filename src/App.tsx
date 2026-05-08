@@ -39,6 +39,7 @@ import SignatureAdmin from "./pages/SignatureAdmin";
 import Sign from "./pages/Sign";
 import OwnerPortal from "./pages/OwnerPortal";
 import LegalWatch from "./pages/LegalWatch";
+import CockpitFinancier from "./pages/CockpitFinancier";
 import WelcomeGuide from "./pages/WelcomeGuide";
 import WelcomeGuidePublic from "./pages/WelcomeGuidePublic";
 import ProviderCallPage from "./pages/ProviderCallPage";
