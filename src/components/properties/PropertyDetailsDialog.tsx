@@ -9,7 +9,7 @@ import {
 import { Property } from '@/utils/propertyUtils';
 import { MaintenanceTask } from '@/types/maintenance';
 import { CleaningTask, CleaningIssue } from '@/types/cleaning';
-import { MapPin, Key, Wrench, Sparkles, X } from 'lucide-react';
+import { MapPin, Key, Wrench, Sparkles, X, Euro } from 'lucide-react';
 import { PropertyInfoTab } from './details/PropertyInfoTab';
 import { PropertyEquipmentTab } from './details/PropertyEquipmentTab';
 import { PropertyAccessTab } from './details/PropertyAccessTab';
@@ -17,6 +17,7 @@ import { PropertyPhotosTab } from './details/PropertyPhotosTab';
 import { PropertyPlatformsTab } from './details/PropertyPlatformsTab';
 import { PropertyMaintenanceTab } from './details/PropertyMaintenanceTab';
 import { PropertyRepasseTab, RepasseEvent } from './details/PropertyRepasseTab';
+import { PropertyTarifTab } from './details/PropertyTarifTab';
 import { PropertyBannerNote } from './details/PropertyBannerNote';
 import { useIsMobile } from '@/hooks/use-mobile';
 
