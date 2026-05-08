@@ -36,7 +36,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           properties: true, inventory: true, maintenance: true, cleaning: true,
           calendar: true, moyenneDuree: true, upsell: true, users: true,
           guestExperience: true, agenda: true, messaging: true, hrPlanning: true,
-           onboarding: true, legalWatch: true, welcomeGuide: true, transitory: true, ideaBox: true, checkApartment: true,
+           onboarding: true, legalWatch: true, welcomeGuide: true, transitory: true, ideaBox: true, checkApartment: true, cockpitFinancier: true,
          },
          defaultRoute: '/app',
          canManageUsers: true,
