@@ -22,6 +22,7 @@ export interface PermissionMap {
   transitory: boolean;
   ideaBox: boolean;
   checkApartment: boolean;
+  cockpitFinancier: boolean;
 }
 
 export interface RoleDefinition {
