@@ -9,7 +9,7 @@ import {
 import { Property } from '@/utils/propertyUtils';
 import { MaintenanceTask } from '@/types/maintenance';
 import { CleaningTask, CleaningIssue } from '@/types/cleaning';
-import { MapPin, Key, Wrench, Sparkles, X } from 'lucide-react';
+import { MapPin, Key, Wrench, Sparkles, X, Euro } from 'lucide-react';
 import { PropertyInfoTab } from './details/PropertyInfoTab';
 import { PropertyEquipmentTab } from './details/PropertyEquipmentTab';
 import { PropertyAccessTab } from './details/PropertyAccessTab';
@@ -17,6 +17,7 @@ import { PropertyPhotosTab } from './details/PropertyPhotosTab';
 import { PropertyPlatformsTab } from './details/PropertyPlatformsTab';
 import { PropertyMaintenanceTab } from './details/PropertyMaintenanceTab';
 import { PropertyRepasseTab, RepasseEvent } from './details/PropertyRepasseTab';
+import { PropertyTarifTab } from './details/PropertyTarifTab';
 import { PropertyBannerNote } from './details/PropertyBannerNote';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -165,6 +166,9 @@ export const PropertyDetailsDialog = ({
                 <TabsTrigger value="repasse" className="whitespace-nowrap flex-shrink-0 px-3.5 py-2.5 text-[13px] rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:bg-transparent data-[state=active]:shadow-none text-muted-foreground bg-transparent flex items-center gap-1">
                   <Sparkles className="h-3.5 w-3.5" /> Repasse
                 </TabsTrigger>
+                <TabsTrigger value="tarif" className="whitespace-nowrap flex-shrink-0 px-3.5 py-2.5 text-[13px] rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:bg-transparent data-[state=active]:shadow-none text-muted-foreground bg-transparent flex items-center gap-1">
+                  <Euro className="h-3.5 w-3.5" /> Tarification
+                </TabsTrigger>
               </TabsList>
               {/* Fade gradient on right edge */}
               <div className="absolute right-0 top-0 w-8 h-full bg-gradient-to-r from-transparent to-background pointer-events-none" />
@@ -188,6 +192,7 @@ export const PropertyDetailsDialog = ({
                 onViewTask={onViewTask}
                 onViewIssue={onViewIssue}
               />
+              <PropertyTarifTab propertyId={property.id} />
             </div>
           </Tabs>
         </div>
@@ -237,6 +242,9 @@ export const PropertyDetailsDialog = ({
             <TabsTrigger value="repasse" className="flex items-center gap-1">
               <Sparkles className="h-4 w-4" /> Repasse
             </TabsTrigger>
+            <TabsTrigger value="tarif" className="flex items-center gap-1">
+              <Euro className="h-4 w-4" /> Tarification
+            </TabsTrigger>
           </TabsList>
           
           <PropertyInfoTab property={property} />
@@ -256,6 +264,7 @@ export const PropertyDetailsDialog = ({
             onViewTask={onViewTask}
             onViewIssue={onViewIssue}
           />
+          <PropertyTarifTab propertyId={property.id} />
         </Tabs>
       </DialogContent>
     </Dialog>

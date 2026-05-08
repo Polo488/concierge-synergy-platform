@@ -8,6 +8,7 @@ const allFalsePermissions: PermissionMap = {
   hrPlanning: false, onboarding: false, ownerPortal: false, legalWatch: false,
   welcomeGuide: false, transitory: false, ideaBox: false, checkApartment: false,
   cockpitFinancier: false,
+  cleaningInvoicing: false, cleaningPerformance: false, cleaningNotifications: false,
 };
 
 // Define permissions and default routes for each role
@@ -23,6 +24,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           users: true, guestExperience: true, agenda: true, messaging: true,
           hrPlanning: true, onboarding: true, legalWatch: true, welcomeGuide: true,
            transitory: true, ideaBox: true, checkApartment: true, cockpitFinancier: true,
+           cleaningInvoicing: true, cleaningPerformance: true, cleaningNotifications: true,
          },
         defaultRoute: '/app',
         canManageUsers: true,
@@ -79,7 +81,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
     case 'cleaning':
       return {
         name: 'Agent de ménage',
-        permissions: { ...allFalsePermissions, cleaning: true },
+        permissions: { ...allFalsePermissions, cleaning: true, cleaningInvoicing: true, cleaningPerformance: true, cleaningNotifications: true },
         defaultRoute: '/app/cleaning',
         canManageUsers: false,
       };
