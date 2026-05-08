@@ -192,6 +192,7 @@ export const PropertyDetailsDialog = ({
                 onViewTask={onViewTask}
                 onViewIssue={onViewIssue}
               />
+              <PropertyTarifTab propertyId={property.id} />
             </div>
           </Tabs>
         </div>
