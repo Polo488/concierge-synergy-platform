@@ -106,10 +106,33 @@ export const CleaningTaskCard = ({
   
   return (
     <>
-      <div className={`bg-card rounded-[14px] border border-border p-4 shadow-sm transition-all duration-150 ${labelsDialogOpen && isTaskSelected ? 'ring-2 ring-primary' : ''}`}>
+      <div className={`bg-card rounded-[14px] border p-4 shadow-sm transition-all duration-150 ${
+        task.isSameDayCheckin && task.status !== 'completed'
+          ? 'border-primary/40 ring-1 ring-primary/20'
+          : 'border-border'
+      } ${labelsDialogOpen && isTaskSelected ? 'ring-2 ring-primary' : ''}`}>
         {/* Header: badge + action + menu */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {getStatusBadge(task.status)}
+          {task.isSameDayCheckin && task.status !== 'completed' && (
+            <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-bold whitespace-nowrap flex-shrink-0 bg-primary text-primary-foreground border-0 hover:bg-primary inline-flex items-center gap-1">
+              <Flame className="h-3 w-3" />
+              CHECK-IN {task.checkinTime || '16H'}
+            </Badge>
+          )}
+          {task.assignedVia && task.cleaningAgent && (
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
+                task.assignedVia === 'auto'
+                  ? 'bg-[hsl(210,100%,96%)] text-[hsl(213,84%,32%)] border-[hsl(210,100%,88%)]'
+                  : 'bg-muted text-muted-foreground border-border'
+              }`}
+              title={task.lastAssignmentActor ? `Assigné par ${task.lastAssignmentActor}` : undefined}
+            >
+              {task.assignedVia === 'auto' ? <Zap className="h-2.5 w-2.5" /> : <Hand className="h-2.5 w-2.5" />}
+              {task.assignedVia === 'auto' ? 'Auto' : 'Manuel'}
+            </span>
+          )}
           {labelsDialogOpen && (
             <div className="ml-auto">
               <input 
