@@ -232,9 +232,9 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
         ))}
       </div>
       
-      {/* Search */}
-      <div className="my-3">
-        <div className="relative">
+      {/* Search + filter */}
+      <div className="my-3 flex items-center gap-2">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground" />
           <Input
             type="search"
@@ -244,8 +244,26 @@ export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        {activeTab === 'today' && sameDayCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setSameDayOnly((v) => !v)}
+            className={`h-11 flex-shrink-0 rounded-[10px] px-3 inline-flex items-center gap-1.5 text-[12px] font-semibold border transition-colors ${
+              sameDayOnly
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-card text-foreground border-border hover:bg-muted'
+            }`}
+            title="Afficher uniquement les ménages avec check-in jour J"
+          >
+            <Flame className="h-3.5 w-3.5" />
+            Check-in J
+            <span className={`ml-0.5 rounded-full px-1.5 py-0.5 text-[10px] ${sameDayOnly ? 'bg-primary-foreground/20' : 'bg-muted'}`}>
+              {sameDayCount}
+            </span>
+          </button>
+        )}
       </div>
-      
+
       {/* Tab content */}
       <div data-tutorial="cleaning-task">
         {renderTabContent()}
