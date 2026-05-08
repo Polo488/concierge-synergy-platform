@@ -23,6 +23,9 @@ export interface PermissionMap {
   ideaBox: boolean;
   checkApartment: boolean;
   cockpitFinancier: boolean;
+  cleaningInvoicing: boolean;
+  cleaningPerformance: boolean;
+  cleaningNotifications: boolean;
 }
 
 export interface RoleDefinition {
