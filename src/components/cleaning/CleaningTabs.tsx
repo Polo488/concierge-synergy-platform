@@ -2,7 +2,7 @@
 import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, AlertTriangle, Plus } from 'lucide-react';
+import { Search, AlertTriangle, Plus, Flame } from 'lucide-react';
 import { CleaningTaskList } from '@/components/cleaning/CleaningTaskList';
 import { CleaningIssuesList } from '@/components/cleaning/CleaningIssuesList';
 import { useCleaning } from '@/contexts/cleaning/CleaningContext';
