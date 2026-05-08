@@ -25,6 +25,7 @@ const tabs: { value: TabValue; label: string; agentOnly?: boolean }[] = [
 
 export const CleaningTabs = ({ initialTab = 'today' }: CleaningTabsProps) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [sameDayOnly, setSameDayOnly] = useState(false);
   const { t } = useLanguage();
   const { user } = useAuth();
   const isCleaningAgent = user?.role === 'cleaning';
