@@ -166,6 +166,9 @@ export const PropertyDetailsDialog = ({
                 <TabsTrigger value="repasse" className="whitespace-nowrap flex-shrink-0 px-3.5 py-2.5 text-[13px] rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:bg-transparent data-[state=active]:shadow-none text-muted-foreground bg-transparent flex items-center gap-1">
                   <Sparkles className="h-3.5 w-3.5" /> Repasse
                 </TabsTrigger>
+                <TabsTrigger value="tarif" className="whitespace-nowrap flex-shrink-0 px-3.5 py-2.5 text-[13px] rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:bg-transparent data-[state=active]:shadow-none text-muted-foreground bg-transparent flex items-center gap-1">
+                  <Euro className="h-3.5 w-3.5" /> Tarification
+                </TabsTrigger>
               </TabsList>
               {/* Fade gradient on right edge */}
               <div className="absolute right-0 top-0 w-8 h-full bg-gradient-to-r from-transparent to-background pointer-events-none" />
