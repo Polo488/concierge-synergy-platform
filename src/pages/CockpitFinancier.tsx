@@ -39,7 +39,7 @@ export default function CockpitFinancier() {
 
   return (
     <div className="min-h-screen pb-24">
-      <ShareScoreModal open={shareOpen} onOpenChange={setShareOpen} score={score} />
+      <ShareScoreModal open={shareOpen} onOpenChange={setShareOpen} score={score.score} />
 
       {/* HEADER */}
       <div className="px-4 sm:px-6 lg:px-8 pt-6">
