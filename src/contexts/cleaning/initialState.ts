@@ -25,7 +25,11 @@ export const initialTodayTasks: CleaningTask[] = [
     linens: ['Draps king size x1', 'Serviettes bain x2', 'Serviettes main x2', 'Housse de couette king size x1', 'Taies d\'oreiller x2'],
     consumables: ['Capsules café x4', 'Sachets thé x2', 'Gel douche x1', 'Shampoing x1'],
     comments: 'Attention aux taches sur le canapé',
-    problems: []
+    problems: [],
+    isSameDayCheckin: true,
+    assignedVia: 'auto',
+    lastAssignmentActor: 'Auto-assignation',
+    lastAssignmentAt: new Date().toISOString(),
   },
   {
     id: 2,
@@ -39,7 +43,9 @@ export const initialTodayTasks: CleaningTask[] = [
     linens: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1', 'Housse de couette simple x1', 'Taie d\'oreiller x1'],
     consumables: ['Capsules café x2', 'Sachets thé x2', 'Gel douche x1'],
     comments: '',
-    problems: []
+    problems: [],
+    isSameDayCheckin: true,
+    assignedVia: 'auto',
   },
   {
     id: 3,
@@ -53,7 +59,8 @@ export const initialTodayTasks: CleaningTask[] = [
     linens: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2', 'Peignoirs x2', 'Housse de couette queen x1', 'Taies d\'oreiller x2'],
     consumables: ['Capsules café x4', 'Sachets thé x4', 'Gel douche x2', 'Shampoing x2'],
     comments: 'Changer les draps de la chambre principale',
-    problems: []
+    problems: [],
+    isSameDayCheckin: true,
   },
   {
     id: 8,
@@ -68,6 +75,8 @@ export const initialTodayTasks: CleaningTask[] = [
     consumables: ['Capsules café x6', 'Gel douche x2', 'Shampoing x2'],
     comments: '',
     problems: [],
+    assignedVia: 'manual',
+    lastAssignmentActor: 'Camille (manager)',
     photos: [
       { id: 'p1', url: photoSalon, caption: 'Salon', timestamp: '2026-03-31T11:23:00', agent: 'Sophie Renard' },
       { id: 'p2', url: photoCuisine, caption: 'Cuisine', timestamp: '2026-03-31T11:31:00', agent: 'Sophie Renard' },
