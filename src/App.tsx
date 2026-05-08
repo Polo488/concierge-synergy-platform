@@ -47,6 +47,10 @@ import Transitory from "./pages/Transitory";
 import IdeaBox from "./pages/IdeaBox";
 import Feedbacks from "./pages/Feedbacks";
 import CheckApartment from "./pages/CheckApartment";
+import CleaningInvoicing from "./pages/CleaningInvoicing";
+import CleaningPerformance from "./pages/CleaningPerformance";
+import CleaningProfile from "./pages/CleaningProfile";
+import CleaningNotifications from "./pages/CleaningNotifications";
 import NotFound from "./pages/NotFound";
 
 
@@ -273,6 +277,27 @@ const App = () => (
                       <Route path="/app/feedbacks" element={
                         <RoutePermission permission="properties">
                           <Feedbacks />
+                        </RoutePermission>
+                      } />
+
+                      <Route path="/app/cleaning-invoicing" element={
+                        <RoutePermission permission="cleaningInvoicing">
+                          <CleaningInvoicing />
+                        </RoutePermission>
+                      } />
+                      <Route path="/app/cleaning-performance" element={
+                        <RoutePermission permission="cleaningPerformance">
+                          <CleaningPerformance />
+                        </RoutePermission>
+                      } />
+                      <Route path="/app/cleaning-profile" element={
+                        <RoutePermission permission="cleaning">
+                          <CleaningProfile />
+                        </RoutePermission>
+                      } />
+                      <Route path="/app/cleaning-notifications" element={
+                        <RoutePermission permission="cleaningNotifications">
+                          <CleaningNotifications />
                         </RoutePermission>
                       } />
                       </Route>

@@ -53,6 +53,8 @@ import {
   TrendingUp,
   Bell,
   FileText,
+  CircleUser,
+  Activity,
 } from 'lucide-react';
 import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -169,6 +171,21 @@ export function Sidebar() {
         { name: 'Signature', path: '/app/signature', icon: PenTool, permission: 'onboarding' },
         { name: 'Utilisateurs', path: '/app/user-management', icon: Users, permission: 'users' },
         { name: 'Boîte à idées', path: '/app/idea-box', icon: Lightbulb, permission: 'ideaBox' },
+      ]
+    },
+    {
+      id: 'espace-menage',
+      title: 'ESPACE MÉNAGE',
+      colorClass: 'text-muted-foreground',
+      activeClass: 'bg-primary/10 text-foreground',
+      bgClass: '',
+      iconBgClass: '',
+      items: [
+        { name: 'Mes missions', path: '/app/cleaning', icon: Sparkles, permission: 'cleaning' },
+        { name: 'Facturation', path: '/app/cleaning-invoicing', icon: Receipt, permission: 'cleaningInvoicing' },
+        { name: 'Performance', path: '/app/cleaning-performance', icon: Activity, permission: 'cleaningPerformance' },
+        { name: 'Notifications', path: '/app/cleaning-notifications', icon: Bell, permission: 'cleaningNotifications' },
+        { name: 'Mon profil', path: '/app/cleaning-profile', icon: CircleUser, permission: 'cleaning' },
       ]
     }
   ], [t]);
