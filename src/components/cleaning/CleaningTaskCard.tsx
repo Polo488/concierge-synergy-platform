@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Eye, Trash2, AlertTriangle, MoreHorizontal, Play, CheckCircle, UserPlus, Clock, Camera, ImageOff } from 'lucide-react';
+import { ChevronDown, Eye, Trash2, AlertTriangle, MoreHorizontal, Play, CheckCircle, UserPlus, Clock, Camera, ImageOff, Flame, Zap, Hand } from 'lucide-react';
 import { CleaningTask, CleaningStatus } from '@/types/cleaning';
 import { CleaningPhotoLightbox } from './CleaningPhotoLightbox';
 import {
