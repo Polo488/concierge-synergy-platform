@@ -1,82 +1,121 @@
 
+# Cockpit Financier — Plan de build
 
-# Portail Proprietaire
+Module unifié de pilotage de la rentabilité, route `/app/cockpit-financier`, icône `Gauge`, catégorie **Pilotage** dans la sidebar. Refactorise et regroupe Noé Score, Tréso Pulse et Perf Index, ajoute un radar de diagnostic, une analyse ménage, un import bancaire CSV et une page de prise de RDV audit.
 
-## Resume
+## Architecture globale
 
-Creer un espace dedie aux proprietaires ou ils peuvent se connecter, suivre l'avancement de l'onboarding de leur bien, et signer leur mandat de gestion directement depuis leur compte. Cela remplace le systeme de tokens/liens publics actuel.
+- **Route** : `/app/cockpit-financier` (+ alias non préfixé qui redirige)
+- **Permission** : nouvelle clé `cockpitFinancier` dans `PermissionMap`, accordée aux rôles Admin / Supervisor / City Manager / Owner (Owner en lecture seule)
+- **Sidebar** : nouvelle entrée dans la section PILOTAGE, juste sous le Tableau de bord, icône `Gauge`
+- **Header persistant** : badge Score Cockpit (calculé : 40% Noé Score + 30% Perf Index + 20% Tréso Pulse + 10% pénalité failles), niveaux Critique/Fragile/Acceptable/Solide/Excellent, comparaison percentile anonymisée, bouton "Partager mon Score"
+- **5 onglets** en navigation horizontale scrollable (sans scrollbar visible mobile) : Vue d'ensemble · Diagnostic · Ménage · Charges réelles · Audit financier (badge orange "Offert")
 
-## Fonctionnement utilisateur
+## Phasage
 
-1. L'administrateur cree un onboarding pour un bien --> il renseigne l'email du proprietaire
-2. L'admin clique sur "Inviter le proprietaire" --> un compte `owner` est cree avec un mot de passe temporaire (ou visible pour la demo)
-3. Le proprietaire se connecte via la page `/login` avec son email
-4. Il arrive sur son portail `/app/owner` ou il voit :
-   - L'avancement de son onboarding (les 8 etapes avec leur statut)
-   - Le mandat a signer quand l'etape est active
-   - Les informations de son bien
-5. Il signe le mandat depuis son portail --> l'etape "Mandat" passe automatiquement en "completed"
+```text
+Phase 1  Fondation        — route, sidebar, layout, header, mocks, score global
+Phase 2  Vue d'ensemble   — 3 cards refactorisées + sparklines + Bilan flash
+Phase 3  Diagnostic       — radar SVG animé + failles + drawer + confetti
+Phase 4  Ménage           — cards logements + drawer 4 leviers + simulateur
+Phase 5  Charges réelles  — dropzone CSV + animation 3 phases + validation
+Phase 6  Audit            — pitch + calendrier + témoignages + ressources
+Phase 7  Partage          — génération carte 1080×1920 + Web Share API
+```
 
-## Changements techniques
+## Composants principaux
 
-### 1. Nouveau role `owner`
+```text
+src/pages/CockpitFinancier.tsx
+src/components/cockpit/
+├── CockpitHeader.tsx              // score global + partage
+├── CockpitTabs.tsx                // navigation 5 onglets
+├── overview/
+│   ├── OverviewAlertBanner.tsx
+│   ├── NoeScoreCard.tsx
+│   ├── TresoPulseCard.tsx
+│   ├── PerfIndexCard.tsx
+│   ├── EvolutionStrip.tsx         // sparklines Recharts
+│   └── BilanFlashModal.tsx        // 5 questions, 1 par écran
+├── diagnostic/
+│   ├── RadarVisualization.tsx     // SVG, 4 phases d'animation
+│   ├── RadarScanButton.tsx
+│   ├── FlawsList.tsx + FlawCard.tsx
+│   ├── FlawDetailDrawer.tsx
+│   └── ScanHistory.tsx
+├── cleaning/
+│   ├── CleaningOverviewBanner.tsx
+│   ├── PropertyCleaningCard.tsx
+│   ├── CleaningLeversDrawer.tsx
+│   ├── LeverSimulator.tsx
+│   └── NegotiationTemplate.tsx
+├── csv/
+│   ├── CSVImportDropzone.tsx
+│   ├── CSVImportAnimation.tsx
+│   ├── CSVValidationView.tsx + CSVRowCard.tsx
+│   ├── CSVResultCard.tsx          // donut Recharts
+│   └── CSVMemorizedRules.tsx
+├── audit/
+│   ├── AuditPitchSection.tsx
+│   ├── AuditCalendar.tsx
+│   └── AuditTestimonials.tsx
+├── shared/
+│   ├── ShareScoreModal.tsx
+│   ├── AuditCTAModal.tsx
+│   └── CockpitConfetti.tsx
+src/hooks/cockpit/
+├── useCockpitScore.ts
+├── useRadarScan.ts
+├── useCSVParser.ts
+└── useAuditCTA.ts                 // gestion cookies / triggers
+src/data/cockpit-mock.ts           // toutes les données beta
+```
 
-Ajouter le role `owner` dans le systeme de roles existant :
-- **`src/types/roles.ts`** : ajouter `'owner'` au type `UserRole`, ajouter `ownerPortal: boolean` dans `PermissionMap`
-- **`src/utils/roleUtils.ts`** : ajouter la config du role `owner` avec uniquement la permission `ownerPortal: true`, route par defaut `/app/owner`
+## Détails techniques par onglet
 
-### 2. Page du portail proprietaire
+### 1. Vue d'ensemble
+3 cards (border-left 4px : orange / bleu #6B7AE8 / jaune #F5C842), CountUp animés, mini-graph horizontal segmenté pour Noé Score, jauge BFR pour Tréso, ring SVG pour Perf Index. Bandeau évolution 6 mois en sparklines Recharts. Bilan flash : modal plein écran, slide horizontal entre questions, barre de progression, retour final avec 3 axes prioritaires + CTA Audit inline.
 
-Creer **`src/pages/OwnerPortal.tsx`** :
-- Affiche les onboardings lies a l'email du proprietaire connecte
-- Pour chaque onboarding : une timeline verticale des 8 etapes avec leur statut (icones vertes/grises/orange)
-- Section "Document a signer" quand l'etape mandat est active : affiche le contenu du mandat avec les variables resolues et le bouton pour signer
-- Section "Informations du bien" avec l'adresse, le type, le responsable assigne
-- Design epure et professionnel, adapte a un utilisateur non-technique
+### 2. Diagnostic — radar
+SVG radar (320px desktop / 240px mobile), 4 cercles concentriques + croix diagonale, logo Noé centré. Animation de scan en 4 phases : préparation 300ms → balayage 4–5s (ligne radar avec gradient + trail, points d'alerte qui pop-in 600ms, halo pulse) → fin 500ms → résumé slide-up. 8 catégories de failles mockées, 3 sévérités (Critique rouge / Important orange / À surveiller jaune). Drawer détail : diagnostic, mini bar chart Toi vs marché, 3 actions, gain potentiel CountUp. Animation de correction : confetti orange (60 particules max, 1.5s), card devient verte, toast, mise à jour décrémentale du compteur global. Trigger Audit après correction d'une faille critique (cookie 7 jours). Historique des scans repliable.
 
-### 3. Mise a jour du routing
+### 3. Ménage
+Banner stats (équilibrés / sous-facturés / à valider). Cards par logement avec border-left coloré, barre de progression écart €. Filtres pills. Drawer 4 leviers :
+- **Levier 1** : mini-simulateur avec stepper +/- 5€ et calcul live de l'équilibre
+- **Levier 2** : template message prestataire copiable / envoyable via messagerie
+- **Levier 3** : bar chart comparatif Toi vs médiane vs top 25%
+- **Levier 4** : passage en débours + check contrat
 
-**`src/App.tsx`** :
-- Ajouter la route `/app/owner` avec `RoutePermission` sur `ownerPortal`
-- Supprimer la route publique `/sign` (plus necessaire)
+Animation succès post-action + trigger CTA Audit.
 
-### 4. Mise a jour de l'authentification
+### 4. Charges réelles — CSV
+État vide avec dropzone drag & drop (animation pulse au hover fichier). Parser multi-format (BNP / CA / SG / CIC / Boursorama / Qonto) — détection séparateur, encoding, colonnes. Animation 3 phases : détection 1–2s → pré-classification 2–3s avec faisceau scanner et compteur live → résultats 3 cards slide-up. Vue de validation 3 colonnes (essentielles vert / non essentielles rouge / à valider jaune) — desktop : boutons ✓/✗ au hover, mobile : swipe gauche/droite + 1 colonne à la fois en swipe horizontal. Mémorisation : règles stockées avec toast discret. Carte résultat avec donut Recharts + résultat net en CountUp. Plan d'action : 3 optimisations chiffrées. Modal CTA Audit auto 2s après le résultat (cookie permanent 1ère fois). Historique des imports + drawer "Règles mémorisées".
 
-**`src/contexts/AuthContext.tsx`** :
-- Ajouter un utilisateur mock `owner` (ex: `marie.dupont@email.com`)
-- Ajouter `/app/owner` dans la liste des chemins verifies pour les permissions
-- Le role `owner` redirige automatiquement vers `/app/owner`
+### 5. Audit financier
+Header pitch, 3 cards d'avantages, calendrier (iframe Calendly OU widget custom 14 jours), choix 30 ou 60 min, 3 témoignages mockés, ressources (PDF / replay / calculateur). Pas de pop-up, badge orange "Offert" sur l'onglet.
 
-### 5. Mise a jour de la page Login
+### Partage social
+Carte image 1080×1920 générée via `<canvas>` (pas de dépendance externe) : gradient navy, logo Noé, score Plus Jakarta Sans 700 200px, 3 mini-stats, tagline. Boutons : Télécharger PNG / Partager (`navigator.share`) / Copier le lien.
 
-**`src/pages/Login.tsx`** :
-- Ajouter un bouton de demo "Proprietaire" pour se connecter rapidement
+## Données mockées
+Fichier `src/data/cockpit-mock.ts` avec : `getCockpitScore`, `generateRadarScan`, `getCleaningAnalysis` (41 logements), `getCSVImportMock`, `getAuditSlots`. Pas d'écriture en base pour la beta — état local + localStorage pour persistance entre sessions (clés `cockpit_*`). Le CTA Audit utilise des cookies `audit_last_dismissed` (7 jours) et `audit_first_csv_shown` (permanent).
 
-### 6. Mise a jour du Sidebar
+## Design system & contraintes
+- Couleurs : navy `#1A1A2E`, orange `#FF5C1A`, bleu `#6B7AE8`, jaune `#F5C842`, rouge `#E84545`, vert `#34C759` — toutes ajoutées en HSL aux tokens `index.css` / `tailwind.config.ts`
+- Typographies : Plus Jakarta Sans 700 (titres), Inter (corps), `tabular-nums` sur tous les chiffres monétaires
+- Easing global : `cubic-bezier(0.16, 1, 0.3, 1)` — durations 300–500ms (4–5s pour le radar)
+- `prefers-reduced-motion` strictement respecté : rotation radar remplacée par fade-in séquentiel, pas de confetti
+- Mobile : 100% no-overflow, drawers full-screen slide-up, CTA sticky bottom si pertinent, inputs ≥16px
+- Conformité memory iOS 26 : primitives glass-surface, halos visibles sur le body, pas de bounce/spring exagéré
+- Aucune mention d'IA dans la copy utilisateur, jargon comptable expliqué la 1ère fois, percentile anonymisé uniquement, pas de notification push agressive
 
-**`src/components/layout/Sidebar.tsx`** :
-- Pour le role `owner`, afficher un sidebar simplifie avec uniquement "Mon espace" et "Deconnexion"
-- Pas de sections PILOTAGE, OPERATIONS, etc.
+## Permissions & rôles
+Mise à jour : `src/types/roles.ts` (ajout `cockpitFinancier: boolean`), `src/utils/roleUtils.ts` (Admin / Supervisor / City Manager : true ; Owner : true mais lecture seule sur certains onglets ; Employee / Cleaning / Maintenance : false).
 
-### 7. Invitation du proprietaire depuis l'onboarding
+## Hors scope (à valider)
+- Intégration réelle Calendly ou widget custom à confirmer (par défaut : iframe Calendly placeholder)
+- Pas d'écriture Supabase en phase beta — uniquement mocks + localStorage
+- Calculateur de seuil de rentabilité (ressource) : juste un lien, pas le mini-outil lui-même
 
-**`src/components/onboarding/OnboardingDetail.tsx`** ou equivalent :
-- Ajouter un bouton "Inviter le proprietaire" dans l'etape Mandat
-- Ce bouton cree le compte mock du proprietaire et affiche un toast de confirmation
-
-### 8. Integration signature dans le portail
-
-- Reutiliser le composant `SigningFlow` existant directement dans `OwnerPortal.tsx`
-- Le proprietaire voit le document, scrolle, signe --> confettis
-- La signature met a jour le statut de l'etape mandat dans l'onboarding
-
-## Fichiers concernes
-
-- `src/types/roles.ts` -- ajout du role `owner` et permission `ownerPortal`
-- `src/utils/roleUtils.ts` -- config du role `owner`
-- `src/pages/OwnerPortal.tsx` -- nouveau fichier, page principale du portail
-- `src/App.tsx` -- ajout route `/app/owner`
-- `src/contexts/AuthContext.tsx` -- mock user owner, gestion permission `/app/owner`
-- `src/pages/Login.tsx` -- bouton demo proprietaire
-- `src/components/layout/Sidebar.tsx` -- sidebar simplifie pour owner
-
+## Estimation
+~15 jours dev linéaire. Livraison incrémentale onglet par onglet à valider après chaque phase.

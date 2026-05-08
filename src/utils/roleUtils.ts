@@ -7,6 +7,7 @@ const allFalsePermissions: PermissionMap = {
   users: false, guestExperience: false, agenda: false, messaging: false,
   hrPlanning: false, onboarding: false, ownerPortal: false, legalWatch: false,
   welcomeGuide: false, transitory: false, ideaBox: false, checkApartment: false,
+  cockpitFinancier: false,
 };
 
 // Define permissions and default routes for each role
@@ -21,7 +22,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           calendar: true, billing: true, moyenneDuree: true, upsell: true,
           users: true, guestExperience: true, agenda: true, messaging: true,
           hrPlanning: true, onboarding: true, legalWatch: true, welcomeGuide: true,
-           transitory: true, ideaBox: true, checkApartment: true,
+           transitory: true, ideaBox: true, checkApartment: true, cockpitFinancier: true,
          },
         defaultRoute: '/app',
         canManageUsers: true,
@@ -35,7 +36,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           properties: true, inventory: true, maintenance: true, cleaning: true,
           calendar: true, moyenneDuree: true, upsell: true, users: true,
           guestExperience: true, agenda: true, messaging: true, hrPlanning: true,
-           onboarding: true, legalWatch: true, welcomeGuide: true, transitory: true, ideaBox: true, checkApartment: true,
+           onboarding: true, legalWatch: true, welcomeGuide: true, transitory: true, ideaBox: true, checkApartment: true, cockpitFinancier: true,
          },
          defaultRoute: '/app',
          canManageUsers: true,
@@ -48,7 +49,7 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           ...allFalsePermissions,
           properties: true, inventory: true, maintenance: true, cleaning: true,
           calendar: true, moyenneDuree: true, upsell: true, guestExperience: true,
-           agenda: true, messaging: true, onboarding: true, ideaBox: true, checkApartment: true,
+           agenda: true, messaging: true, onboarding: true, ideaBox: true, checkApartment: true, cockpitFinancier: true,
          },
         defaultRoute: '/app',
         canManageUsers: false,
