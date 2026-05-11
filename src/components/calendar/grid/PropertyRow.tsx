@@ -1,11 +1,13 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { isSameDay, differenceInDays, startOfDay, addDays } from 'date-fns';
+import { Sparkles, Zap } from 'lucide-react';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
 import { BookingBlock } from './BookingBlock';
 import { BlockedBlock } from './BlockedBlock';
 import { PropertyInsightBadge } from '@/components/insights/PropertyInsightBadge';
 import { PropertyInsight } from '@/types/insights';
+import type { RMRulesState } from './RMRulesButton';
 
 const ROW_H = 56;
 
