@@ -33,6 +33,7 @@ interface CalendarGridProps {
   isSelecting?: boolean;
   getInsightsForProperty?: (propertyId: number) => PropertyInsight[];
   onInsightClick?: () => void;
+  activeLayer?: 'bookings' | 'pricing' | 'cleaning';
 }
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
@@ -53,6 +54,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   isSelecting,
   getInsightsForProperty,
   onInsightClick,
+  activeLayer = 'bookings',
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -134,6 +136,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 propColWidth={propColWidth}
                 propColCollapsed={collapsed}
                 dayCellWidth={DAY_W}
+                activeLayer={activeLayer}
               />
             ))
           )}

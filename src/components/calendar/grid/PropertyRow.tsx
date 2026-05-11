@@ -27,6 +27,7 @@ interface PropertyRowProps {
   propColWidth?: number;
   propColCollapsed?: boolean;
   dayCellWidth?: number;
+  activeLayer?: 'bookings' | 'pricing' | 'cleaning';
 }
 
 export const PropertyRow: React.FC<PropertyRowProps> = ({
@@ -47,6 +48,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   propColWidth = 130,
   propColCollapsed = false,
   dayCellWidth = 48,
+  activeLayer = 'bookings',
 }) => {
   const today = startOfDay(new Date());
   const renderedBookingIds = new Set<number>();
@@ -190,6 +192,9 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
           }
 
           const isEmpty = bookingBlocks.length === 0 && !blocked;
+          const isCheckoutDay = bookings.some(b => isSameDay(startOfDay(b.checkOut), startOfDay(day)));
+          const showPrice = activeLayer === 'pricing' && isEmpty;
+          const showCleaning = activeLayer === 'cleaning' && isCheckoutDay;
 
           return (
             <div
@@ -209,20 +214,29 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               onMouseEnter={() => onDayMouseEnter?.(property.id, day)}
               onClick={(e) => { if (isEmpty && !e.defaultPrevented) onCellClick(day, property.id); }}
             >
-              {/* Today vertical line */}
               {isToday && (
-                <div style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: 2,
-                  background: '#FF5C1A',
-                  zIndex: 3,
-                }} />
+                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 2, background: '#FF5C1A', zIndex: 3 }} />
               )}
               {bookingBlocks}
               {blockedBlock}
+              {showPrice && (
+                <div style={{
+                  position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 600, color: '#1A1A2E', opacity: 0.55, pointerEvents: 'none',
+                }}>
+                  {property.pricePerNight}€
+                </div>
+              )}
+              {showCleaning && (
+                <div style={{
+                  position: 'absolute', bottom: 2, left: '50%', transform: 'translateX(-50%)',
+                  fontSize: 10, lineHeight: 1, padding: '2px 5px', borderRadius: 8,
+                  background: '#FF5C1A', color: '#fff', fontWeight: 700, pointerEvents: 'none',
+                  boxShadow: '0 1px 3px rgba(255,92,26,0.4)', zIndex: 4,
+                }}>
+                  🧹
+                </div>
+              )}
             </div>
           );
         })}

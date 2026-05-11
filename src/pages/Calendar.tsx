@@ -89,7 +89,7 @@ const CalendarPage = () => {
     endDate: Date;
     currentPrice: number;
   } | null>(null);
-  const [layers, setLayers] = useState({ showCleaning: false, showMaintenance: false });
+  const [activeLayer, setActiveLayer] = useState<'bookings' | 'pricing' | 'cleaning'>('bookings');
 
   const [demoModalOpen, setDemoModalOpen] = useState(false);
 
@@ -286,8 +286,8 @@ const CalendarPage = () => {
               onSync={handleSync}
               isSyncing={isSyncing}
               lastSyncTime={lastSyncTime}
-              layers={layers}
-              onLayersChange={setLayers}
+              activeLayer={activeLayer}
+              onActiveLayerChange={setActiveLayer}
             />
           </div>
           <div className="flex-1 overflow-hidden px-2 md:px-6 pb-2" data-tutorial="calendar-grid">

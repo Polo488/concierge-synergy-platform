@@ -1,89 +1,71 @@
+# Plan — Modifications Noé suite retours équipe RM
 
-# Plan — Évolutions Ménage, Tarification & Espace Équipes Ménage
+5 chantiers à livrer dans l'ordre de priorité demandé. Tout est mock/frontend (pas de migration DB), réutilise les hooks existants (`useStatsData`, `useCalendarData`, `usePricingRules`, `useAlertRules`).
 
-Le périmètre est large (4 chantiers, ~10 nouvelles surfaces UI, 1 nouveau rôle, plusieurs tables). Je propose de découper en **3 phases livrables** comme suggéré dans ton brief, et de commencer par la Phase 1 dans ce sprint. Chaque phase est testable indépendamment.
+## 1. Calendrier — Système de couches (priorité 1)
 
----
+**Fichiers touchés :**
+- `src/pages/Calendar.tsx` — ajouter un `LayerSwitcher` (3 options radio : Réservations / Réservations + Prix / Réservations + Ménage)
+- `src/components/calendar/grid/CalendarGrid.tsx` + `PropertyRow.tsx` + `DayCell.tsx` — recevoir `activeLayer: 'bookings' | 'pricing' | 'cleaning'` et adapter le rendu
+- `src/hooks/calendar/mockData.ts` — densifier le jeu de démo (passer ~50% d'occupation à ~75% sur 2 mois autour d'aujourd'hui pour rendre les couches lisibles)
 
-## Phase 1 — Opérationnel ménage quotidien (ce sprint)
+**Logique de rendu par case :**
+- Layer `bookings` : comportement actuel (case blanche si vide)
+- Layer `pricing` : si la case est vide → afficher le prix nuitée (déjà disponible via `dailyPrices`). Si réservée → masquer le prix, afficher la résa.
+- Layer `cleaning` : sur chaque jour de check-out d'une réservation, badge "🧹 Ménage" en bas de case (small pill orange). Une mission par checkout.
 
-### 1A. Auto-assignation prestataires (par logement)
-- Fiche logement (`PropertyDetailsDialog`) → nouvelle section **Équipe ménage assignée**
-  - Multi-select prestataires (avatars/chips, pattern existant)
-  - Mode : `rotation` (round-robin) ou `priorité` (fallback)
-  - Toggle **Auto-assignation ON/OFF**
-- À la création d'une tâche ménage (depuis réservation), appliquer la règle
-- Override manuel possible depuis module Ménage (inchangé)
-- Badge tâche : `Auto` / `Manuel` + log (qui, quand)
+## 2. Règles RM — Gap Fill + Relâche min stay (priorité 2)
 
-### 1B. Bandeau progression journalière
-- Composant `CleaningDailyProgress` sticky en haut du module Ménage
-- Format : `X / Y ménages effectués aujourd'hui` + barre animée (Framer Motion)
-- Couleurs : 0–50 % orange, 50–80 % jaune, 80–100 % vert
-- Popover au clic : breakdown (Effectués / En cours / Restants / Check-in J)
+**Fichiers touchés :**
+- `src/types/calendar.ts` (ou nouveau `src/types/rmRules.ts`) — types `GapFillRule`, `MinStayReleaseRule`
+- `src/hooks/calendar/usePricingRules.ts` — étendre avec `gapFillEnabled`, `minStayReleaseEnabled`, `minStayReleaseDaysBefore`, `minStayReleaseTarget`
+- Nouveau composant `src/components/calendar/RMRulesPanel.tsx` — accordion dans la sidebar pricing avec :
+  - Toggle Gap Fill + tooltip d'explication
+  - Toggle Relâche auto + 2 inputs (J-X, min nuits cible)
+- `CalendarGrid` : badge icône (Sparkles) sur cases concernées par un gap détecté
 
-### 1C. Check-in jour J & alertes
-- Détection auto : tâche ménage + réservation check-in même date/logement → flag `is_same_day_checkin`
-- Badge **CHECK-IN 16H** orange, filtre dédié, section prioritaires en haut
-- Système d'alertes (in-app dans cette phase ; email/SMS Phase 2 via edge function)
-  - Seuils H-1 / H-30 / H-0
-  - Page **Settings → Notifications ménage** : toggles canaux, multi-select seuils, destinataires
-  - Centre notifs in-app : toast persistant pour critique, escalade manager si H-1 ignorée
-  - Actions rapides : Contacter / Réassigner / Marquer fait
+**Détection Gap Fill (utilitaire pur dans `src/utils/rmRules.ts`) :**
+- Pour chaque propriété, parcourir les jours, trouver les segments libres consécutifs entre 2 résa
+- Si `gap.length < currentMinStay` → marquer ces jours comme `gapFilled` (min stay temporaire = gap.length)
 
----
+**Détection Relâche :**
+- Pour chaque jour vide à `<= daysBefore` jours d'aujourd'hui, marquer min stay = `releaseTarget`
 
-## Phase 2 — Onglet Tarification fiche logement
-- Nouvel onglet **Tarification** dans la fiche logement
-- Carte **Ménage** : prix prestataire (HT/TTC), forfait facturé voyageur + description, toggle push API, marge auto (€ + %)
-- Carte **Location** : nuitée standard, min, max
-- Bouton **Pousser sur les plateformes** + statut sync par plateforme (Airbnb / Booking / Abritel) — UI seulement, l'intégration API plateformes sera mockée (pas de vraie clé Airbnb dans ce projet)
+## 3. Stats — Comparaisons N-1 à date + YTD (priorité 3)
 
----
+**Fichiers touchés :**
+- `src/hooks/useStatsData.ts` — étendre chaque KPI avec `{ value, vsM1, vsN1ToDate, ytd, ytdN1 }`. Générer mock cohérent.
+- `src/components/stats/StatsOverview.tsx` + `StatsFinance.tsx` — pour chaque KPI card, afficher 3 lignes de comparaison (vs M-1 / vs N-1 même période / YTD vs YTD N-1)
+- Nouveau composant `src/components/stats/KPIComparisonBlock.tsx` réutilisable (3 deltas verticaux, flèches up/down, % colorés)
+- Ajouter un toggle `Mensuel | Annuel (YTD)` en haut de la page Stats qui change la lecture des cards
 
-## Phase 3 — Espace Équipes de ménage (nouveau rôle)
-- Rôle `cleaningTeam` ajouté (déjà `cleaning` existe → on **renomme/étend** ce rôle plutôt que doubler)
-- Routes `/app/cleaning-team/*` : Dashboard, Mes ménages, Facturation, Performance, Profil
-- Mobile-first strict (ce rôle bossera depuis téléphone)
-- Facturation : calcul auto `nb ménages × prix prestataire`, génération PDF (jsPDF déjà en place)
-- Performance : note moyenne, évolution, comparatif anonymisé
-- RLS strict : la team ne voit QUE ses logements/ménages, jamais prix voyageur ni marges
+S'assurer de **ne pas toucher** la section Qualité de ménage.
 
----
+## 4. Santé Financière — KPI RevPAR vs Marché (priorité 4)
 
-## Backend (Supabase) — vue d'ensemble
+**Fichiers touchés :**
+- `src/components/stats/FinancialHealth.tsx` — ajouter une 4e card à côté de Noé Score / Tréso Pulse / Perf Index
+- Mock du delta marché dans le même hook (valeurs : conciergerie +25%, marché +10%)
 
-Tables touchées (3 migrations, une par phase) :
+**Card "RevPAR vs Marché" :**
+- Titre + 2 valeurs côte à côte (Conciergerie / Marché)
+- Delta en pts + badge couleur :
+  - Vert si conciergerie > marché de >2 pts (Surperformance)
+  - Orange si |delta| ≤ 2 pts (Aligné)
+  - Rouge si conciergerie < marché de >2 pts (Sous-performance)
 
-**Phase 1**
-- `properties` : `default_cleaning_team_ids[]`, `cleaning_assignment_mode`, `cleaning_auto_assign`
-- `cleaning_tasks` : `is_same_day_checkin`, `assigned_via`, `alert_h1_triggered`, `alert_h30_triggered`, `validated_at`, `last_assignment_actor`, `last_assignment_at`
-- `notification_preferences` : nouvelle table avec scope ménage
+## 5. Insights — Wording alerte occupation (priorité 5)
 
-**Phase 2**
-- `properties` : `cleaning_provider_price`, `cleaning_provider_price_vat`, `cleaning_guest_fee`, `cleaning_fee_includes`, `cleaning_fee_push_api`, `nightly_rate_standard`, `nightly_rate_min`, `nightly_rate_max`, `platform_sync_status` (jsonb)
+**Fichiers touchés :**
+- `src/hooks/useAlertRules.ts` ou `src/types/alertRules.ts` — renommer le label de la règle d'occupation pour expliciter "moyen du portefeuille"
+- `src/components/insights/RuleBuilderDialog.tsx` + `RulesTable.tsx` — afficher "Taux d'occupation moyen du portefeuille en dessous du seuil paramétré" + helper text. Vérifier que le seuil est bien un input modifiable (pas hardcodé 65%).
 
-**Phase 3**
-- `cleaning_team_profiles` (id, user_id, name, iban, contact, …)
-- `cleaning_team_invoices` (period_start, period_end, total_amount, status, pdf_url, line_items)
-- `user_roles` : ajouter valeur `cleaning_team` à l'enum
-- RLS strictes sur toutes les tables ménage côté `cleaning_team`
+## Sections explicitement non touchées
+Stats Qualité ménage, architecture des alertes (hors wording), règle moyenne durée, facturation.
 
-**Note honnête** : aujourd'hui le projet tourne en **mock data** (pas de vraies tables `properties` / `cleaning_tasks` côté Supabase — cf. `src/contexts/cleaning/initialState.ts`, `mockPropertyGenerator`). Pour rester cohérent et ne **rien casser**, je propose d'implémenter Phase 1 et 2 **sur le mock data** (extension des types + state), et de matérialiser les tables Supabase **uniquement en Phase 3** où l'auth réelle d'un prestataire externe l'exige. Si tu veux qu'on bascule TOUT sur Supabase dès maintenant, c'est un chantier à part (migration des mocks → DB) qu'il faut décider explicitement.
+## Détails techniques
 
----
-
-## Points à confirmer avant de coder
-
-1. **Mock vs DB réelle** pour Phase 1/2 : on reste sur les mocks (rapide, pas de régression) OU on migre `properties`/`cleaning_tasks` vers Supabase d'abord (gros chantier additionnel) ?
-2. **Rôle `cleaning` existant vs nouveau `cleaning_team`** : je préfère **étendre** le rôle `cleaning` existant (déjà câblé partout : sidebar, RBAC, route `/app/cleaning`) plutôt qu'en créer un second qui ferait doublon. OK ?
-3. **Email/SMS d'alerte** : besoin d'une edge function + Resend (email Lovable Cloud) + provider SMS (Twilio = secret à ajouter). On fait **in-app uniquement Phase 1**, et email/SMS en Phase 2 quand tu valides l'ajout de Twilio ?
-4. **Push API plateformes** (Airbnb/Booking) : pas de vraies clés dispo → UI + statut mockés. OK ?
-
----
-
-## Livraison ce sprint si tu valides
-
-Phase 1 complète : auto-assignation + barre progression + check-in J + alertes in-app + page settings notifications. Pas de régression sur les modules existants. Phases 2 et 3 dans des sprints suivants.
-
-Réponds-moi sur les 4 points ci-dessus et je démarre Phase 1 immédiatement.
+- Tous les composants utilisent les tokens iOS 26 existants (glass-surface, navy/orange).
+- Pas de migration DB : tout en mock pour cohérence avec le reste du projet (le user a confirmé "fais du mock pour l'instant").
+- Pas de modif sur les routes, AuthContext, sidebar.
+- Réutilisation maximale : `usePricingRules`, `useStatsData`, `useAlertRules` étendus plutôt que dupliqués.
