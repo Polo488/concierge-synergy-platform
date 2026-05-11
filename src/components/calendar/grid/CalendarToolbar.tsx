@@ -19,6 +19,14 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import type { CalendarFilters, BookingChannel, BookingStatus } from '@/types/calendar';
 import { CHANNEL_NAMES, STATUS_LABELS } from '@/types/calendar';
 
+export type CalendarLayer = 'bookings' | 'pricing' | 'cleaning';
+
+const LAYER_LABELS: Record<CalendarLayer, string> = {
+  bookings: 'Réservations',
+  pricing: 'Réservations + Prix',
+  cleaning: 'Réservations + Ménage',
+};
+
 interface CalendarToolbarProps {
   currentDate: Date;
   filters: CalendarFilters;
@@ -29,15 +37,40 @@ interface CalendarToolbarProps {
   onSync: () => void;
   isSyncing: boolean;
   lastSyncTime: Date | null;
-  layers?: { showCleaning: boolean; showMaintenance: boolean };
-  onLayersChange?: (layers: { showCleaning: boolean; showMaintenance: boolean }) => void;
+  activeLayer?: CalendarLayer;
+  onActiveLayerChange?: (layer: CalendarLayer) => void;
 }
 
 export const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
   currentDate, filters, onFiltersChange, onNavigate, onGoToToday,
-  onAddBooking, onSync, isSyncing, lastSyncTime, layers, onLayersChange,
+  onAddBooking, onSync, isSyncing, lastSyncTime,
+  activeLayer = 'bookings', onActiveLayerChange,
 }) => {
   const isMobile = useIsMobile();
+
+  const renderLayerSwitcher = () => onActiveLayerChange && (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="rounded-xl border-border/50 bg-card/50 min-h-[44px]">
+          <Layers className="h-4 w-4" />
+          {!isMobile && <span className="ml-1.5">{LAYER_LABELS[activeLayer]}</span>}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-60">
+        <DropdownMenuLabel className="text-muted-foreground">Couche affichée</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {(Object.keys(LAYER_LABELS) as CalendarLayer[]).map((l) => (
+          <DropdownMenuCheckboxItem
+            key={l}
+            checked={activeLayer === l}
+            onCheckedChange={() => onActiveLayerChange(l)}
+          >
+            {LAYER_LABELS[l]}
+          </DropdownMenuCheckboxItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 
   if (isMobile) {
     // Mobile: simplified toolbar — nav + layers + add only
