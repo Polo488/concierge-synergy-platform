@@ -256,7 +256,15 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
                 height: ROW_H,
                 borderRight: '1px solid #F8F8F8',
                 position: 'relative',
-                background: isToday ? 'rgba(255,92,26,0.04)' : (isSelected ? 'rgba(59,130,246,0.08)' : undefined),
+                background: isToday
+                  ? 'rgba(255,92,26,0.04)'
+                  : isSelected
+                  ? 'rgba(59,130,246,0.08)'
+                  : showPrice
+                  ? 'rgba(34,197,94,0.08)'
+                  : showCleaning
+                  ? 'rgba(255,92,26,0.10)'
+                  : undefined,
                 cursor: isEmpty ? 'pointer' : undefined,
               }}
               onMouseDown={(e) => isEmpty && onDayMouseDown?.(property.id, day, e)}
@@ -271,17 +279,17 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               {showPrice && (
                 <div style={{
                   position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 11, fontWeight: 600, color: '#1A1A2E', opacity: 0.55, pointerEvents: 'none',
+                  fontSize: 12, fontWeight: 700, color: '#15803D', pointerEvents: 'none',
                 }}>
                   {property.pricePerNight}€
                 </div>
               )}
               {showCleaning && (
                 <div style={{
-                  position: 'absolute', bottom: 2, left: '50%', transform: 'translateX(-50%)',
-                  fontSize: 10, lineHeight: 1, padding: '2px 5px', borderRadius: 8,
+                  position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+                  fontSize: 14, lineHeight: 1, padding: '3px 6px', borderRadius: 10,
                   background: '#FF5C1A', color: '#fff', fontWeight: 700, pointerEvents: 'none',
-                  boxShadow: '0 1px 3px rgba(255,92,26,0.4)', zIndex: 4,
+                  boxShadow: '0 2px 6px rgba(255,92,26,0.5)', zIndex: 4,
                 }}>
                   🧹
                 </div>
