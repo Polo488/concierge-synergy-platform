@@ -35,6 +35,7 @@ interface CalendarGridProps {
   getInsightsForProperty?: (propertyId: number) => PropertyInsight[];
   onInsightClick?: () => void;
   activeLayer?: 'bookings' | 'pricing' | 'cleaning';
+  rmRules?: RMRulesState;
 }
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
