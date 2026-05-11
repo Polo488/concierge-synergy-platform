@@ -33,6 +33,7 @@ interface CalendarGridProps {
   isSelecting?: boolean;
   getInsightsForProperty?: (propertyId: number) => PropertyInsight[];
   onInsightClick?: () => void;
+  activeLayer?: 'bookings' | 'pricing' | 'cleaning';
 }
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
