@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { KPIComparisonBlock } from './KPIComparisonBlock';
 
 interface SparklinePoint {
   day: string;
