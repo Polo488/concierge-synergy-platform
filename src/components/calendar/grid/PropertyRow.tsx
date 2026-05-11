@@ -60,6 +60,50 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   const firstVisibleDay = days[0];
   const lastVisibleDay = days[days.length - 1];
 
+  // Compute RM rules info per visible cell index: gap fill + min stay release
+  const cellRMInfo = useMemo(() => {
+    const info = new Map<number, { type: 'gap' | 'release'; minStay: number }>();
+    if (!rmRules) return info;
+    const todayIdx = days.findIndex((d) => isSameDay(startOfDay(d), today));
+
+    // Walk and find empty segments
+    const occupied: boolean[] = days.map((day) =>
+      getBookingsForProperty(property.id, day).length > 0 || !!getBlockedForProperty(property.id, day)
+    );
+    const segments: Array<{ start: number; end: number; len: number }> = [];
+    let s = -1;
+    for (let i = 0; i < occupied.length; i++) {
+      if (!occupied[i]) {
+        if (s < 0) s = i;
+      } else if (s >= 0) {
+        segments.push({ start: s, end: i - 1, len: i - s });
+        s = -1;
+      }
+    }
+    if (s >= 0) segments.push({ start: s, end: occupied.length - 1, len: occupied.length - s });
+
+    segments.forEach((seg) => {
+      const isInteriorGap = seg.start > 0 && seg.end < occupied.length - 1;
+      for (let i = seg.start; i <= seg.end; i++) {
+        let minStay = rmRules.defaultMinStay;
+        let type: 'gap' | 'release' | null = null;
+        if (rmRules.gapFillEnabled && isInteriorGap && seg.len < rmRules.defaultMinStay) {
+          minStay = seg.len;
+          type = 'gap';
+        }
+        if (rmRules.releaseEnabled && todayIdx >= 0) {
+          const delta = i - todayIdx;
+          if (delta >= 0 && delta <= rmRules.releaseDaysBefore && rmRules.releaseTarget < minStay) {
+            minStay = rmRules.releaseTarget;
+            type = 'release';
+          }
+        }
+        if (type) info.set(i, { type, minStay });
+      }
+    });
+    return info;
+  }, [rmRules, days, property.id, getBookingsForProperty, getBlockedForProperty, today]);
+
   return (
     <div
       className="flex"
