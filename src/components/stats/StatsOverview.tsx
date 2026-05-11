@@ -212,7 +212,6 @@ function PriorityKPICard({ kpi, valueType }: { kpi: OverviewKPI; valueType: 'num
           <div className="p-2.5 rounded-xl bg-primary/10">
             <Icon className="h-5 w-5 text-primary" />
           </div>
-          <div className="flex items-center gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <button className="text-muted-foreground hover:text-foreground">
@@ -224,29 +223,23 @@ function PriorityKPICard({ kpi, valueType }: { kpi: OverviewKPI; valueType: 'num
             </TooltipContent>
           </Tooltip>
         </div>
-      </div>
 
-      <p className="text-3xl font-bold tracking-tight">
-        {typeof kpi.value === 'number' ? formatValue(kpi.value, valueType) : kpi.value}
-      </p>
-      <p className="text-sm text-muted-foreground">{kpi.label}</p>
-
-      {hasChange && (
-        <div className="mt-3 pt-3 border-t border-border/40">
-          <KPIComparisonBlock
-            vsM1={kpi.change}
-            vsN1={kpi.changeN1}
-            ytd={kpi.changeYTD}
-            inverse={kpi.inverse}
-          />
-        </div>
-      )}
-        
         <p className="text-3xl font-bold tracking-tight">
           {typeof kpi.value === 'number' ? formatValue(kpi.value, valueType) : kpi.value}
         </p>
         <p className="text-sm text-muted-foreground">{kpi.label}</p>
-        
+
+        {hasChange && (
+          <div className="mt-3 pt-3 border-t border-border/40">
+            <KPIComparisonBlock
+              vsM1={kpi.change}
+              vsN1={kpi.changeN1}
+              ytd={kpi.changeYTD}
+              inverse={kpi.inverse}
+            />
+          </div>
+        )}
+
         {kpi.sparklineData && kpi.sparklineData.length > 0 && (
           <div className="mt-1">
             <Sparkline data={kpi.sparklineData} color={sparklineColor} />
