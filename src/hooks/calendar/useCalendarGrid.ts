@@ -147,12 +147,15 @@ interface UseCalendarGridReturn {
 }
 
 export function useCalendarGrid(daysToShow: number = 60): UseCalendarGridReturn {
-  const [currentDate, setCurrentDate] = useState<Date>(startOfDay(new Date(2026, 2, 25)));
+  const [currentDate, setCurrentDate] = useState<Date>(startOfDay(new Date()));
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
 
   const properties = DEMO_PROPERTIES;
-  const bookings = DEMO_RESERVATIONS;
+  const bookings = useMemo(
+    () => [...DEMO_RESERVATIONS, ...generateDenseReservations(DEMO_PROPERTIES, new Date())],
+    []
+  );
   const blockedPeriods = DEMO_BLOCKED_PERIODS;
   const dailyPrices: DailyPrice[] = [];
   
