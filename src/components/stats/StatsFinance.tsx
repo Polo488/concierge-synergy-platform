@@ -32,6 +32,8 @@ interface FinanceKPI {
   label: string;
   value: number;
   change?: number;
+  changeN1?: number;
+  changeYTD?: number;
   tooltip: string;
   icon: React.ElementType;
   format: 'currency' | 'percent' | 'number';
