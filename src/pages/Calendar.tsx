@@ -23,6 +23,7 @@ import { CalendarDays, Euro, Bell, Ban } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { CalendarBooking, CalendarProperty, BookingChannel, BlockedPeriod } from '@/types/calendar';
 import { DemoReservationModal } from '@/components/calendar/DemoReservationModal';
+import { RMRulesButton, type RMRulesState } from '@/components/calendar/grid/RMRulesButton';
 
 const CalendarPage = () => {
   const isMobile = useIsMobile();
