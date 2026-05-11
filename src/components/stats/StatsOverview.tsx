@@ -45,38 +45,64 @@ interface StatsOverviewProps {
   activityKpis: {
     reservations: number;
     reservationsChange: number;
+    reservationsChangeN1: number;
+    reservationsChangeYTD: number;
     reservationsTrend: SparklinePoint[];
     nightsBooked: number;
     nightsBookedChange: number;
+    nightsBookedChangeN1: number;
+    nightsBookedChangeYTD: number;
     occupancyRate: number;
     occupancyRateChange: number;
+    occupancyRateChangeN1: number;
+    occupancyRateChangeYTD: number;
     occupancyTrend: SparklinePoint[];
     avgStayDuration: number;
     avgStayDurationChange: number;
+    avgStayDurationChangeN1: number;
+    avgStayDurationChangeYTD: number;
     avgBookingWindow: number;
     avgBookingWindowChange: number;
+    avgBookingWindowChangeN1: number;
+    avgBookingWindowChangeYTD: number;
   };
   revenueKpis: {
     monthlyRevenue: number;
     monthlyRevenueChange: number;
+    monthlyRevenueChangeN1: number;
+    monthlyRevenueChangeYTD: number;
     revenueTrend: SparklinePoint[];
     avgRevenuePerStay: number;
     avgRevenuePerStayChange: number;
+    avgRevenuePerStayChangeN1: number;
+    avgRevenuePerStayChangeYTD: number;
     avgRevenuePerNight: number;
     avgRevenuePerNightChange: number;
+    avgRevenuePerNightChangeN1: number;
+    avgRevenuePerNightChangeYTD: number;
     revpar: number;
     revparChange: number;
+    revparChangeN1: number;
+    revparChangeYTD: number;
     revparTrend: SparklinePoint[];
   };
   operationsKpis: {
     cleaningsCount: number;
     cleaningsCountChange: number;
+    cleaningsCountChangeN1: number;
+    cleaningsCountChangeYTD: number;
     repasseRate: number;
     repasseRateChange: number;
+    repasseRateChangeN1: number;
+    repasseRateChangeYTD: number;
     avgCleaningRating: number;
     avgCleaningRatingChange: number;
+    avgCleaningRatingChangeN1: number;
+    avgCleaningRatingChangeYTD: number;
     incidentsCount: number;
     incidentsCountChange: number;
+    incidentsCountChangeN1: number;
+    incidentsCountChangeYTD: number;
   };
   monthlyComparison: {
     currentMonth: {
