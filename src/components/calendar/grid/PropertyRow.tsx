@@ -52,6 +52,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   propColCollapsed = false,
   dayCellWidth = 48,
   activeLayer = 'bookings',
+  rmRules,
 }) => {
   const today = startOfDay(new Date());
   const renderedBookingIds = new Set<number>();
