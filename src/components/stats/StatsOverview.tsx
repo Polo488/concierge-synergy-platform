@@ -271,16 +271,15 @@ function SecondaryKPICard({ kpi, valueType }: { kpi: OverviewKPI; valueType: 'nu
         </div>
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {hasChange && (
-          <span className={cn(
-            "text-xs font-medium",
-            isPositive && "text-emerald-600",
-            isNegative && "text-red-600",
-            !isPositive && !isNegative && "text-muted-foreground"
-          )}>
-            {isPositive && '+'}{kpi.change.toFixed(1)}%
-          </span>
+          <KPIComparisonBlock
+            vsM1={kpi.change}
+            vsN1={kpi.changeN1}
+            ytd={kpi.changeYTD}
+            inverse={kpi.inverse}
+            compact
+          />
         )}
         <Tooltip>
           <TooltipTrigger asChild>
