@@ -4,6 +4,62 @@ import type { CalendarProperty, CalendarBooking, BlockedPeriod, CalendarFilters,
 
 const createDate = (month: number, day: number) => new Date(2026, month - 1, day);
 
+// Generate dense bookings around "today" so demo always shows realistic occupancy
+const GUEST_NAMES = [
+  'Marie Dubois', 'Tom Nguyen', 'Clara Martin', 'Karim Benzara', 'Julia Ross',
+  'Nadia Petit', 'Paul Durand', 'Sarah Müller', 'Emma Wilson', 'Famille Moreau',
+  'Thomas Bernhardt', 'Isabelle Roy', 'Rémi Laurent', 'Mehdi Alami', 'Chloe Dubois',
+  'Marco Rossi', 'Fatima Zahra', 'Oliver Smith', 'Julie Perrin', 'Max Hofmann',
+  'Camille Noir', 'Hassan Diop', 'Jean Dupuis', 'Amira Ben Ali', 'Chris Taylor',
+  'Léa Bonnet', 'Ingrid Berg', 'Ryo Yamamoto', 'Moussa Diallo', 'Antoine Leroy',
+  'Priya Sharma', 'Roberto Luca', 'Sandra Koch', 'Lucas Faure', 'Inès Garcia',
+];
+const CHANNELS: Array<'airbnb' | 'booking' | 'direct'> = ['airbnb', 'booking', 'direct'];
+
+function seededRandom(seed: number) {
+  let s = seed % 2147483647;
+  if (s <= 0) s += 2147483646;
+  return () => (s = (s * 16807) % 2147483647) / 2147483647;
+}
+
+function generateDenseReservations(properties: CalendarProperty[], anchor: Date): CalendarBooking[] {
+  const out: CalendarBooking[] = [];
+  let id = 100;
+  const start = startOfDay(addDays(anchor, -30));
+  const end = startOfDay(addDays(anchor, 90));
+  const totalDays = differenceInDays(end, start);
+  const rand = seededRandom(42);
+
+  properties.forEach((property, pIdx) => {
+    let cursor = addDays(start, Math.floor(rand() * 4));
+    while (cursor < end) {
+      // ~75% target occupancy: short gap then booking
+      const gap = Math.floor(rand() * 4); // 0-3 day gap
+      cursor = addDays(cursor, gap);
+      if (cursor >= end) break;
+      const stayLen = 2 + Math.floor(rand() * 6); // 2-7 nights
+      const checkOut = addDays(cursor, stayLen);
+      if (checkOut > end) break;
+      const channel = CHANNELS[Math.floor(rand() * CHANNELS.length)];
+      const guest = GUEST_NAMES[(id + pIdx) % GUEST_NAMES.length];
+      out.push({
+        id: ++id,
+        propertyId: property.id,
+        guestName: guest,
+        channel,
+        checkIn: cursor,
+        checkOut,
+        nightlyRate: property.pricePerNight,
+        guestsCount: 1 + Math.floor(rand() * Math.min(property.capacity, 4)),
+        totalAmount: property.pricePerNight * stayLen,
+        status: 'confirmed',
+      });
+      cursor = checkOut; // back-to-back possible
+    }
+  });
+  return out;
+}
+
 const DEMO_PROPERTIES: CalendarProperty[] = [
   { id: 1, name: 'Appartement 12 Rue du Port', thumbnail: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=100&h=100&fit=crop', capacity: 4, pricePerNight: 95, address: '12 Rue du Port, 75001 Paris' },
   { id: 2, name: 'Studio 8 Avenue des Fleurs', thumbnail: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=100&h=100&fit=crop', capacity: 2, pricePerNight: 65, address: '8 Avenue des Fleurs, 75002 Paris' },
