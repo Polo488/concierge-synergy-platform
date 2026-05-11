@@ -286,8 +286,8 @@ const CalendarPage = () => {
               onSync={handleSync}
               isSyncing={isSyncing}
               lastSyncTime={lastSyncTime}
-              layers={layers}
-              onLayersChange={setLayers}
+              activeLayer={activeLayer}
+              onActiveLayerChange={setActiveLayer}
             />
           </div>
           <div className="flex-1 overflow-hidden px-2 md:px-6 pb-2" data-tutorial="calendar-grid">
