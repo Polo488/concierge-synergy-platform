@@ -136,6 +136,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 propColWidth={propColWidth}
                 propColCollapsed={collapsed}
                 dayCellWidth={DAY_W}
+                activeLayer={activeLayer}
               />
             ))
           )}
