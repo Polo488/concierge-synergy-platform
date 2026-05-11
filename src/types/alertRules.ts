@@ -24,7 +24,8 @@ export type BaselineType =
   | 'portfolio_average'
   | 'peer_group'  // same capacity, area, type
   | 'area_group'
-  | 'custom_group';
+  | 'custom_group'
+  | 'fixed_target'; // absolute target value (e.g. 65%)
 
 export type ThresholdType = 'absolute' | 'relative';
 
@@ -151,6 +152,7 @@ export const BASELINE_LABELS: Record<BaselineType, string> = {
   peer_group: 'Groupe de pairs (même capacité/zone)',
   area_group: 'Groupe géographique',
   custom_group: 'Groupe personnalisé',
+  fixed_target: 'Objectif fixe (valeur cible)',
 };
 
 export const TIME_WINDOW_LABELS: Record<TimeWindow, string> = {
