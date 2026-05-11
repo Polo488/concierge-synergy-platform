@@ -24,7 +24,8 @@ export type BaselineType =
   | 'portfolio_average'
   | 'peer_group'  // same capacity, area, type
   | 'area_group'
-  | 'custom_group';
+  | 'custom_group'
+  | 'fixed_target'; // absolute target value (e.g. 65%)
 
 export type ThresholdType = 'absolute' | 'relative';
 
