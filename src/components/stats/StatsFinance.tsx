@@ -135,23 +135,23 @@ function KPICard({ kpi }: { kpi: FinanceKPI }) {
             </Tooltip>
           </div>
           
-          {hasChange && (
-            <div className={cn(
-              "flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full",
-              isPositive && "bg-emerald-500/10 text-emerald-600",
-              isNegative && "bg-red-500/10 text-red-600",
-              !isPositive && !isNegative && "bg-muted text-muted-foreground"
-            )}>
-              {isPositive ? <TrendingUp className="h-3 w-3" /> : isNegative ? <TrendingDown className="h-3 w-3" /> : null}
-              {isPositive && '+'}{kpi.change.toFixed(1)}%
-            </div>
-          )}
         </div>
-        
+
         <div className="mt-3">
           <p className="text-2xl font-bold tracking-tight">{formattedValue}</p>
           <p className="text-xs text-muted-foreground mt-1">{kpi.label}</p>
         </div>
+
+        {hasChange && (
+          <div className="mt-3 pt-3 border-t border-border/40">
+            <KPIComparisonBlock
+              vsM1={kpi.change}
+              vsN1={kpi.changeN1}
+              ytd={kpi.changeYTD}
+              compact
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   );
