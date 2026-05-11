@@ -286,6 +286,26 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
                   🧹
                 </div>
               )}
+              {rmInfo && (
+                <div
+                  title={
+                    rmInfo.type === 'gap'
+                      ? `Gap Fill : min stay assoupli à ${rmInfo.minStay} nuit${rmInfo.minStay > 1 ? 's' : ''}`
+                      : `Relâche : min stay ${rmInfo.minStay} nuit${rmInfo.minStay > 1 ? 's' : ''}`
+                  }
+                  style={{
+                    position: 'absolute', top: 2, right: 2,
+                    display: 'flex', alignItems: 'center', gap: 2,
+                    fontSize: 9, lineHeight: 1, padding: '2px 4px', borderRadius: 6,
+                    background: rmInfo.type === 'gap' ? 'rgba(124,58,237,0.92)' : 'rgba(245,158,11,0.92)',
+                    color: '#fff', fontWeight: 700, pointerEvents: 'none', zIndex: 4,
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
+                  }}
+                >
+                  {rmInfo.type === 'gap' ? <Sparkles size={8} /> : <Zap size={8} />}
+                  {rmInfo.minStay}N
+                </div>
+              )}
             </div>
           );
         })}
