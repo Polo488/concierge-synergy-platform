@@ -213,29 +213,34 @@ function PriorityKPICard({ kpi, valueType }: { kpi: OverviewKPI; valueType: 'num
             <Icon className="h-5 w-5 text-primary" />
           </div>
           <div className="flex items-center gap-2">
-            {hasChange && (
-              <div className={cn(
-                "flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full",
-                isPositive && "bg-emerald-500/10 text-emerald-600",
-                isNegative && "bg-red-500/10 text-red-600",
-                !isPositive && !isNegative && "bg-muted text-muted-foreground"
-              )}>
-                {isPositive ? <TrendingUp className="h-3 w-3" /> : isNegative ? <TrendingDown className="h-3 w-3" /> : null}
-                {isPositive && '+'}{kpi.change.toFixed(1)}%
-              </div>
-            )}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="text-muted-foreground hover:text-foreground">
-                  <HelpCircle className="h-3.5 w-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-xs">
-                <p className="text-xs">{kpi.tooltip}</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="text-muted-foreground hover:text-foreground">
+                <HelpCircle className="h-3.5 w-3.5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs">
+              <p className="text-xs">{kpi.tooltip}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
+      </div>
+
+      <p className="text-3xl font-bold tracking-tight">
+        {typeof kpi.value === 'number' ? formatValue(kpi.value, valueType) : kpi.value}
+      </p>
+      <p className="text-sm text-muted-foreground">{kpi.label}</p>
+
+      {hasChange && (
+        <div className="mt-3 pt-3 border-t border-border/40">
+          <KPIComparisonBlock
+            vsM1={kpi.change}
+            vsN1={kpi.changeN1}
+            ytd={kpi.changeYTD}
+            inverse={kpi.inverse}
+          />
+        </div>
+      )}
         
         <p className="text-3xl font-bold tracking-tight">
           {typeof kpi.value === 'number' ? formatValue(kpi.value, valueType) : kpi.value}
