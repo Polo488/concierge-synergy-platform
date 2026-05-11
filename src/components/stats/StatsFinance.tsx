@@ -12,6 +12,7 @@ import {
   Moon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { KPIComparisonBlock } from './KPIComparisonBlock';
 import { 
   LineChart, 
   Line, 
@@ -32,6 +33,8 @@ interface FinanceKPI {
   label: string;
   value: number;
   change?: number;
+  changeN1?: number;
+  changeYTD?: number;
   tooltip: string;
   icon: React.ElementType;
   format: 'currency' | 'percent' | 'number';
@@ -53,18 +56,30 @@ interface StatsFinanceProps {
   kpis: {
     totalRevenue: number;
     totalRevenueChange: number;
+    totalRevenueChangeN1: number;
+    totalRevenueChangeYTD: number;
     adr: number;
     adrChange: number;
+    adrChangeN1: number;
+    adrChangeYTD: number;
     avgRevenuePerStay: number;
     avgRevenuePerStayChange: number;
+    avgRevenuePerStayChangeN1: number;
+    avgRevenuePerStayChangeYTD: number;
     revpar: number;
     revparChange: number;
+    revparChangeN1: number;
+    revparChangeYTD: number;
     occupancyRate: number;
     occupancyRateChange: number;
+    occupancyRateChangeN1: number;
+    occupancyRateChangeYTD: number;
     availableNights: number;
     bookedNights: number;
     avgBookingValue: number;
     avgBookingValueChange: number;
+    avgBookingValueChangeN1: number;
+    avgBookingValueChangeYTD: number;
   };
   revenueTrend: TrendPoint[];
   occupancyTrend: TrendPoint[];
@@ -120,23 +135,23 @@ function KPICard({ kpi }: { kpi: FinanceKPI }) {
             </Tooltip>
           </div>
           
-          {hasChange && (
-            <div className={cn(
-              "flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full",
-              isPositive && "bg-emerald-500/10 text-emerald-600",
-              isNegative && "bg-red-500/10 text-red-600",
-              !isPositive && !isNegative && "bg-muted text-muted-foreground"
-            )}>
-              {isPositive ? <TrendingUp className="h-3 w-3" /> : isNegative ? <TrendingDown className="h-3 w-3" /> : null}
-              {isPositive && '+'}{kpi.change.toFixed(1)}%
-            </div>
-          )}
         </div>
-        
+
         <div className="mt-3">
           <p className="text-2xl font-bold tracking-tight">{formattedValue}</p>
           <p className="text-xs text-muted-foreground mt-1">{kpi.label}</p>
         </div>
+
+        {hasChange && (
+          <div className="mt-3 pt-3 border-t border-border/40">
+            <KPIComparisonBlock
+              vsM1={kpi.change}
+              vsN1={kpi.changeN1}
+              ytd={kpi.changeYTD}
+              compact
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -157,6 +172,8 @@ export function StatsFinance({
       label: 'Chiffre d\'affaires total',
       value: kpis.totalRevenue,
       change: kpis.totalRevenueChange,
+      changeN1: kpis.totalRevenueChangeN1,
+      changeYTD: kpis.totalRevenueChangeYTD,
       tooltip: 'CA total généré sur la période sélectionnée',
       icon: Euro,
       format: 'currency'
@@ -165,6 +182,8 @@ export function StatsFinance({
       label: 'Taux moyen journalier (ADR)',
       value: kpis.adr,
       change: kpis.adrChange,
+      changeN1: kpis.adrChangeN1,
+      changeYTD: kpis.adrChangeYTD,
       tooltip: 'Average Daily Rate - Prix moyen par nuit vendue',
       icon: Bed,
       format: 'currency'
@@ -173,6 +192,8 @@ export function StatsFinance({
       label: 'Revenu moy. / séjour',
       value: kpis.avgRevenuePerStay,
       change: kpis.avgRevenuePerStayChange,
+      changeN1: kpis.avgRevenuePerStayChangeN1,
+      changeYTD: kpis.avgRevenuePerStayChangeYTD,
       tooltip: 'Revenu moyen généré par réservation',
       icon: TrendingUp,
       format: 'currency'
@@ -181,6 +202,8 @@ export function StatsFinance({
       label: 'RevPAR',
       value: kpis.revpar,
       change: kpis.revparChange,
+      changeN1: kpis.revparChangeN1,
+      changeYTD: kpis.revparChangeYTD,
       tooltip: 'Revenue Per Available Room = Taux occupation × ADR',
       icon: BarChart3,
       format: 'currency'
@@ -189,6 +212,8 @@ export function StatsFinance({
       label: 'Taux d\'occupation',
       value: kpis.occupancyRate,
       change: kpis.occupancyRateChange,
+      changeN1: kpis.occupancyRateChangeN1,
+      changeYTD: kpis.occupancyRateChangeYTD,
       tooltip: 'Pourcentage de nuits réservées sur les nuits disponibles',
       icon: Percent,
       format: 'percent'
@@ -211,6 +236,8 @@ export function StatsFinance({
       label: 'Valeur moy. réservation',
       value: kpis.avgBookingValue,
       change: kpis.avgBookingValueChange,
+      changeN1: kpis.avgBookingValueChangeN1,
+      changeYTD: kpis.avgBookingValueChangeYTD,
       tooltip: 'Valeur moyenne d\'une réservation',
       icon: Euro,
       format: 'currency'

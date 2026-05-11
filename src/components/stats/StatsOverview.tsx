@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { KPIComparisonBlock } from './KPIComparisonBlock';
 
 interface SparklinePoint {
   day: string;
@@ -31,6 +32,9 @@ interface OverviewKPI {
   label: string;
   value: string | number;
   change?: number;
+  changeN1?: number;
+  changeYTD?: number;
+  inverse?: boolean;
   tooltip: string;
   icon: React.ElementType;
   isPriority?: boolean;
@@ -41,38 +45,64 @@ interface StatsOverviewProps {
   activityKpis: {
     reservations: number;
     reservationsChange: number;
+    reservationsChangeN1: number;
+    reservationsChangeYTD: number;
     reservationsTrend: SparklinePoint[];
     nightsBooked: number;
     nightsBookedChange: number;
+    nightsBookedChangeN1: number;
+    nightsBookedChangeYTD: number;
     occupancyRate: number;
     occupancyRateChange: number;
+    occupancyRateChangeN1: number;
+    occupancyRateChangeYTD: number;
     occupancyTrend: SparklinePoint[];
     avgStayDuration: number;
     avgStayDurationChange: number;
+    avgStayDurationChangeN1: number;
+    avgStayDurationChangeYTD: number;
     avgBookingWindow: number;
     avgBookingWindowChange: number;
+    avgBookingWindowChangeN1: number;
+    avgBookingWindowChangeYTD: number;
   };
   revenueKpis: {
     monthlyRevenue: number;
     monthlyRevenueChange: number;
+    monthlyRevenueChangeN1: number;
+    monthlyRevenueChangeYTD: number;
     revenueTrend: SparklinePoint[];
     avgRevenuePerStay: number;
     avgRevenuePerStayChange: number;
+    avgRevenuePerStayChangeN1: number;
+    avgRevenuePerStayChangeYTD: number;
     avgRevenuePerNight: number;
     avgRevenuePerNightChange: number;
+    avgRevenuePerNightChangeN1: number;
+    avgRevenuePerNightChangeYTD: number;
     revpar: number;
     revparChange: number;
+    revparChangeN1: number;
+    revparChangeYTD: number;
     revparTrend: SparklinePoint[];
   };
   operationsKpis: {
     cleaningsCount: number;
     cleaningsCountChange: number;
+    cleaningsCountChangeN1: number;
+    cleaningsCountChangeYTD: number;
     repasseRate: number;
     repasseRateChange: number;
+    repasseRateChangeN1: number;
+    repasseRateChangeYTD: number;
     avgCleaningRating: number;
     avgCleaningRatingChange: number;
+    avgCleaningRatingChangeN1: number;
+    avgCleaningRatingChangeYTD: number;
     incidentsCount: number;
     incidentsCountChange: number;
+    incidentsCountChangeN1: number;
+    incidentsCountChangeYTD: number;
   };
   monthlyComparison: {
     currentMonth: {
@@ -182,36 +212,34 @@ function PriorityKPICard({ kpi, valueType }: { kpi: OverviewKPI; valueType: 'num
           <div className="p-2.5 rounded-xl bg-primary/10">
             <Icon className="h-5 w-5 text-primary" />
           </div>
-          <div className="flex items-center gap-2">
-            {hasChange && (
-              <div className={cn(
-                "flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full",
-                isPositive && "bg-emerald-500/10 text-emerald-600",
-                isNegative && "bg-red-500/10 text-red-600",
-                !isPositive && !isNegative && "bg-muted text-muted-foreground"
-              )}>
-                {isPositive ? <TrendingUp className="h-3 w-3" /> : isNegative ? <TrendingDown className="h-3 w-3" /> : null}
-                {isPositive && '+'}{kpi.change.toFixed(1)}%
-              </div>
-            )}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="text-muted-foreground hover:text-foreground">
-                  <HelpCircle className="h-3.5 w-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-xs">
-                <p className="text-xs">{kpi.tooltip}</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="text-muted-foreground hover:text-foreground">
+                <HelpCircle className="h-3.5 w-3.5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs">
+              <p className="text-xs">{kpi.tooltip}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
-        
+
         <p className="text-3xl font-bold tracking-tight">
           {typeof kpi.value === 'number' ? formatValue(kpi.value, valueType) : kpi.value}
         </p>
         <p className="text-sm text-muted-foreground">{kpi.label}</p>
-        
+
+        {hasChange && (
+          <div className="mt-3 pt-3 border-t border-border/40">
+            <KPIComparisonBlock
+              vsM1={kpi.change}
+              vsN1={kpi.changeN1}
+              ytd={kpi.changeYTD}
+              inverse={kpi.inverse}
+            />
+          </div>
+        )}
+
         {kpi.sparklineData && kpi.sparklineData.length > 0 && (
           <div className="mt-1">
             <Sparkline data={kpi.sparklineData} color={sparklineColor} />
@@ -243,16 +271,15 @@ function SecondaryKPICard({ kpi, valueType }: { kpi: OverviewKPI; valueType: 'nu
         </div>
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {hasChange && (
-          <span className={cn(
-            "text-xs font-medium",
-            isPositive && "text-emerald-600",
-            isNegative && "text-red-600",
-            !isPositive && !isNegative && "text-muted-foreground"
-          )}>
-            {isPositive && '+'}{kpi.change.toFixed(1)}%
-          </span>
+          <KPIComparisonBlock
+            vsM1={kpi.change}
+            vsN1={kpi.changeN1}
+            ytd={kpi.changeYTD}
+            inverse={kpi.inverse}
+            compact
+          />
         )}
         <Tooltip>
           <TooltipTrigger asChild>
@@ -371,13 +398,14 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
     true // Inverse: lower repasse rate is better
   );
 
-  // Priority KPIs for instant understanding
   const priorityKpis = [
     {
       kpi: {
         label: 'Réservations ce mois',
         value: activityKpis.reservations,
         change: activityKpis.reservationsChange,
+        changeN1: activityKpis.reservationsChangeN1,
+        changeYTD: activityKpis.reservationsChangeYTD,
         tooltip: 'Nombre total de réservations pour le mois en cours',
         icon: CalendarDays,
         isPriority: true,
@@ -390,6 +418,8 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
         label: "Taux d'occupation",
         value: activityKpis.occupancyRate,
         change: activityKpis.occupancyRateChange,
+        changeN1: activityKpis.occupancyRateChangeN1,
+        changeYTD: activityKpis.occupancyRateChangeYTD,
         tooltip: 'Pourcentage de nuits occupées par rapport aux nuits disponibles',
         icon: Percent,
         isPriority: true,
@@ -402,6 +432,8 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
         label: 'Chiffre d\'affaires',
         value: revenueKpis.monthlyRevenue,
         change: revenueKpis.monthlyRevenueChange,
+        changeN1: revenueKpis.monthlyRevenueChangeN1,
+        changeYTD: revenueKpis.monthlyRevenueChangeYTD,
         tooltip: 'Chiffre d\'affaires total généré ce mois',
         icon: Euro,
         isPriority: true,
@@ -414,6 +446,8 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
         label: 'RevPAR',
         value: revenueKpis.revpar,
         change: revenueKpis.revparChange,
+        changeN1: revenueKpis.revparChangeN1,
+        changeYTD: revenueKpis.revparChangeYTD,
         tooltip: 'Revenu par nuit disponible = Taux occupation × ADR',
         icon: BarChart3,
         isPriority: true,
@@ -423,13 +457,14 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
     }
   ];
 
-  // Secondary activity KPIs
   const secondaryActivityKpis = [
     {
       kpi: {
         label: 'Nuits réservées',
         value: activityKpis.nightsBooked,
         change: activityKpis.nightsBookedChange,
+        changeN1: activityKpis.nightsBookedChangeN1,
+        changeYTD: activityKpis.nightsBookedChangeYTD,
         tooltip: 'Nombre total de nuits réservées ce mois',
         icon: Moon
       },
@@ -440,6 +475,8 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
         label: 'Durée moy. séjour',
         value: activityKpis.avgStayDuration,
         change: activityKpis.avgStayDurationChange,
+        changeN1: activityKpis.avgStayDurationChangeN1,
+        changeYTD: activityKpis.avgStayDurationChangeYTD,
         tooltip: 'Durée moyenne des séjours en jours',
         icon: Clock
       },
@@ -450,6 +487,8 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
         label: 'Fenêtre résa. moy.',
         value: activityKpis.avgBookingWindow,
         change: activityKpis.avgBookingWindowChange,
+        changeN1: activityKpis.avgBookingWindowChangeN1,
+        changeYTD: activityKpis.avgBookingWindowChangeYTD,
         tooltip: 'Délai moyen entre la réservation et l\'arrivée',
         icon: Calendar
       },
@@ -457,13 +496,14 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
     }
   ];
 
-  // Secondary revenue KPIs
   const secondaryRevenueKpis = [
     {
       kpi: {
         label: 'Revenu moy. / séjour',
         value: revenueKpis.avgRevenuePerStay,
         change: revenueKpis.avgRevenuePerStayChange,
+        changeN1: revenueKpis.avgRevenuePerStayChangeN1,
+        changeYTD: revenueKpis.avgRevenuePerStayChangeYTD,
         tooltip: 'Revenu moyen par réservation',
         icon: Bed
       },
@@ -474,6 +514,8 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
         label: 'ADR (Revenu moy. / nuit)',
         value: revenueKpis.avgRevenuePerNight,
         change: revenueKpis.avgRevenuePerNightChange,
+        changeN1: revenueKpis.avgRevenuePerNightChangeN1,
+        changeYTD: revenueKpis.avgRevenuePerNightChangeYTD,
         tooltip: 'Average Daily Rate - Revenu moyen par nuit réservée',
         icon: TrendingUp
       },
@@ -481,13 +523,14 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
     }
   ];
 
-  // Operations KPIs
   const operationsKpisList = [
     {
       kpi: {
         label: 'Ménages effectués',
         value: operationsKpis.cleaningsCount,
         change: operationsKpis.cleaningsCountChange,
+        changeN1: operationsKpis.cleaningsCountChangeN1,
+        changeYTD: operationsKpis.cleaningsCountChangeYTD,
         tooltip: 'Nombre de ménages réalisés ce mois',
         icon: Sparkles
       },
@@ -498,6 +541,9 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
         label: 'Taux de repasse',
         value: operationsKpis.repasseRate,
         change: operationsKpis.repasseRateChange,
+        changeN1: operationsKpis.repasseRateChangeN1,
+        changeYTD: operationsKpis.repasseRateChangeYTD,
+        inverse: true,
         tooltip: 'Pourcentage de ménages ayant nécessité une repasse (négatif = amélioration)',
         icon: AlertTriangle
       },
@@ -508,6 +554,8 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
         label: 'Note ménage moy.',
         value: operationsKpis.avgCleaningRating,
         change: operationsKpis.avgCleaningRatingChange,
+        changeN1: operationsKpis.avgCleaningRatingChangeN1,
+        changeYTD: operationsKpis.avgCleaningRatingChangeYTD,
         tooltip: 'Note moyenne attribuée aux ménages (sur 5)',
         icon: BarChart3
       },
@@ -518,6 +566,9 @@ export function StatsOverview({ activityKpis, revenueKpis, operationsKpis, month
         label: 'Incidents',
         value: operationsKpis.incidentsCount,
         change: operationsKpis.incidentsCountChange,
+        changeN1: operationsKpis.incidentsCountChangeN1,
+        changeYTD: operationsKpis.incidentsCountChangeYTD,
+        inverse: true,
         tooltip: 'Nombre d\'incidents ménage et maintenance ce mois (négatif = amélioration)',
         icon: Wrench
       },
