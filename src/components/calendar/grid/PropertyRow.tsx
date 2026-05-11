@@ -27,6 +27,7 @@ interface PropertyRowProps {
   propColWidth?: number;
   propColCollapsed?: boolean;
   dayCellWidth?: number;
+  activeLayer?: 'bookings' | 'pricing' | 'cleaning';
 }
 
 export const PropertyRow: React.FC<PropertyRowProps> = ({
