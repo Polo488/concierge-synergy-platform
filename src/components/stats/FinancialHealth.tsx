@@ -1001,7 +1001,7 @@ export function FinancialHealth() {
             }}
           >
             <img src={noeIconOrange} alt="" className="h-2.5 w-2.5 object-contain" />
-            Module — 04/04
+            Module — 05/05
           </span>
         </div>
 
