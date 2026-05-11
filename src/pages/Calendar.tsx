@@ -251,6 +251,8 @@ const CalendarPage = () => {
                 </div>
               )}
 
+              <RMRulesButton value={rmRules} onChange={setRmRules} />
+
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'planning' | 'pricing')}>
                 <TabsList className="h-9">
                   <TabsTrigger value="planning" className="gap-1.5 text-xs md:text-sm">
