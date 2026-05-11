@@ -89,7 +89,7 @@ const CalendarPage = () => {
     endDate: Date;
     currentPrice: number;
   } | null>(null);
-  const [layers, setLayers] = useState({ showCleaning: false, showMaintenance: false });
+  const [activeLayer, setActiveLayer] = useState<'bookings' | 'pricing' | 'cleaning'>('bookings');
 
   const [demoModalOpen, setDemoModalOpen] = useState(false);
 
