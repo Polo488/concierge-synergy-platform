@@ -318,6 +318,8 @@ const CalendarPage = () => {
               isSelecting={isSelecting}
               getInsightsForProperty={getInsightsForProperty}
               onInsightClick={() => setIsInsightsPanelOpen(true)}
+              activeLayer={activeLayer}
+              rmRules={rmRules}
             />
           </div>
         </div>
