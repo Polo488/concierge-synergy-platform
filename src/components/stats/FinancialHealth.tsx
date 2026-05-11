@@ -287,7 +287,7 @@ export function FinancialHealth() {
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35 mb-1.5">Modules</p>
-              <p className="text-white font-semibold text-sm">4 indicateurs Noé</p>
+              <p className="text-white font-semibold text-sm">5 indicateurs Noé</p>
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35 mb-1.5">Mis à jour</p>
@@ -509,6 +509,203 @@ export function FinancialHealth() {
         </div>
       </div>
 
+      {/* ============ 2BIS. REVPAR vs MARCHÉ (emerald + teal) ============ */}
+      <div className="relative overflow-hidden rounded-3xl bg-[#E9F8F1]" style={{ borderTop: '3px solid #0E9F6E' }}>
+        <img
+          src={noeIconOrange}
+          alt=""
+          aria-hidden
+          className="absolute pointer-events-none select-none"
+          style={{ right: '-50px', top: '-30px', width: '300px', opacity: 0.06 }}
+        />
+
+        {/* Module pill */}
+        <div className="absolute top-5 right-5 z-10">
+          <span
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-[#0E9F6E]/20 text-[10px] font-bold uppercase tracking-[0.16em] text-[#1A1A2E]/70"
+            style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+          >
+            <img src={noeIconOrange} alt="" className="h-2.5 w-2.5 object-contain" />
+            Module — 02/05
+          </span>
+        </div>
+
+        <div className="relative z-10 p-8 sm:p-10">
+          <SectionBadge color="indigo" icon="dot">RevPAR Benchmark</SectionBadge>
+
+          <div className="mt-5">
+            <SectionTitle title="RevPAR" accent="vs marché" />
+          </div>
+          <p className="mt-3 text-[#1A1A2E]/60 max-w-2xl leading-relaxed">
+            Compare ton revenu par chambre disponible (Revenue Per Available Room) à celui du marché local sur la même période. Un <strong className="text-[#1A1A2E]">RGI &gt; 1</strong> indique que ta conciergerie surperforme la concurrence.
+          </p>
+
+          {(() => {
+            // Mock RevPAR data — would come from RDM/AirDNA-style provider
+            const yourRevpar = 87.40;
+            const marketRevpar = 72.10;
+            const rgi = yourRevpar / marketRevpar;
+            const deltaPct = ((yourRevpar - marketRevpar) / marketRevpar) * 100;
+            const monthly = [
+              { m: 'Oct', you: 71, market: 68 },
+              { m: 'Nov', you: 64, market: 61 },
+              { m: 'Déc', you: 92, market: 78 },
+              { m: 'Jan', you: 79, market: 70 },
+              { m: 'Fév', you: 83, market: 71 },
+              { m: 'Mar', you: 87, market: 72 },
+            ];
+            const maxBar = Math.max(...monthly.flatMap(d => [d.you, d.market])) * 1.15;
+            const propertyRev = [
+              { name: 'Villa Azur — Nice', emoji: '🏖️', you: 142, market: 98 },
+              { name: 'Appartement Mer — Biarritz', emoji: '🌊', you: 108, market: 89 },
+              { name: 'Loft Canal — Lyon', emoji: '🏙️', you: 76, market: 74 },
+              { name: 'Chalet Écrins — Chamonix', emoji: '🏔️', you: 95, market: 112 },
+              { name: 'Studio Bastille — Paris', emoji: '🗼', you: 64, market: 71 },
+            ];
+            const rgiBadge = rgi >= 1.10
+              ? { label: 'SURPERFORMANCE', bg: 'bg-emerald-100', text: 'text-emerald-700', dot: 'bg-emerald-500' }
+              : rgi >= 0.95
+              ? { label: 'À PARITÉ', bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500' }
+              : { label: 'SOUS-PERF', bg: 'bg-rose-100', text: 'text-rose-700', dot: 'bg-rose-500' };
+
+            return (
+              <div className="mt-7 rounded-3xl bg-white border border-[#1A1A2E]/5 p-6 sm:p-8">
+                {/* Top KPIs row */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  {/* Your RevPAR */}
+                  <div className="relative overflow-hidden p-5 rounded-2xl bg-[#0E1530] text-white">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Ton RevPAR</p>
+                    <p className="mt-2 font-heading font-extrabold text-white tabular-nums" style={{ fontSize: 44, lineHeight: 1 }}>
+                      {yourRevpar.toFixed(2)}<span className="text-2xl font-light text-white/60 ml-1">€</span>
+                    </p>
+                    <p className="mt-1.5 text-xs text-white/60">Mars 2026 · {MOCK_PROPERTIES.length} logements</p>
+                  </div>
+
+                  {/* Market RevPAR */}
+                  <div className="relative overflow-hidden p-5 rounded-2xl bg-[#FFF4E6] border border-[#FF5C1A]/10">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A2E]/50">Marché local</p>
+                    <p className="mt-2 font-heading font-extrabold text-[#1A1A2E] tabular-nums" style={{ fontSize: 44, lineHeight: 1 }}>
+                      {marketRevpar.toFixed(2)}<span className="text-2xl font-light text-[#1A1A2E]/50 ml-1">€</span>
+                    </p>
+                    <p className="mt-1.5 text-xs text-[#1A1A2E]/55">Benchmark Airbnb / Booking — même zone, même typologie</p>
+                  </div>
+
+                  {/* RGI */}
+                  <div className="relative overflow-hidden p-5 rounded-2xl bg-[#E9F8F1] border border-[#0E9F6E]/20">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A2E]/50">Index RGI</p>
+                    <p className="mt-2 font-heading font-extrabold text-[#0E9F6E] tabular-nums" style={{ fontSize: 44, lineHeight: 1 }}>
+                      {rgi.toFixed(2)}
+                    </p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold ${rgiBadge.bg} ${rgiBadge.text}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${rgiBadge.dot}`} />
+                        {rgiBadge.label}
+                      </span>
+                      <span className={`text-xs font-semibold tabular-nums ${deltaPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {deltaPct >= 0 ? '▲' : '▼'} {Math.abs(deltaPct).toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Monthly comparison bars */}
+                <div className="mt-7">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="font-semibold text-[#1A1A2E] text-sm">Évolution sur 6 mois</p>
+                    <div className="flex items-center gap-4 text-[11px] font-semibold text-[#1A1A2E]/70">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="h-2.5 w-2.5 rounded-sm bg-[#0E1530]" /> Toi
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="h-2.5 w-2.5 rounded-sm bg-[#FF8A4C]" /> Marché
+                      </span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-6 gap-3 items-end" style={{ height: 160 }}>
+                    {monthly.map((d, i) => {
+                      const youH = (d.you / maxBar) * 100;
+                      const marketH = (d.market / maxBar) * 100;
+                      const over = d.you >= d.market;
+                      return (
+                        <div key={i} className="flex flex-col items-center justify-end gap-2 h-full">
+                          <div className="flex items-end gap-1 w-full justify-center" style={{ height: 'calc(100% - 28px)' }}>
+                            <div
+                              className="w-1/2 rounded-t-md bg-[#0E1530] relative group"
+                              style={{ height: `${youH}%`, transition: 'height 800ms cubic-bezier(0.16,1,0.3,1)' }}
+                            >
+                              <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[9px] font-mono font-semibold text-[#1A1A2E] tabular-nums">
+                                {d.you}€
+                              </span>
+                            </div>
+                            <div
+                              className="w-1/2 rounded-t-md bg-[#FF8A4C]"
+                              style={{ height: `${marketH}%`, transition: 'height 800ms cubic-bezier(0.16,1,0.3,1)' }}
+                            />
+                          </div>
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#1A1A2E]/60">{d.m}</span>
+                            <span className={`text-[9px] font-semibold ${over ? 'text-emerald-600' : 'text-rose-600'}`}>
+                              {over ? '▲' : '▼'}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Per-property RevPAR */}
+                <div className="mt-7">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="font-semibold text-[#1A1A2E] text-sm">RevPAR par logement</p>
+                    <span className="px-2 py-0.5 rounded-md bg-[#0E9F6E] text-white text-[10px] font-bold tracking-wider">
+                      TOP 5
+                    </span>
+                  </div>
+                  <div className="space-y-2.5">
+                    {propertyRev.map((p, i) => {
+                      const delta = ((p.you - p.market) / p.market) * 100;
+                      const positive = delta >= 0;
+                      return (
+                        <div key={i} className="flex items-center gap-3.5 px-4 py-3 rounded-2xl bg-[#FAFAF7] border border-[#1A1A2E]/8">
+                          <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shrink-0 text-lg border border-[#1A1A2E]/5">
+                            {p.emoji}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-sm text-[#1A1A2E] truncate">{p.name}</p>
+                            <div className="mt-1 flex items-center gap-3 text-[11px] text-[#1A1A2E]/55 font-mono tabular-nums">
+                              <span>Toi <strong className="text-[#1A1A2E]">{p.you}€</strong></span>
+                              <span className="text-[#1A1A2E]/30">·</span>
+                              <span>Marché <strong className="text-[#1A1A2E]/70">{p.market}€</strong></span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className={`font-mono font-semibold text-sm tabular-nums ${positive ? 'text-emerald-600' : 'text-rose-600'}`}>
+                              {positive ? '+' : ''}{delta.toFixed(1)}%
+                            </span>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold ${positive ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                              RGI {(p.you / p.market).toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Source note */}
+                <div className="mt-5 flex items-start gap-2 px-4 py-3 rounded-xl bg-[#FFF4E6] border border-[#FF5C1A]/15">
+                  <ShieldCheck className="h-4 w-4 text-[#FF5C1A] shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-[#1A1A2E]/65 leading-relaxed">
+                    <strong className="text-[#1A1A2E]">Source benchmark :</strong> agrégation des annonces Airbnb &amp; Booking sur ta zone (rayon 2 km), même typologie de bien et même fenêtre temporelle. Mis à jour quotidiennement.
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      </div>
+
       {/* ============ 3. TRÉSO PULSE (lavender + indigo top border) ============ */}
       <div className="relative overflow-hidden rounded-3xl bg-[#EEEDFB]" style={{ borderTop: '3px solid #4F46E5' }}>
         {/* Giant decorative "n." watermark, bottom-right */}
@@ -527,7 +724,7 @@ export function FinancialHealth() {
             style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
           >
             <img src={noeIconOrange} alt="" className="h-2.5 w-2.5 object-contain" />
-            Module — 02/04
+            Module — 03/05
           </span>
         </div>
 
@@ -653,7 +850,7 @@ export function FinancialHealth() {
             style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
           >
             <img src={noeIconOrange} alt="" className="h-2.5 w-2.5 object-contain" />
-            Module — 03/04
+            Module — 04/05
           </span>
         </div>
 
@@ -804,7 +1001,7 @@ export function FinancialHealth() {
             }}
           >
             <img src={noeIconOrange} alt="" className="h-2.5 w-2.5 object-contain" />
-            Module — 04/04
+            Module — 05/05
           </span>
         </div>
 
