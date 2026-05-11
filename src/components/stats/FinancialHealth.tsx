@@ -850,7 +850,7 @@ export function FinancialHealth() {
             style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
           >
             <img src={noeIconOrange} alt="" className="h-2.5 w-2.5 object-contain" />
-            Module — 03/04
+            Module — 04/05
           </span>
         </div>
 
