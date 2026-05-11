@@ -1,11 +1,13 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { isSameDay, differenceInDays, startOfDay, addDays } from 'date-fns';
+import { Sparkles, Zap } from 'lucide-react';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
 import { BookingBlock } from './BookingBlock';
 import { BlockedBlock } from './BlockedBlock';
 import { PropertyInsightBadge } from '@/components/insights/PropertyInsightBadge';
 import { PropertyInsight } from '@/types/insights';
+import type { RMRulesState } from './RMRulesButton';
 
 const ROW_H = 56;
 
@@ -28,6 +30,7 @@ interface PropertyRowProps {
   propColCollapsed?: boolean;
   dayCellWidth?: number;
   activeLayer?: 'bookings' | 'pricing' | 'cleaning';
+  rmRules?: RMRulesState;
 }
 
 export const PropertyRow: React.FC<PropertyRowProps> = ({
@@ -49,12 +52,57 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   propColCollapsed = false,
   dayCellWidth = 48,
   activeLayer = 'bookings',
+  rmRules,
 }) => {
   const today = startOfDay(new Date());
   const renderedBookingIds = new Set<number>();
   const renderedBlockedIds = new Set<number>();
   const firstVisibleDay = days[0];
   const lastVisibleDay = days[days.length - 1];
+
+  // Compute RM rules info per visible cell index: gap fill + min stay release
+  const cellRMInfo = useMemo(() => {
+    const info = new Map<number, { type: 'gap' | 'release'; minStay: number }>();
+    if (!rmRules) return info;
+    const todayIdx = days.findIndex((d) => isSameDay(startOfDay(d), today));
+
+    // Walk and find empty segments
+    const occupied: boolean[] = days.map((day) =>
+      getBookingsForProperty(property.id, day).length > 0 || !!getBlockedForProperty(property.id, day)
+    );
+    const segments: Array<{ start: number; end: number; len: number }> = [];
+    let s = -1;
+    for (let i = 0; i < occupied.length; i++) {
+      if (!occupied[i]) {
+        if (s < 0) s = i;
+      } else if (s >= 0) {
+        segments.push({ start: s, end: i - 1, len: i - s });
+        s = -1;
+      }
+    }
+    if (s >= 0) segments.push({ start: s, end: occupied.length - 1, len: occupied.length - s });
+
+    segments.forEach((seg) => {
+      const isInteriorGap = seg.start > 0 && seg.end < occupied.length - 1;
+      for (let i = seg.start; i <= seg.end; i++) {
+        let minStay = rmRules.defaultMinStay;
+        let type: 'gap' | 'release' | null = null;
+        if (rmRules.gapFillEnabled && isInteriorGap && seg.len < rmRules.defaultMinStay) {
+          minStay = seg.len;
+          type = 'gap';
+        }
+        if (rmRules.releaseEnabled && todayIdx >= 0) {
+          const delta = i - todayIdx;
+          if (delta >= 0 && delta <= rmRules.releaseDaysBefore && rmRules.releaseTarget < minStay) {
+            minStay = rmRules.releaseTarget;
+            type = 'release';
+          }
+        }
+        if (type) info.set(i, { type, minStay });
+      }
+    });
+    return info;
+  }, [rmRules, days, property.id, getBookingsForProperty, getBlockedForProperty, today]);
 
   return (
     <div
@@ -195,6 +243,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
           const isCheckoutDay = bookings.some(b => isSameDay(startOfDay(b.checkOut), startOfDay(day)));
           const showPrice = activeLayer === 'pricing' && isEmpty;
           const showCleaning = activeLayer === 'cleaning' && isCheckoutDay;
+          const rmInfo = isEmpty ? cellRMInfo.get(dayIndex) : undefined;
 
           return (
             <div
@@ -235,6 +284,26 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
                   boxShadow: '0 1px 3px rgba(255,92,26,0.4)', zIndex: 4,
                 }}>
                   🧹
+                </div>
+              )}
+              {rmInfo && (
+                <div
+                  title={
+                    rmInfo.type === 'gap'
+                      ? `Gap Fill : min stay assoupli à ${rmInfo.minStay} nuit${rmInfo.minStay > 1 ? 's' : ''}`
+                      : `Relâche : min stay ${rmInfo.minStay} nuit${rmInfo.minStay > 1 ? 's' : ''}`
+                  }
+                  style={{
+                    position: 'absolute', top: 2, right: 2,
+                    display: 'flex', alignItems: 'center', gap: 2,
+                    fontSize: 9, lineHeight: 1, padding: '2px 4px', borderRadius: 6,
+                    background: rmInfo.type === 'gap' ? 'rgba(124,58,237,0.92)' : 'rgba(245,158,11,0.92)',
+                    color: '#fff', fontWeight: 700, pointerEvents: 'none', zIndex: 4,
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
+                  }}
+                >
+                  {rmInfo.type === 'gap' ? <Sparkles size={8} /> : <Zap size={8} />}
+                  {rmInfo.minStay}N
                 </div>
               )}
             </div>

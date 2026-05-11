@@ -23,6 +23,7 @@ import { CalendarDays, Euro, Bell, Ban } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { CalendarBooking, CalendarProperty, BookingChannel, BlockedPeriod } from '@/types/calendar';
 import { DemoReservationModal } from '@/components/calendar/DemoReservationModal';
+import { RMRulesButton, type RMRulesState } from '@/components/calendar/grid/RMRulesButton';
 
 const CalendarPage = () => {
   const isMobile = useIsMobile();
@@ -90,6 +91,13 @@ const CalendarPage = () => {
     currentPrice: number;
   } | null>(null);
   const [activeLayer, setActiveLayer] = useState<'bookings' | 'pricing' | 'cleaning'>('bookings');
+  const [rmRules, setRmRules] = useState<RMRulesState>({
+    defaultMinStay: 2,
+    gapFillEnabled: true,
+    releaseEnabled: true,
+    releaseDaysBefore: 5,
+    releaseTarget: 1,
+  });
 
   const [demoModalOpen, setDemoModalOpen] = useState(false);
 
@@ -243,6 +251,8 @@ const CalendarPage = () => {
                 </div>
               )}
 
+              <RMRulesButton value={rmRules} onChange={setRmRules} />
+
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'planning' | 'pricing')}>
                 <TabsList className="h-9">
                   <TabsTrigger value="planning" className="gap-1.5 text-xs md:text-sm">
@@ -308,6 +318,8 @@ const CalendarPage = () => {
               isSelecting={isSelecting}
               getInsightsForProperty={getInsightsForProperty}
               onInsightClick={() => setIsInsightsPanelOpen(true)}
+              activeLayer={activeLayer}
+              rmRules={rmRules}
             />
           </div>
         </div>
