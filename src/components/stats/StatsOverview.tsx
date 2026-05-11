@@ -32,6 +32,9 @@ interface OverviewKPI {
   label: string;
   value: string | number;
   change?: number;
+  changeN1?: number;
+  changeYTD?: number;
+  inverse?: boolean;
   tooltip: string;
   icon: React.ElementType;
   isPriority?: boolean;
