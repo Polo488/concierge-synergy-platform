@@ -54,6 +54,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   isSelecting,
   getInsightsForProperty,
   onInsightClick,
+  activeLayer = 'bookings',
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
