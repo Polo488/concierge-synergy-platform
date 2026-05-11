@@ -93,25 +93,7 @@ export const CalendarToolbar: React.FC<CalendarToolbarProps> = ({
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          {layers && onLayersChange && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="rounded-xl border-border/50 bg-card/50 min-h-[44px]">
-                  <Layers className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel className="text-muted-foreground">Afficher</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuCheckboxItem checked={layers.showCleaning} onCheckedChange={(c) => onLayersChange({ ...layers, showCleaning: c })}>
-                  Tâches ménage
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem checked={layers.showMaintenance} onCheckedChange={(c) => onLayersChange({ ...layers, showMaintenance: c })}>
-                  Maintenance
-                </DropdownMenuCheckboxItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+          {renderLayerSwitcher()}
           <Button onClick={onAddBooking} className="rounded-xl shadow-sm min-h-[44px]" data-tutorial="calendar-add">
             <Plus className="h-4 w-4" />
           </Button>
