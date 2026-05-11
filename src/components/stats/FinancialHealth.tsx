@@ -287,7 +287,7 @@ export function FinancialHealth() {
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35 mb-1.5">Modules</p>
-              <p className="text-white font-semibold text-sm">4 indicateurs Noé</p>
+              <p className="text-white font-semibold text-sm">5 indicateurs Noé</p>
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35 mb-1.5">Mis à jour</p>
