@@ -91,6 +91,13 @@ const CalendarPage = () => {
     currentPrice: number;
   } | null>(null);
   const [activeLayer, setActiveLayer] = useState<'bookings' | 'pricing' | 'cleaning'>('bookings');
+  const [rmRules, setRmRules] = useState<RMRulesState>({
+    defaultMinStay: 2,
+    gapFillEnabled: true,
+    releaseEnabled: true,
+    releaseDaysBefore: 5,
+    releaseTarget: 1,
+  });
 
   const [demoModalOpen, setDemoModalOpen] = useState(false);
 
