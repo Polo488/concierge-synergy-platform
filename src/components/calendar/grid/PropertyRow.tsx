@@ -243,6 +243,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
           const isCheckoutDay = bookings.some(b => isSameDay(startOfDay(b.checkOut), startOfDay(day)));
           const showPrice = activeLayer === 'pricing' && isEmpty;
           const showCleaning = activeLayer === 'cleaning' && isCheckoutDay;
+          const rmInfo = isEmpty ? cellRMInfo.get(dayIndex) : undefined;
 
           return (
             <div
