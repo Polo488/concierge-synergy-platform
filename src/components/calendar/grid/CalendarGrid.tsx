@@ -8,6 +8,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod, DailyPrice } from '@/types/calendar';
 import { PropertyInsight } from '@/types/insights';
+import type { RMRulesState } from './RMRulesButton';
 
 const DAY_W = 48;
 const ROW_H = 56;
