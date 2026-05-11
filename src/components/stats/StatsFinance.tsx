@@ -12,6 +12,7 @@ import {
   Moon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { KPIComparisonBlock } from './KPIComparisonBlock';
 import { 
   LineChart, 
   Line, 
