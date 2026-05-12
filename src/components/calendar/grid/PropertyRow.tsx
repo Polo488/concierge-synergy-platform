@@ -1,7 +1,7 @@
 
 import React, { useMemo } from 'react';
 import { isSameDay, differenceInDays, startOfDay, addDays } from 'date-fns';
-import { Sparkles, Zap } from 'lucide-react';
+import { Puzzle, ArrowDownRight } from 'lucide-react';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
 import { BookingBlock } from './BookingBlock';
 import { BlockedBlock } from './BlockedBlock';
@@ -29,7 +29,7 @@ interface PropertyRowProps {
   propColWidth?: number;
   propColCollapsed?: boolean;
   dayCellWidth?: number;
-  activeLayer?: 'bookings' | 'pricing' | 'cleaning';
+  activeLayer?: 'bookings' | 'pricing' | 'cleaning' | 'cleaning-only';
   rmRules?: RMRulesState;
 }
 
@@ -241,9 +241,25 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
 
           const isEmpty = bookingBlocks.length === 0 && !blocked;
           const isCheckoutDay = bookings.some(b => isSameDay(startOfDay(b.checkOut), startOfDay(day)));
-          const showPrice = activeLayer === 'pricing' && isEmpty;
-          const showCleaning = activeLayer === 'cleaning' && isCheckoutDay;
-          const rmInfo = isEmpty ? cellRMInfo.get(dayIndex) : undefined;
+
+          // Layer-driven visibility rules
+          const showBookings = activeLayer !== 'cleaning-only';
+          const showPrice = (activeLayer === 'pricing') && property.pricePerNight != null;
+          const showCleaning =
+            (activeLayer === 'cleaning' || activeLayer === 'cleaning-only') && isCheckoutDay;
+          const rmInfo = isEmpty && activeLayer !== 'cleaning-only'
+            ? cellRMInfo.get(dayIndex)
+            : undefined;
+
+          const cellBg = isToday
+            ? 'rgba(255,92,26,0.04)'
+            : isSelected
+            ? 'rgba(59,130,246,0.08)'
+            : activeLayer === 'cleaning-only'
+            ? '#FAFAFA'
+            : showCleaning
+            ? 'rgba(255,92,26,0.06)'
+            : undefined;
 
           return (
             <div
@@ -256,15 +272,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
                 height: ROW_H,
                 borderRight: '1px solid #F8F8F8',
                 position: 'relative',
-                background: isToday
-                  ? 'rgba(255,92,26,0.04)'
-                  : isSelected
-                  ? 'rgba(59,130,246,0.08)'
-                  : showPrice
-                  ? 'rgba(34,197,94,0.08)'
-                  : showCleaning
-                  ? 'rgba(255,92,26,0.10)'
-                  : undefined,
+                background: cellBg,
                 cursor: isEmpty ? 'pointer' : undefined,
               }}
               onMouseDown={(e) => isEmpty && onDayMouseDown?.(property.id, day, e)}
@@ -274,23 +282,36 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               {isToday && (
                 <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 2, background: '#FF5C1A', zIndex: 3 }} />
               )}
-              {bookingBlocks}
-              {blockedBlock}
+              {showBookings && bookingBlocks}
+              {showBookings && blockedBlock}
               {showPrice && (
-                <div style={{
-                  position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 12, fontWeight: 700, color: '#15803D', pointerEvents: 'none',
-                }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    right: 3,
+                    bottom: 2,
+                    fontSize: 10,
+                    fontWeight: 400,
+                    color: '#000',
+                    pointerEvents: 'none',
+                    lineHeight: 1,
+                    zIndex: 5,
+                    letterSpacing: '-0.2px',
+                  }}
+                >
                   {property.pricePerNight}€
                 </div>
               )}
               {showCleaning && (
-                <div style={{
-                  position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-                  fontSize: 14, lineHeight: 1, padding: '3px 6px', borderRadius: 10,
-                  background: '#FF5C1A', color: '#fff', fontWeight: 700, pointerEvents: 'none',
-                  boxShadow: '0 2px 6px rgba(255,92,26,0.5)', zIndex: 4,
-                }}>
+                <div
+                  title="Ménage à effectuer (jour de check-out)"
+                  style={{
+                    position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+                    fontSize: 14, lineHeight: 1, padding: '3px 6px', borderRadius: 10,
+                    background: '#FF5C1A', color: '#fff', fontWeight: 700, pointerEvents: 'none',
+                    boxShadow: '0 2px 6px rgba(255,92,26,0.5)', zIndex: 4,
+                  }}
+                >
                   🧹
                 </div>
               )}
@@ -298,8 +319,8 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
                 <div
                   title={
                     rmInfo.type === 'gap'
-                      ? `Gap Fill : min stay assoupli à ${rmInfo.minStay} nuit${rmInfo.minStay > 1 ? 's' : ''}`
-                      : `Relâche : min stay ${rmInfo.minStay} nuit${rmInfo.minStay > 1 ? 's' : ''}`
+                      ? `Règle Gap Fill — séjour minimum assoupli à ${rmInfo.minStay} nuit${rmInfo.minStay > 1 ? 's' : ''} pour combler ce trou de planning`
+                      : `Relâche min stay — séjour minimum abaissé à ${rmInfo.minStay} nuit${rmInfo.minStay > 1 ? 's' : ''} (proximité de la date)`
                   }
                   style={{
                     position: 'absolute', top: 2, right: 2,
@@ -310,8 +331,8 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
                     boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
                   }}
                 >
-                  {rmInfo.type === 'gap' ? <Sparkles size={8} /> : <Zap size={8} />}
-                  {rmInfo.minStay}N
+                  {rmInfo.type === 'gap' ? <Puzzle size={9} /> : <ArrowDownRight size={9} />}
+                  {rmInfo.minStay}
                 </div>
               )}
             </div>

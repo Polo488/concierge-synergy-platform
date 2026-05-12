@@ -19,12 +19,13 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import type { CalendarFilters, BookingChannel, BookingStatus } from '@/types/calendar';
 import { CHANNEL_NAMES, STATUS_LABELS } from '@/types/calendar';
 
-export type CalendarLayer = 'bookings' | 'pricing' | 'cleaning';
+export type CalendarLayer = 'bookings' | 'pricing' | 'cleaning' | 'cleaning-only';
 
 const LAYER_LABELS: Record<CalendarLayer, string> = {
   bookings: 'Réservations',
   pricing: 'Réservations + Prix',
   cleaning: 'Réservations + Ménage',
+  'cleaning-only': 'Ménage',
 };
 
 interface CalendarToolbarProps {
