@@ -34,7 +34,7 @@ interface CalendarGridProps {
   isSelecting?: boolean;
   getInsightsForProperty?: (propertyId: number) => PropertyInsight[];
   onInsightClick?: () => void;
-  activeLayer?: 'bookings' | 'pricing' | 'cleaning';
+  activeLayer?: 'bookings' | 'pricing' | 'cleaning' | 'cleaning-only';
   rmRules?: RMRulesState;
 }
 

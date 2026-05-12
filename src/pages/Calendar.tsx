@@ -90,7 +90,7 @@ const CalendarPage = () => {
     endDate: Date;
     currentPrice: number;
   } | null>(null);
-  const [activeLayer, setActiveLayer] = useState<'bookings' | 'pricing' | 'cleaning'>('bookings');
+  const [activeLayer, setActiveLayer] = useState<'bookings' | 'pricing' | 'cleaning' | 'cleaning-only'>('bookings');
   const [rmRules, setRmRules] = useState<RMRulesState>({
     defaultMinStay: 2,
     gapFillEnabled: true,

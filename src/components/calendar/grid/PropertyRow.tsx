@@ -29,7 +29,7 @@ interface PropertyRowProps {
   propColWidth?: number;
   propColCollapsed?: boolean;
   dayCellWidth?: number;
-  activeLayer?: 'bookings' | 'pricing' | 'cleaning';
+  activeLayer?: 'bookings' | 'pricing' | 'cleaning' | 'cleaning-only';
   rmRules?: RMRulesState;
 }
 
