@@ -15,6 +15,13 @@ import {
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import DOMPurify from 'dompurify';
+
+const SAFE_HTML_CONFIG = {
+  ALLOWED_TAGS: ['h1','h2','h3','h4','h5','h6','p','span','div','strong','em','u','b','i','ul','ol','li','br','hr','blockquote','table','thead','tbody','tr','td','th'],
+  ALLOWED_ATTR: ['class','style'],
+  FORBID_ATTR: ['onerror','onload','onclick','onmouseover','onfocus','onblur','onchange','onsubmit'],
+};
 
 interface Props {
   template: SignatureTemplate;
@@ -59,11 +66,12 @@ function DocumentPreview({ template, session, zoneData }: { template: SignatureT
   // If template has document content, render it with resolved variables
   if (template.documentContent) {
     const resolvedContent = resolveContent(template.documentContent, session);
+    const sanitizedContent = DOMPurify.sanitize(resolvedContent, SAFE_HTML_CONFIG);
     return (
       <div className="bg-white border border-border rounded-lg shadow-inner mx-auto p-6 md:p-10 max-w-[700px]">
         <div 
           className="prose prose-sm max-w-none font-serif text-foreground"
-          dangerouslySetInnerHTML={{ __html: resolvedContent }}
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
         {/* Signature zones at bottom */}
         {template.zones.length > 0 && (

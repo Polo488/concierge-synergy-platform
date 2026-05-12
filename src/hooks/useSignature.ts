@@ -4,7 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { SignatureTemplate, SignatureZone, SignatureSession, SignatureEvent, SignatureZoneData } from '@/types/signature';
 import type { Json } from '@/integrations/supabase/types';
 
-const generateToken = () => Math.random().toString(36).substr(2, 16) + Date.now().toString(36);
+// Cryptographically secure 256-bit token (64 hex chars).
+// Math.random() is predictable and must NOT be used for signing-session tokens.
+const generateToken = () => {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('');
+};
 
 function mapTemplate(row: any, zones: SignatureZone[]): SignatureTemplate {
   return {
