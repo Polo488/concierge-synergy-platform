@@ -8,10 +8,16 @@ import {
 } from '@/types/bookingSync';
 import { toast } from '@/hooks/use-toast';
 
-// Default credentials for SMILY API
+// SMILY / BookingSync OAuth credentials.
+// SECURITY: the OAuth client_secret MUST never be shipped to the browser. It used
+// to be hardcoded here, which let any visitor extract it from the JS bundle.
+// The secret has been removed from client code — to perform real BookingSync
+// API calls, proxy them through a server-side edge function that holds the
+// secret in BOOKINGSYNC_CLIENT_SECRET. The exposed value MUST be rotated in
+// the BookingSync dashboard.
 const DEFAULT_CREDENTIALS: BookingSyncCredentials = {
   clientId: '62cf3c457d20bf1e7dc5cac0d182f9c6c6b5d3e3d628bb7057defbc4ed53e4da',
-  clientSecret: '30e0c5100953296cacdcdf559aaeb2566322dddf2ec5e6608af3be7a67921b36',
+  clientSecret: '',
   redirectUri: 'https://preview--concierge-synergy-platform.lovable.app/billing'
 };
 

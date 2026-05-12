@@ -19,4 +19,9 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  esbuild: {
+    // Strip console.* and debugger from production bundles to avoid leaking
+    // tokens, credentials and internal flow details via browser devtools.
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
+  },
 }));

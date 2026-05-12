@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
+import DOMPurify from 'dompurify';
 
 export default function SignatureAdmin() {
   const { 
@@ -46,9 +47,14 @@ export default function SignatureAdmin() {
       };
       const resolved = template.documentContent.replace(/\{\{([a-z_]+)\}\}/g, (_, key) => valueMap[key] || `[${key}]`);
 
-      // Strip HTML tags for PDF text rendering, preserving structure
+      // Strip HTML tags for PDF text rendering, preserving structure.
+      // Sanitize HTML before parsing to neutralize any injected scripts/handlers.
+      const safeHtml = DOMPurify.sanitize(resolved, {
+        ALLOWED_TAGS: ['h1','h2','h3','h4','h5','h6','p','span','div','strong','em','u','b','i','ul','ol','li','br','hr','blockquote'],
+        ALLOWED_ATTR: ['class'],
+      });
       const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = resolved;
+      tempDiv.innerHTML = safeHtml;
       
       // Walk through elements to handle headings and formatting
       const renderNode = (node: Node) => {
