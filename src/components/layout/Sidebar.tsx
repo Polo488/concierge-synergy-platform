@@ -236,7 +236,7 @@ export function Sidebar() {
         items: section.items.filter(item => hasPermission(item.permission as any)),
       }))
       // Pour le prestataire ménage : interface ultra-épurée, uniquement son bloc dédié.
-      .filter(section => (isCleaner ? section.id === 'espace-menage' : true))
+      .filter(section => (isCleaner ? section.id === 'espace-menage' : section.id !== 'espace-menage'))
       .filter(section => section.items.length > 0);
   }, [orderedSections, hasPermission, user?.role]);
 
