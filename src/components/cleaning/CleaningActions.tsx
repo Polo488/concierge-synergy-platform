@@ -1,7 +1,9 @@
 
 import { Button } from '@/components/ui/button';
-import { Tag, Download, Calendar as CalendarIcon, Sparkles, Plus } from 'lucide-react';
+import { Tag, Download, Calendar as CalendarIcon, Sparkles, Plus, Bell } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useCleaning } from '@/contexts/cleaning/CleaningContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface CleaningActionsProps {
   onAddTask?: () => void;
@@ -15,6 +17,7 @@ export const CleaningActions = ({ onAddTask }: CleaningActionsProps) => {
     handleSync, 
     setAddTaskDialogOpen 
   } = useCleaning();
+  const { hasPermission } = useAuth();
 
   return (
     <div className="w-full box-border px-4 pt-4 pb-3 space-y-3">
