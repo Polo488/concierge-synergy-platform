@@ -192,7 +192,7 @@ export function LiveMap() {
         <LiquidGlassPill className="pointer-events-auto overflow-x-auto max-w-[calc(100%-110px)] sm:max-w-none">
           <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5">
             <FilterChip active={filter === 'all'} onClick={() => setFilter('all')} label="Tous" count={logements.length} dotColor="rgba(255,255,255,0.85)" />
-            <FilterChip active={filter === 'occupied'} onClick={() => setFilter('occupied')} label="occupés" count={counts.occupied} dotColor="#4ADE80" />
+            <FilterChip active={filter === 'occupied'} onClick={() => setFilter('occupied')} label="occupés" count={counts.occupied} dotColor="#FF5C1A" />
             <FilterChip active={filter === 'free'} onClick={() => setFilter('free')} label="libres" count={counts.free} dotColor="rgba(255,255,255,0.85)" />
           </div>
         </LiquidGlassPill>
@@ -392,7 +392,7 @@ function LiquidGlassIconBtn({
 
 function StatusLine({ logement }: { logement: Logement }) {
   if (logement.status === 'occupied') {
-    return <div className="text-[12px] mt-1" style={{ color: '#4ADE80' }}>● Occupé jusqu'à {logement.guestUntil}</div>;
+    return <div className="text-[12px] mt-1" style={{ color: '#FF5C1A' }}>● Occupé jusqu'à {logement.guestUntil}</div>;
   }
   if (logement.status === 'checkin' && logement.checkinAt) {
     const h = Math.max(0, Math.round((new Date(logement.checkinAt).getTime() - Date.now()) / 3_600_000));
