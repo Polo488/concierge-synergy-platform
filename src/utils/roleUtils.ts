@@ -24,8 +24,8 @@ export const getRoleConfig = (role: UserRole): RoleDefinition => {
           users: true, guestExperience: true, agenda: true, messaging: true,
           hrPlanning: true, onboarding: true, legalWatch: true, welcomeGuide: true,
           transitory: true, ideaBox: true, checkApartment: true, cockpitFinancier: true,
-          // NB: Espace Ménage (cleaningInvoicing/Performance/Notifications) reserved
-          // for the dedicated cleaner role — admin pilote le ménage via OPÉRATIONS > Ménage.
+          // Admin pilote le ménage via OPÉRATIONS > Ménage + Notifications ménage.
+          cleaningNotifications: true,
         },
         defaultRoute: '/app',
         canManageUsers: true,

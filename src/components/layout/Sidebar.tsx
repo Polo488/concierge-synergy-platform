@@ -124,6 +124,7 @@ export function Sidebar() {
       items: [
         { name: t('sidebar.calendar'), path: '/app/calendar', icon: CalendarIcon, permission: 'calendar' },
         { name: t('sidebar.cleaning'), path: '/app/cleaning', icon: Sparkles, permission: 'cleaning' },
+        { name: 'Notifications ménage', path: '/app/cleaning-notifications', icon: Bell, permission: 'cleaningNotifications' },
         { name: t('sidebar.maintenance'), path: '/app/maintenance', icon: Wrench, permission: 'maintenance' },
         { name: t('sidebar.inventory'), path: '/app/inventory', icon: Package, permission: 'inventory' },
         { name: t('sidebar.properties'), path: '/app/properties', icon: Home, permission: 'properties' },
@@ -184,7 +185,6 @@ export function Sidebar() {
         { name: 'Mes missions', path: '/app/cleaning', icon: Sparkles, permission: 'cleaning' },
         { name: 'Facturation', path: '/app/cleaning-invoicing', icon: Receipt, permission: 'cleaningInvoicing' },
         { name: 'Performance', path: '/app/cleaning-performance', icon: Activity, permission: 'cleaningPerformance' },
-        { name: 'Notifications', path: '/app/cleaning-notifications', icon: Bell, permission: 'cleaningNotifications' },
         { name: 'Mon profil', path: '/app/cleaning-profile', icon: CircleUser, permission: 'cleaning' },
       ]
     }
