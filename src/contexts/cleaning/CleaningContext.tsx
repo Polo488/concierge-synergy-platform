@@ -48,6 +48,8 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
   const [editCommentsDialogOpen, setEditCommentsDialogOpen] = useState(false);
   const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
   const [taskToRate, setTaskToRate] = useState<CleaningTask | null>(null);
+  const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
+  const [taskForPhotos, setTaskForPhotos] = useState<CleaningTask | null>(null);
   const [issueDialogOpen, setIssueDialogOpen] = useState(false);
   const [issueDialogTask, setIssueDialogTask] = useState<CleaningTask | null>(null);
   
