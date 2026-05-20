@@ -185,7 +185,6 @@ export function Sidebar() {
         { name: 'Mes missions', path: '/app/cleaning', icon: Sparkles, permission: 'cleaning' },
         { name: 'Facturation', path: '/app/cleaning-invoicing', icon: Receipt, permission: 'cleaningInvoicing' },
         { name: 'Performance', path: '/app/cleaning-performance', icon: Activity, permission: 'cleaningPerformance' },
-        { name: 'Notifications', path: '/app/cleaning-notifications', icon: Bell, permission: 'cleaningNotifications' },
         { name: 'Mon profil', path: '/app/cleaning-profile', icon: CircleUser, permission: 'cleaning' },
       ]
     }
