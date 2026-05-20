@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Award, Star, TrendingUp, CheckCircle2, Flame, Clock } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { useAuth } from '@/contexts/AuthContext';
+
 
 const SCORE_HISTORY = [
   { month: 'Nov', score: 4.4 },
