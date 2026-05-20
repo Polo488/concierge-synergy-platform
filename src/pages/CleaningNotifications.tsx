@@ -11,8 +11,8 @@ import { useAuth } from '@/contexts/AuthContext';
 const THRESHOLDS = [
   { id: 'h2', label: 'H-2', desc: '2h avant check-in' },
   { id: 'h1', label: 'H-1', desc: '1h avant check-in' },
-  { id: 'h30', label: 'H-30', desc: '30 min avant' },
-  { id: 'h15', label: 'H-15', desc: '15 min avant' },
+  { id: 'h30', label: 'M-30', desc: '30 min avant' },
+  { id: 'h15', label: 'M-15', desc: '15 min avant' },
   { id: 'h0', label: 'H-0', desc: 'Au check-in (critique)' },
 ];
 
