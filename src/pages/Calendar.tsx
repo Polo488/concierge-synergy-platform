@@ -24,6 +24,10 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import type { CalendarBooking, CalendarProperty, BookingChannel, BlockedPeriod } from '@/types/calendar';
 import { DemoReservationModal } from '@/components/calendar/DemoReservationModal';
 import { RMRulesButton, type RMRulesState } from '@/components/calendar/grid/RMRulesButton';
+import { BlockRequestsPanel } from '@/components/calendar/admin/BlockRequestsPanel';
+import { useBlockRequests } from '@/hooks/useBlockRequests';
+import { Inbox } from 'lucide-react';
+
 
 const CalendarPage = () => {
   const isMobile = useIsMobile();
