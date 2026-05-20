@@ -219,7 +219,7 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
             <div className="rounded-xl bg-[hsl(210,100%,96%)] border border-[hsl(210,100%,90%)] p-3 flex items-start gap-2">
               <Zap className="h-4 w-4 text-[hsl(213,84%,40%)] flex-shrink-0 mt-0.5" />
               <p className="text-[12px] text-[hsl(213,84%,30%)]">
-                Chaque nouveau ménage sera assigné automatiquement à <strong>{mode === 'priority' ? team[0] : 'rotation'}</strong>.
+                Chaque nouveau ménage sera assigné automatiquement à <strong>{mode === 'priority' ? team[0] : mode === 'planning' ? 'prestataire disponible le jour J' : 'rotation'}</strong>.
                 Override manuel toujours possible depuis le module Ménage.
               </p>
             </div>
