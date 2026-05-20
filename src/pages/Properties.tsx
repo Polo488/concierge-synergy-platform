@@ -15,7 +15,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/lib/toast';
 import { TOAST_MESSAGES as M } from '@/lib/toastMessages';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 
 interface OnboardingPrefillData {
   fromOnboarding: boolean;
