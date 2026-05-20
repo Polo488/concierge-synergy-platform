@@ -19,7 +19,7 @@ import { PropertyMaintenanceTab } from './details/PropertyMaintenanceTab';
 import { PropertyRepasseTab, RepasseEvent } from './details/PropertyRepasseTab';
 import { PropertyTarifTab } from './details/PropertyTarifTab';
 import { PropertyBannerNote } from './details/PropertyBannerNote';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 
 interface PropertyDetailsDialogProps {
   property: Property | null;
@@ -42,7 +42,7 @@ export const PropertyDetailsDialog = ({
 }: PropertyDetailsDialogProps) => {
   const [selectedPhotoCategory, setSelectedPhotoCategory] = useState('Toutes');
   const [localProperty, setLocalProperty] = useState<Property | null>(property);
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile() || useIsTablet();
   
   useEffect(() => {
     setLocalProperty(property);

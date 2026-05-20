@@ -12,12 +12,12 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { MessagingMaintenanceFormData, MessagingCleaningIssueFormData } from '@/types/operations';
 import { Conversation } from '@/types/messaging';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 
 const Messaging = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile() || useIsTablet();
   
   const {
     conversations,

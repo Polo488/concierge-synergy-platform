@@ -15,7 +15,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/lib/toast';
 import { TOAST_MESSAGES as M } from '@/lib/toastMessages';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 
 interface OnboardingPrefillData {
   fromOnboarding: boolean;
@@ -32,7 +32,7 @@ interface OnboardingPrefillData {
 
 const Properties = () => {
   const location = useLocation();
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile() || useIsTablet();
   const [properties] = useState(generateProperties);
   const [maintenanceHistory] = useState(() => generateMaintenanceHistory(properties));
   const [searchTerm, setSearchTerm] = useState('');

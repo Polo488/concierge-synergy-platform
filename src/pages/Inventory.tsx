@@ -16,7 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Label } from '@/components/ui/label';
 import { toast } from '@/lib/toast';
 import { TOAST_MESSAGES as M } from '@/lib/toastMessages';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 
 interface InventoryItem {
   id: number;
@@ -60,7 +60,7 @@ const categories = [
 ];
 
 const Inventory = () => {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile() || useIsTablet();
   const [consummables, setConsummables] = useState<InventoryItem[]>(initialConsummables);
   const [linen, setLinen] = useState<InventoryItem[]>(initialLinen);
   const [maintenance, setMaintenance] = useState<InventoryItem[]>(initialMaintenance);

@@ -3,7 +3,7 @@ import { ChevronRight, BedDouble, Maximize2, MoreHorizontal } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Property } from '@/utils/propertyUtils';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 
 interface PropertyListProps {
   properties: Property[];
@@ -23,7 +23,7 @@ const getStatusStyle = (property: Property) => {
 };
 
 export const PropertyList = ({ properties, onSelectProperty }: PropertyListProps) => {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile() || useIsTablet();
 
   if (isMobile) {
     return (
