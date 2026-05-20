@@ -19,6 +19,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 export const CleaningDialogs = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const isCleaningAgent = user?.role === 'cleaning';
+  
   
   const {
     // Dialog states
