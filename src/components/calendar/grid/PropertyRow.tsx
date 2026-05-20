@@ -124,7 +124,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
     >
       {/* Property info - sticky left */}
       <div
-        className="flex-shrink-0 flex items-center gap-2 bg-white sticky left-0 z-[4] cursor-pointer hover:bg-gray-50 transition-colors"
+        className="flex-shrink-0 flex items-center gap-2 bg-white sticky left-0 z-[20] cursor-pointer hover:bg-gray-50 transition-colors"
         style={{
           width: propColWidth,
           minWidth: propColWidth,
