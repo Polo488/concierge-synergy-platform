@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ([key, hasPermission]) => {
           if (!hasPermission) return false;
           
-          if (key === 'properties' && (currentPath === '/app/properties' || currentPath === '/app/insights')) return true;
+          if (key === 'properties' && (currentPath === '/app/properties' || currentPath === '/app/insights' || currentPath === '/app/reviews')) return true;
           if (key === 'inventory' && currentPath === '/app/inventory') return true;
           if (key === 'maintenance' && currentPath === '/app/maintenance') return true;
           if (key === 'cleaning' && (currentPath === '/app/cleaning' || currentPath === '/app/quality-stats')) return true;
