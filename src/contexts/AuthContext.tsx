@@ -22,7 +22,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Mock users for demonstration
 const MOCK_USERS: User[] = [
-  { id: '1', name: 'Admin User', email: 'admin@example.com', role: 'admin', avatar: 'https://i.pravatar.cc/150?u=1' },
+  { id: '1', name: 'Marie', email: 'admin@example.com', role: 'admin', avatar: 'https://i.pravatar.cc/150?u=1' },
   { id: '2', name: 'Marie Dupont', email: 'supervisor@example.com', role: 'supervisor', avatar: 'https://i.pravatar.cc/150?u=2' },
   { id: '3', name: 'Jean Martin', email: 'citymanager@example.com', role: 'cityManager', avatar: 'https://i.pravatar.cc/150?u=3' },
   { id: '4', name: 'Employee User', email: 'employee@example.com', role: 'employee', avatar: 'https://i.pravatar.cc/150?u=4' },
