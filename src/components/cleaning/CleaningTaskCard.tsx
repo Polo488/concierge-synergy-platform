@@ -64,7 +64,7 @@ export const CleaningTaskCard = ({
   };
 
   const getActionButton = () => {
-    if (task.status === 'todo') {
+    if (task.status === 'todo' && isCleaningAgent) {
       return (
         <Button 
           size="sm" 
@@ -76,7 +76,7 @@ export const CleaningTaskCard = ({
         </Button>
       );
     }
-    if (task.status === 'inProgress') {
+    if (task.status === 'inProgress' && isCleaningAgent) {
       return (
         <Button 
           size="sm" 
