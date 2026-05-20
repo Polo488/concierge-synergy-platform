@@ -172,12 +172,23 @@ export const CleaningDialogs = () => {
         onSave={handleSaveComments}
       />
       
-      <CleaningRatingDialog
-        open={ratingDialogOpen}
-        onOpenChange={setRatingDialogOpen}
-        task={taskToRate}
-        onSubmit={handleSubmitRating}
+      {!isCleaningAgent && (
+        <CleaningRatingDialog
+          open={ratingDialogOpen}
+          onOpenChange={setRatingDialogOpen}
+          task={taskToRate}
+          onSubmit={handleSubmitRating}
+        />
+      )}
+
+      <CleanerPhotoDialog
+        open={photoDialogOpen}
+        onOpenChange={setPhotoDialogOpen}
+        task={taskForPhotos}
+        agentName={user?.name}
+        onSubmit={handleSubmitPhotos}
       />
+      
       
       <CleaningIssueDialog
         open={issueDialogOpen}
