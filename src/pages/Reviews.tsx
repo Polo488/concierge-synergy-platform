@@ -122,7 +122,6 @@ const platformBadge = (p: Platform) => {
 
 const Reviews = () => {
   const [reviews, setReviews] = useState<Review[]>(MOCK);
-  const [reviews, setReviews] = useState<Review[]>(MOCK);
   const [search, setSearch] = useState('');
   const [platform, setPlatform] = useState<'all' | Platform>('all');
   const [property, setProperty] = useState<string>('all');
