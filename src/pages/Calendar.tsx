@@ -324,6 +324,9 @@ const CalendarPage = () => {
               onDayMouseUp={handleDayMouseUp}
               isSelecting={isSelecting}
               getInsightsForProperty={getInsightsForProperty}
+              getPendingBlockForProperty={getPendingForProperty}
+              onPendingBlockClick={() => setIsBlockRequestsOpen(true)}
+
               onInsightClick={() => setIsInsightsPanelOpen(true)}
               activeLayer={activeLayer}
               rmRules={rmRules}
