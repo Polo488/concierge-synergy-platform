@@ -228,15 +228,18 @@ export function Sidebar() {
     );
   };
 
-  const visibleSections = useMemo(() => 
-    orderedSections
+  const visibleSections = useMemo(() => {
+    const isCleaner = user?.role === 'cleaning';
+    return orderedSections
       .map(section => ({
         ...section,
-        items: section.items.filter(item => hasPermission(item.permission as any))
+        items: section.items.filter(item => hasPermission(item.permission as any)),
       }))
-      .filter(section => section.items.length > 0),
-    [orderedSections, hasPermission]
-  );
+      // Pour le prestataire ménage : interface ultra-épurée, uniquement son bloc dédié.
+      .filter(section => (isCleaner ? section.id === 'espace-menage' : true))
+      .filter(section => section.items.length > 0);
+  }, [orderedSections, hasPermission, user?.role]);
+
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);

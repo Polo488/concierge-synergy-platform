@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Award, Star, TrendingUp, CheckCircle2, Flame, Clock } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { useAuth } from '@/contexts/AuthContext';
+
 
 const SCORE_HISTORY = [
   { month: 'Nov', score: 4.4 },
@@ -21,6 +23,7 @@ const RECENT_RATINGS = [
 ];
 
 const CleaningPerformance = () => {
+  const { user } = useAuth();
   useEffect(() => { document.title = 'Performance'; }, []);
 
   return (
@@ -30,8 +33,11 @@ const CleaningPerformance = () => {
           <Award className="h-6 w-6 text-primary" />
           Performance
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">Vos notes, métriques et évolution.</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Vos notes, métriques et évolution{user?.name ? ` — données filtrées sur ${user.name}` : ''}.
+        </p>
       </header>
+
 
       {/* Score principal */}
       <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
