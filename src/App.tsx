@@ -174,11 +174,8 @@ const App = () => (
                       } />
 
 
-                      <Route path="/app/reviews" element={
-                        <RoutePermission permission="properties">
-                          <Reviews />
-                        </RoutePermission>
-                      } />
+                      <Route path="/app/reviews" element={<Reviews />} />
+
 
                       
                       <Route path="/app/guest-experience" element={
