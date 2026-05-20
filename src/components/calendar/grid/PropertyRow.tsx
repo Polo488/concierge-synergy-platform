@@ -252,7 +252,40 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
             }
           }
 
-          const isEmpty = bookingBlocks.length === 0 && !blocked;
+          // Pending owner block request overlay (yellow striped) — same geometry as blocked.
+          let pendingBlock: React.ReactNode = null;
+          const pending = !blocked
+            ? getPendingBlockForProperty?.(property.id, day) ?? null
+            : null;
+          if (pending && !renderedPendingIds.has(pending.id)) {
+            const pStart = startOfDay(pending.startDate);
+            const pEnd = startOfDay(pending.endDate);
+            const isStartVisible = pStart >= firstVisibleDay;
+            const shouldRender =
+              isSameDay(day, pStart) ||
+              (!isStartVisible && dayIndex === 0 && isSameDay(day, firstVisibleDay));
+            if (shouldRender) {
+              renderedPendingIds.add(pending.id);
+              const visibleStart = pStart < firstVisibleDay ? firstVisibleDay : pStart;
+              const visibleEnd = pEnd > lastVisibleDay ? addDays(lastVisibleDay, 1) : addDays(pEnd, 1);
+              const visibleDays = differenceInDays(visibleEnd, visibleStart);
+              const isEndTruncated = pEnd > lastVisibleDay;
+              const isEndDay = isSameDay(addDays(visibleEnd, -1), pEnd);
+              pendingBlock = (
+                <PendingBlockBlock
+                  key={`pending-${pending.id}`}
+                  request={pending}
+                  visibleDays={visibleDays}
+                  isEndDay={isEndDay}
+                  isEndTruncated={isEndTruncated}
+                  cellWidth={dayCellWidth}
+                  onClick={() => onPendingBlockClick?.(pending)}
+                />
+              );
+            }
+          }
+
+          const isEmpty = bookingBlocks.length === 0 && !blocked && !pending;
           const isCheckoutDay = bookings.some(b => isSameDay(startOfDay(b.checkOut), startOfDay(day)));
 
           // Layer-driven visibility rules
@@ -260,9 +293,10 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
           const showPrice = (activeLayer === 'pricing') && property.pricePerNight != null;
           const showCleaning =
             (activeLayer === 'cleaning' || activeLayer === 'cleaning-only') && isCheckoutDay;
-          const rmInfo = isEmpty && activeLayer !== 'cleaning-only'
+          const rmInfo = !readOnly && isEmpty && activeLayer !== 'cleaning-only'
             ? cellRMInfo.get(dayIndex)
             : undefined;
+
 
           const cellBg = isToday
             ? 'rgba(255,92,26,0.04)'
