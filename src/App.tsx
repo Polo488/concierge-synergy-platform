@@ -170,8 +170,14 @@ const App = () => (
                       <Route path="/app/insights" element={
                         <RoutePermission permission="properties">
                           <InsightsAlerts />
+                      } />
+
+                      <Route path="/app/reviews" element={
+                        <RoutePermission permission="properties">
+                          <Reviews />
                         </RoutePermission>
                       } />
+
                       
                       <Route path="/app/guest-experience" element={
                         <RoutePermission permission="guestExperience">
