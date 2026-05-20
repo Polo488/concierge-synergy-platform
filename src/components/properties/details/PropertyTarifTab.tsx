@@ -43,19 +43,6 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
     toast.success('Tarification enregistrée');
   };
 
-  const platforms = [
-    { name: 'Airbnb', status: 'synced', last: 'il y a 2 h' },
-    { name: 'Booking', status: 'synced', last: 'il y a 2 h' },
-    { name: 'Abritel', status: 'pending', last: '—' },
-  ];
-
-  const handlePush = () => {
-    toast.success('Tarifs poussés sur les plateformes', { description: 'Airbnb, Booking — sync en cours' });
-  };
-
-  const handleSave = () => {
-    toast.success('Tarification enregistrée');
-  };
 
   return (
     <TabsContent value="tarif" className="space-y-4 mt-4">
