@@ -55,6 +55,7 @@ import {
   FileText,
   CircleUser,
   Activity,
+  Star,
 } from 'lucide-react';
 import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
