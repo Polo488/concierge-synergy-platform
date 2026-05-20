@@ -417,10 +417,15 @@ const CalendarPage = () => {
         onDelete={handleBlockDelete}
       />
       <DemoReservationModal
-
         open={demoModalOpen}
         onClose={() => setDemoModalOpen(false)}
       />
+      <BlockRequestsPanel
+        open={isBlockRequestsOpen}
+        onOpenChange={setIsBlockRequestsOpen}
+        properties={properties}
+      />
+
     </div>
   );
 };
