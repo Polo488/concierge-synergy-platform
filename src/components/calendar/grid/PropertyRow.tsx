@@ -331,6 +331,8 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
               )}
               {showBookings && bookingBlocks}
               {showBookings && blockedBlock}
+              {showBookings && pendingBlock}
+
               {showPrice && (
                 <div
                   style={{
