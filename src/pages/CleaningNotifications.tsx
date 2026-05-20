@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Bell, Smartphone, Flame, Users, Clock, ShieldAlert, ArrowUpRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+
 
 const THRESHOLDS = [
   { id: 'h2', label: 'H-2', desc: '2h avant check-in' },
