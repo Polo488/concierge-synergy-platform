@@ -122,6 +122,7 @@ const platformBadge = (p: Platform) => {
 
 const Reviews = () => {
   const [reviews, setReviews] = useState<Review[]>(MOCK);
+  const [reviews, setReviews] = useState<Review[]>(MOCK);
   const [search, setSearch] = useState('');
   const [platform, setPlatform] = useState<'all' | Platform>('all');
   const [property, setProperty] = useState<string>('all');
@@ -129,6 +130,15 @@ const Reviews = () => {
   const [tab, setTab] = useState('list');
   const [replyOpen, setReplyOpen] = useState<Review | null>(null);
   const [replyText, setReplyText] = useState('');
+  // Filtres additifs pour stats Logements
+  const [statPlatforms, setStatPlatforms] = useState<Platform[]>([]);
+  const [statCriteria, setStatCriteria] = useState<string[]>([]);
+  const [statMinRating, setStatMinRating] = useState<number>(0);
+
+  const toggleStatPlatform = (p: Platform) =>
+    setStatPlatforms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
+  const toggleStatCriterion = (c: string) =>
+    setStatCriteria((prev) => prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]);
 
   const properties = useMemo(() => Array.from(new Set(reviews.map((r) => r.property))), [reviews]);
 
