@@ -1,9 +1,10 @@
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tag, Download, Calendar as CalendarIcon, Sparkles, Plus, Bell } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { useCleaning } from '@/contexts/cleaning/CleaningContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { CleaningNotificationsDialog } from './CleaningNotificationsDialog';
 
 interface CleaningActionsProps {
   onAddTask?: () => void;
@@ -18,6 +19,7 @@ export const CleaningActions = ({ onAddTask }: CleaningActionsProps) => {
     setAddTaskDialogOpen 
   } = useCleaning();
   const { hasPermission } = useAuth();
+  const [notifOpen, setNotifOpen] = useState(false);
 
   return (
     <div className="w-full box-border px-4 pt-4 pb-3 space-y-3">
@@ -60,14 +62,19 @@ export const CleaningActions = ({ onAddTask }: CleaningActionsProps) => {
           Synchroniser
         </Button>
         {hasPermission('cleaningNotifications') && (
-          <Button asChild size="sm" variant="outline" className="flex-shrink-0 h-9 rounded-lg gap-1.5 whitespace-nowrap text-[13px]">
-            <Link to="/app/cleaning-notifications">
-              <Bell className="h-3.5 w-3.5" />
-              Notifications
-            </Link>
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-shrink-0 h-9 rounded-lg gap-1.5 whitespace-nowrap text-[13px]"
+            onClick={() => setNotifOpen(true)}
+          >
+            <Bell className="h-3.5 w-3.5" />
+            Notifications
           </Button>
         )}
       </div>
+
+      <CleaningNotificationsDialog open={notifOpen} onOpenChange={setNotifOpen} />
     </div>
   );
 };
