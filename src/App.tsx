@@ -238,6 +238,11 @@ const App = () => (
                           <OwnerPortal />
                         </RoutePermission>
                       } />
+                      <Route path="/app/owner/calendar" element={
+                        <RoutePermission permission="ownerPortal">
+                          <OwnerCalendar />
+                        </RoutePermission>
+                      } />
                       
                       <Route path="/app/legal-watch" element={
                         <RoutePermission permission="legalWatch">
