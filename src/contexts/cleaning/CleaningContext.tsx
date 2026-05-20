@@ -315,14 +315,21 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     
     // Actions
     ...actions,
+    handleCompleteCleaning, // override
     handleSubmitRating,
     handleCreateIssue,
     handleResolveIssue,
     openIssueDialog,
-    
+
+    // Cleaner photo dialog
+    photoDialogOpen,
+    setPhotoDialogOpen,
+    taskForPhotos,
+    handleSubmitPhotos,
+
     // Helpers
     ...helpers,
-  };
+  } as CleaningContextType;
 
   return (
     <CleaningContext.Provider value={value}>
