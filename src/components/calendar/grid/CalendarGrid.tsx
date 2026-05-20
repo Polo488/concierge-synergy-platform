@@ -151,6 +151,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 dayCellWidth={DAY_W}
                 activeLayer={activeLayer}
                 rmRules={rmRules}
+                readOnly={readOnly}
+                getPendingBlockForProperty={getPendingBlockForProperty}
+                onPendingBlockClick={onPendingBlockClick}
+
               />
             ))
           )}
