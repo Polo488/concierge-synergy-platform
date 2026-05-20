@@ -38,7 +38,11 @@ interface CalendarGridProps {
   onInsightClick?: () => void;
   activeLayer?: 'bookings' | 'pricing' | 'cleaning' | 'cleaning-only';
   rmRules?: RMRulesState;
+  readOnly?: boolean;
+  getPendingBlockForProperty?: (propertyId: number, day: Date) => BlockRequest | null;
+  onPendingBlockClick?: (request: BlockRequest) => void;
 }
+
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
   properties,
