@@ -1,10 +1,11 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Tag, Download, Calendar as CalendarIcon, Sparkles, Plus, Bell } from 'lucide-react';
+import { Tag, Download, Calendar as CalendarIcon, Sparkles, Plus, Bell, Users } from 'lucide-react';
 import { useCleaning } from '@/contexts/cleaning/CleaningContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { CleaningNotificationsDialog } from './CleaningNotificationsDialog';
+import { CleaningAssignmentDialog } from './CleaningAssignmentDialog';
 
 interface CleaningActionsProps {
   onAddTask?: () => void;
@@ -20,6 +21,7 @@ export const CleaningActions = ({ onAddTask }: CleaningActionsProps) => {
   } = useCleaning();
   const { hasPermission } = useAuth();
   const [notifOpen, setNotifOpen] = useState(false);
+  const [assignOpen, setAssignOpen] = useState(false);
 
   return (
     <div className="w-full box-border px-4 pt-4 pb-3 space-y-3">
@@ -62,19 +64,31 @@ export const CleaningActions = ({ onAddTask }: CleaningActionsProps) => {
           Synchroniser
         </Button>
         {hasPermission('cleaningNotifications') && (
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-shrink-0 h-9 rounded-lg gap-1.5 whitespace-nowrap text-[13px]"
-            onClick={() => setNotifOpen(true)}
-          >
-            <Bell className="h-3.5 w-3.5" />
-            Notifications
-          </Button>
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-shrink-0 h-9 rounded-lg gap-1.5 whitespace-nowrap text-[13px]"
+              onClick={() => setAssignOpen(true)}
+            >
+              <Users className="h-3.5 w-3.5" />
+              Assignation
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-shrink-0 h-9 rounded-lg gap-1.5 whitespace-nowrap text-[13px]"
+              onClick={() => setNotifOpen(true)}
+            >
+              <Bell className="h-3.5 w-3.5" />
+              Notifications
+            </Button>
+          </>
         )}
       </div>
 
       <CleaningNotificationsDialog open={notifOpen} onOpenChange={setNotifOpen} />
+      <CleaningAssignmentDialog open={assignOpen} onOpenChange={setAssignOpen} />
     </div>
   );
 };
