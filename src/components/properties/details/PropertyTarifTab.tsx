@@ -150,25 +150,47 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
             <Label className="text-xs text-muted-foreground uppercase tracking-wide">Prestataires ({team.length})</Label>
             <div className="mt-2 space-y-2">
               {team.map((a, i) => (
-                <div key={a} className="flex items-center gap-2 rounded-xl border border-border p-2">
-                  {mode === 'priority' && (
-                    <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center flex-shrink-0">
-                      {i + 1}
-                    </span>
-                  )}
-                  <Avatar className="h-7 w-7">
-                    <AvatarFallback className="text-[11px] bg-muted">{a.split(' ').map((n) => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                  <span className="text-[13px] flex-1 truncate">{a}</span>
-                  {mode === 'priority' && (
-                    <div className="flex items-center gap-1">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(a, -1)} disabled={i === 0}>↑</Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(a, 1)} disabled={i === team.length - 1}>↓</Button>
+                <div key={a} className="rounded-xl border border-border p-2 space-y-2">
+                  <div className="flex items-center gap-2">
+                    {mode === 'priority' && (
+                      <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center flex-shrink-0">
+                        {i + 1}
+                      </span>
+                    )}
+                    <Avatar className="h-7 w-7">
+                      <AvatarFallback className="text-[11px] bg-muted">{a.split(' ').map((n) => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <span className="text-[13px] flex-1 truncate">{a}</span>
+                    {mode === 'priority' && (
+                      <div className="flex items-center gap-1">
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(a, -1)} disabled={i === 0}>↑</Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(a, 1)} disabled={i === team.length - 1}>↓</Button>
+                      </div>
+                    )}
+                    <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground" onClick={() => removeAgent(a)}>
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                  {mode === 'planning' && (
+                    <div className="flex items-center gap-1.5 pl-1">
+                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground mr-1">Jours</span>
+                      {DAYS.map((d, idx) => {
+                        const active = (workDays[a] || []).includes(d.key);
+                        return (
+                          <button
+                            key={`${a}-${idx}`}
+                            type="button"
+                            onClick={() => toggleDay(a, d.key)}
+                            className={`h-7 w-7 rounded-full text-[11px] font-semibold transition-colors ${
+                              active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/70'
+                            }`}
+                          >
+                            {d.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
-                  <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground" onClick={() => removeAgent(a)}>
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
                 </div>
               ))}
               {team.length === 0 && (
