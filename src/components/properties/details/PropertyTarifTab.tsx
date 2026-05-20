@@ -6,42 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, X, Plus, Zap, Home, RefreshCw, CheckCircle2, AlertCircle, CalendarDays } from 'lucide-react';
+import { Sparkles, Home, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-
-const ALL_AGENTS = ['Marie Lambert', 'Sophie Renard', 'Lucas Martin', 'Karine Vidal', 'Nadia Bensaid'];
-const DAYS = [
-  { key: 1, label: 'L' },
-  { key: 2, label: 'M' },
-  { key: 3, label: 'M' },
-  { key: 4, label: 'J' },
-  { key: 5, label: 'V' },
-  { key: 6, label: 'S' },
-  { key: 0, label: 'D' },
-];
 
 interface PropertyTarifTabProps {
   propertyId: string;
 }
 
 export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
-  const [autoAssign, setAutoAssign] = useState(true);
-  const [mode, setMode] = useState<'rotation' | 'priority' | 'planning'>('priority');
-  const [team, setTeam] = useState<string[]>(['Marie Lambert', 'Sophie Renard']);
-  const [agentToAdd, setAgentToAdd] = useState<string>('');
-  const [workDays, setWorkDays] = useState<Record<string, number[]>>({
-    'Marie Lambert': [1, 2, 3, 4, 5],
-    'Sophie Renard': [6, 0],
-  });
-  const toggleDay = (agent: string, day: number) => {
-    setWorkDays((prev) => {
-      const cur = prev[agent] || [];
-      const next = cur.includes(day) ? cur.filter((d) => d !== day) : [...cur, day];
-      return { ...prev, [agent]: next };
-    });
-  };
   // Pricing
   const [providerPrice, setProviderPrice] = useState('45');
   const [providerVAT, setProviderVAT] = useState<'HT' | 'TTC'>('HT');
@@ -56,21 +28,18 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
   const marginPct = Number(guestFee) > 0 ? Math.round((margin / Number(guestFee)) * 100) : 0;
   const marginColor = marginPct >= 30 ? 'bg-[hsl(142,76%,36%)]' : marginPct >= 10 ? 'bg-[hsl(45,93%,55%)]' : 'bg-destructive';
 
-  const addAgent = () => {
-    if (agentToAdd && !team.includes(agentToAdd)) {
-      setTeam([...team, agentToAdd]);
-      setAgentToAdd('');
-    }
-  };
-  const removeAgent = (a: string) => setTeam(team.filter((x) => x !== a));
+  const platforms = [
+    { name: 'Airbnb', status: 'synced', last: 'il y a 2 h' },
+    { name: 'Booking', status: 'synced', last: 'il y a 2 h' },
+    { name: 'Abritel', status: 'pending', last: '—' },
+  ];
 
-  const move = (a: string, dir: -1 | 1) => {
-    const i = team.indexOf(a);
-    const j = i + dir;
-    if (j < 0 || j >= team.length) return;
-    const next = [...team];
-    [next[i], next[j]] = [next[j], next[i]];
-    setTeam(next);
+  const handlePush = () => {
+    toast.success('Tarifs poussés sur les plateformes', { description: 'Airbnb, Booking — sync en cours' });
+  };
+
+  const handleSave = () => {
+    toast.success('Tarification enregistrée');
   };
 
   const platforms = [
