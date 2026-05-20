@@ -1,10 +1,11 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Tag, Download, Calendar as CalendarIcon, Sparkles, Plus, Bell } from 'lucide-react';
+import { Tag, Download, Calendar as CalendarIcon, Sparkles, Plus, Bell, Users } from 'lucide-react';
 import { useCleaning } from '@/contexts/cleaning/CleaningContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { CleaningNotificationsDialog } from './CleaningNotificationsDialog';
+import { CleaningAssignmentDialog } from './CleaningAssignmentDialog';
 
 interface CleaningActionsProps {
   onAddTask?: () => void;
@@ -20,6 +21,7 @@ export const CleaningActions = ({ onAddTask }: CleaningActionsProps) => {
   } = useCleaning();
   const { hasPermission } = useAuth();
   const [notifOpen, setNotifOpen] = useState(false);
+  const [assignOpen, setAssignOpen] = useState(false);
 
   return (
     <div className="w-full box-border px-4 pt-4 pb-3 space-y-3">
