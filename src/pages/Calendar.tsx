@@ -104,6 +104,9 @@ const CalendarPage = () => {
   });
 
   const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [isBlockRequestsOpen, setIsBlockRequestsOpen] = useState(false);
+  const { pendingCount, getPendingBlockForProperty } = useBlockRequests();
+
 
   const handleBookingClick = (_booking: CalendarBooking) => {
     setDemoModalOpen(true);
