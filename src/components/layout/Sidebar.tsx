@@ -55,6 +55,7 @@ import {
   FileText,
   CircleUser,
   Activity,
+  Star,
 } from 'lucide-react';
 import { useIsMobile, useIsTablet } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -110,6 +111,7 @@ export function Sidebar() {
         { name: t('sidebar.dashboard'), path: '/app', icon: Gauge, permission: 'properties' },
         { name: t('sidebar.qualityStats'), path: '/app/quality-stats', icon: BarChart3, permission: 'cleaning' },
         { name: t('sidebar.insights'), path: '/app/insights', icon: Lightbulb, permission: 'properties' },
+        { name: 'Avis', path: '/app/reviews', icon: Star, permission: 'properties' },
         { name: 'Cockpit Financier', path: '/app/cockpit-financier', icon: Gauge, permission: 'cockpitFinancier' },
         { name: 'Legal Watch', path: '/app/legal-watch', icon: Scale, permission: 'legalWatch' },
       ]

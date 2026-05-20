@@ -52,6 +52,7 @@ import CleaningInvoicing from "./pages/CleaningInvoicing";
 import CleaningPerformance from "./pages/CleaningPerformance";
 import CleaningProfile from "./pages/CleaningProfile";
 import CleaningNotifications from "./pages/CleaningNotifications";
+import Reviews from "./pages/Reviews";
 import NotFound from "./pages/NotFound";
 
 
@@ -171,6 +172,14 @@ const App = () => (
                           <InsightsAlerts />
                         </RoutePermission>
                       } />
+
+
+                      <Route path="/app/reviews" element={
+                        <RoutePermission permission="properties">
+                          <Reviews />
+                        </RoutePermission>
+                      } />
+
                       
                       <Route path="/app/guest-experience" element={
                         <RoutePermission permission="guestExperience">
