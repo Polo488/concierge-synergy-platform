@@ -417,6 +417,7 @@ const CalendarPage = () => {
         onDelete={handleBlockDelete}
       />
       <DemoReservationModal
+
         open={demoModalOpen}
         onClose={() => setDemoModalOpen(false)}
       />
