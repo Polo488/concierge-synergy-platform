@@ -3,11 +3,14 @@ import React, { useMemo } from 'react';
 import { isSameDay, differenceInDays, startOfDay, addDays } from 'date-fns';
 import { Puzzle, ArrowDownRight } from 'lucide-react';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod } from '@/types/calendar';
+import type { BlockRequest } from '@/types/blockRequest';
 import { BookingBlock } from './BookingBlock';
 import { BlockedBlock } from './BlockedBlock';
+import { PendingBlockBlock } from './PendingBlockBlock';
 import { PropertyInsightBadge } from '@/components/insights/PropertyInsightBadge';
 import { PropertyInsight } from '@/types/insights';
 import type { RMRulesState } from './RMRulesButton';
+
 
 const ROW_H = 56;
 
