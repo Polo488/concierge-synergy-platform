@@ -58,6 +58,10 @@ export const CleaningDialogs = () => {
     handleSaveComments,
     handleUpdateCheckTimes,
     handleSubmitRating,
+    handleSubmitPhotos,
+    photoDialogOpen,
+    setPhotoDialogOpen,
+    taskForPhotos,
     handleCreateIssue,
     openIssueDialog,
     
