@@ -111,7 +111,7 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
           {autoAssign && (
             <div>
               <Label className="text-xs text-muted-foreground uppercase tracking-wide">Mode d'assignation</Label>
-              <div className="grid grid-cols-2 gap-2 mt-2">
+              <div className="grid grid-cols-3 gap-2 mt-2">
                 <button
                   type="button"
                   onClick={() => setMode('priority')}
@@ -120,7 +120,7 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
                   }`}
                 >
                   <p className="text-[13px] font-semibold">Priorité</p>
-                  <p className="text-[11px] text-muted-foreground">1er prestataire, fallback si indisponible</p>
+                  <p className="text-[11px] text-muted-foreground">1er prestataire, fallback si indispo</p>
                 </button>
                 <button
                   type="button"
@@ -130,9 +130,21 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
                   }`}
                 >
                   <p className="text-[13px] font-semibold">Rotation</p>
-                  <p className="text-[11px] text-muted-foreground">Round-robin entre les prestataires</p>
+                  <p className="text-[11px] text-muted-foreground">Round-robin entre prestataires</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode('planning')}
+                  className={`rounded-xl border p-3 text-left transition-colors ${
+                    mode === 'planning' ? 'border-primary bg-primary/5' : 'border-border'
+                  }`}
+                >
+                  <p className="text-[13px] font-semibold flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />Planning</p>
+                  <p className="text-[11px] text-muted-foreground">Selon jours travaillés de chacun</p>
                 </button>
               </div>
+            </div>
+          )}
             </div>
           )}
 
