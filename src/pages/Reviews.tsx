@@ -129,6 +129,15 @@ const Reviews = () => {
   const [tab, setTab] = useState('list');
   const [replyOpen, setReplyOpen] = useState<Review | null>(null);
   const [replyText, setReplyText] = useState('');
+  // Filtres additifs pour stats Logements
+  const [statPlatforms, setStatPlatforms] = useState<Platform[]>([]);
+  const [statCriteria, setStatCriteria] = useState<string[]>([]);
+  const [statMinRating, setStatMinRating] = useState<number>(0);
+
+  const toggleStatPlatform = (p: Platform) =>
+    setStatPlatforms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
+  const toggleStatCriterion = (c: string) =>
+    setStatCriteria((prev) => prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]);
 
   const properties = useMemo(() => Array.from(new Set(reviews.map((r) => r.property))), [reviews]);
 
@@ -328,11 +337,18 @@ const Reviews = () => {
                   )}
 
                   <div className="flex justify-end">
-                    <Button size="sm" variant={r.reply ? 'outline' : 'default'} onClick={() => handleReply(r)} className="gap-1.5">
-                      <MessageSquare className="h-3.5 w-3.5" />
-                      {r.reply ? 'Modifier la réponse' : 'Répondre'}
-                    </Button>
+                    {r.reply && (r.platform === 'Airbnb' || r.platform === 'Booking') ? (
+                      <Badge variant="outline" className="text-[10px] bg-muted text-muted-foreground border-border">
+                        Réponse publiée sur {r.platform} — non modifiable
+                      </Badge>
+                    ) : (
+                      <Button size="sm" variant={r.reply ? 'outline' : 'default'} onClick={() => handleReply(r)} className="gap-1.5">
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        {r.reply ? 'Modifier la réponse' : 'Répondre'}
+                      </Button>
+                    )}
                   </div>
+
                 </CardContent>
               </Card>
             ))}
@@ -375,34 +391,102 @@ const Reviews = () => {
         <TabsContent value="properties" className="space-y-3 mt-4">
           <Card><CardContent className="pt-5 pb-4 space-y-3">
             <div>
-              <h3 className="text-[15px] font-bold">Couverture par logement</h3>
-              <p className="text-[12px] text-muted-foreground">Identifiez les logements qui n'ont pas encore reçu d'avis et ceux en attente de réponse.</p>
+              <h3 className="text-[15px] font-bold">Stats par logement</h3>
+              <p className="text-[12px] text-muted-foreground">Combinez les filtres pour affiner : plateformes, critères, note minimale.</p>
             </div>
-            <div className="space-y-2">
-              {propertyCoverage.sort((a, b) => b.pending - a.pending).map((p) => (
-                <div key={p.property} className="flex items-center justify-between gap-3 rounded-xl border border-border p-3 flex-wrap">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold truncate">{p.property}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <Stars value={p.avg} size={12} />
-                      <span className="text-[11px] text-muted-foreground">{p.avg.toFixed(2)}/5 · {p.count} avis</span>
-                    </div>
-                  </div>
-                  {p.pending > 0 ? (
-                    <Badge variant="outline" className="text-[10px] bg-[hsl(var(--ios-orange))]/10 text-[hsl(var(--ios-orange))] border-[hsl(var(--ios-orange))]/30">
-                      {p.pending} à répondre
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-[10px] bg-[hsl(142,76%,95%)] text-[hsl(142,76%,30%)] border-[hsl(142,76%,70%)]">
-                      À jour
-                    </Badge>
+
+            {/* Filtres additifs */}
+            <div className="space-y-3 rounded-xl border border-border p-3 bg-muted/30">
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1.5">Plateformes</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {(['Airbnb', 'Booking', 'Direct'] as Platform[]).map((p) => {
+                    const active = statPlatforms.includes(p);
+                    return (
+                      <button key={p} type="button" onClick={() => toggleStatPlatform(p)}
+                        className={`text-[11px] px-2.5 py-1 rounded-full border transition-colors ${active ? platformBadge(p) : 'bg-background text-muted-foreground border-border hover:bg-muted'}`}>
+                        {p}
+                      </button>
+                    );
+                  })}
+                  {statPlatforms.length > 0 && (
+                    <button type="button" onClick={() => setStatPlatforms([])} className="text-[11px] px-2 py-1 text-muted-foreground underline">Réinitialiser</button>
                   )}
                 </div>
-              ))}
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1.5">Critères</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {Array.from(new Set([...AIRBNB_CRITERIA, ...BOOKING_CRITERIA])).map((c) => {
+                    const active = statCriteria.includes(c);
+                    return (
+                      <button key={c} type="button" onClick={() => toggleStatCriterion(c)}
+                        className={`text-[11px] px-2.5 py-1 rounded-full border transition-colors ${active ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border hover:bg-muted'}`}>
+                        {CRITERIA_LABELS[c] || c}
+                      </button>
+                    );
+                  })}
+                  {statCriteria.length > 0 && (
+                    <button type="button" onClick={() => setStatCriteria([])} className="text-[11px] px-2 py-1 text-muted-foreground underline">Réinitialiser</button>
+                  )}
+                </div>
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1.5">Note minimale : {statMinRating.toFixed(1)}/5</p>
+                <input type="range" min={0} max={5} step={0.5} value={statMinRating}
+                  onChange={(e) => setStatMinRating(parseFloat(e.target.value))}
+                  className="w-full accent-[hsl(var(--ios-orange))]" />
+              </div>
+            </div>
+
+            {/* Résultats filtrés */}
+            <div className="space-y-2">
+              {properties.map((propName) => {
+                let subset = reviews.filter((r) => r.property === propName);
+                if (statPlatforms.length > 0) subset = subset.filter((r) => statPlatforms.includes(r.platform));
+                const count = subset.length;
+                const avg = count ? subset.reduce((s, r) => s + r.rating, 0) / count : 0;
+                if (count === 0) return null;
+                if (avg < statMinRating) return null;
+                const critAvgs = (statCriteria.length > 0 ? statCriteria : []).map((c) => {
+                  const vals = subset.filter((r) => r.criteria[c] !== undefined)
+                    .map((r) => (r.scale === 10 ? r.criteria[c] / 2 : r.criteria[c]));
+                  return { key: c, label: CRITERIA_LABELS[c] || c, avg: vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : 0, count: vals.length };
+                });
+                const pending = subset.filter((r) => !r.reply).length;
+                return (
+                  <div key={propName} className="rounded-xl border border-border p-3 space-y-2">
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-semibold truncate">{propName}</p>
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                          <Stars value={avg} size={12} />
+                          <span className="text-[11px] text-muted-foreground">{avg.toFixed(2)}/5 · {count} avis</span>
+                        </div>
+                      </div>
+                      {pending > 0 ? (
+                        <Badge variant="outline" className="text-[10px] bg-[hsl(var(--ios-orange))]/10 text-[hsl(var(--ios-orange))] border-[hsl(var(--ios-orange))]/30">{pending} à répondre</Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-[10px] bg-[hsl(142,76%,95%)] text-[hsl(142,76%,30%)] border-[hsl(142,76%,70%)]">À jour</Badge>
+                      )}
+                    </div>
+                    {critAvgs.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-1 border-t border-border">
+                        {critAvgs.map((c) => (
+                          <Badge key={c.key} variant="outline" className="text-[10px] font-normal">
+                            {c.label} · <span className="font-semibold ml-1">{c.count ? `${c.avg.toFixed(2)}/5` : '—'}</span>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </CardContent></Card>
         </TabsContent>
       </Tabs>
+
 
       {/* Reply dialog */}
       <Dialog open={!!replyOpen} onOpenChange={(o) => !o && setReplyOpen(null)}>
