@@ -61,12 +61,17 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   dayCellWidth = 48,
   activeLayer = 'bookings',
   rmRules,
+  readOnly = false,
+  getPendingBlockForProperty,
+  onPendingBlockClick,
 }) => {
   const today = startOfDay(new Date());
   const renderedBookingIds = new Set<number>();
   const renderedBlockedIds = new Set<number>();
+  const renderedPendingIds = new Set<number>();
   const firstVisibleDay = days[0];
   const lastVisibleDay = days[days.length - 1];
+
 
   // Compute RM rules info per visible cell index: gap fill + min stay release
   const cellRMInfo = useMemo(() => {
