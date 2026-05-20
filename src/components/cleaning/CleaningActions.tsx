@@ -64,19 +64,31 @@ export const CleaningActions = ({ onAddTask }: CleaningActionsProps) => {
           Synchroniser
         </Button>
         {hasPermission('cleaningNotifications') && (
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-shrink-0 h-9 rounded-lg gap-1.5 whitespace-nowrap text-[13px]"
-            onClick={() => setNotifOpen(true)}
-          >
-            <Bell className="h-3.5 w-3.5" />
-            Notifications
-          </Button>
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-shrink-0 h-9 rounded-lg gap-1.5 whitespace-nowrap text-[13px]"
+              onClick={() => setAssignOpen(true)}
+            >
+              <Users className="h-3.5 w-3.5" />
+              Assignation
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-shrink-0 h-9 rounded-lg gap-1.5 whitespace-nowrap text-[13px]"
+              onClick={() => setNotifOpen(true)}
+            >
+              <Bell className="h-3.5 w-3.5" />
+              Notifications
+            </Button>
+          </>
         )}
       </div>
 
       <CleaningNotificationsDialog open={notifOpen} onOpenChange={setNotifOpen} />
+      <CleaningAssignmentDialog open={assignOpen} onOpenChange={setAssignOpen} />
     </div>
   );
 };
