@@ -7,7 +7,9 @@ import { CalendarLegend } from './CalendarLegend';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod, DailyPrice } from '@/types/calendar';
+import type { BlockRequest } from '@/types/blockRequest';
 import { PropertyInsight } from '@/types/insights';
+
 import type { RMRulesState } from './RMRulesButton';
 
 const DAY_W = 48;
