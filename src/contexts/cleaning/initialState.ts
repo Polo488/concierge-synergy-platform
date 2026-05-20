@@ -143,7 +143,7 @@ export const initialCompletedTasks: CleaningTask[] = [
     property: 'Appartement 28 Avenue Victor Hugo',
     date: '2026-03-30',
     status: 'completed',
-    cleaningAgent: 'Marie Lambert',
+    cleaningAgent: 'Cleaning Agent',
     startTime: '13:00',
     endTime: '14:30',
     linens: ['Draps queen x1', 'Serviettes bain x2', 'Serviettes main x2', 'Housse de couette queen x1', 'Taies d\'oreiller x2'],
