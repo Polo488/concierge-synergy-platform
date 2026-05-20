@@ -24,6 +24,10 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import type { CalendarBooking, CalendarProperty, BookingChannel, BlockedPeriod } from '@/types/calendar';
 import { DemoReservationModal } from '@/components/calendar/DemoReservationModal';
 import { RMRulesButton, type RMRulesState } from '@/components/calendar/grid/RMRulesButton';
+import { BlockRequestsPanel } from '@/components/calendar/admin/BlockRequestsPanel';
+import { useBlockRequests } from '@/hooks/useBlockRequests';
+import { Inbox } from 'lucide-react';
+
 
 const CalendarPage = () => {
   const isMobile = useIsMobile();
@@ -100,6 +104,9 @@ const CalendarPage = () => {
   });
 
   const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [isBlockRequestsOpen, setIsBlockRequestsOpen] = useState(false);
+  const { pendingCount, getPendingForProperty } = useBlockRequests();
+
 
   const handleBookingClick = (_booking: CalendarBooking) => {
     setDemoModalOpen(true);
@@ -252,6 +259,21 @@ const CalendarPage = () => {
               )}
 
               <RMRulesButton value={rmRules} onChange={setRmRules} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsBlockRequestsOpen(true)}
+                className="relative rounded-xl border-border/50 bg-card/50 min-h-[44px]"
+              >
+                <Inbox className="w-4 h-4" />
+                {!isMobile && <span className="ml-1.5">Demandes</span>}
+                {pendingCount > 0 && (
+                  <Badge className="ml-1.5 h-5 min-w-5 px-1 rounded-full" variant="destructive">
+                    {pendingCount}
+                  </Badge>
+                )}
+              </Button>
+
 
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'planning' | 'pricing')}>
                 <TabsList className="h-9">
@@ -317,6 +339,9 @@ const CalendarPage = () => {
               onDayMouseUp={handleDayMouseUp}
               isSelecting={isSelecting}
               getInsightsForProperty={getInsightsForProperty}
+              getPendingBlockForProperty={getPendingForProperty}
+              onPendingBlockClick={() => setIsBlockRequestsOpen(true)}
+
               onInsightClick={() => setIsInsightsPanelOpen(true)}
               activeLayer={activeLayer}
               rmRules={rmRules}
@@ -395,6 +420,12 @@ const CalendarPage = () => {
         open={demoModalOpen}
         onClose={() => setDemoModalOpen(false)}
       />
+      <BlockRequestsPanel
+        open={isBlockRequestsOpen}
+        onOpenChange={setIsBlockRequestsOpen}
+        properties={properties}
+      />
+
     </div>
   );
 };

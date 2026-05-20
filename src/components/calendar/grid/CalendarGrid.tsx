@@ -7,7 +7,9 @@ import { CalendarLegend } from './CalendarLegend';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { CalendarProperty, CalendarBooking, BlockedPeriod, DailyPrice } from '@/types/calendar';
+import type { BlockRequest } from '@/types/blockRequest';
 import { PropertyInsight } from '@/types/insights';
+
 import type { RMRulesState } from './RMRulesButton';
 
 const DAY_W = 48;
@@ -36,7 +38,11 @@ interface CalendarGridProps {
   onInsightClick?: () => void;
   activeLayer?: 'bookings' | 'pricing' | 'cleaning' | 'cleaning-only';
   rmRules?: RMRulesState;
+  readOnly?: boolean;
+  getPendingBlockForProperty?: (propertyId: number, day: Date) => BlockRequest | null;
+  onPendingBlockClick?: (request: BlockRequest) => void;
 }
+
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
   properties,
@@ -58,7 +64,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   onInsightClick,
   activeLayer = 'bookings',
   rmRules,
+  readOnly = false,
+  getPendingBlockForProperty,
+  onPendingBlockClick,
 }) => {
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [collapsed, setCollapsed] = useState(isMobile);
@@ -141,6 +151,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 dayCellWidth={DAY_W}
                 activeLayer={activeLayer}
                 rmRules={rmRules}
+                readOnly={readOnly}
+                getPendingBlockForProperty={getPendingBlockForProperty}
+                onPendingBlockClick={onPendingBlockClick}
+
               />
             ))
           )}
