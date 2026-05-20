@@ -211,25 +211,6 @@ export const CleaningAssignmentDialog = ({ open, onOpenChange }: CleaningAssignm
               {team.length === 0 && (
                 <p className="text-xs text-muted-foreground italic px-1">Aucun prestataire — ajoutez-en pour commencer.</p>
               )}
-            </div>
-
-            <div className="flex items-center gap-2 mt-3">
-              <Select value={agentToAdd} onValueChange={setAgentToAdd}>
-                <SelectTrigger className="flex-1 h-10">
-                  <SelectValue placeholder="Ajouter un prestataire…" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ALL_AGENTS.filter((a) => !team.includes(a)).map((a) => (
-                    <SelectItem key={a} value={a}>{a}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button size="icon" onClick={addAgent} disabled={!agentToAdd}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
           {/* 4. Logements concernés (cases à cocher) */}
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -243,6 +224,70 @@ export const CleaningAssignmentDialog = ({ open, onOpenChange }: CleaningAssignm
               >
                 {selectedProperties.length === PROPERTIES.length ? 'Tout désélectionner' : 'Tout sélectionner'}
               </button>
+            </div>
+
+            {/* Légende des états existants */}
+            <div className="flex items-center gap-1.5 flex-wrap mb-2">
+              <span className="text-[10px] uppercase tracking-wide text-muted-foreground mr-1">Déjà assigné :</span>
+              {(['priority', 'rotation', 'single'] as ExistingMode[]).map((m) => {
+                const count = PROPERTIES.filter((p) => EXISTING_ASSIGNMENTS[p]?.mode === m).length;
+                return (
+                  <Badge key={m} variant="outline" className={`text-[10px] font-medium ${MODE_META[m].cls}`}>
+                    {MODE_META[m].label} · {count}
+                  </Badge>
+                );
+              })}
+              <Badge variant="outline" className="text-[10px] font-medium bg-muted text-muted-foreground border-border">
+                Non assigné · {PROPERTIES.filter((p) => !EXISTING_ASSIGNMENTS[p]).length}
+              </Badge>
+            </div>
+
+            <div className="rounded-xl border border-border divide-y divide-border max-h-64 overflow-y-auto">
+              {PROPERTIES.map((p) => {
+                const checked = selectedProperties.includes(p);
+                const existing = EXISTING_ASSIGNMENTS[p];
+                const conflict = checked && existing && existing.mode !== mode;
+                return (
+                  <label
+                    key={p}
+                    className={`flex items-center gap-3 p-2.5 cursor-pointer transition-colors ${
+                      conflict ? 'bg-[hsl(38,92%,50%)]/5' : checked ? 'bg-primary/5' : 'hover:bg-muted/40'
+                    }`}
+                  >
+                    <Checkbox checked={checked} onCheckedChange={() => toggleProperty(p)} />
+                    <Home className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[13px] truncate">{p}</span>
+                        {existing ? (
+                          <Badge variant="outline" className={`text-[10px] font-medium flex-shrink-0 ${MODE_META[existing.mode].cls}`}>
+                            {existing.mode === 'single' && <Lock className="h-2.5 w-2.5 mr-0.5" />}
+                            {MODE_META[existing.mode].label}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-[10px] font-medium bg-muted text-muted-foreground border-border flex-shrink-0">
+                            Libre
+                          </Badge>
+                        )}
+                      </div>
+                      {existing && (
+                        <p className="text-[10.5px] text-muted-foreground truncate mt-0.5">
+                          → {existing.agents.join(existing.mode === 'priority' ? ' › ' : ', ')}
+                        </p>
+                      )}
+                      {conflict && (
+                        <p className="text-[10.5px] text-[hsl(38,92%,40%)] font-medium mt-0.5 flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3" />
+                          Écrasera l'assignation {MODE_META[existing!.mode].label.toLowerCase()} actuelle
+                        </p>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
             </div>
             <div className="rounded-xl border border-border divide-y divide-border max-h-56 overflow-y-auto">
               {PROPERTIES.map((p) => {
