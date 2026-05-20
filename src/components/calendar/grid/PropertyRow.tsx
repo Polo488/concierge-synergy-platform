@@ -34,7 +34,12 @@ interface PropertyRowProps {
   dayCellWidth?: number;
   activeLayer?: 'bookings' | 'pricing' | 'cleaning' | 'cleaning-only';
   rmRules?: RMRulesState;
+  /** Owner read-only view: hides RM hints, disables empty-cell click for new bookings (parent decides). */
+  readOnly?: boolean;
+  getPendingBlockForProperty?: (propertyId: number, day: Date) => BlockRequest | null;
+  onPendingBlockClick?: (request: BlockRequest) => void;
 }
+
 
 export const PropertyRow: React.FC<PropertyRowProps> = ({
   property,
