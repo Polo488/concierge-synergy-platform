@@ -42,12 +42,6 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
       return { ...prev, [agent]: next };
     });
   };
-  // Cleaning team assignment
-  const [autoAssign, setAutoAssign] = useState(true);
-  const [mode, setMode] = useState<'rotation' | 'priority'>('priority');
-  const [team, setTeam] = useState<string[]>(['Marie Lambert', 'Sophie Renard']);
-  const [agentToAdd, setAgentToAdd] = useState<string>('');
-
   // Pricing
   const [providerPrice, setProviderPrice] = useState('45');
   const [providerVAT, setProviderVAT] = useState<'HT' | 'TTC'>('HT');
