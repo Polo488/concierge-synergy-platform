@@ -38,6 +38,7 @@ import Onboarding from "./pages/Onboarding";
 import SignatureAdmin from "./pages/SignatureAdmin";
 import Sign from "./pages/Sign";
 import OwnerPortal from "./pages/OwnerPortal";
+import OwnerCalendar from "./pages/OwnerCalendar";
 import LegalWatch from "./pages/LegalWatch";
 import CockpitFinancier from "./pages/CockpitFinancier";
 import WelcomeGuide from "./pages/WelcomeGuide";
@@ -235,6 +236,11 @@ const App = () => (
                       <Route path="/app/owner/notifications" element={
                         <RoutePermission permission="ownerPortal">
                           <OwnerPortal />
+                        </RoutePermission>
+                      } />
+                      <Route path="/app/owner/calendar" element={
+                        <RoutePermission permission="ownerPortal">
+                          <OwnerCalendar />
                         </RoutePermission>
                       } />
                       

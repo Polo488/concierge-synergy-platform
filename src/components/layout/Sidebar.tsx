@@ -418,6 +418,7 @@ export function Sidebar() {
             <div className="space-y-px px-1">
               {[
                 { name: 'Tableau de bord', path: '/app/owner', icon: LayoutDashboard },
+                { name: 'Planning', path: '/app/owner/calendar', icon: CalendarDays },
                 { name: 'Onboarding', path: '/app/owner/onboarding', icon: Rocket },
                 { name: 'Factures', path: '/app/owner/invoices', icon: Receipt },
                 { name: 'Documents', path: '/app/owner/documents', icon: FileText },
