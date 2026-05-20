@@ -1,8 +1,9 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { fr } from 'date-fns/locale';
-import { CleaningTask, CleaningStatus, NewCleaningTask, CleaningTaskRating, CleaningIssue } from '@/types/cleaning';
+import { CleaningTask, CleaningStatus, NewCleaningTask, CleaningTaskRating, CleaningIssue, CleaningPhoto } from '@/types/cleaning';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { CleaningContextType, CleaningProviderProps, CleaningRatingData } from './types';
 import { createCleaningActions } from './actions';
 import { createCleaningHelpers } from './helpers';
