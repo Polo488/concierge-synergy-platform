@@ -145,8 +145,6 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
               </div>
             </div>
           )}
-            </div>
-          )}
 
           <div>
             <Label className="text-xs text-muted-foreground uppercase tracking-wide">Prestataires ({team.length})</Label>
