@@ -1,5 +1,6 @@
 
 import { useCleaning } from '@/contexts/cleaning/CleaningContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { CleaningAgentAssignDialog } from './CleaningAgentAssignDialog';
 import { CleaningTaskDetailsDialog } from './CleaningTaskDetailsDialog';
 import { ProblemReportDialog } from './ProblemReportDialog';
@@ -9,6 +10,7 @@ import { AddCleaningTaskDialog } from './AddCleaningTaskDialog';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { EditCommentsDialog } from './EditCommentsDialog';
 import { CleaningRatingDialog } from './CleaningRatingDialog';
+import { CleanerPhotoDialog } from './CleanerPhotoDialog';
 import { CleaningIssueDialog } from './CleaningIssueDialog';
 import { getStatusBadgeClass, getStatusLabel } from '@/utils/cleaningUtils';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +19,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 export const CleaningDialogs = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const isCleaningAgent = user?.role === 'cleaning';
+  
   
   const {
     // Dialog states
@@ -53,6 +58,10 @@ export const CleaningDialogs = () => {
     handleSaveComments,
     handleUpdateCheckTimes,
     handleSubmitRating,
+    handleSubmitPhotos,
+    photoDialogOpen,
+    setPhotoDialogOpen,
+    taskForPhotos,
     handleCreateIssue,
     openIssueDialog,
     
@@ -163,12 +172,23 @@ export const CleaningDialogs = () => {
         onSave={handleSaveComments}
       />
       
-      <CleaningRatingDialog
-        open={ratingDialogOpen}
-        onOpenChange={setRatingDialogOpen}
-        task={taskToRate}
-        onSubmit={handleSubmitRating}
+      {!isCleaningAgent && (
+        <CleaningRatingDialog
+          open={ratingDialogOpen}
+          onOpenChange={setRatingDialogOpen}
+          task={taskToRate}
+          onSubmit={handleSubmitRating}
+        />
+      )}
+
+      <CleanerPhotoDialog
+        open={photoDialogOpen}
+        onOpenChange={setPhotoDialogOpen}
+        task={taskForPhotos}
+        agentName={user?.name}
+        onSubmit={handleSubmitPhotos}
       />
+      
       
       <CleaningIssueDialog
         open={issueDialogOpen}

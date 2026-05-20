@@ -1,8 +1,9 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { fr } from 'date-fns/locale';
-import { CleaningTask, CleaningStatus, NewCleaningTask, CleaningTaskRating, CleaningIssue } from '@/types/cleaning';
+import { CleaningTask, CleaningStatus, NewCleaningTask, CleaningTaskRating, CleaningIssue, CleaningPhoto } from '@/types/cleaning';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { CleaningContextType, CleaningProviderProps, CleaningRatingData } from './types';
 import { createCleaningActions } from './actions';
 import { createCleaningHelpers } from './helpers';
@@ -14,6 +15,8 @@ const CleaningContext = createContext<CleaningContextType | undefined>(undefined
 
 export const CleaningProvider = ({ children }: CleaningProviderProps) => {
   const { language, t } = useLanguage();
+  const { user } = useAuth();
+  const isCleaningAgent = user?.role === 'cleaning';
   const dateLocale = language === 'fr' ? fr : undefined;
   
   // Tasks data state
@@ -45,6 +48,8 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
   const [editCommentsDialogOpen, setEditCommentsDialogOpen] = useState(false);
   const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
   const [taskToRate, setTaskToRate] = useState<CleaningTask | null>(null);
+  const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
+  const [taskForPhotos, setTaskForPhotos] = useState<CleaningTask | null>(null);
   const [issueDialogOpen, setIssueDialogOpen] = useState(false);
   const [issueDialogTask, setIssueDialogTask] = useState<CleaningTask | null>(null);
   
@@ -207,6 +212,48 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
   const actions = createCleaningActions(state, stateSetters, t);
   const helpers = createCleaningHelpers(state, stateSetters);
 
+  // Override completion for cleaning agents: open photo dialog instead of rating.
+  const handleCompleteCleaning = (task: CleaningTask) => {
+    actions.handleCompleteCleaning(task);
+    if (isCleaningAgent) {
+      // Close the rating dialog opened by the base action and open the photo dialog.
+      setRatingDialogOpen(false);
+      setTaskToRate(null);
+      setTaskForPhotos({
+        ...task,
+        status: 'completed' as CleaningStatus,
+        endTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+      });
+      setPhotoDialogOpen(true);
+    }
+  };
+
+  const handleSubmitPhotos = (data: { taskId: number; photos: CleaningPhoto[]; comment: string }) => {
+    setCompletedCleaningTasks((prev) =>
+      prev.map((task) =>
+        task.id === data.taskId
+          ? {
+              ...task,
+              photos: [...(task.photos || []), ...data.photos],
+              comments: data.comment
+                ? task.comments
+                  ? `${task.comments}\n[Prestataire] ${data.comment}`
+                  : `[Prestataire] ${data.comment}`
+                : task.comments,
+            }
+          : task
+      )
+    );
+    if (data.photos.length > 0) {
+      toast({
+        title: 'Photos envoyées',
+        description: `${data.photos.length} photo${data.photos.length > 1 ? 's' : ''} ajoutée${data.photos.length > 1 ? 's' : ''} au rapport`,
+      });
+    }
+    setPhotoDialogOpen(false);
+    setTaskForPhotos(null);
+  };
+
   const value: CleaningContextType = {
     // Data
     todayCleaningTasks,
@@ -268,14 +315,21 @@ export const CleaningProvider = ({ children }: CleaningProviderProps) => {
     
     // Actions
     ...actions,
+    handleCompleteCleaning, // override
     handleSubmitRating,
     handleCreateIssue,
     handleResolveIssue,
     openIssueDialog,
-    
+
+    // Cleaner photo dialog
+    photoDialogOpen,
+    setPhotoDialogOpen,
+    taskForPhotos,
+    handleSubmitPhotos,
+
     // Helpers
     ...helpers,
-  };
+  } as CleaningContextType;
 
   return (
     <CleaningContext.Provider value={value}>
