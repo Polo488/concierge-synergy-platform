@@ -19,6 +19,14 @@ const DAYS = [
   { key: 4, label: 'J' },
   { key: 5, label: 'V' },
   { key: 6, label: 'S' },
+  { key: 0, label: 'D' },
+];
+
+interface PropertyTarifTabProps {
+  propertyId: string;
+}
+
+export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
   const [autoAssign, setAutoAssign] = useState(true);
   const [mode, setMode] = useState<'rotation' | 'priority' | 'planning'>('priority');
   const [team, setTeam] = useState<string[]>(['Marie Lambert', 'Sophie Renard']);
@@ -34,10 +42,6 @@ const DAYS = [
       return { ...prev, [agent]: next };
     });
   };
-  propertyId: string;
-}
-
-export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
   // Cleaning team assignment
   const [autoAssign, setAutoAssign] = useState(true);
   const [mode, setMode] = useState<'rotation' | 'priority'>('priority');
