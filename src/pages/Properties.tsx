@@ -32,7 +32,7 @@ interface OnboardingPrefillData {
 
 const Properties = () => {
   const location = useLocation();
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile() || useIsTablet();
   const [properties] = useState(generateProperties);
   const [maintenanceHistory] = useState(() => generateMaintenanceHistory(properties));
   const [searchTerm, setSearchTerm] = useState('');
