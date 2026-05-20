@@ -37,7 +37,7 @@ export const initialTodayTasks: CleaningTask[] = [
     checkoutTime: '10:00',
     checkinTime: '16:00',
     status: 'inProgress',
-    cleaningAgent: 'Marie Lambert',
+    cleaningAgent: 'Cleaning Agent',
     startTime: '10:30',
     endTime: '',
     linens: ['Draps simple x1', 'Serviettes bain x1', 'Serviettes main x1', 'Housse de couette simple x1', 'Taie d\'oreiller x1'],
