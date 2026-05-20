@@ -64,7 +64,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   onInsightClick,
   activeLayer = 'bookings',
   rmRules,
+  readOnly = false,
+  getPendingBlockForProperty,
+  onPendingBlockClick,
 }) => {
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [collapsed, setCollapsed] = useState(isMobile);
