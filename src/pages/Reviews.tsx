@@ -483,8 +483,10 @@ const Reviews = () => {
                 );
               })}
             </div>
-
+          </CardContent></Card>
+        </TabsContent>
       </Tabs>
+
 
       {/* Reply dialog */}
       <Dialog open={!!replyOpen} onOpenChange={(o) => !o && setReplyOpen(null)}>
