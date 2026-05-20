@@ -23,6 +23,7 @@ const RECENT_RATINGS = [
 ];
 
 const CleaningPerformance = () => {
+  const { user } = useAuth();
   useEffect(() => { document.title = 'Performance'; }, []);
 
   return (
@@ -32,8 +33,11 @@ const CleaningPerformance = () => {
           <Award className="h-6 w-6 text-primary" />
           Performance
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">Vos notes, métriques et évolution.</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Vos notes, métriques et évolution{user?.name ? ` — données filtrées sur ${user.name}` : ''}.
+        </p>
       </header>
+
 
       {/* Score principal */}
       <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
