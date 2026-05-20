@@ -91,6 +91,12 @@ export interface CleaningContextType {
   handleCreateIssue: (issue: Omit<CleaningIssue, 'id' | 'createdAt' | 'repasseTaskId'>) => void;
   handleResolveIssue: (issueId: number) => void;
   openIssueDialog: (task?: CleaningTask | null) => void;
+
+  // Cleaner photo dialog
+  photoDialogOpen: boolean;
+  setPhotoDialogOpen: (open: boolean) => void;
+  taskForPhotos: CleaningTask | null;
+  handleSubmitPhotos: (data: { taskId: number; photos: CleaningPhoto[]; comment: string }) => void;
   
   // Helpers
   openAssignDialog: (task: CleaningTask) => void;
