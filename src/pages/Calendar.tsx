@@ -259,6 +259,21 @@ const CalendarPage = () => {
               )}
 
               <RMRulesButton value={rmRules} onChange={setRmRules} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsBlockRequestsOpen(true)}
+                className="relative rounded-xl border-border/50 bg-card/50 min-h-[44px]"
+              >
+                <Inbox className="w-4 h-4" />
+                {!isMobile && <span className="ml-1.5">Demandes</span>}
+                {pendingCount > 0 && (
+                  <Badge className="ml-1.5 h-5 min-w-5 px-1 rounded-full" variant="destructive">
+                    {pendingCount}
+                  </Badge>
+                )}
+              </Button>
+
 
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'planning' | 'pricing')}>
                 <TabsList className="h-9">
