@@ -15,6 +15,8 @@ const CleaningContext = createContext<CleaningContextType | undefined>(undefined
 
 export const CleaningProvider = ({ children }: CleaningProviderProps) => {
   const { language, t } = useLanguage();
+  const { user } = useAuth();
+  const isCleaningAgent = user?.role === 'cleaning';
   const dateLocale = language === 'fr' ? fr : undefined;
   
   // Tasks data state
