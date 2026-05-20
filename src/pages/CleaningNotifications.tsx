@@ -23,6 +23,7 @@ const RECIPIENTS = [
 ];
 
 const CleaningNotifications = () => {
+  const { user } = useAuth();
   const [inApp, setInApp] = useState(true);
   const [push, setPush] = useState(false);
   const [thresholds, setThresholds] = useState<Set<string>>(new Set(['h1', 'h30', 'h0']));
@@ -47,9 +48,10 @@ const CleaningNotifications = () => {
           Notifications ménage
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Configure les alertes pour les ménages avec check-in jour J.
+          Configure les alertes pour les ménages avec check-in jour J{user?.name ? ` — préférences personnelles de ${user.name}` : ''}.
         </p>
       </header>
+
 
       {/* Canaux */}
       <Card>
