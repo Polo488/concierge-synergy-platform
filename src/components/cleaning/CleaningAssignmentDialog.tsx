@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, X, Plus, Zap, Home } from 'lucide-react';
+import { Sparkles, X, Plus, Zap, Home, AlertTriangle, Lock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
 const ALL_AGENTS = ['Marie Lambert', 'Sophie Renard', 'Lucas Martin', 'Karine Vidal', 'Nadia Bensaid'];
@@ -19,6 +20,23 @@ const PROPERTIES = [
   'Studio 15 Rue des Lilas',
   'Appartement 28 Avenue Victor Hugo',
 ];
+
+// État courant des assignations (mock) — permet d'afficher ce qui est déjà configuré
+type ExistingMode = 'priority' | 'rotation' | 'single';
+const EXISTING_ASSIGNMENTS: Record<string, { mode: ExistingMode; agents: string[] }> = {
+  'Appartement 12 Rue du Port': { mode: 'priority', agents: ['Marie Lambert', 'Sophie Renard'] },
+  'Studio 8 Avenue des Fleurs': { mode: 'priority', agents: ['Marie Lambert'] },
+  'Loft 72 Rue des Arts': { mode: 'rotation', agents: ['Lucas Martin', 'Karine Vidal'] },
+  'Maison 23 Rue de la Paix': { mode: 'single', agents: ['Nadia Bensaid'] },
+  'Appartement 45 Boulevard Central': { mode: 'rotation', agents: ['Sophie Renard', 'Lucas Martin'] },
+};
+
+const MODE_META: Record<ExistingMode, { label: string; cls: string }> = {
+  priority: { label: 'Priorité', cls: 'bg-primary/10 text-primary border-primary/20' },
+  rotation: { label: 'Rotation', cls: 'bg-[hsl(213,84%,40%)]/10 text-[hsl(213,84%,40%)] border-[hsl(213,84%,40%)]/20' },
+  single: { label: 'Dédié', cls: 'bg-[hsl(142,71%,35%)]/10 text-[hsl(142,71%,35%)] border-[hsl(142,71%,35%)]/20' },
+};
+
 const DAYS = [
   { key: 1, label: 'L' },
   { key: 2, label: 'M' },
@@ -28,6 +46,7 @@ const DAYS = [
   { key: 6, label: 'S' },
   { key: 0, label: 'D' },
 ];
+
 
 interface CleaningAssignmentDialogProps {
   open: boolean;
