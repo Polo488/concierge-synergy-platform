@@ -1,5 +1,6 @@
 
 import { useCleaning } from '@/contexts/cleaning/CleaningContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { CleaningAgentAssignDialog } from './CleaningAgentAssignDialog';
 import { CleaningTaskDetailsDialog } from './CleaningTaskDetailsDialog';
 import { ProblemReportDialog } from './ProblemReportDialog';
@@ -9,6 +10,7 @@ import { AddCleaningTaskDialog } from './AddCleaningTaskDialog';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { EditCommentsDialog } from './EditCommentsDialog';
 import { CleaningRatingDialog } from './CleaningRatingDialog';
+import { CleanerPhotoDialog } from './CleanerPhotoDialog';
 import { CleaningIssueDialog } from './CleaningIssueDialog';
 import { getStatusBadgeClass, getStatusLabel } from '@/utils/cleaningUtils';
 import { Badge } from '@/components/ui/badge';
