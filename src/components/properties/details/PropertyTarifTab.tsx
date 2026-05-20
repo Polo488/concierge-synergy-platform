@@ -19,10 +19,21 @@ const DAYS = [
   { key: 4, label: 'J' },
   { key: 5, label: 'V' },
   { key: 6, label: 'S' },
-  { key: 0, label: 'D' },
-];
-
-interface PropertyTarifTabProps {
+  const [autoAssign, setAutoAssign] = useState(true);
+  const [mode, setMode] = useState<'rotation' | 'priority' | 'planning'>('priority');
+  const [team, setTeam] = useState<string[]>(['Marie Lambert', 'Sophie Renard']);
+  const [agentToAdd, setAgentToAdd] = useState<string>('');
+  const [workDays, setWorkDays] = useState<Record<string, number[]>>({
+    'Marie Lambert': [1, 2, 3, 4, 5],
+    'Sophie Renard': [6, 0],
+  });
+  const toggleDay = (agent: string, day: number) => {
+    setWorkDays((prev) => {
+      const cur = prev[agent] || [];
+      const next = cur.includes(day) ? cur.filter((d) => d !== day) : [...cur, day];
+      return { ...prev, [agent]: next };
+    });
+  };
   propertyId: string;
 }
 
