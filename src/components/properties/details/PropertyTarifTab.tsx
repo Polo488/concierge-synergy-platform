@@ -8,22 +8,40 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, X, Plus, Zap, Home, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Sparkles, X, Plus, Zap, Home, RefreshCw, CheckCircle2, AlertCircle, CalendarDays } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ALL_AGENTS = ['Marie Lambert', 'Sophie Renard', 'Lucas Martin', 'Karine Vidal', 'Nadia Bensaid'];
+const DAYS = [
+  { key: 1, label: 'L' },
+  { key: 2, label: 'M' },
+  { key: 3, label: 'M' },
+  { key: 4, label: 'J' },
+  { key: 5, label: 'V' },
+  { key: 6, label: 'S' },
+  { key: 0, label: 'D' },
+];
 
 interface PropertyTarifTabProps {
   propertyId: string;
 }
 
 export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
-  // Cleaning team assignment
   const [autoAssign, setAutoAssign] = useState(true);
-  const [mode, setMode] = useState<'rotation' | 'priority'>('priority');
+  const [mode, setMode] = useState<'rotation' | 'priority' | 'planning'>('priority');
   const [team, setTeam] = useState<string[]>(['Marie Lambert', 'Sophie Renard']);
   const [agentToAdd, setAgentToAdd] = useState<string>('');
-
+  const [workDays, setWorkDays] = useState<Record<string, number[]>>({
+    'Marie Lambert': [1, 2, 3, 4, 5],
+    'Sophie Renard': [6, 0],
+  });
+  const toggleDay = (agent: string, day: number) => {
+    setWorkDays((prev) => {
+      const cur = prev[agent] || [];
+      const next = cur.includes(day) ? cur.filter((d) => d !== day) : [...cur, day];
+      return { ...prev, [agent]: next };
+    });
+  };
   // Pricing
   const [providerPrice, setProviderPrice] = useState('45');
   const [providerVAT, setProviderVAT] = useState<'HT' | 'TTC'>('HT');
@@ -93,7 +111,7 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
           {autoAssign && (
             <div>
               <Label className="text-xs text-muted-foreground uppercase tracking-wide">Mode d'assignation</Label>
-              <div className="grid grid-cols-2 gap-2 mt-2">
+              <div className="grid grid-cols-3 gap-2 mt-2">
                 <button
                   type="button"
                   onClick={() => setMode('priority')}
@@ -102,7 +120,7 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
                   }`}
                 >
                   <p className="text-[13px] font-semibold">Priorité</p>
-                  <p className="text-[11px] text-muted-foreground">1er prestataire, fallback si indisponible</p>
+                  <p className="text-[11px] text-muted-foreground">1er prestataire, fallback si indispo</p>
                 </button>
                 <button
                   type="button"
@@ -112,7 +130,17 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
                   }`}
                 >
                   <p className="text-[13px] font-semibold">Rotation</p>
-                  <p className="text-[11px] text-muted-foreground">Round-robin entre les prestataires</p>
+                  <p className="text-[11px] text-muted-foreground">Round-robin entre prestataires</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode('planning')}
+                  className={`rounded-xl border p-3 text-left transition-colors ${
+                    mode === 'planning' ? 'border-primary bg-primary/5' : 'border-border'
+                  }`}
+                >
+                  <p className="text-[13px] font-semibold flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />Planning</p>
+                  <p className="text-[11px] text-muted-foreground">Selon jours travaillés de chacun</p>
                 </button>
               </div>
             </div>
@@ -122,25 +150,47 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
             <Label className="text-xs text-muted-foreground uppercase tracking-wide">Prestataires ({team.length})</Label>
             <div className="mt-2 space-y-2">
               {team.map((a, i) => (
-                <div key={a} className="flex items-center gap-2 rounded-xl border border-border p-2">
-                  {mode === 'priority' && (
-                    <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center flex-shrink-0">
-                      {i + 1}
-                    </span>
-                  )}
-                  <Avatar className="h-7 w-7">
-                    <AvatarFallback className="text-[11px] bg-muted">{a.split(' ').map((n) => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                  <span className="text-[13px] flex-1 truncate">{a}</span>
-                  {mode === 'priority' && (
-                    <div className="flex items-center gap-1">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(a, -1)} disabled={i === 0}>↑</Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(a, 1)} disabled={i === team.length - 1}>↓</Button>
+                <div key={a} className="rounded-xl border border-border p-2 space-y-2">
+                  <div className="flex items-center gap-2">
+                    {mode === 'priority' && (
+                      <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center flex-shrink-0">
+                        {i + 1}
+                      </span>
+                    )}
+                    <Avatar className="h-7 w-7">
+                      <AvatarFallback className="text-[11px] bg-muted">{a.split(' ').map((n) => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <span className="text-[13px] flex-1 truncate">{a}</span>
+                    {mode === 'priority' && (
+                      <div className="flex items-center gap-1">
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(a, -1)} disabled={i === 0}>↑</Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(a, 1)} disabled={i === team.length - 1}>↓</Button>
+                      </div>
+                    )}
+                    <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground" onClick={() => removeAgent(a)}>
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                  {mode === 'planning' && (
+                    <div className="flex items-center gap-1.5 pl-1">
+                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground mr-1">Jours</span>
+                      {DAYS.map((d, idx) => {
+                        const active = (workDays[a] || []).includes(d.key);
+                        return (
+                          <button
+                            key={`${a}-${idx}`}
+                            type="button"
+                            onClick={() => toggleDay(a, d.key)}
+                            className={`h-7 w-7 rounded-full text-[11px] font-semibold transition-colors ${
+                              active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/70'
+                            }`}
+                          >
+                            {d.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
-                  <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground" onClick={() => removeAgent(a)}>
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
                 </div>
               ))}
               {team.length === 0 && (
@@ -169,7 +219,7 @@ export const PropertyTarifTab = ({ propertyId }: PropertyTarifTabProps) => {
             <div className="rounded-xl bg-[hsl(210,100%,96%)] border border-[hsl(210,100%,90%)] p-3 flex items-start gap-2">
               <Zap className="h-4 w-4 text-[hsl(213,84%,40%)] flex-shrink-0 mt-0.5" />
               <p className="text-[12px] text-[hsl(213,84%,30%)]">
-                Chaque nouveau ménage sera assigné automatiquement à <strong>{mode === 'priority' ? team[0] : 'rotation'}</strong>.
+                Chaque nouveau ménage sera assigné automatiquement à <strong>{mode === 'priority' ? team[0] : mode === 'planning' ? 'prestataire disponible le jour J' : 'rotation'}</strong>.
                 Override manuel toujours possible depuis le module Ménage.
               </p>
             </div>
