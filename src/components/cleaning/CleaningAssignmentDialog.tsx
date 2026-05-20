@@ -4,8 +4,9 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, X, Plus, Zap, CalendarDays } from 'lucide-react';
+import { Sparkles, X, Plus, Zap, Home } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ALL_AGENTS = ['Marie Lambert', 'Sophie Renard', 'Lucas Martin', 'Karine Vidal', 'Nadia Bensaid'];
@@ -34,15 +35,15 @@ interface CleaningAssignmentDialogProps {
 }
 
 export const CleaningAssignmentDialog = ({ open, onOpenChange }: CleaningAssignmentDialogProps) => {
-  const [property, setProperty] = useState<string>(PROPERTIES[0]);
   const [autoAssign, setAutoAssign] = useState(true);
-  const [mode, setMode] = useState<'rotation' | 'priority' | 'planning'>('priority');
+  const [mode, setMode] = useState<'rotation' | 'priority'>('priority');
   const [team, setTeam] = useState<string[]>(['Marie Lambert', 'Sophie Renard']);
   const [agentToAdd, setAgentToAdd] = useState<string>('');
   const [workDays, setWorkDays] = useState<Record<string, number[]>>({
     'Marie Lambert': [1, 2, 3, 4, 5],
     'Sophie Renard': [6, 0],
   });
+  const [selectedProperties, setSelectedProperties] = useState<string[]>([PROPERTIES[0], PROPERTIES[1]]);
 
   const toggleDay = (agent: string, day: number) => {
     setWorkDays((prev) => {
@@ -55,6 +56,7 @@ export const CleaningAssignmentDialog = ({ open, onOpenChange }: CleaningAssignm
   const addAgent = () => {
     if (agentToAdd && !team.includes(agentToAdd)) {
       setTeam([...team, agentToAdd]);
+      setWorkDays((prev) => ({ ...prev, [agentToAdd]: prev[agentToAdd] || [1, 2, 3, 4, 5] }));
       setAgentToAdd('');
     }
   };
@@ -68,8 +70,17 @@ export const CleaningAssignmentDialog = ({ open, onOpenChange }: CleaningAssignm
     setTeam(next);
   };
 
+  const togglePropertyAll = () => {
+    setSelectedProperties(selectedProperties.length === PROPERTIES.length ? [] : [...PROPERTIES]);
+  };
+  const toggleProperty = (p: string) => {
+    setSelectedProperties((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
+  };
+
   const handleSave = () => {
-    toast.success('Assignation enregistrée', { description: property });
+    toast.success('Assignation enregistrée', {
+      description: `${selectedProperties.length} logement${selectedProperties.length > 1 ? 's' : ''} · ${team.length} prestataire${team.length > 1 ? 's' : ''}`,
+    });
     onOpenChange(false);
   };
 
@@ -82,25 +93,12 @@ export const CleaningAssignmentDialog = ({ open, onOpenChange }: CleaningAssignm
             Assignation des ménages
           </DialogTitle>
           <DialogDescription>
-            Définissez par logement quels prestataires sont assignés et selon quelle règle.
+            Définissez les prestataires et leurs conditions, puis cochez les logements concernés.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div>
-            <Label className="text-xs text-muted-foreground uppercase tracking-wide">Logement</Label>
-            <Select value={property} onValueChange={setProperty}>
-              <SelectTrigger className="h-10 mt-2">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PROPERTIES.map((p) => (
-                  <SelectItem key={p} value={p}>{p}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
+          {/* 1. Auto-assignation toggle */}
           <div className="flex items-center justify-between gap-3 rounded-xl border border-border p-3">
             <div>
               <p className="text-[13px] font-semibold">Auto-assignation</p>
@@ -109,10 +107,11 @@ export const CleaningAssignmentDialog = ({ open, onOpenChange }: CleaningAssignm
             <Switch checked={autoAssign} onCheckedChange={setAutoAssign} />
           </div>
 
+          {/* 2. Mode d'assignation */}
           {autoAssign && (
             <div>
               <Label className="text-xs text-muted-foreground uppercase tracking-wide">Mode d'assignation</Label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
                 <button
                   type="button"
                   onClick={() => setMode('priority')}
@@ -130,28 +129,24 @@ export const CleaningAssignmentDialog = ({ open, onOpenChange }: CleaningAssignm
                     mode === 'rotation' ? 'border-primary bg-primary/5' : 'border-border'
                   }`}
                 >
-                  <p className="text-[13px] font-semibold">Rotation</p>
+                  <p className="text-[13px] font-semibold">Rotation (aléatoire)</p>
                   <p className="text-[11px] text-muted-foreground">Round-robin entre prestataires</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMode('planning')}
-                  className={`rounded-xl border p-3 text-left transition-colors ${
-                    mode === 'planning' ? 'border-primary bg-primary/5' : 'border-border'
-                  }`}
-                >
-                  <p className="text-[13px] font-semibold flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />Planning</p>
-                  <p className="text-[11px] text-muted-foreground">Selon jours travaillés de chacun</p>
                 </button>
               </div>
             </div>
           )}
 
+          {/* 3. Prestataires avec leurs conditions (jours travaillés) */}
           <div>
-            <Label className="text-xs text-muted-foreground uppercase tracking-wide">Prestataires ({team.length})</Label>
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide">
+              Prestataires ({team.length})
+            </Label>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Cochez les jours travaillés de chaque prestataire — condition appliquée à l'assignation.
+            </p>
             <div className="mt-2 space-y-2">
               {team.map((a, i) => (
-                <div key={a} className="rounded-xl border border-border p-2 space-y-2">
+                <div key={a} className="rounded-xl border border-border p-2.5 space-y-2">
                   <div className="flex items-center gap-2">
                     {mode === 'priority' && (
                       <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center flex-shrink-0">
@@ -159,9 +154,11 @@ export const CleaningAssignmentDialog = ({ open, onOpenChange }: CleaningAssignm
                       </span>
                     )}
                     <Avatar className="h-7 w-7">
-                      <AvatarFallback className="text-[11px] bg-muted">{a.split(' ').map((n) => n[0]).join('')}</AvatarFallback>
+                      <AvatarFallback className="text-[11px] bg-muted">
+                        {a.split(' ').map((n) => n[0]).join('')}
+                      </AvatarFallback>
                     </Avatar>
-                    <span className="text-[13px] flex-1 truncate">{a}</span>
+                    <span className="text-[13px] flex-1 truncate font-medium">{a}</span>
                     {mode === 'priority' && (
                       <div className="flex items-center gap-1">
                         <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(a, -1)} disabled={i === 0}>↑</Button>
@@ -172,30 +169,28 @@ export const CleaningAssignmentDialog = ({ open, onOpenChange }: CleaningAssignm
                       <X className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                  {mode === 'planning' && (
-                    <div className="flex items-center gap-1.5 pl-1 flex-wrap">
-                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground mr-1">Jours</span>
-                      {DAYS.map((d, idx) => {
-                        const active = (workDays[a] || []).includes(d.key);
-                        return (
-                          <button
-                            key={`${a}-${idx}`}
-                            type="button"
-                            onClick={() => toggleDay(a, d.key)}
-                            className={`h-7 w-7 rounded-full text-[11px] font-semibold transition-colors ${
-                              active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/70'
-                            }`}
-                          >
-                            {d.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+                  <div className="flex items-center gap-1.5 pl-1 flex-wrap">
+                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground mr-1">Jours</span>
+                    {DAYS.map((d, idx) => {
+                      const active = (workDays[a] || []).includes(d.key);
+                      return (
+                        <button
+                          key={`${a}-${idx}`}
+                          type="button"
+                          onClick={() => toggleDay(a, d.key)}
+                          className={`h-7 w-7 rounded-full text-[11px] font-semibold transition-colors ${
+                            active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/70'
+                          }`}
+                        >
+                          {d.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               ))}
               {team.length === 0 && (
-                <p className="text-xs text-muted-foreground italic px-1">Aucun prestataire assigné — les ménages resteront non assignés.</p>
+                <p className="text-xs text-muted-foreground italic px-1">Aucun prestataire — ajoutez-en pour commencer.</p>
               )}
             </div>
 
@@ -216,12 +211,45 @@ export const CleaningAssignmentDialog = ({ open, onOpenChange }: CleaningAssignm
             </div>
           </div>
 
-          {autoAssign && team.length > 0 && (
+          {/* 4. Logements concernés (cases à cocher) */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs text-muted-foreground uppercase tracking-wide">
+                Logements concernés ({selectedProperties.length}/{PROPERTIES.length})
+              </Label>
+              <button
+                type="button"
+                onClick={togglePropertyAll}
+                className="text-[11px] text-primary font-semibold hover:underline"
+              >
+                {selectedProperties.length === PROPERTIES.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+              </button>
+            </div>
+            <div className="rounded-xl border border-border divide-y divide-border max-h-56 overflow-y-auto">
+              {PROPERTIES.map((p) => {
+                const checked = selectedProperties.includes(p);
+                return (
+                  <label
+                    key={p}
+                    className={`flex items-center gap-3 p-2.5 cursor-pointer transition-colors ${
+                      checked ? 'bg-primary/5' : 'hover:bg-muted/40'
+                    }`}
+                  >
+                    <Checkbox checked={checked} onCheckedChange={() => toggleProperty(p)} />
+                    <Home className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    <span className="text-[13px] flex-1 truncate">{p}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          {autoAssign && team.length > 0 && selectedProperties.length > 0 && (
             <div className="rounded-xl bg-[hsl(210,100%,96%)] border border-[hsl(210,100%,90%)] p-3 flex items-start gap-2">
               <Zap className="h-4 w-4 text-[hsl(213,84%,40%)] flex-shrink-0 mt-0.5" />
               <p className="text-[12px] text-[hsl(213,84%,30%)]">
-                Chaque nouveau ménage sera assigné automatiquement à <strong>{mode === 'priority' ? team[0] : mode === 'planning' ? 'prestataire disponible le jour J' : 'rotation'}</strong>.
-                Override manuel toujours possible depuis la liste.
+                {selectedProperties.length} logement{selectedProperties.length > 1 ? 's' : ''} assigné{selectedProperties.length > 1 ? 's' : ''} via{' '}
+                <strong>{mode === 'priority' ? `priorité (${team[0]} en 1er)` : 'rotation aléatoire'}</strong>, en tenant compte des jours travaillés de chaque prestataire.
               </p>
             </div>
           )}
