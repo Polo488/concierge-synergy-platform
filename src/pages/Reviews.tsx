@@ -328,11 +328,18 @@ const Reviews = () => {
                   )}
 
                   <div className="flex justify-end">
-                    <Button size="sm" variant={r.reply ? 'outline' : 'default'} onClick={() => handleReply(r)} className="gap-1.5">
-                      <MessageSquare className="h-3.5 w-3.5" />
-                      {r.reply ? 'Modifier la réponse' : 'Répondre'}
-                    </Button>
+                    {r.reply && (r.platform === 'Airbnb' || r.platform === 'Booking') ? (
+                      <Badge variant="outline" className="text-[10px] bg-muted text-muted-foreground border-border">
+                        Réponse publiée sur {r.platform} — non modifiable
+                      </Badge>
+                    ) : (
+                      <Button size="sm" variant={r.reply ? 'outline' : 'default'} onClick={() => handleReply(r)} className="gap-1.5">
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        {r.reply ? 'Modifier la réponse' : 'Répondre'}
+                      </Button>
+                    )}
                   </div>
+
                 </CardContent>
               </Card>
             ))}
