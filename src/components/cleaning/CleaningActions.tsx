@@ -59,6 +59,14 @@ export const CleaningActions = ({ onAddTask }: CleaningActionsProps) => {
           <Sparkles className="h-3.5 w-3.5" />
           Synchroniser
         </Button>
+        {hasPermission('cleaningNotifications') && (
+          <Button asChild size="sm" variant="outline" className="flex-shrink-0 h-9 rounded-lg gap-1.5 whitespace-nowrap text-[13px]">
+            <Link to="/app/cleaning-notifications">
+              <Bell className="h-3.5 w-3.5" />
+              Notifications
+            </Link>
+          </Button>
+        )}
       </div>
     </div>
   );
