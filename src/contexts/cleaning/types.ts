@@ -1,5 +1,5 @@
 
-import { CleaningTask, CleaningStatus, NewCleaningTask, CleaningIssue } from '@/types/cleaning';
+import { CleaningTask, CleaningStatus, NewCleaningTask, CleaningIssue, CleaningPhoto } from '@/types/cleaning';
 import { QualityTag } from '@/types/quality';
 
 export interface CleaningRatingData {
