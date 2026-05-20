@@ -8,10 +8,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, X, Plus, Zap, Home, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Sparkles, X, Plus, Zap, Home, RefreshCw, CheckCircle2, AlertCircle, CalendarDays } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ALL_AGENTS = ['Marie Lambert', 'Sophie Renard', 'Lucas Martin', 'Karine Vidal', 'Nadia Bensaid'];
+const DAYS = [
+  { key: 1, label: 'L' },
+  { key: 2, label: 'M' },
+  { key: 3, label: 'M' },
+  { key: 4, label: 'J' },
+  { key: 5, label: 'V' },
+  { key: 6, label: 'S' },
+  { key: 0, label: 'D' },
+];
 
 interface PropertyTarifTabProps {
   propertyId: string;
