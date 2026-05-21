@@ -55,10 +55,11 @@ function CockpitContent() {
 
       <div className={cn(
         "grid gap-5",
-        hidePanel ? "lg:grid-cols-[260px_1fr]" : "lg:grid-cols-[260px_1fr_320px]"
+        "md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr]",
+        hidePanel ? "xl:grid-cols-[260px_1fr]" : "xl:grid-cols-[260px_1fr_320px]"
       )}>
         {/* Timeline */}
-        <div className="rounded-[20px] bg-white/[0.025] backdrop-blur-xl ring-1 ring-inset ring-white/[0.06] p-3 lg:sticky lg:top-3 lg:self-start lg:max-h-[calc(100dvh-100px)] overflow-y-auto">
+        <div className="rounded-[20px] bg-white/[0.025] backdrop-blur-xl ring-1 ring-inset ring-white/[0.06] p-3 md:sticky md:top-3 md:self-start md:max-h-[calc(100dvh-100px)] overflow-y-auto">
           <p className="px-3 pt-2 pb-3 text-[10px] uppercase tracking-[0.18em] text-white/40 font-medium">Session</p>
           <Timeline />
         </div>
@@ -69,13 +70,14 @@ function CockpitContent() {
           <StepRenderer />
         </main>
 
-        {/* Right Panel */}
+        {/* Right Panel — under main on tablet, side on xl */}
         {!hidePanel && (
-          <div className="lg:sticky lg:top-3 lg:self-start lg:max-h-[calc(100dvh-100px)]">
+          <div className="md:col-span-2 xl:col-span-1 xl:sticky xl:top-3 xl:self-start xl:max-h-[calc(100dvh-100px)] min-w-0">
             <RightPanel />
           </div>
         )}
       </div>
+
     </div>
   );
 }
