@@ -64,6 +64,8 @@ import { useMenuOrder } from '@/hooks/useMenuOrder';
 import { SortableSection } from './SortableSection';
 import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { SidebarShortcuts } from './SidebarShortcuts';
+import { ShortcutOption } from './ShortcutsPickerDialog';
 
 type NavItem = {
   name: string;
