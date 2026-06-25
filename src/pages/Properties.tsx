@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Grid3X3, Home, List, PlusCircle, Building, BedDouble, Calendar, Sparkles, X } from 'lucide-react';
+import { Grid3X3, Home, List, PlusCircle, Building, BedDouble, Calendar, Sparkles, X, Settings2 } from 'lucide-react';
+import { PropertyColumnsDialog } from '@/components/properties/PropertyColumnsDialog';
+import { usePropertyColumns } from '@/hooks/usePropertyColumns';
 import { Button } from '@/components/ui/button';
 import { generateProperties, generateMaintenanceHistory } from '@/utils/propertyUtils';
 import { PropertySearchFilters } from '@/components/properties/PropertySearchFilters';
@@ -40,6 +42,8 @@ const Properties = () => {
   const [viewMode, setViewMode] = useState('list');
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [prefillData, setPrefillData] = useState<OnboardingPrefillData | null>(null);
+  const [columnsDialogOpen, setColumnsDialogOpen] = useState(false);
+  const { config: columnsConfig, save: saveColumns, reset: resetColumns } = usePropertyColumns();
 
   useEffect(() => {
     const state = location.state as { prefillData?: OnboardingPrefillData } | null;
