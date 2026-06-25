@@ -48,6 +48,7 @@ import Transitory from "./pages/Transitory";
 import IdeaBox from "./pages/IdeaBox";
 import Feedbacks from "./pages/Feedbacks";
 import CheckApartment from "./pages/CheckApartment";
+import Settings from "./pages/Settings";
 import CleaningInvoicing from "./pages/CleaningInvoicing";
 import CleaningPerformance from "./pages/CleaningPerformance";
 import CleaningProfile from "./pages/CleaningProfile";
@@ -175,6 +176,8 @@ const App = () => (
 
 
                       <Route path="/app/reviews" element={<Reviews />} />
+                      <Route path="/app/settings" element={<Settings />} />
+                      <Route path="/app/settings/:tab" element={<Settings />} />
 
 
                       

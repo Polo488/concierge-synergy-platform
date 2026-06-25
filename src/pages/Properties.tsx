@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Grid3X3, Home, List, PlusCircle, Building, BedDouble, Calendar, Sparkles, X } from 'lucide-react';
+import { Grid3X3, Home, List, PlusCircle, Building, BedDouble, Calendar, Sparkles, X, Settings2 } from 'lucide-react';
+import { PropertyColumnsDialog } from '@/components/properties/PropertyColumnsDialog';
+import { usePropertyColumns } from '@/hooks/usePropertyColumns';
 import { Button } from '@/components/ui/button';
 import { generateProperties, generateMaintenanceHistory } from '@/utils/propertyUtils';
 import { PropertySearchFilters } from '@/components/properties/PropertySearchFilters';
@@ -40,6 +42,8 @@ const Properties = () => {
   const [viewMode, setViewMode] = useState('list');
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [prefillData, setPrefillData] = useState<OnboardingPrefillData | null>(null);
+  const [columnsDialogOpen, setColumnsDialogOpen] = useState(false);
+  const { config: columnsConfig, save: saveColumns, reset: resetColumns } = usePropertyColumns();
 
   useEffect(() => {
     const state = location.state as { prefillData?: OnboardingPrefillData } | null;
@@ -227,6 +231,11 @@ const Properties = () => {
                 {viewMode === 'list' ? <Grid3X3 className="h-3.5 w-3.5" /> : <List className="h-3.5 w-3.5" />}
                 {viewMode === 'list' ? 'Grille' : 'Liste'}
               </Button>
+              {viewMode === 'list' && (
+                <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => setColumnsDialogOpen(true)}>
+                  <Settings2 className="h-3.5 w-3.5" /> Colonnes
+                </Button>
+              )}
               <Button size="sm" className="gap-1 text-xs" onClick={() => toast.info(M.common.notAvailable)}>
                 <PlusCircle className="h-3.5 w-3.5" /> Ajouter un logement
               </Button>
@@ -271,6 +280,14 @@ const Properties = () => {
         onClose={handleClosePropertyDetails}
         onViewTask={(task) => console.log('View task:', task)}
         onViewIssue={(issue) => console.log('View issue:', issue)}
+      />
+
+      <PropertyColumnsDialog
+        open={columnsDialogOpen}
+        onOpenChange={setColumnsDialogOpen}
+        config={columnsConfig}
+        onSave={saveColumns}
+        onReset={resetColumns}
       />
     </div>
   );

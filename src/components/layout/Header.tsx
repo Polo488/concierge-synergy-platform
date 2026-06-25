@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Search, User, Globe, Moon, Sun, Monitor } from 'lucide-react';
+import { Search, User, Globe, Moon, Sun, Monitor, Settings, CreditCard, Radio, Zap, Plug, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -223,6 +223,25 @@ export function Header({ sidebarOffset = 0 }: HeaderProps) {
                         {getRoleConfig(user.role).name}
                       </span>
                     </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-black/[0.06]" />
+                  <DropdownMenuLabel className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider text-[hsl(var(--label-3))] font-semibold">
+                    Paramètres
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => navigate('/app/settings/account')} className="text-sm ios-popover-item gap-2">
+                    <UserCircle className="h-4 w-4 text-[hsl(var(--label-2))]" /> Compte
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/app/settings/subscription')} className="text-sm ios-popover-item gap-2">
+                    <CreditCard className="h-4 w-4 text-[hsl(var(--label-2))]" /> Abonnement
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/app/settings/channels')} className="text-sm ios-popover-item gap-2">
+                    <Radio className="h-4 w-4 text-[hsl(var(--label-2))]" /> Canaux
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/app/settings/automations')} className="text-sm ios-popover-item gap-2">
+                    <Zap className="h-4 w-4 text-[hsl(var(--label-2))]" /> Automatisations
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/app/settings/integrations')} className="text-sm ios-popover-item gap-2">
+                    <Plug className="h-4 w-4 text-[hsl(var(--label-2))]" /> Intégrations
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-black/[0.06]" />
                   <DropdownMenuItem onClick={logout} className="text-sm ios-popover-item">

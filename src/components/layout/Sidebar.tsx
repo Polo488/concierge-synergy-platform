@@ -64,6 +64,8 @@ import { useMenuOrder } from '@/hooks/useMenuOrder';
 import { SortableSection } from './SortableSection';
 import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { SidebarShortcuts } from './SidebarShortcuts';
+import { ShortcutOption } from './ShortcutsPickerDialog';
 
 type NavItem = {
   name: string;
@@ -240,6 +242,15 @@ export function Sidebar() {
       .filter(section => (isCleaner ? section.id === 'espace-menage' : section.id !== 'espace-menage'))
       .filter(section => section.items.length > 0);
   }, [orderedSections, hasPermission, user?.role]);
+
+  const shortcutOptions: ShortcutOption[] = useMemo(
+    () =>
+      visibleSections.flatMap(section =>
+        section.items.map(item => ({ path: item.path, name: item.name, icon: item.icon }))
+      ),
+    [visibleSections]
+  );
+  const showShortcuts = user?.role !== 'owner' && user?.role !== 'cleaning';
 
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -502,8 +513,15 @@ export function Sidebar() {
           )}
         </nav>
 
+        {/* Custom shortcuts bar */}
+        {showShortcuts && (
+          <div className="border-t border-[hsl(var(--hairline))]">
+            <SidebarShortcuts options={shortcutOptions} isCollapsed={isCollapsed} />
+          </div>
+        )}
+
         {/* Logout */}
-        <div className="px-2 pb-2 flex-shrink-0">
+        <div className="px-2 pb-2 pt-1 flex-shrink-0">
           {isCollapsed ? (
             <TooltipProvider delayDuration={0}>
               <Tooltip>
