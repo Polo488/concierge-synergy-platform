@@ -84,7 +84,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
            if (key === 'cleaningInvoicing' && currentPath === '/app/cleaning-invoicing') return true;
            if (key === 'cleaningPerformance' && currentPath === '/app/cleaning-performance') return true;
            if (key === 'cleaningNotifications' && currentPath === '/app/cleaning-notifications') return true;
-           if (key === 'cleaning' && currentPath === '/app/cleaning-profile') return true;
+          if (key === 'cleaning' && currentPath === '/app/cleaning-profile') return true;
+          if (currentPath.startsWith('/app/settings')) return true;
           
           return currentPath === '/app';
         }
