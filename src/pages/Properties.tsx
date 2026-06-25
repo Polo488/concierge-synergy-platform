@@ -281,6 +281,14 @@ const Properties = () => {
         onViewTask={(task) => console.log('View task:', task)}
         onViewIssue={(issue) => console.log('View issue:', issue)}
       />
+
+      <PropertyColumnsDialog
+        open={columnsDialogOpen}
+        onOpenChange={setColumnsDialogOpen}
+        config={columnsConfig}
+        onSave={saveColumns}
+        onReset={resetColumns}
+      />
     </div>
   );
 };
