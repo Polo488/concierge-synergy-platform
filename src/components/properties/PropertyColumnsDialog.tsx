@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { ChevronUp, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
   ALL_PROPERTY_COLUMNS,
   PropertyColumnKey,
@@ -19,8 +20,12 @@ interface Props {
   onReset: () => void;
 }
 
+// Apple spring — same easing family as iOS list reorder
+const APPLE_SPRING = { type: 'spring' as const, stiffness: 520, damping: 38, mass: 0.9 };
+
 export function PropertyColumnsDialog({ open, onOpenChange, config, onSave, onReset }: Props) {
   const [draft, setDraft] = useState<PropertyColumnsConfig>(config);
+  const [movingKey, setMovingKey] = useState<PropertyColumnKey | null>(null);
 
   useEffect(() => {
     if (open) setDraft(config);
@@ -38,6 +43,12 @@ export function PropertyColumnsDialog({ open, onOpenChange, config, onSave, onRe
     const newOrder = [...ordered];
     [newOrder[idx], newOrder[next]] = [newOrder[next], newOrder[idx]];
     setDraft(d => ({ ...d, order: newOrder }));
+    setMovingKey(key);
+    // Haptic-ish flash; clear after spring settles
+    window.setTimeout(() => setMovingKey(k => (k === key ? null : k)), 480);
+    if ('vibrate' in navigator) {
+      try { navigator.vibrate?.(8); } catch { /* noop */ }
+    }
   };
 
   const toggleVisible = (key: PropertyColumnKey, v: boolean) => {
@@ -67,49 +78,109 @@ export function PropertyColumnsDialog({ open, onOpenChange, config, onSave, onRe
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden">
-          {ordered.map((key, idx) => {
-            const def = ALL_PROPERTY_COLUMNS.find(c => c.key === key)!;
-            const visible = draft.visible.includes(key);
-            const isFirst = idx === 0;
-            const isLast = idx === ordered.length - 1;
-            return (
-              <div key={key} className="flex items-center gap-2 px-3 py-2.5">
-                <div className="flex flex-col -my-1">
-                  <button
-                    type="button"
-                    onClick={() => move(key, -1)}
-                    disabled={isFirst}
-                    aria-label="Monter"
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <LayoutGroup>
+            <motion.ul layout className="divide-y divide-border">
+              {ordered.map((key, idx) => {
+                const def = ALL_PROPERTY_COLUMNS.find(c => c.key === key)!;
+                const visible = draft.visible.includes(key);
+                const isFirst = idx === 0;
+                const isLast = idx === ordered.length - 1;
+                const isMoving = movingKey === key;
+                return (
+                  <motion.li
+                    key={key}
+                    layout
+                    layoutId={`col-${key}`}
+                    transition={APPLE_SPRING}
+                    animate={{
+                      scale: isMoving ? 1.02 : 1,
+                      zIndex: isMoving ? 5 : 0,
+                      boxShadow: isMoving
+                        ? '0 12px 28px -10px hsl(var(--ios-orange) / 0.35), 0 2px 6px -2px hsl(0 0% 0% / 0.12)'
+                        : '0 0px 0px hsl(0 0% 0% / 0)',
+                    }}
                     className={cn(
-                      "h-5 w-7 flex items-center justify-center rounded-md transition-colors",
-                      isFirst
-                        ? "text-muted-foreground/30 cursor-not-allowed"
-                        : "text-[hsl(var(--ios-orange))] hover:bg-[hsl(var(--ios-orange)/0.08)] active:scale-95"
+                      'relative flex items-center gap-2 px-3 py-2.5 bg-card',
+                      isMoving && 'bg-[hsl(var(--ios-orange)/0.04)]'
                     )}
                   >
-                    <ChevronUp className="h-4 w-4" strokeWidth={2.5} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => move(key, 1)}
-                    disabled={isLast}
-                    aria-label="Descendre"
-                    className={cn(
-                      "h-5 w-7 flex items-center justify-center rounded-md transition-colors",
-                      isLast
-                        ? "text-muted-foreground/30 cursor-not-allowed"
-                        : "text-[hsl(var(--ios-orange))] hover:bg-[hsl(var(--ios-orange)/0.08)] active:scale-95"
-                    )}
-                  >
-                    <ChevronDown className="h-4 w-4" strokeWidth={2.5} />
-                  </button>
-                </div>
-                <span className="flex-1 text-[15px] font-medium text-foreground pl-1">{def.label}</span>
-                <Switch checked={visible} onCheckedChange={v => toggleVisible(key, v)} />
-              </div>
-            );
-          })}
+                    {/* Position indicator rail */}
+                    <AnimatePresence>
+                      {isMoving && (
+                        <motion.span
+                          initial={{ opacity: 0, scaleY: 0.4 }}
+                          animate={{ opacity: 1, scaleY: 1 }}
+                          exit={{ opacity: 0, scaleY: 0.4 }}
+                          transition={{ duration: 0.18 }}
+                          className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[hsl(var(--ios-orange))] origin-center"
+                        />
+                      )}
+                    </AnimatePresence>
+
+                    <div className="flex flex-col -my-1">
+                      <motion.button
+                        type="button"
+                        onClick={() => move(key, -1)}
+                        disabled={isFirst}
+                        whileTap={isFirst ? undefined : { scale: 0.82 }}
+                        transition={APPLE_SPRING}
+                        aria-label="Monter"
+                        className={cn(
+                          'h-5 w-7 flex items-center justify-center rounded-md transition-colors',
+                          isFirst
+                            ? 'text-muted-foreground/30 cursor-not-allowed'
+                            : 'text-[hsl(var(--ios-orange))] hover:bg-[hsl(var(--ios-orange)/0.08)]'
+                        )}
+                      >
+                        <ChevronUp className="h-4 w-4" strokeWidth={2.5} />
+                      </motion.button>
+                      <motion.button
+                        type="button"
+                        onClick={() => move(key, 1)}
+                        disabled={isLast}
+                        whileTap={isLast ? undefined : { scale: 0.82 }}
+                        transition={APPLE_SPRING}
+                        aria-label="Descendre"
+                        className={cn(
+                          'h-5 w-7 flex items-center justify-center rounded-md transition-colors',
+                          isLast
+                            ? 'text-muted-foreground/30 cursor-not-allowed'
+                            : 'text-[hsl(var(--ios-orange))] hover:bg-[hsl(var(--ios-orange)/0.08)]'
+                        )}
+                      >
+                        <ChevronDown className="h-4 w-4" strokeWidth={2.5} />
+                      </motion.button>
+                    </div>
+
+                    <span className="flex-1 text-[15px] font-medium text-foreground pl-1">{def.label}</span>
+
+                    {/* Position pill — animates the index in/out */}
+                    <motion.span
+                      key={`pos-${idx}`}
+                      initial={{ opacity: 0, y: -4, scale: 0.85 }}
+                      animate={{
+                        opacity: isMoving ? 1 : 0.55,
+                        y: 0,
+                        scale: isMoving ? 1.06 : 1,
+                      }}
+                      transition={APPLE_SPRING}
+                      className={cn(
+                        'min-w-[28px] h-6 px-2 rounded-full text-[11px] font-semibold tabular-nums inline-flex items-center justify-center',
+                        isMoving
+                          ? 'bg-[hsl(var(--ios-orange))] text-white'
+                          : 'bg-muted text-muted-foreground'
+                      )}
+                    >
+                      {idx + 1}
+                    </motion.span>
+
+                    <Switch checked={visible} onCheckedChange={v => toggleVisible(key, v)} />
+                  </motion.li>
+                );
+              })}
+            </motion.ul>
+          </LayoutGroup>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
@@ -122,4 +193,3 @@ export function PropertyColumnsDialog({ open, onOpenChange, config, onSave, onRe
     </Dialog>
   );
 }
-
