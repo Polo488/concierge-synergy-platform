@@ -513,8 +513,15 @@ export function Sidebar() {
           )}
         </nav>
 
+        {/* Custom shortcuts bar */}
+        {showShortcuts && (
+          <div className="border-t border-[hsl(var(--hairline))]">
+            <SidebarShortcuts options={shortcutOptions} isCollapsed={isCollapsed} />
+          </div>
+        )}
+
         {/* Logout */}
-        <div className="px-2 pb-2 flex-shrink-0">
+        <div className="px-2 pb-2 pt-1 flex-shrink-0">
           {isCollapsed ? (
             <TooltipProvider delayDuration={0}>
               <Tooltip>
