@@ -243,6 +243,15 @@ export function Sidebar() {
       .filter(section => section.items.length > 0);
   }, [orderedSections, hasPermission, user?.role]);
 
+  const shortcutOptions: ShortcutOption[] = useMemo(
+    () =>
+      visibleSections.flatMap(section =>
+        section.items.map(item => ({ path: item.path, name: item.name, icon: item.icon }))
+      ),
+    [visibleSections]
+  );
+  const showShortcuts = user?.role !== 'owner' && user?.role !== 'cleaning';
+
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
