@@ -2,28 +2,14 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { GripVertical } from 'lucide-react';
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import {
   ALL_PROPERTY_COLUMNS,
   PropertyColumnKey,
   PropertyColumnsConfig,
 } from '@/hooks/usePropertyColumns';
 import { toast } from '@/lib/toast';
+import { cn } from '@/lib/utils';
 
 interface Props {
   open: boolean;
@@ -33,34 +19,6 @@ interface Props {
   onReset: () => void;
 }
 
-function SortableRow({ id, label, visible, onToggle }: { id: PropertyColumnKey; label: string; visible: boolean; onToggle: (v: boolean) => void }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-border bg-card"
-    >
-      <button
-        type="button"
-        className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
-        {...attributes}
-        {...listeners}
-        aria-label="Réordonner"
-      >
-        <GripVertical className="h-4 w-4" />
-      </button>
-      <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
-      <Switch checked={visible} onCheckedChange={onToggle} />
-    </div>
-  );
-}
-
 export function PropertyColumnsDialog({ open, onOpenChange, config, onSave, onReset }: Props) {
   const [draft, setDraft] = useState<PropertyColumnsConfig>(config);
 
@@ -68,20 +26,18 @@ export function PropertyColumnsDialog({ open, onOpenChange, config, onSave, onRe
     if (open) setDraft(config);
   }, [open, config]);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
-
-  // Compute the full ordered list, ensuring any new columns appear at the end.
   const ordered: PropertyColumnKey[] = [
     ...draft.order.filter(k => ALL_PROPERTY_COLUMNS.some(c => c.key === k)),
     ...ALL_PROPERTY_COLUMNS.filter(c => !draft.order.includes(c.key)).map(c => c.key),
   ];
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const oldIndex = ordered.indexOf(active.id as PropertyColumnKey);
-    const newIndex = ordered.indexOf(over.id as PropertyColumnKey);
-    setDraft(d => ({ ...d, order: arrayMove(ordered, oldIndex, newIndex) }));
+  const move = (key: PropertyColumnKey, dir: -1 | 1) => {
+    const idx = ordered.indexOf(key);
+    const next = idx + dir;
+    if (next < 0 || next >= ordered.length) return;
+    const newOrder = [...ordered];
+    [newOrder[idx], newOrder[next]] = [newOrder[next], newOrder[idx]];
+    setDraft(d => ({ ...d, order: newOrder }));
   };
 
   const toggleVisible = (key: PropertyColumnKey, v: boolean) => {
@@ -105,30 +61,56 @@ export function PropertyColumnsDialog({ open, onOpenChange, config, onSave, onRe
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Configurer les colonnes</DialogTitle>
+          <DialogTitle>Colonnes</DialogTitle>
           <DialogDescription>
-            Active/désactive les colonnes et glisse-dépose pour les réordonner.
+            Active/désactive et réordonne avec les flèches.
           </DialogDescription>
         </DialogHeader>
 
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={ordered} strategy={verticalListSortingStrategy}>
-            <div className="space-y-2 max-h-[55vh] overflow-y-auto py-1">
-              {ordered.map(key => {
-                const def = ALL_PROPERTY_COLUMNS.find(c => c.key === key)!;
-                return (
-                  <SortableRow
-                    key={key}
-                    id={key}
-                    label={def.label}
-                    visible={draft.visible.includes(key)}
-                    onToggle={v => toggleVisible(key, v)}
-                  />
-                );
-              })}
-            </div>
-          </SortableContext>
-        </DndContext>
+        <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden">
+          {ordered.map((key, idx) => {
+            const def = ALL_PROPERTY_COLUMNS.find(c => c.key === key)!;
+            const visible = draft.visible.includes(key);
+            const isFirst = idx === 0;
+            const isLast = idx === ordered.length - 1;
+            return (
+              <div key={key} className="flex items-center gap-2 px-3 py-2.5">
+                <div className="flex flex-col -my-1">
+                  <button
+                    type="button"
+                    onClick={() => move(key, -1)}
+                    disabled={isFirst}
+                    aria-label="Monter"
+                    className={cn(
+                      "h-5 w-7 flex items-center justify-center rounded-md transition-colors",
+                      isFirst
+                        ? "text-muted-foreground/30 cursor-not-allowed"
+                        : "text-[hsl(var(--ios-orange))] hover:bg-[hsl(var(--ios-orange)/0.08)] active:scale-95"
+                    )}
+                  >
+                    <ChevronUp className="h-4 w-4" strokeWidth={2.5} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(key, 1)}
+                    disabled={isLast}
+                    aria-label="Descendre"
+                    className={cn(
+                      "h-5 w-7 flex items-center justify-center rounded-md transition-colors",
+                      isLast
+                        ? "text-muted-foreground/30 cursor-not-allowed"
+                        : "text-[hsl(var(--ios-orange))] hover:bg-[hsl(var(--ios-orange)/0.08)] active:scale-95"
+                    )}
+                  >
+                    <ChevronDown className="h-4 w-4" strokeWidth={2.5} />
+                  </button>
+                </div>
+                <span className="flex-1 text-[15px] font-medium text-foreground pl-1">{def.label}</span>
+                <Switch checked={visible} onCheckedChange={v => toggleVisible(key, v)} />
+              </div>
+            );
+          })}
+        </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button variant="outline" onClick={() => { onReset(); onOpenChange(false); toast.success('Colonnes réinitialisées'); }}>
@@ -140,3 +122,4 @@ export function PropertyColumnsDialog({ open, onOpenChange, config, onSave, onRe
     </Dialog>
   );
 }
+
