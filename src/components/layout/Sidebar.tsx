@@ -8,14 +8,17 @@ import { cn } from '@/lib/utils';
 import {
   DndContext,
   closestCenter,
+  closestCorners,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
 } from '@dnd-kit/core';
+
 import {
   arrayMove,
   SortableContext,
@@ -66,6 +69,53 @@ import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SidebarShortcuts } from './SidebarShortcuts';
 import { ShortcutOption } from './ShortcutsPickerDialog';
+import { SidebarNavItem } from './SidebarNavItem';
+import { useNavCustomization, computeNavLayout } from '@/hooks/useNavCustomization';
+
+// Static (non-sortable) variant used in collapsed sidebar — keeps existing UX.
+function SidebarNavItemStatic({ item, isCollapsed }: { item: { name: string; path: string; icon: React.ElementType }; isCollapsed: boolean }) {
+  const Icon = item.icon;
+  const link = (
+    <Link
+      to={item.path}
+      className={cn(
+        'flex items-center gap-3 h-9 px-3 mx-1 rounded-[8px] transition-colors text-[hsl(var(--label-1))] hover:bg-black/[0.04]',
+        isCollapsed && 'justify-center mx-0 px-2'
+      )}
+    >
+      <Icon size={18} strokeWidth={2} className="text-[hsl(var(--label-2))]" />
+      {!isCollapsed && <span className="text-sm font-medium truncate">{item.name}</span>}
+    </Link>
+  );
+  if (isCollapsed) {
+    return (
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>{link}</TooltipTrigger>
+          <TooltipContent side="right" sideOffset={8}><p>{item.name}</p></TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+  return link;
+}
+
+function TopDroppable({ id, isEmpty, children }: { id: string; isEmpty: boolean; children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id });
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        'space-y-px rounded-md transition-colors',
+        isOver && 'bg-[hsl(var(--ios-orange)/0.06)] ring-1 ring-[hsl(var(--ios-orange)/0.3)]',
+        isEmpty && 'min-h-[8px]'
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
 
 type NavItem = {
   name: string;
@@ -231,55 +281,120 @@ export function Sidebar() {
     );
   };
 
-  const visibleSections = useMemo(() => {
+  const baseVisibleSections = useMemo(() => {
     const isCleaner = user?.role === 'cleaning';
     return orderedSections
       .map(section => ({
         ...section,
         items: section.items.filter(item => hasPermission(item.permission as any)),
       }))
-      // Pour le prestataire ménage : interface ultra-épurée, uniquement son bloc dédié.
       .filter(section => (isCleaner ? section.id === 'espace-menage' : section.id !== 'espace-menage'))
       .filter(section => section.items.length > 0);
   }, [orderedSections, hasPermission, user?.role]);
 
+  const { state: navCustom, isLoaded: navCustomLoaded, moveItem } = useNavCustomization();
+
+  const { top: topItems, sections: visibleSections, containerByPath } = useMemo(() => {
+    return computeNavLayout<NavSection, NavItem>(baseVisibleSections, navCustom);
+  }, [baseVisibleSections, navCustom]);
+
+
   const shortcutOptions: ShortcutOption[] = useMemo(
-    () =>
-      visibleSections.flatMap(section =>
+    () => [
+      ...topItems.map(item => ({ path: item.path, name: item.name, icon: item.icon })),
+      ...visibleSections.flatMap(section =>
         section.items.map(item => ({ path: item.path, name: item.name, icon: item.icon }))
       ),
-    [visibleSections]
+    ],
+    [visibleSections, topItems]
   );
   const showShortcuts = user?.role !== 'owner' && user?.role !== 'cleaning';
 
+  type ActiveDrag = { type: 'section' | 'item'; id: string } | null;
+  const [activeDrag, setActiveDrag] = useState<ActiveDrag>(null);
 
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
+    const id = event.active.id as string;
+    if (id.startsWith('sec:')) setActiveDrag({ type: 'section', id: id.slice(4) });
+    else if (id.startsWith('item:')) setActiveDrag({ type: 'item', id: id.slice(5) });
+    else setActiveDrag(null);
+    setActiveId(id);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
+    setActiveDrag(null);
+    if (!over) return;
+    const activeIdStr = active.id as string;
+    const overIdStr = over.id as string;
 
-    if (over && active.id !== over.id) {
-      const oldIndex = sectionOrder.indexOf(active.id as string);
-      const newIndex = sectionOrder.indexOf(over.id as string);
-      
+    // Section reorder
+    if (activeIdStr.startsWith('sec:') && overIdStr.startsWith('sec:') && activeIdStr !== overIdStr) {
+      const a = activeIdStr.slice(4);
+      const b = overIdStr.slice(4);
+      const oldIndex = sectionOrder.indexOf(a);
+      const newIndex = sectionOrder.indexOf(b);
       if (oldIndex !== -1 && newIndex !== -1) {
-        const newOrder = arrayMove(sectionOrder, oldIndex, newIndex);
-        updateOrder(newOrder);
-        toast.success("Ordre du menu mis à jour");
+        updateOrder(arrayMove(sectionOrder, oldIndex, newIndex));
+      }
+      return;
+    }
+
+    // Item move
+    if (activeIdStr.startsWith('item:')) {
+      const path = activeIdStr.slice(5);
+      let toContainer: string | null = null;
+      let toIndex = 0;
+
+      if (overIdStr.startsWith('item:')) {
+        const overPath = overIdStr.slice(5);
+        toContainer = containerByPath.get(overPath) ?? null;
+        if (toContainer) {
+          const list = toContainer === '__top__'
+            ? topItems
+            : visibleSections.find(s => s.id === toContainer)?.items ?? [];
+          toIndex = list.findIndex(i => i.path === overPath);
+          if (toIndex < 0) toIndex = list.length;
+        }
+      } else if (overIdStr.startsWith('drop:')) {
+        const target = overIdStr.slice(5);
+        toContainer = target;
+        const list = target === '__top__'
+          ? topItems
+          : visibleSections.find(s => s.id === target)?.items ?? [];
+        toIndex = list.length;
+      } else if (overIdStr.startsWith('sec:')) {
+        toContainer = overIdStr.slice(4);
+        const list = visibleSections.find(s => s.id === toContainer)?.items ?? [];
+        toIndex = list.length;
+      }
+
+      if (toContainer) {
+        const fromContainer = containerByPath.get(path);
+        if (fromContainer === toContainer) {
+          const list = toContainer === '__top__'
+            ? topItems
+            : visibleSections.find(s => s.id === toContainer)?.items ?? [];
+          const fromIdx = list.findIndex(i => i.path === path);
+          if (fromIdx === toIndex || fromIdx === -1) return;
+        }
+        moveItem(path, toContainer, toIndex);
       }
     }
   };
 
-  const activeSection = activeId 
-    ? visibleSections.find(s => s.id === activeId) 
+  const activeSection = activeDrag?.type === 'section'
+    ? visibleSections.find(s => s.id === activeDrag.id) ?? baseVisibleSections.find(s => s.id === activeDrag.id)
+    : null;
+  const activeItem = activeDrag?.type === 'item'
+    ? [...topItems, ...visibleSections.flatMap(s => s.items)].find(i => i.path === activeDrag.id) ?? null
     : null;
 
-  if (!isLoaded) {
+  if (!isLoaded || !navCustomLoaded) {
     return null;
   }
+
 
   const renderNavLink = (item: NavItem, section: NavSection) => {
     const isActive = location.pathname === item.path;
@@ -476,41 +591,82 @@ export function Sidebar() {
             </div>
           ) : isCollapsed ? (
             <div className="space-y-1">
+              {topItems.map(item => (
+                <SidebarNavItemStatic key={item.path} item={item} isCollapsed />
+              ))}
               {visibleSections.flatMap(section =>
-                section.items.map(item => renderNavLink(item, section))
+                section.items.map(item => (
+                  <SidebarNavItemStatic key={item.path} item={item} isCollapsed />
+                ))
               )}
             </div>
           ) : (
             <DndContext
               sensors={sensors}
-              collisionDetection={closestCenter}
+              collisionDetection={closestCorners}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
+              {/* Top zone — uncategorized, always visible */}
+              <div className="px-1 mb-2">
+                <TopDroppable id="drop:__top__" isEmpty={topItems.length === 0}>
+                  <SortableContext
+                    items={topItems.map(i => `item:${i.path}`)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {topItems.map(item => (
+                      <SidebarNavItem
+                        key={item.path}
+                        item={item}
+                        isCollapsed={false}
+                        variant="top"
+                      />
+                    ))}
+                  </SortableContext>
+                </TopDroppable>
+              </div>
+
               <SortableContext
-                items={visibleSections.map(s => s.id)}
+                items={visibleSections.map(s => `sec:${s.id}`)}
                 strategy={verticalListSortingStrategy}
               >
                 {visibleSections.map((section) => (
                   <SortableSection
                     key={section.id}
-                    section={section}
+                    sectionId={section.id}
+                    title={section.title}
                     isExpanded={expandedSections.includes(section.id)}
                     isOpen={!isCollapsed}
                     onToggle={() => toggleSection(section.id)}
-                  />
+                    itemCount={section.items.length}
+                  >
+                    <SortableContext
+                      items={section.items.map(i => `item:${i.path}`)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {section.items.map(item => (
+                        <SidebarNavItem key={item.path} item={item} isCollapsed={false} />
+                      ))}
+                    </SortableContext>
+                  </SortableSection>
                 ))}
               </SortableContext>
 
               <DragOverlay>
-                {activeSection ? (
+                {activeDrag?.type === 'section' && activeSection ? (
                   <div className="flex items-center gap-2 px-3 py-2 rounded-xl glass-thick text-xs font-medium text-[hsl(var(--label-1))]">
                     <span>{activeSection.title}</span>
+                  </div>
+                ) : activeDrag?.type === 'item' && activeItem ? (
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-[8px] glass-thick text-sm font-medium text-[hsl(var(--label-1))]">
+                    <activeItem.icon size={16} />
+                    <span>{activeItem.name}</span>
                   </div>
                 ) : null}
               </DragOverlay>
             </DndContext>
           )}
+
         </nav>
 
         {/* Custom shortcuts bar */}
