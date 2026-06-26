@@ -294,7 +294,7 @@ export function Sidebar() {
 
   const { state: navCustom, isLoaded: navCustomLoaded, moveItem } = useNavCustomization();
 
-  const { topItems, sections: visibleSections, containerByPath } = useMemo(() => {
+  const { top: topItems, sections: visibleSections, containerByPath } = useMemo(() => {
     return computeNavLayout(baseVisibleSections, navCustom);
   }, [baseVisibleSections, navCustom]);
 
