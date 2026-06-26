@@ -1,59 +1,35 @@
-
 import { useSortable } from '@dnd-kit/sortable';
+import { useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import { Link, useLocation } from 'react-router-dom';
-
-type NavItem = {
-  name: string;
-  path: string;
-  icon: React.ElementType;
-  permission: string;
-};
-
-type NavSection = {
-  id: string;
-  title: string;
-  colorClass: string;
-  activeClass: string;
-  bgClass: string;
-  iconBgClass: string;
-  items: NavItem[];
-};
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface SortableSectionProps {
-  section: NavSection;
+  sectionId: string;
+  title: string;
   isExpanded: boolean;
   isOpen: boolean;
   onToggle: () => void;
-  isDragging?: boolean;
+  itemCount: number;
+  children: React.ReactNode;
 }
 
 export function SortableSection({
-  section,
+  sectionId,
+  title,
   isExpanded,
   isOpen,
   onToggle,
-  isDragging: externalIsDragging,
+  itemCount,
+  children,
 }: SortableSectionProps) {
-  const location = useLocation();
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: `sec:${sectionId}`,
+  });
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging: localIsDragging,
-  } = useSortable({ id: section.id });
-
-  const isDragging = externalIsDragging || localIsDragging;
+  // Droppable area for empty section so items can be dropped into it.
+  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: `drop:${sectionId}` });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -64,113 +40,55 @@ export function SortableSection({
     <div
       ref={setNodeRef}
       style={style}
-      className={cn(
-        "transition-opacity duration-150 group/section",
-        isDragging && "opacity-50 z-50"
-      )}
+      className={cn('transition-opacity duration-150 group/section', isDragging && 'opacity-50 z-50')}
     >
       <Collapsible open={isExpanded} onOpenChange={onToggle}>
-        <div className={cn(
-          "flex items-center mt-5 first:mt-0 px-2",
-          !isOpen && "md:hidden"
-        )}>
-          {/* Drag handle — invisible by default, shows only on hover (Apple style) */}
+        <div className={cn('flex items-center mt-5 first:mt-0 px-2', !isOpen && 'md:hidden')}>
           <button
             {...attributes}
             {...listeners}
             className={cn(
-              "p-1 rounded-md cursor-grab active:cursor-grabbing",
-              "opacity-0 group-hover/section:opacity-100 transition-opacity duration-150",
-              "text-[hsl(var(--label-3))] hover:text-[hsl(var(--label-1))]",
-              "touch-none -ml-1"
+              'p-1 rounded-md cursor-grab active:cursor-grabbing',
+              'opacity-0 group-hover/section:opacity-100 transition-opacity duration-150',
+              'text-[hsl(var(--label-3))] hover:text-[hsl(var(--label-1))]',
+              'touch-none -ml-1'
             )}
-            title="Réorganiser"
             aria-label="Réorganiser la section"
           >
             <GripVertical size={11} strokeWidth={2} />
           </button>
-
-          <CollapsibleTrigger className={cn(
-            "flex items-center justify-between flex-1 px-1.5 py-1 rounded-md",
-            "transition-colors"
-          )}>
+          <CollapsibleTrigger className="flex items-center justify-between flex-1 px-1.5 py-1 rounded-md transition-colors">
             <span
               className="text-[11px] font-semibold uppercase text-[hsl(var(--label-3))]"
               style={{ letterSpacing: '0.06em' }}
             >
-              {section.title}
+              {title}
             </span>
             <ChevronDown
               size={12}
               strokeWidth={2}
               className={cn(
-                "transition-transform duration-200 text-[hsl(var(--label-3))]",
-                isExpanded && "rotate-180"
+                'transition-transform duration-200 text-[hsl(var(--label-3))]',
+                isExpanded && 'rotate-180'
               )}
             />
           </CollapsibleTrigger>
         </div>
 
-        <CollapsibleContent className={cn("space-y-px mt-1", !isOpen && "md:hidden")}>
-          {section.items.map((item) => {
-            const isActive = location.pathname === item.path;
-
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "flex items-center gap-3 h-9 px-3 mx-2 rounded-[8px] transition-colors duration-150",
-                  isActive
-                    ? "bg-[hsl(var(--ios-orange)/_0.10)] text-[hsl(var(--ios-orange))] font-semibold"
-                    : "text-[hsl(var(--label-1))] hover:bg-[hsl(var(--label-1)/0.06)] dark:hover:bg-white/5",
-                  !isOpen && "md:mx-0 md:justify-center md:px-2"
-                )}
-              >
-                <item.icon
-                  size={18}
-                  strokeWidth={2}
-                  className={cn(
-                    "flex-shrink-0",
-                    isActive ? "text-[hsl(var(--ios-orange))]" : "text-[hsl(var(--label-2))]"
-                  )}
-                />
-
-                <span className={cn(
-                  "text-sm font-medium",
-                  !isOpen && "md:hidden"
-                )}>
-                  {item.name}
-                </span>
-              </Link>
-            );
-          })}
+        <CollapsibleContent className={cn('space-y-px mt-1', !isOpen && 'md:hidden')}>
+          <div
+            ref={setDropRef}
+            className={cn(
+              'min-h-[8px] rounded-md transition-colors',
+              isOver && 'bg-[hsl(var(--ios-orange)/0.06)] ring-1 ring-[hsl(var(--ios-orange)/0.3)]',
+              itemCount === 0 && 'min-h-[36px] border border-dashed border-[hsl(var(--hairline))] mx-2'
+            )}
+          >
+            {children}
+          </div>
         </CollapsibleContent>
 
-        {/* Collapsed state - show only icons */}
-        {!isOpen && (
-          <div className="hidden md:flex flex-col items-center gap-0.5 py-1">
-            {section.items.map((item) => {
-              const isActive = location.pathname === item.path;
-
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  title={item.name}
-                  className={cn(
-                    "relative h-9 w-9 flex items-center justify-center rounded-[8px] transition-colors duration-150",
-                    isActive
-                      ? "bg-[hsl(var(--ios-orange)/_0.10)] text-[hsl(var(--ios-orange))]"
-                      : "text-[hsl(var(--label-2))] hover:bg-[hsl(var(--label-1)/0.06)] dark:hover:bg-white/5"
-                  )}
-                >
-                  <item.icon size={18} strokeWidth={2} />
-                </Link>
-              );
-            })}
-          </div>
-        )}
+        {!isOpen && <div className="hidden md:flex flex-col items-center gap-0.5 py-1">{children}</div>}
       </Collapsible>
     </div>
   );
