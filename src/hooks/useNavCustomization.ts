@@ -74,20 +74,18 @@ export function useNavCustomization() {
 }
 
 /** Compute final ordered items per container, given default sections and customization state. */
-export function computeNavLayout<T extends { path: string }>(
-  defaultSections: { id: string; items: T[] }[],
+export function computeNavLayout<S extends { id: string; items: T[] }, T extends { path: string }>(
+  defaultSections: S[],
   state: { top: string[]; sections: Record<string, string[]> }
-) {
-  const allByPath = new Map<string, { item: T; defaultSid: string }>();
-  defaultSections.forEach(s => {
-    s.items.forEach(it => allByPath.set(it.path, { item: it, defaultSid: s.id }));
-  });
+): { top: T[]; sections: S[]; containerByPath: Map<string, string> } {
+  const allByPath = new Map<string, T>();
+  defaultSections.forEach(s => s.items.forEach(it => allByPath.set(it.path, it)));
 
   const placedElsewhere = new Set<string>(state.top);
   Object.values(state.sections).forEach(arr => arr.forEach(p => placedElsewhere.add(p)));
 
   const resolveList = (paths: string[]) =>
-    paths.map(p => allByPath.get(p)?.item).filter((x): x is T => Boolean(x));
+    paths.map(p => allByPath.get(p)).filter((x): x is T => Boolean(x));
 
   const top = resolveList(state.top);
 
@@ -95,18 +93,15 @@ export function computeNavLayout<T extends { path: string }>(
     const override = state.sections[s.id];
     let items: T[];
     if (override) {
-      // Use explicit override; append any default items not placed anywhere
       const inOverride = new Set(override);
       const defaultExtras = s.items.filter(it => !placedElsewhere.has(it.path) && !inOverride.has(it.path));
-      items = [...resolveList(override).filter(it => allByPath.get(it.path)?.defaultSid !== undefined), ...defaultExtras];
+      items = [...resolveList(override), ...defaultExtras];
     } else {
-      // Default order, minus anything user moved away
       items = s.items.filter(it => !placedElsewhere.has(it.path));
     }
-    return { ...s, items };
+    return { ...s, items } as S;
   });
 
-  // Build container lookup
   const containerByPath = new Map<string, string>();
   state.top.forEach(p => containerByPath.set(p, '__top__'));
   sections.forEach(s => s.items.forEach(it => {
@@ -115,3 +110,4 @@ export function computeNavLayout<T extends { path: string }>(
 
   return { top, sections, containerByPath };
 }
+
