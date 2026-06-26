@@ -281,55 +281,119 @@ export function Sidebar() {
     );
   };
 
-  const visibleSections = useMemo(() => {
+  const baseVisibleSections = useMemo(() => {
     const isCleaner = user?.role === 'cleaning';
     return orderedSections
       .map(section => ({
         ...section,
         items: section.items.filter(item => hasPermission(item.permission as any)),
       }))
-      // Pour le prestataire ménage : interface ultra-épurée, uniquement son bloc dédié.
       .filter(section => (isCleaner ? section.id === 'espace-menage' : section.id !== 'espace-menage'))
       .filter(section => section.items.length > 0);
   }, [orderedSections, hasPermission, user?.role]);
 
+  const { state: navCustom, isLoaded: navCustomLoaded, moveItem } = useNavCustomization();
+
+  const { topItems, sections: visibleSections, containerByPath } = useMemo(() => {
+    return computeNavLayout(baseVisibleSections, navCustom);
+  }, [baseVisibleSections, navCustom]);
+
   const shortcutOptions: ShortcutOption[] = useMemo(
-    () =>
-      visibleSections.flatMap(section =>
+    () => [
+      ...topItems.map(item => ({ path: item.path, name: item.name, icon: item.icon })),
+      ...visibleSections.flatMap(section =>
         section.items.map(item => ({ path: item.path, name: item.name, icon: item.icon }))
       ),
-    [visibleSections]
+    ],
+    [visibleSections, topItems]
   );
   const showShortcuts = user?.role !== 'owner' && user?.role !== 'cleaning';
 
+  type ActiveDrag = { type: 'section' | 'item'; id: string } | null;
+  const [activeDrag, setActiveDrag] = useState<ActiveDrag>(null);
 
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
+    const id = event.active.id as string;
+    if (id.startsWith('sec:')) setActiveDrag({ type: 'section', id: id.slice(4) });
+    else if (id.startsWith('item:')) setActiveDrag({ type: 'item', id: id.slice(5) });
+    else setActiveDrag(null);
+    setActiveId(id);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
+    setActiveDrag(null);
+    if (!over) return;
+    const activeIdStr = active.id as string;
+    const overIdStr = over.id as string;
 
-    if (over && active.id !== over.id) {
-      const oldIndex = sectionOrder.indexOf(active.id as string);
-      const newIndex = sectionOrder.indexOf(over.id as string);
-      
+    // Section reorder
+    if (activeIdStr.startsWith('sec:') && overIdStr.startsWith('sec:') && activeIdStr !== overIdStr) {
+      const a = activeIdStr.slice(4);
+      const b = overIdStr.slice(4);
+      const oldIndex = sectionOrder.indexOf(a);
+      const newIndex = sectionOrder.indexOf(b);
       if (oldIndex !== -1 && newIndex !== -1) {
-        const newOrder = arrayMove(sectionOrder, oldIndex, newIndex);
-        updateOrder(newOrder);
-        toast.success("Ordre du menu mis à jour");
+        updateOrder(arrayMove(sectionOrder, oldIndex, newIndex));
+      }
+      return;
+    }
+
+    // Item move
+    if (activeIdStr.startsWith('item:')) {
+      const path = activeIdStr.slice(5);
+      let toContainer: string | null = null;
+      let toIndex = 0;
+
+      if (overIdStr.startsWith('item:')) {
+        const overPath = overIdStr.slice(5);
+        toContainer = containerByPath.get(overPath) ?? null;
+        if (toContainer) {
+          const list = toContainer === '__top__'
+            ? topItems
+            : visibleSections.find(s => s.id === toContainer)?.items ?? [];
+          toIndex = list.findIndex(i => i.path === overPath);
+          if (toIndex < 0) toIndex = list.length;
+        }
+      } else if (overIdStr.startsWith('drop:')) {
+        const target = overIdStr.slice(5);
+        toContainer = target;
+        const list = target === '__top__'
+          ? topItems
+          : visibleSections.find(s => s.id === target)?.items ?? [];
+        toIndex = list.length;
+      } else if (overIdStr.startsWith('sec:')) {
+        toContainer = overIdStr.slice(4);
+        const list = visibleSections.find(s => s.id === toContainer)?.items ?? [];
+        toIndex = list.length;
+      }
+
+      if (toContainer) {
+        const fromContainer = containerByPath.get(path);
+        if (fromContainer === toContainer) {
+          const list = toContainer === '__top__'
+            ? topItems
+            : visibleSections.find(s => s.id === toContainer)?.items ?? [];
+          const fromIdx = list.findIndex(i => i.path === path);
+          if (fromIdx === toIndex || fromIdx === -1) return;
+        }
+        moveItem(path, toContainer, toIndex);
       }
     }
   };
 
-  const activeSection = activeId 
-    ? visibleSections.find(s => s.id === activeId) 
+  const activeSection = activeDrag?.type === 'section'
+    ? visibleSections.find(s => s.id === activeDrag.id) ?? baseVisibleSections.find(s => s.id === activeDrag.id)
+    : null;
+  const activeItem = activeDrag?.type === 'item'
+    ? [...topItems, ...visibleSections.flatMap(s => s.items)].find(i => i.path === activeDrag.id) ?? null
     : null;
 
-  if (!isLoaded) {
+  if (!isLoaded || !navCustomLoaded) {
     return null;
   }
+
 
   const renderNavLink = (item: NavItem, section: NavSection) => {
     const isActive = location.pathname === item.path;
