@@ -476,41 +476,82 @@ export function Sidebar() {
             </div>
           ) : isCollapsed ? (
             <div className="space-y-1">
+              {topItems.map(item => (
+                <SidebarNavItemStatic key={item.path} item={item} isCollapsed />
+              ))}
               {visibleSections.flatMap(section =>
-                section.items.map(item => renderNavLink(item, section))
+                section.items.map(item => (
+                  <SidebarNavItemStatic key={item.path} item={item} isCollapsed />
+                ))
               )}
             </div>
           ) : (
             <DndContext
               sensors={sensors}
-              collisionDetection={closestCenter}
+              collisionDetection={closestCorners}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
+              {/* Top zone — uncategorized, always visible */}
+              <div className="px-1 mb-2">
+                <TopDroppable id="drop:__top__" isEmpty={topItems.length === 0}>
+                  <SortableContext
+                    items={topItems.map(i => `item:${i.path}`)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {topItems.map(item => (
+                      <SidebarNavItem
+                        key={item.path}
+                        item={item}
+                        isCollapsed={false}
+                        variant="top"
+                      />
+                    ))}
+                  </SortableContext>
+                </TopDroppable>
+              </div>
+
               <SortableContext
-                items={visibleSections.map(s => s.id)}
+                items={visibleSections.map(s => `sec:${s.id}`)}
                 strategy={verticalListSortingStrategy}
               >
                 {visibleSections.map((section) => (
                   <SortableSection
                     key={section.id}
-                    section={section}
+                    sectionId={section.id}
+                    title={section.title}
                     isExpanded={expandedSections.includes(section.id)}
                     isOpen={!isCollapsed}
                     onToggle={() => toggleSection(section.id)}
-                  />
+                    itemCount={section.items.length}
+                  >
+                    <SortableContext
+                      items={section.items.map(i => `item:${i.path}`)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {section.items.map(item => (
+                        <SidebarNavItem key={item.path} item={item} isCollapsed={false} />
+                      ))}
+                    </SortableContext>
+                  </SortableSection>
                 ))}
               </SortableContext>
 
               <DragOverlay>
-                {activeSection ? (
+                {activeDrag?.type === 'section' && activeSection ? (
                   <div className="flex items-center gap-2 px-3 py-2 rounded-xl glass-thick text-xs font-medium text-[hsl(var(--label-1))]">
                     <span>{activeSection.title}</span>
+                  </div>
+                ) : activeDrag?.type === 'item' && activeItem ? (
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-[8px] glass-thick text-sm font-medium text-[hsl(var(--label-1))]">
+                    <activeItem.icon size={16} />
+                    <span>{activeItem.name}</span>
                   </div>
                 ) : null}
               </DragOverlay>
             </DndContext>
           )}
+
         </nav>
 
         {/* Custom shortcuts bar */}
