@@ -69,6 +69,53 @@ import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SidebarShortcuts } from './SidebarShortcuts';
 import { ShortcutOption } from './ShortcutsPickerDialog';
+import { SidebarNavItem } from './SidebarNavItem';
+import { useNavCustomization, computeNavLayout } from '@/hooks/useNavCustomization';
+
+// Static (non-sortable) variant used in collapsed sidebar — keeps existing UX.
+function SidebarNavItemStatic({ item, isCollapsed }: { item: { name: string; path: string; icon: React.ElementType }; isCollapsed: boolean }) {
+  const Icon = item.icon;
+  const link = (
+    <Link
+      to={item.path}
+      className={cn(
+        'flex items-center gap-3 h-9 px-3 mx-1 rounded-[8px] transition-colors text-[hsl(var(--label-1))] hover:bg-black/[0.04]',
+        isCollapsed && 'justify-center mx-0 px-2'
+      )}
+    >
+      <Icon size={18} strokeWidth={2} className="text-[hsl(var(--label-2))]" />
+      {!isCollapsed && <span className="text-sm font-medium truncate">{item.name}</span>}
+    </Link>
+  );
+  if (isCollapsed) {
+    return (
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>{link}</TooltipTrigger>
+          <TooltipContent side="right" sideOffset={8}><p>{item.name}</p></TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+  return link;
+}
+
+function TopDroppable({ id, isEmpty, children }: { id: string; isEmpty: boolean; children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id });
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        'space-y-px rounded-md transition-colors',
+        isOver && 'bg-[hsl(var(--ios-orange)/0.06)] ring-1 ring-[hsl(var(--ios-orange)/0.3)]',
+        isEmpty && 'min-h-[8px]'
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
 
 type NavItem = {
   name: string;
