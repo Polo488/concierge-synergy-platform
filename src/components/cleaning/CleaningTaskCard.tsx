@@ -169,14 +169,15 @@ export const CleaningTaskCard = ({
                   Terminer
                 </Button>
               )}
-              {!isCleaningAgent && task.status === 'todo' && (
+              {!isCleaningAgent && task.status === 'todo' && onAssign && (
                 <Button
                   size="sm"
-                  className="h-8 rounded-full px-3 text-[12px] font-semibold gap-1.5 bg-primary hover:bg-primary/90"
-                  onClick={() => toast.info('Action prestataire uniquement')}
+                  variant="outline"
+                  className="h-8 rounded-lg px-2.5 text-[12px] font-medium gap-1.5"
+                  onClick={() => onAssign(task)}
                 >
-                  <Play className="h-3.5 w-3.5" />
-                  Commencer
+                  <UserPlus className="h-3.5 w-3.5" />
+                  <span className="hidden md:inline">Réassigner</span>
                 </Button>
               )}
               <DropdownMenu>
@@ -190,13 +191,13 @@ export const CleaningTaskCard = ({
                     <Eye className="h-4 w-4 mr-2" />
                     Détails
                   </DropdownMenuItem>
-                  {task.status === 'todo' && (
-                    <DropdownMenuItem onClick={() => onAssign?.(task)}>
+                  {task.status === 'todo' && onAssign && (
+                    <DropdownMenuItem onClick={() => onAssign(task)}>
                       <UserPlus className="h-4 w-4 mr-2" />
                       {task.cleaningAgent ? 'Réassigner' : 'Assigner'}
                     </DropdownMenuItem>
                   )}
-                  {task.status === 'inProgress' && (
+                  {task.status === 'inProgress' && !isCleaningAgent && (
                     <DropdownMenuItem onClick={() => onReportProblem(task)}>
                       <AlertTriangle className="h-4 w-4 mr-2" />
                       Problème
@@ -219,6 +220,7 @@ export const CleaningTaskCard = ({
             </div>
           )}
         </div>
+
 
         {/* Title + #id + chevron */}
         <div className="flex items-center gap-1.5 mt-3">
