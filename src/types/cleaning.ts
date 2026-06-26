@@ -88,6 +88,20 @@ export interface CleaningTask {
   lastAssignmentActor?: string;
   lastAssignmentAt?: string;
   validatedAt?: string;
+  /** Identifiant court affiché (#05) */
+  displayId?: string;
+  /** Adresse complète du logement */
+  address?: string;
+  /** Date de départ (libellé court ex. "ven. 26 juin") */
+  checkoutDateLabel?: string;
+  /** Date d'arrivée (libellé court ex. "mer. 24 juin") */
+  checkinDateLabel?: string;
+  /** Nombre de nuits de la résa qui termine */
+  nights?: number;
+  /** Nombre de voyageurs */
+  guests?: number;
+  /** Agence du prestataire affecté */
+  agency?: string;
 }
 
 export interface NewCleaningTask {
