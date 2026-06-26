@@ -1,9 +1,30 @@
 import { useState } from 'react';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Eye, Trash2, AlertTriangle, MoreHorizontal, Play, CheckCircle, UserPlus, Clock, Camera, ImageOff, Flame, Zap, Hand } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  ChevronDown,
+  ChevronRight,
+  Eye,
+  Trash2,
+  AlertTriangle,
+  MoreHorizontal,
+  Play,
+  CheckCircle,
+  UserPlus,
+  Camera,
+  ImageOff,
+  Flame,
+  Zap,
+  Hand,
+  KeyRound,
+  MapPin,
+  LogOut,
+  LogIn,
+  Moon,
+  Users,
+} from 'lucide-react';
 import { CleaningTask, CleaningStatus } from '@/types/cleaning';
 import { CleaningPhotoLightbox } from './CleaningPhotoLightbox';
 import {
@@ -11,7 +32,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 
 interface CleaningTaskCardProps {
   task: CleaningTask;
@@ -28,6 +50,37 @@ interface CleaningTaskCardProps {
   isCleaningAgent?: boolean;
 }
 
+const statusPill = (status: CleaningStatus) => {
+  switch (status) {
+    case 'todo':
+      return (
+        <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap bg-[hsl(30,100%,94%)] text-[hsl(21,100%,45%)] border-0 hover:bg-[hsl(30,100%,94%)]">
+          À faire
+        </Badge>
+      );
+    case 'inProgress':
+      return (
+        <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap bg-[hsl(210,100%,94%)] text-[hsl(213,84%,24%)] border-0 hover:bg-[hsl(210,100%,94%)]">
+          En cours
+        </Badge>
+      );
+    case 'completed':
+      return (
+        <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap bg-[hsl(120,39%,93%)] text-[hsl(120,30%,34%)] border-0 hover:bg-[hsl(120,39%,93%)]">
+          Terminé
+        </Badge>
+      );
+    case 'scheduled':
+      return (
+        <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap bg-muted text-muted-foreground border-0 hover:bg-muted">
+          Planifié
+        </Badge>
+      );
+    default:
+      return null;
+  }
+};
+
 export const CleaningTaskCard = ({
   task,
   labelsDialogOpen,
@@ -40,133 +93,107 @@ export const CleaningTaskCard = ({
   onReportProblem,
   onReportIssue,
   onDelete,
-  isCleaningAgent = false
+  isCleaningAgent = false,
 }: CleaningTaskCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  
+
   const photos = task.photos || [];
   const isCompleted = task.status === 'completed';
-  
-  const getStatusBadge = (status: CleaningStatus) => {
-    switch(status) {
-      case 'todo':
-        return <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap flex-shrink-0 bg-[hsl(30,100%,94%)] text-[hsl(21,100%,45%)] border-0 hover:bg-[hsl(30,100%,94%)]">À faire</Badge>;
-      case 'inProgress':
-        return <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap flex-shrink-0 bg-[hsl(210,100%,94%)] text-[hsl(213,84%,24%)] border-0 hover:bg-[hsl(210,100%,94%)]">En cours</Badge>;
-      case 'completed':
-        return <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap flex-shrink-0 bg-[hsl(120,39%,93%)] text-[hsl(120,30%,34%)] border-0 hover:bg-[hsl(120,39%,93%)]">Terminé</Badge>;
-      case 'scheduled':
-        return <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap flex-shrink-0 bg-muted text-muted-foreground border-0 hover:bg-muted">Planifié</Badge>;
-      default:
-        return null;
-    }
-  };
+  const initials = (task.cleaningAgent || task.agency || '?').slice(0, 1).toUpperCase();
 
-  const getActionButton = () => {
-    if (task.status === 'todo' && isCleaningAgent) {
-      return (
-        <Button 
-          size="sm" 
-          className="h-9 rounded-full px-4 text-[13px] font-semibold whitespace-nowrap flex-shrink-0 bg-primary hover:bg-primary/90"
-          onClick={() => onStartCleaning(task)}
-        >
-          <Play className="h-3.5 w-3.5 mr-1.5" />
-          Commencer
-        </Button>
-      );
-    }
-    if (task.status === 'inProgress' && isCleaningAgent) {
-      return (
-        <Button 
-          size="sm" 
-          className="h-9 rounded-full px-4 text-[13px] font-semibold whitespace-nowrap flex-shrink-0 bg-[hsl(142,76%,36%)] hover:bg-[hsl(142,76%,30%)]"
-          onClick={() => onCompleteCleaning(task)}
-        >
-          <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
-          Terminer
-        </Button>
-      );
-    }
-    return null;
-  };
+  const showStartBtn = task.status === 'todo' && isCleaningAgent;
+  const showCompleteBtn = task.status === 'inProgress' && isCleaningAgent;
 
-  const getExpandLabel = () => {
-    if (isCompleted) {
-      if (photos.length === 0) return 'Ajouter des photos';
-      return `Voir les photos (${photos.length})`;
-    }
-    return isExpanded ? 'Masquer les détails' : 'Voir les détails';
-  };
-
-  const getExpandIcon = () => {
-    if (isCompleted) return <Camera className="h-3.5 w-3.5" />;
-    return <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />;
-  };
-  
   return (
     <>
-      <div className={`bg-card rounded-[14px] border p-4 shadow-sm transition-all duration-150 ${
-        task.isSameDayCheckin && task.status !== 'completed'
-          ? 'border-primary/40 ring-1 ring-primary/20'
-          : 'border-border'
-      } ${labelsDialogOpen && isTaskSelected ? 'ring-2 ring-primary' : ''}`}>
-        {/* Header: badge + action + menu */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {getStatusBadge(task.status)}
-          {task.isSameDayCheckin && task.status !== 'completed' && (
-            <Badge className="rounded-full px-2.5 py-0.5 text-[11px] font-bold whitespace-nowrap flex-shrink-0 bg-primary text-primary-foreground border-0 hover:bg-primary inline-flex items-center gap-1">
-              <Flame className="h-3 w-3" />
-              CHECK-IN {task.checkinTime || '16H'}
-            </Badge>
-          )}
-          {task.assignedVia && task.cleaningAgent && (
-            <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
-                task.assignedVia === 'auto'
-                  ? 'bg-[hsl(210,100%,96%)] text-[hsl(213,84%,32%)] border-[hsl(210,100%,88%)]'
-                  : 'bg-muted text-muted-foreground border-border'
-              }`}
-              title={task.lastAssignmentActor ? `Assigné par ${task.lastAssignmentActor}` : undefined}
-            >
-              {task.assignedVia === 'auto' ? <Zap className="h-2.5 w-2.5" /> : <Hand className="h-2.5 w-2.5" />}
-              {task.assignedVia === 'auto' ? 'Auto' : 'Manuel'}
-            </span>
-          )}
-          {labelsDialogOpen && (
-            <div className="ml-auto">
-              <input 
-                type="checkbox" 
-                checked={isTaskSelected}
-                onChange={() => onSelectTask?.(task)}
-                className="h-4 w-4 rounded"
-              />
-            </div>
-          )}
+      <div
+        className={`bg-card rounded-2xl border p-4 shadow-sm transition-all ${
+          task.isSameDayCheckin && task.status !== 'completed'
+            ? 'border-border'
+            : 'border-border'
+        } ${labelsDialogOpen && isTaskSelected ? 'ring-2 ring-primary' : ''}`}
+      >
+        {/* Top row: pills (left) + actions (right) */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+            {statusPill(task.status)}
+            {task.isSameDayCheckin && task.status !== 'completed' && (
+              <Badge className="rounded-full px-2 py-0.5 text-[10px] font-bold whitespace-nowrap bg-primary text-primary-foreground border-0 hover:bg-primary inline-flex items-center gap-1">
+                <Flame className="h-2.5 w-2.5" />
+                CHECK-IN J
+              </Badge>
+            )}
+            {task.assignedVia && task.cleaningAgent && (
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
+                  task.assignedVia === 'auto'
+                    ? 'bg-[hsl(210,100%,96%)] text-[hsl(213,84%,32%)] border-[hsl(210,100%,88%)]'
+                    : 'bg-muted text-muted-foreground border-border'
+                }`}
+              >
+                {task.assignedVia === 'auto' ? <Zap className="h-2.5 w-2.5" /> : <Hand className="h-2.5 w-2.5" />}
+                {task.assignedVia === 'auto' ? 'Auto' : 'Manuel'}
+              </span>
+            )}
+          </div>
+
           {!labelsDialogOpen && (
-            <div className="flex items-center gap-1.5 ml-auto flex-shrink-0">
-              {getActionButton()}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 rounded-lg px-2.5 text-[12px] font-medium gap-1.5"
+                onClick={() => toast.info("Infos d'accès envoyées")}
+              >
+                <KeyRound className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Infos d'accès</span>
+              </Button>
+              {showStartBtn && (
+                <Button
+                  size="sm"
+                  className="h-8 rounded-full px-3 text-[12px] font-semibold gap-1.5 bg-primary hover:bg-primary/90"
+                  onClick={() => onStartCleaning(task)}
+                >
+                  <Play className="h-3.5 w-3.5" />
+                  Commencer
+                </Button>
+              )}
+              {showCompleteBtn && (
+                <Button
+                  size="sm"
+                  className="h-8 rounded-full px-3 text-[12px] font-semibold gap-1.5 bg-[hsl(142,76%,36%)] hover:bg-[hsl(142,76%,30%)]"
+                  onClick={() => onCompleteCleaning(task)}
+                >
+                  <CheckCircle className="h-3.5 w-3.5" />
+                  Terminer
+                </Button>
+              )}
+              {!isCleaningAgent && task.status === 'todo' && (
+                <Button
+                  size="sm"
+                  className="h-8 rounded-full px-3 text-[12px] font-semibold gap-1.5 bg-primary hover:bg-primary/90"
+                  onClick={() => toast.info('Action prestataire uniquement')}
+                >
+                  <Play className="h-3.5 w-3.5" />
+                  Commencer
+                </Button>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg bg-muted/50 text-muted-foreground flex-shrink-0">
+                  <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg bg-muted/40 text-muted-foreground">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuContent align="end" className="w-44">
                   <DropdownMenuItem onClick={() => onOpenDetails(task)}>
                     <Eye className="h-4 w-4 mr-2" />
                     Détails
                   </DropdownMenuItem>
-                  {task.status === 'todo' && !task.cleaningAgent && (
+                  {task.status === 'todo' && (
                     <DropdownMenuItem onClick={() => onAssign?.(task)}>
                       <UserPlus className="h-4 w-4 mr-2" />
-                      Assigner
-                    </DropdownMenuItem>
-                  )}
-                  {task.status === 'todo' && task.cleaningAgent && (
-                    <DropdownMenuItem onClick={() => onAssign?.(task)}>
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Réassigner
+                      {task.cleaningAgent ? 'Réassigner' : 'Assigner'}
                     </DropdownMenuItem>
                   )}
                   {task.status === 'inProgress' && (
@@ -176,122 +203,142 @@ export const CleaningTaskCard = ({
                     </DropdownMenuItem>
                   )}
                   {task.status === 'completed' && onReportIssue && (
-                    <DropdownMenuItem 
-                      onClick={() => onReportIssue(task)}
-                      className="text-destructive focus:text-destructive"
-                    >
+                    <DropdownMenuItem onClick={() => onReportIssue(task)} className="text-destructive focus:text-destructive">
                       <AlertTriangle className="h-4 w-4 mr-2" />
                       Signaler problème
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem 
-                    onClick={() => onDelete?.(task)}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Supprimer
-                  </DropdownMenuItem>
+                  {onDelete && (
+                    <DropdownMenuItem onClick={() => onDelete(task)} className="text-destructive focus:text-destructive">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Supprimer
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           )}
         </div>
 
-        {/* Property name */}
-        <h3 className="text-[15px] font-bold text-foreground mt-2.5 truncate">{task.property}</h3>
+        {/* Title + #id + chevron */}
+        <div className="flex items-center gap-1.5 mt-3">
+          <h3 className="text-[16px] font-bold text-foreground truncate">{task.property}</h3>
+          {task.displayId && (
+            <span className="text-[12px] font-semibold text-muted-foreground tabular-nums">{task.displayId}</span>
+          )}
+          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 flex-shrink-0" />
+        </div>
 
-        {/* Times - single line */}
-        <div className="flex items-center gap-4 mt-1.5">
-          {task.date ? (
-            <span className="text-xs text-muted-foreground">{task.date} · {task.startTime} - {task.endTime}</span>
-          ) : (
-            <>
-              <div className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Départ</span>
-                <span className="text-[13px] font-semibold text-foreground">{task.checkoutTime}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Arrivée</span>
-                <span className="text-[13px] font-semibold text-foreground">{task.checkinTime}</span>
-              </div>
-            </>
+        {/* Address */}
+        {task.address && (
+          <div className="flex items-center gap-1 mt-1 min-w-0">
+            <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+            <span className="text-[12px] text-muted-foreground truncate">{task.address}</span>
+          </div>
+        )}
+
+        {/* Meta row: départ • arrivée • nights • guests */}
+        <div className="flex items-center gap-x-4 gap-y-1 mt-2 flex-wrap">
+          {task.checkoutDateLabel && (
+            <div className="inline-flex items-center gap-1 text-[12px] text-muted-foreground">
+              <LogOut className="h-3.5 w-3.5" />
+              <span>Départ</span>
+              <span className="font-semibold text-foreground">{task.checkoutDateLabel}</span>
+            </div>
+          )}
+          {task.checkinDateLabel && (
+            <div className="inline-flex items-center gap-1 text-[12px] text-muted-foreground">
+              <LogIn className="h-3.5 w-3.5" />
+              <span>Arrivée</span>
+              <span className="font-semibold text-foreground">{task.checkinDateLabel}</span>
+            </div>
+          )}
+          {typeof task.nights === 'number' && (
+            <div className="inline-flex items-center gap-1 text-[12px] text-muted-foreground">
+              <Moon className="h-3.5 w-3.5" />
+              <span className="font-semibold text-foreground">{task.nights}</span>
+              <span>{task.nights > 1 ? 'nuits' : 'nuit'}</span>
+            </div>
+          )}
+          {typeof task.guests === 'number' && (
+            <div className="inline-flex items-center gap-1 text-[12px] text-muted-foreground">
+              <Users className="h-3.5 w-3.5" />
+              <span className="font-semibold text-foreground">{task.guests}</span>
+              <span>voyageurs</span>
+            </div>
           )}
         </div>
 
-        {/* Agent */}
-        {task.cleaningAgent && (
-          <div className="flex items-center gap-2 mt-2">
-            <Avatar className="h-7 w-7">
-              <AvatarFallback className="text-[11px] bg-muted-foreground text-primary-foreground">
-                {task.cleaningAgent.split(' ').map((n: string) => n[0]).join('')}
+        {/* Agent / agency */}
+        {(task.cleaningAgent || task.agency) && (
+          <div className="flex items-center gap-2 mt-2.5">
+            <Avatar className="h-6 w-6">
+              <AvatarFallback className="text-[10px] bg-muted text-foreground font-semibold">
+                {initials}
               </AvatarFallback>
             </Avatar>
-            <span className="text-[13px] text-foreground">{task.cleaningAgent}</span>
+            <span className="text-[12px] text-muted-foreground">
+              {task.agency || task.cleaningAgent}
+              {task.cleaningAgent && task.agency && task.cleaningAgent !== task.agency && (
+                <span className="text-muted-foreground/70"> · {task.cleaningAgent}</span>
+              )}
+            </span>
           </div>
         )}
 
-        {/* Note / instruction */}
+        {/* Comments */}
         {task.comments && (
-          <div className="mt-2.5 bg-[hsl(30,100%,97%)] border-l-[3px] border-l-primary rounded-r-lg px-3 py-2.5">
-            <p className="text-[13px] text-muted-foreground leading-relaxed break-words">{task.comments}</p>
+          <div className="mt-2.5 bg-[hsl(30,100%,97%)] border-l-[3px] border-l-primary rounded-r-lg px-3 py-2">
+            <p className="text-[12px] text-muted-foreground leading-relaxed break-words">{task.comments}</p>
           </div>
         )}
 
-        {/* Photo preview for completed tasks */}
+        {/* Photos preview for completed */}
         {isCompleted && !isExpanded && photos.length > 0 && (
-          <div className="mt-3">
-            <div className="flex items-center gap-1.5 mb-2">
-              <Camera className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Photos du ménage</span>
-            </div>
-            <div className="grid grid-cols-4 gap-1.5">
-              {photos.slice(0, 4).map((photo, i) => (
-                <div 
-                  key={photo.id} 
-                  className="aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer relative group"
-                  onClick={() => setLightboxIndex(i)}
-                >
-                  <img src={photo.url} alt={photo.caption} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-all duration-150" />
-                  {i === 3 && photos.length > 4 && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <span className="text-base font-bold text-white">+{photos.length - 4}</span>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+          <div className="mt-3 grid grid-cols-4 gap-1.5">
+            {photos.slice(0, 4).map((photo, i) => (
+              <div
+                key={photo.id}
+                className="aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer relative group"
+                onClick={() => setLightboxIndex(i)}
+              >
+                <img src={photo.url} alt={photo.caption} className="w-full h-full object-cover" />
+                {i === 3 && photos.length > 4 && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <span className="text-base font-bold text-white">+{photos.length - 4}</span>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
-        
-        {/* Expandable section */}
+
+        {/* Voir les détails */}
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
           <CollapsibleTrigger asChild>
-            <button className="flex items-center gap-1 mt-3 text-[13px] text-primary font-medium hover:text-primary/80 transition-colors">
-              {getExpandIcon()}
-              {getExpandLabel()}
+            <button className="flex items-center gap-1 mt-2.5 text-[12px] text-primary font-medium hover:text-primary/80 transition-colors">
+              <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+              {isExpanded ? 'Masquer les détails' : 'Voir les détails'}
             </button>
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-3 pt-3 border-t border-border/50 space-y-3">
-            {/* Photos section for completed */}
             {isCompleted && (
               <div>
                 <div className="flex items-center gap-1.5 mb-2">
                   <Camera className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Photos du ménage</span>
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Photos du ménage
+                  </span>
                 </div>
                 {photos.length > 0 ? (
                   <div className="grid grid-cols-4 gap-1.5">
                     {photos.map((photo, i) => (
-                      <div 
-                        key={photo.id} 
-                        className="aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer relative group"
+                      <div
+                        key={photo.id}
+                        className="aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer"
                         onClick={() => setLightboxIndex(i)}
                       >
                         <img src={photo.url} alt={photo.caption} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-all duration-150" />
                       </div>
                     ))}
                   </div>
@@ -303,13 +350,11 @@ export const CleaningTaskCard = ({
                 )}
               </div>
             )}
-
-            {/* Linens & consumables for non-completed */}
             {!isCompleted && task.linens?.length > 0 && (
               <div>
                 <p className="text-xs font-medium text-muted-foreground mb-1.5">Linge et literie</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {task.linens.map((item: string, i: number) => (
+                  {task.linens.map((item, i) => (
                     <Badge key={i} variant="outline" className="text-xs">
                       {item}
                     </Badge>
@@ -317,12 +362,11 @@ export const CleaningTaskCard = ({
                 </div>
               </div>
             )}
-            
             {!isCompleted && task.consumables?.length > 0 && (
               <div>
                 <p className="text-xs font-medium text-muted-foreground mb-1.5">Consommables</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {task.consumables.map((item: string, i: number) => (
+                  {task.consumables.map((item, i) => (
                     <Badge key={i} variant="secondary" className="text-xs">
                       {item}
                     </Badge>
@@ -334,13 +378,8 @@ export const CleaningTaskCard = ({
         </Collapsible>
       </div>
 
-      {/* Lightbox */}
       {lightboxIndex !== null && photos.length > 0 && (
-        <CleaningPhotoLightbox 
-          photos={photos} 
-          initialIndex={lightboxIndex} 
-          onClose={() => setLightboxIndex(null)} 
-        />
+        <CleaningPhotoLightbox photos={photos} initialIndex={lightboxIndex} onClose={() => setLightboxIndex(null)} />
       )}
     </>
   );
