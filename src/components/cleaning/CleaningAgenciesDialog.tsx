@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Mail, Trash2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { useCleaningTeam, CleaningAgency } from '@/contexts/CleaningTeamContext';
 
 const DAYS = [
   { key: 0, label: 'D' },
@@ -16,55 +17,47 @@ const DAYS = [
   { key: 6, label: 'S' },
 ];
 
-interface Agency {
-  id: string;
-  name: string;
-  email: string;
-  external: boolean;
-  workDays: number[];
-  maxPerDay: number | null;
-}
-
-const INITIAL: Agency[] = [
-  { id: 'a1', name: 'Amel', email: 'a.kasraoui@icloud.com', external: true, workDays: [0,1,2,3,4,5,6], maxPerDay: 15 },
-  { id: 'a2', name: 'Axel', email: 'axelch698@gmail.com', external: true, workDays: [0,1,2,3,4,5,6], maxPerDay: null },
-  { id: 'a3', name: 'Serpolet', email: 'contact@serpolet.fr', external: false, workDays: [1,2,3,4,5], maxPerDay: 10 },
-  { id: 'a4', name: 'Sihem', email: 'sihem@noe.fr', external: true, workDays: [1,2,3,4,5,6], maxPerDay: 12 },
-];
-
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export const CleaningAgenciesDialog = ({ open, onOpenChange }: Props) => {
-  const [agencies, setAgencies] = useState<Agency[]>(INITIAL);
+  const { agencies, setAgencies } = useCleaningTeam();
+  const [draft, setDraft] = useState<CleaningAgency[]>(agencies);
 
-  const toggleDay = (id: string, day: number) => {
-    setAgencies((prev) =>
+  useEffect(() => {
+    if (open) setDraft(agencies);
+  }, [open, agencies]);
+
+  const update = (id: string, patch: Partial<CleaningAgency>) =>
+    setDraft((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)));
+
+  const toggleDay = (id: string, day: number) =>
+    setDraft((prev) =>
       prev.map((a) =>
         a.id === id
           ? { ...a, workDays: a.workDays.includes(day) ? a.workDays.filter((d) => d !== day) : [...a.workDays, day] }
           : a
       )
     );
+
+  const remove = (id: string) => {
+    setDraft((prev) => prev.filter((a) => a.id !== id));
   };
 
-  const updateAgency = (id: string, patch: Partial<Agency>) => {
-    setAgencies((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)));
-  };
-
-  const removeAgency = (id: string) => {
-    setAgencies((prev) => prev.filter((a) => a.id !== id));
-    toast.success('Agence supprimée');
-  };
-
-  const addAgency = () => {
+  const add = () => {
     const id = `a${Date.now()}`;
-    setAgencies((prev) => [
+    setDraft((prev) => [
       ...prev,
       { id, name: 'Nouvelle agence', email: '', external: true, workDays: [1, 2, 3, 4, 5], maxPerDay: null },
     ]);
+  };
+
+  const save = () => {
+    setAgencies(draft);
+    toast.success('Agences enregistrées');
+    onOpenChange(false);
   };
 
   return (
@@ -80,22 +73,22 @@ export const CleaningAgenciesDialog = ({ open, onOpenChange }: Props) => {
         </div>
 
         <div className="overflow-y-auto px-6 pb-4 space-y-3" style={{ maxHeight: 'calc(90vh - 180px)' }}>
-          {agencies.map((a) => (
+          {draft.map((a) => (
             <div key={a.id} className="rounded-2xl border border-border bg-card p-4 space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <Input
                   value={a.name}
-                  onChange={(e) => updateAgency(a.id, { name: e.target.value })}
+                  onChange={(e) => update(a.id, { name: e.target.value })}
                   className="h-9 max-w-[260px] text-[15px] font-bold border-transparent focus-visible:border-border px-2 -ml-2"
                 />
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span className="text-[12px] text-muted-foreground">Externe</span>
-                  <Switch checked={a.external} onCheckedChange={(v) => updateAgency(a.id, { external: v })} />
+                  <Switch checked={a.external} onCheckedChange={(v) => update(a.id, { external: v })} />
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-muted-foreground"
-                    onClick={() => removeAgency(a.id)}
+                    onClick={() => remove(a.id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -109,7 +102,7 @@ export const CleaningAgenciesDialog = ({ open, onOpenChange }: Props) => {
                     type="email"
                     value={a.email}
                     placeholder="email@exemple.com"
-                    onChange={(e) => updateAgency(a.id, { email: e.target.value })}
+                    onChange={(e) => update(a.id, { email: e.target.value })}
                     className="h-8 text-[13px] border-transparent focus-visible:border-border px-1 min-w-[220px]"
                   />
                 </div>
@@ -153,7 +146,7 @@ export const CleaningAgenciesDialog = ({ open, onOpenChange }: Props) => {
                   value={a.maxPerDay ?? ''}
                   placeholder="Illimité"
                   onChange={(e) =>
-                    updateAgency(a.id, { maxPerDay: e.target.value ? Number(e.target.value) : null })
+                    update(a.id, { maxPerDay: e.target.value ? Number(e.target.value) : null })
                   }
                   className="h-9 max-w-[140px] rounded-[10px]"
                 />
@@ -163,7 +156,7 @@ export const CleaningAgenciesDialog = ({ open, onOpenChange }: Props) => {
 
           <button
             type="button"
-            onClick={addAgency}
+            onClick={add}
             className="w-full h-11 rounded-2xl border border-dashed border-border text-[13px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors flex items-center justify-center gap-2"
           >
             <Plus className="h-4 w-4" />
@@ -175,13 +168,7 @@ export const CleaningAgenciesDialog = ({ open, onOpenChange }: Props) => {
           <Button variant="outline" onClick={() => onOpenChange(false)} className="h-9 rounded-[10px]">
             Annuler
           </Button>
-          <Button
-            onClick={() => {
-              toast.success('Agences enregistrées');
-              onOpenChange(false);
-            }}
-            className="h-9 rounded-[10px]"
-          >
+          <Button onClick={save} className="h-9 rounded-[10px]">
             Enregistrer
           </Button>
         </div>
