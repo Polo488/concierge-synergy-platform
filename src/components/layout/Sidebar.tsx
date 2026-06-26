@@ -8,14 +8,17 @@ import { cn } from '@/lib/utils';
 import {
   DndContext,
   closestCenter,
+  closestCorners,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
 } from '@dnd-kit/core';
+
 import {
   arrayMove,
   SortableContext,
