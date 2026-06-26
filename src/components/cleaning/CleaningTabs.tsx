@@ -126,14 +126,16 @@ export const CleaningTabs = ({ initialTab }: CleaningTabsProps) => {
     issues: allCleaningIssues.filter((i) => i.status === 'open').length,
   };
 
-  const tabs: { value: TabValue; label: string; count: number; danger?: boolean; icon?: React.ReactNode }[] = [
-    { value: 'today', label: "Aujourd'hui", count: counts.today },
-    { value: 'late', label: 'En retard', count: counts.late, danger: true, icon: <AlertTriangle className="h-3.5 w-3.5" /> },
-    { value: 'tomorrow', label: 'Demain', count: counts.tomorrow },
-    { value: 'upcoming', label: 'À venir', count: counts.upcoming },
-    { value: 'completed', label: 'Terminés', count: counts.completed },
-    { value: 'issues', label: 'Problèmes', count: counts.issues, danger: true, icon: <AlertTriangle className="h-3.5 w-3.5" /> },
-  ].filter((t) => !(isCleaningAgent && (t.value === 'tomorrow' || t.value === 'upcoming')));
+  const tabs: { value: TabValue; label: string; count: number; danger?: boolean; icon?: React.ReactNode }[] = (
+    [
+      { value: 'today', label: "Aujourd'hui", count: counts.today },
+      { value: 'late', label: 'En retard', count: counts.late, danger: true, icon: <AlertTriangle className="h-3.5 w-3.5" /> },
+      { value: 'tomorrow', label: 'Demain', count: counts.tomorrow },
+      { value: 'upcoming', label: 'À venir', count: counts.upcoming },
+      { value: 'completed', label: 'Terminés', count: counts.completed },
+      { value: 'issues', label: 'Problèmes', count: counts.issues, danger: true, icon: <AlertTriangle className="h-3.5 w-3.5" /> },
+    ] as { value: TabValue; label: string; count: number; danger?: boolean; icon?: React.ReactNode }[]
+  ).filter((t) => !(isCleaningAgent && (t.value === 'tomorrow' || t.value === 'upcoming')));
 
   const renderTabContent = () => {
     switch (activeTab) {
