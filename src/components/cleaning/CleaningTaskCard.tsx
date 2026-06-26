@@ -219,46 +219,8 @@ export const CleaningTaskCard = ({
               </DropdownMenu>
             </div>
           )}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg bg-muted/40 text-muted-foreground">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-44">
-                  <DropdownMenuItem onClick={() => onOpenDetails(task)}>
-                    <Eye className="h-4 w-4 mr-2" />
-                    Détails
-                  </DropdownMenuItem>
-                  {task.status === 'todo' && (
-                    <DropdownMenuItem onClick={() => onAssign?.(task)}>
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      {task.cleaningAgent ? 'Réassigner' : 'Assigner'}
-                    </DropdownMenuItem>
-                  )}
-                  {task.status === 'inProgress' && (
-                    <DropdownMenuItem onClick={() => onReportProblem(task)}>
-                      <AlertTriangle className="h-4 w-4 mr-2" />
-                      Problème
-                    </DropdownMenuItem>
-                  )}
-                  {task.status === 'completed' && onReportIssue && (
-                    <DropdownMenuItem onClick={() => onReportIssue(task)} className="text-destructive focus:text-destructive">
-                      <AlertTriangle className="h-4 w-4 mr-2" />
-                      Signaler problème
-                    </DropdownMenuItem>
-                  )}
-                  {onDelete && (
-                    <DropdownMenuItem onClick={() => onDelete(task)} className="text-destructive focus:text-destructive">
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Supprimer
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          )}
         </div>
+
 
         {/* Title + #id + chevron */}
         <div className="flex items-center gap-1.5 mt-3">
